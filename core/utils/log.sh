@@ -424,6 +424,8 @@ read_multiline() {
 
 # ===== LOADING SPINNER =====
 
+_spinner_pids=()
+
 loading() {
 	local message="$1"
 	shift
@@ -432,14 +434,14 @@ loading() {
 	local delay=0.08
 	local tmpfile
 	tmpfile="$(mktemp)"
-	local pidfile
-	pidfile="$(mktemp)"
+	local donefile
+	donefile="$(mktemp)"
 
-	printf "    ${CYAN}%s${D_CYAN} %s${NC}" "${frames[0]}" "$message"
+	printf "    ${CYAN}⠋${D_CYAN} %s${NC}" "$message"
 
 	"$@" >"$tmpfile" 2>&1 &
 	local cmd_pid=$!
-	echo "$cmd_pid" > "$pidfile"
+	echo "$cmd_pid" >> "$OMNI_CACHE/.loading_pids"
 
 	local frame_idx=0
 	while kill -0 "$cmd_pid" 2>/dev/null; do
@@ -448,7 +450,7 @@ loading() {
 		sleep "$delay"
 	done
 
-	rm -f "$pidfile"
+	echo "done" > "$donefile"
 	wait "$cmd_pid"
 	local exit_code=$?
 
@@ -463,27 +465,30 @@ loading() {
 		cat "$tmpfile"
 	fi
 
-	rm -f "$tmpfile"
+	rm -f "$tmpfile" "$donefile"
 	return $exit_code
 }
 
 # ===== PROGRESS BAR =====
 
+_progress_current=0
+_progress_total=0
+_progress_width=50
+
 progress_bar() {
 	local current=$1
 	local total=$2
 	local width=${3:-50}
+	_progress_current=$current
+	_progress_total=$total
+	_progress_width=$width
 	local percentage=$((current * 100 / total))
 	local filled=$((current * width / total))
 	local empty=$((width - filled))
 
 	local bar=""
-	for ((i = 0; i < filled; i++)); do
-		bar+="█"
-	done
-	for ((i = 0; i < empty; i++)); do
-		bar+="░"
-	done
+	for ((i = 0; i < filled; i++)); do bar+="█"; done
+	for ((i = 0; i < empty; i++)); do bar+="░"; done
 
 	printf "\r    ${D_CYAN}[${D_NC}${D_GREEN}%s${D_NC}${D_CYAN}]${D_NC} %3d%%" "$bar" "$percentage"
 }
@@ -491,30 +496,30 @@ progress_bar() {
 progress_start() {
 	local total=$1
 	local message="${2:-Progress}"
-	echo -e "    ${D_CYAN}$message${NC}"
-	echo -ne "    ${D_CYAN}[${NC}"
-	local w=40
-	for ((i = 0; i < w; i++)); do
-		echo -ne "${D_NC}░${D_CYAN}"
+	_progress_current=0
+	_progress_total=$total
+	_progress_width=50
+	printf "    ${D_CYAN}%s${D_NC}" "$message"
+	printf "\n    ${D_CYAN}[${D_NC}"
+	for ((i = 0; i < _progress_width; i++)); do
+		printf "${D_NC}░${D_CYAN}"
 	done
-	echo -e "${D_CYAN}]${D_NC} 0%"
+	printf "${D_CYAN}]${D_NC} 0%%\n"
+	printf "\033[1A"
+	progress_bar 0 "$total"
 }
 
 progress_update() {
 	local current=$1
 	local total=$2
-	local width=40
+	local width="${_progress_width:-50}"
 	local percentage=$((current * 100 / total))
 	local filled=$((current * width / total))
 	local empty=$((width - filled))
 
 	local bar=""
-	for ((i = 0; i < filled; i++)); do
-		bar+="█"
-	done
-	for ((i = 0; i < empty; i++)); do
-		bar+="░"
-	done
+	for ((i = 0; i < filled; i++)); do bar+="█"; done
+	for ((i = 0; i < empty; i++)); do bar+="░"; done
 
 	printf "\r    ${D_CYAN}[${D_NC}${D_GREEN}%s${D_NC}${D_CYAN}]${D_NC} %3d%%" "$bar" "$percentage"
 }
@@ -522,8 +527,7 @@ progress_update() {
 progress_done() {
 	local total=$1
 	progress_update "$total" "$total"
-	echo
-	echo -e "    ${GREEN}✔${D_NC} Complete"
+	printf "\n    ${GREEN}✔${D_NC} Complete\n"
 }
 
 # ===== STEP FUNCTIONS =====

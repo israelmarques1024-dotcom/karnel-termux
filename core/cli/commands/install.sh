@@ -30,10 +30,10 @@ _install_tools_in_module() {
   local total=${#tools[@]}
   local current=0
 
+  progress_start "$total" "${action^}ing tools..."
+
   for tool in "${tools[@]}"; do
     ((current++))
-    progress_update "$current" "$total"
-    echo
 
     local func_name="${action}_${tool//-/_}"
     loading "${action^}ing ${tool}" "$func_name"
@@ -41,9 +41,11 @@ _install_tools_in_module() {
       0) ((success_count++)) ;;
       1) ((failed_count++)) ;;
     esac
+
+    progress_update "$current" "$total"
   done
 
-  echo
+  progress_done "$total"
   if [[ $success_count -gt 0 ]]; then
     log_success "$success_count tool(s) ${action}ed"
   fi
@@ -75,6 +77,7 @@ install_main() {
     list_item "shell      - ZSH + Oh My Zsh + plugins"
     list_item "ui         - Termux UI (font, cursor, extra-keys, banner)"
     list_item "auto       - Automation Tools (n8n)"
+    list_item "deploy     - Deploy CLIs (Vercel, Railway, Netlify)"
 
     echo
     log_info "Install specific tools with flags:"
@@ -157,6 +160,10 @@ _install_full_module() {
   auto)
     import "@/modules/auto"
     install_auto
+    ;;
+  deploy)
+    import "@/modules/deploy"
+    install_deploy
     ;;
   *)
     log_warn "Unknown install target: $target"

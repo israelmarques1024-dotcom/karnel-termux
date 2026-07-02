@@ -21,7 +21,7 @@ open_main() {
 	omni | help)
 		url="$OPEN_BASE_URL/omni"
 		;;
-	lang | db | ai | editor | dev | npm | shell | ui | auto)
+	lang | db | ai | editor | dev | npm | shell | ui | auto | deploy)
 		url="$OPEN_BASE_URL/omni/$target"
 		;;
 	--help | -h)
@@ -66,6 +66,7 @@ open_help() {
 	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "shell" "ZSH shell"
 	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "ui" "Termux UI"
 	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "auto" "Automation tools"
+	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "deploy" "Deploy CLIs"
 	echo
 	separator_section "Website"
 	echo

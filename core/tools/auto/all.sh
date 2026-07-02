@@ -1,75 +1,57 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 import "@/utils/log"
 
 LOG_FILE="$OMNI_CACHE/install_auto.log"
 
 AUTOMATION_TOOLS=(
-	"n8n"
+  "n8n"
 )
 
-source "$(dirname "$BASH_SOURCE")/n8n/install.sh"
+for _tool in "${AUTOMATION_TOOLS[@]}"; do
+  source "$(dirname "$BASH_SOURCE")/$_tool/install.sh"
+done
+unset _tool
+
+_batch_auto() {
+  local action="$1"
+  local action_past="$2"
+  local count_var="$3"
+  local count=0
+  local failed=0
+  local total=${#AUTOMATION_TOOLS[@]}
+  local current=0
+  local func_name
+
+  progress_start "$total" "${action_past}ing automation tools..."
+
+  for tool in "${AUTOMATION_TOOLS[@]}"; do
+    func_name="${action}_${tool//-/_}"
+    if declare -f "$func_name" &>/dev/null; then
+      loading "${action_past^}ing ${tool}" "$func_name"
+      case $? in 0) ((count++));; 1) ((failed++));; esac
+    fi
+    ((current++))
+    progress_update "$current" "$total"
+  done
+
+  progress_done "$total"
+  eval "$count_var=$count"
+  return $failed
+}
 
 install_all_auto_tools() {
-	local installed_count=0
-	local failed_count=0
-
-	for tool in "${AUTOMATION_TOOLS[@]}"; do
-		case "$tool" in
-		n8n)
-			loading "Installing n8n" install_n8n
-			case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-			;;
-		esac
-	done
-
-	return 0
+  _batch_auto "install" "install" "installed_count"
 }
 
 uninstall_all_auto_tools() {
-	local uninstalled_count=0
-	local failed_count=0
-
-	for tool in "${AUTOMATION_TOOLS[@]}"; do
-		case "$tool" in
-		n8n)
-			loading "Uninstalling n8n" uninstall_n8n
-			case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
-			;;
-		esac
-	done
-
-	return 0
+  _batch_auto "uninstall" "uninstall" "uninstalled_count"
 }
 
 update_all_auto_tools() {
-  local updated_count=0
-  local failed_count=0
-
-  for tool in "${AUTOMATION_TOOLS[@]}"; do
-    case "$tool" in
-    n8n)
-      loading "Updating n8n" update_n8n
-      case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
-      ;;
-    esac
-  done
-
-  return 0
+  _batch_auto "update" "update" "updated_count"
 }
 
 reinstall_all_auto_tools() {
-  local reinstalled_count=0
-  local failed_count=0
-
-  for tool in "${AUTOMATION_TOOLS[@]}"; do
-    case "$tool" in
-    n8n)
-      loading "Reinstalling n8n" reinstall_n8n
-      case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-      ;;
-    esac
-  done
-
-  return 0
+  _batch_auto "reinstall" "reinstall" "reinstalled_count"
 }

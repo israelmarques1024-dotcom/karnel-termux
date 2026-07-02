@@ -100,6 +100,10 @@ _reinstall_full_module() {
     import "@/modules/auto"
     reinstall_auto
     ;;
+  deploy)
+    import "@/modules/deploy"
+    reinstall_deploy
+    ;;
   *)
     log_warn "Unknown reinstall target: $target"
     echo "Run 'omni reinstall' to see available targets"

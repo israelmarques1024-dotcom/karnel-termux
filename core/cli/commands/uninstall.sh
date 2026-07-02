@@ -105,6 +105,10 @@ _uninstall_full_module() {
     import "@/modules/auto"
     uninstall_auto
     ;;
+  deploy)
+    import "@/modules/deploy"
+    uninstall_deploy
+    ;;
   *)
     log_warn "Unknown uninstall target: $target"
     echo "Run 'omni uninstall' to see available targets"

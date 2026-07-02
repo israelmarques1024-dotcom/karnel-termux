@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 module_target=""
 tool_flags=()
 for arg in "ai" "--opencode"; do

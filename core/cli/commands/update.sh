@@ -107,6 +107,10 @@ _update_full_module() {
     import "@/modules/auto"
     update_auto
     ;;
+  deploy)
+    import "@/modules/deploy"
+    update_deploy
+    ;;
   *)
     log_warn "Unknown update target: $target"
     echo "Run 'omni update' to see available targets"

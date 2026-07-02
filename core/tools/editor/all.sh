@@ -1,93 +1,58 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 import "@/utils/log"
 
 LOG_FILE="$OMNI_CACHE/install_editor.log"
 
 EDITOR_COMPONENTS=(
-	"neovim"
-	"nvchad"
+  "neovim"
+  "nvchad"
 )
 
-source "$(dirname "$BASH_SOURCE")/neovim/install.sh"
-source "$(dirname "$BASH_SOURCE")/nvchad/install.sh"
+for _tool in "${EDITOR_COMPONENTS[@]}"; do
+  source "$(dirname "$BASH_SOURCE")/$_tool/install.sh"
+done
+unset _tool
+
+_batch_editor() {
+  local action="$1"
+  local action_past="$2"
+  local count_var="$3"
+  local count=0
+  local failed=0
+  local total=${#EDITOR_COMPONENTS[@]}
+  local current=0
+  local func_name
+
+  progress_start "$total" "${action_past}ing editor components..."
+
+  for tool in "${EDITOR_COMPONENTS[@]}"; do
+    func_name="${action}_${tool//-/_}"
+    if declare -f "$func_name" &>/dev/null; then
+      loading "${action_past^}ing ${tool}" "$func_name"
+      case $? in 0) ((count++));; 1) ((failed++));; esac
+    fi
+    ((current++))
+    progress_update "$current" "$total"
+  done
+
+  progress_done "$total"
+  eval "$count_var=$count"
+  return $failed
+}
 
 install_all_editor_components() {
-	local installed_count=0
-	local failed_count=0
-
-	for tool in "${EDITOR_COMPONENTS[@]}"; do
-		case "$tool" in
-		neovim)
-			loading "Installing Neovim" install_neovim
-			case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-			;;
-		nvchad)
-			loading "Installing NvChad" install_nvchad
-			case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-			;;
-		esac
-	done
-
-	return 0
+  _batch_editor "install" "install" "installed_count"
 }
 
 uninstall_all_editor_components() {
-	local uninstalled_count=0
-	local failed_count=0
-
-	for tool in "${EDITOR_COMPONENTS[@]}"; do
-		case "$tool" in
-		neovim)
-			loading "Uninstalling Neovim" uninstall_neovim
-			case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
-			;;
-		nvchad)
-			loading "Uninstalling NvChad" uninstall_nvchad
-			case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
-			;;
-		esac
-	done
-
-	return 0
+  _batch_editor "uninstall" "uninstall" "uninstalled_count"
 }
 
 update_all_editor_components() {
-  local updated_count=0
-  local failed_count=0
-
-  for tool in "${EDITOR_COMPONENTS[@]}"; do
-    case "$tool" in
-    neovim)
-      loading "Updating Neovim" update_neovim
-      case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
-      ;;
-    nvchad)
-      loading "Updating NvChad" update_nvchad
-      case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
-      ;;
-    esac
-  done
-
-  return 0
+  _batch_editor "update" "update" "updated_count"
 }
 
 reinstall_all_editor_components() {
-  local reinstalled_count=0
-  local failed_count=0
-
-  for tool in "${EDITOR_COMPONENTS[@]}"; do
-    case "$tool" in
-    neovim)
-      loading "Reinstalling Neovim" reinstall_neovim
-      case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-      ;;
-    nvchad)
-      loading "Reinstalling NvChad" reinstall_nvchad
-      case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-      ;;
-    esac
-  done
-
-  return 0
+  _batch_editor "reinstall" "reinstall" "reinstalled_count"
 }
