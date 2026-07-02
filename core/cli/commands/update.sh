@@ -683,7 +683,7 @@ update_omni() {
   else
     log_warn "Not a git repository, cannot update"
     log_info "If you installed via curl, reinstall with:"
-    echo "  curl -fsSL https://raw.githubusercontent.com/DevCoreXOfficial/omni/main/install.sh | bash"
+    echo "  curl -fsSL https://raw.githubusercontent.com/israel676767/omni/main/install.sh | bash"
   fi
 
   echo

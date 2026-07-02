@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DevCoreXOfficial/omni.git"
+    "url": "git+https://github.com/israel676767/omni.git"
   },
   "keywords": [
     "termux",
@@ -23,9 +23,9 @@
   "author": "israel marques",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/DevCoreXOfficial/omni/issues"
+    "url": "https://github.com/israel676767/omni/issues"
   },
-  "homepage": "https://devcorex-web.vercel.app/omni",
+  "homepage": "https://omni-ten-nu.vercel.app",
   "os": [
     "android"
   ]
