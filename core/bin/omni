@@ -1,0 +1,21 @@
+#!/data/data/com.termux/files/usr/bin/bash
+
+SOURCE="${BASH_SOURCE[0]}"
+
+while [ -L "$SOURCE" ]; do
+  DIR="$(cd -P "$(dirname "$SOURCE")" >/dev/null 2>&1 && pwd)"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+
+BIN_DIR="$(cd -P "$(dirname "$SOURCE")" >/dev/null 2>&1 && pwd)"
+
+OMNI_PATH="$(cd "$BIN_DIR/.." && pwd)"
+
+source "$OMNI_PATH/utils/bootstrap.sh"
+
+import "@/utils/env"
+
+import "@/cli/omni"
+
+omni_main "$@"

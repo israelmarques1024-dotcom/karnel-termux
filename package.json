@@ -1,0 +1,32 @@
+{
+  "name": "omni",
+  "version": "4.4.0",
+  "description": "Modular Dev Environment for Termux — install languages, databases, AI agents, editors, and more with one command",
+  "bin": {
+    "omni": "core/bin/omni"
+  },
+  "scripts": {
+    "postinstall": "node scripts/npm-install.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DevCoreXOfficial/omni.git"
+  },
+  "keywords": [
+    "termux",
+    "dev-environment",
+    "cli",
+    "modular",
+    "android",
+    "developer-tools"
+  ],
+  "author": "israel marques",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DevCoreXOfficial/omni/issues"
+  },
+  "homepage": "https://devcorex-web.vercel.app/omni",
+  "os": [
+    "android"
+  ]
+}
