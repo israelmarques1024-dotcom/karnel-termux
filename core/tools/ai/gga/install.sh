@@ -105,7 +105,7 @@ uninstall_gga() {
 	fi
 
 	rm -f "$PREFIX/bin/gga"
-	rm -rf "${PREFIX:-/data/data/com.termux/files/usr}/share/gga"
+	rm -rf "$PREFIX/share/gga"
 	rm -rf "$GGA_DATA_DIR"
 
 	if [ ! -f "$PREFIX/bin/gga" ] && [ ! -d "$GGA_DATA_DIR" ]; then

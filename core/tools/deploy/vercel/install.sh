@@ -2,7 +2,7 @@
 
 import "@/utils/log"
 
-VERCEL_BIN="/data/data/com.termux/files/usr/lib/node_modules/vercel/dist/vc.js"
+VERCEL_BIN="$PREFIX/lib/node_modules/vercel/dist/vc.js"
 
 install_vercel() {
   if [[ -f "$VERCEL_BIN" ]]; then

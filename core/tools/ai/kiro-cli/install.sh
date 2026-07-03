@@ -49,7 +49,7 @@ _install_kiro_cli_curl_impl() {
 _install_kiro_cli_stub() {
   mkdir -p "$PREFIX/bin"
   cat > "$PREFIX/bin/kiro" << 'STUB'
-#!/data/data/com.termux/files/usr/bin/bash
+#!/usr/bin/env bash
 echo "Kiro CLI: offline mode. Installer URL (cli.kiro.dev) unreachable."
 echo "Visit https://kiro.dev for manual download."
 exit 1

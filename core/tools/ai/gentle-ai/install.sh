@@ -5,7 +5,7 @@ import "@/utils/colors"
 
 : "${OMNI_CACHE:=$HOME/.cache/omni}"
 : "${OMNI_PATH:=$HOME/omni/core}"
-: "${PREFIX:=/data/data/com.termux/files/usr}"
+: "${PREFIX:=$PREFIX}"
 
 LOG_FILE="$OMNI_CACHE/install_ai.log"
 GENTLE_AI_DATA_DIR="${GENTLE_AI_DATA_DIR:-$HOME/.local/share/omni-data/gentle-ai}"

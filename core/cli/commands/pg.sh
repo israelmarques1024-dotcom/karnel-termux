@@ -59,7 +59,7 @@ check_pg_initialized() {
 		"$PREFIX/var/lib/postgresql/data"
 		"$PG_DATA/data"
 		"$HOME/.termux/postgresql/data"
-		"/data/data/com.termux/files/usr/var/lib/postgresql/data"
+		"$PREFIX/var/lib/postgresql/data"
 	)
 
 	for dir in "${data_dirs[@]}"; do
