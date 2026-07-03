@@ -3,8 +3,8 @@
 Arbitrary precision calculator language
 
 **Package:** bc  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://www.gnu.org/software/bc  
 **Type:** Utility tool (pkg)  
 **License:** GPL-3.0

@@ -3,8 +3,8 @@
 Systems programming language with memory safety guarantees
 
 **Package:** rust  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://www.rust-lang.org  
 **Type:** Language (pkg)  
 **License:** MIT / Apache 2.0

@@ -3,8 +3,8 @@
 Codex CLI is a coding agent from OpenAI that runs locally on your computer
 
 **Package:** codex  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/openai/codex
 **Type:** AI coding assistant (npm global package)
 **License:** MIT

@@ -3,8 +3,8 @@
 Open source Claude Code alternative
 
 **Package:** @gitlawb/openclaude  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/gitlawb/openclaude  
 **Type:** AI client (npm global package)  
 **License:** MIT

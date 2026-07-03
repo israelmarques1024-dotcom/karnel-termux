@@ -3,8 +3,8 @@
 Progressive Node.js framework for building efficient, reliable applications
 
 **Package:** @nestjs/cli  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://nestjs.com  
 **Type:** Node.js global module (npm)  
 **License:** MIT

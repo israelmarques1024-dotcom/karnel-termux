@@ -3,8 +3,8 @@
 Lightweight, terminal-first surface for Antigravity agents
 
 **Package:** antigravity-cli  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://antigravity.google  
 **Type:** AI workflow assistant (Binary + glibc bootstrapper)  
 **License:** MIT

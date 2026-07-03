@@ -3,8 +3,8 @@
 Cloudflare Tunnel client for secure connections
 
 **Package:** cloudflared  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://developers.cloudflare.com/cloudflare-one/connections/connect-networks  
 **Type:** Networking tool (pkg)  
 **License:** Apache 2.0 / Cloudflare License

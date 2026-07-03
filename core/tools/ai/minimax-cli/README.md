@@ -3,8 +3,8 @@
 Generate text, images, video, speech, and music from the terminal
 
 **Package:** mmx-cli  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/MiniMax-AI/cli  
 **Type:** AI CLI tool (npm global package)  
 **License:** MIT

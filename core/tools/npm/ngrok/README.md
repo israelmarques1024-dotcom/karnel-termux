@@ -3,8 +3,8 @@
 Secure tunnel to expose local servers to the internet
 
 **Package:** ngrok  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://ngrok.com  
 **Type:** Node.js global module (npm)  
 **License:** Apache 2.0 (ngrok itself has proprietary components)

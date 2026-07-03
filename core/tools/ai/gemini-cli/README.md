@@ -3,8 +3,8 @@
 Google's AI assistant with Gemini
 
 **Package:** @google/gemini-cli  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/google-gemini/gemini-cli  
 **Type:** AI CLI assistant (npm global package)  
 **License:** MIT

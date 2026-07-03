@@ -3,8 +3,8 @@
 History search by typing substrings
 
 **Package:** zsh-history-substring-search  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/zsh-users/zsh-history-substring-search  
 **Type:** ZSH plugin (git clone)  
 **License:** BSD 3-Clause

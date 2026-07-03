@@ -3,8 +3,8 @@
 Highly capable, feature-rich programming language
 
 **Package:** perl  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://www.perl.org  
 **Type:** Language (pkg)  
 **License:** Artistic License 2.0 / GPL

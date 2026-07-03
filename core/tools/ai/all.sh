@@ -11,7 +11,7 @@ AI_TOOLS=(
   "pi"                "antigravity-cli"  "gentle-ai"        "minimax-cli"
   "gga"               "hermes-agent"     "kimi-code"         "command-code"
   "freebuff"          "kiro-cli"         "heygen"            "seedance"
-  "veo3"              "odysseus"
+  "veo3"              "odysseus"         "kimchi-code"
 )
 
 for _tool in "${AI_TOOLS[@]}"; do

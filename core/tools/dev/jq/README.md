@@ -3,8 +3,8 @@
 Lightweight and flexible command-line JSON processor
 
 **Package:** jq  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://jqlang.org  
 **Type:** Development tool (pkg)  
 **License:** MIT

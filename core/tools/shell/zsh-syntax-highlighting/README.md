@@ -3,8 +3,8 @@
 Real-time syntax highlighting for ZSH commands
 
 **Package:** zsh-syntax-highlighting  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/zsh-users/zsh-syntax-highlighting  
 **Type:** ZSH plugin (git clone)  
 **License:** BSD 3-Clause

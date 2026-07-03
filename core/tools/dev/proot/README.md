@@ -3,8 +3,8 @@
 Chroot alternative for user-space sandboxing
 
 **Package:** proot  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://proot-me.github.io  
 **Type:** System tool (pkg)  
 **License:** GPL-2.0

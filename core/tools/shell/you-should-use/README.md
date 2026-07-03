@@ -3,8 +3,8 @@
 Suggests alternative commands when you use outdated ones
 
 **Package:** zsh-you-should-use  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/MichaelAquilina/zsh-you-should-use  
 **Type:** ZSH plugin (git clone)  
 **License:** GPL-3.0

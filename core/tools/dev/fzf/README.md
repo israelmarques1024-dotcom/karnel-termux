@@ -3,8 +3,8 @@
 General-purpose command-line fuzzy finder
 
 **Package:** fzf  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/junegunn/fzf  
 **Type:** Development tool (pkg)  
 **License:** MIT

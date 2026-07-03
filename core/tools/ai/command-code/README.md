@@ -3,8 +3,8 @@
 The coding agent that learns your coding taste.
 
 **Package:** command-code  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/CommandCodeAI/command-code
 **Type:** AI coding assistant (npm local package with wrapper)  
 **License:** MIT

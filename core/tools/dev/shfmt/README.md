@@ -3,8 +3,8 @@
 Shell script formatter with POSIX and Bash support
 
 **Package:** shfmt  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/mvdan/sh  
 **Type:** Development tool (pkg)  
 **License:** BSD 3-Clause

@@ -3,8 +3,8 @@
 Network downloader for retrieving files from the web
 
 **Package:** wget  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://www.gnu.org/software/wget  
 **Type:** Development tool (pkg)  
 **License:** GPL-3.0

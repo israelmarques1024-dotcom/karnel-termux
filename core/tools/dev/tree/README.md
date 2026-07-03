@@ -3,8 +3,8 @@
 Recursive directory listing in a tree-like format
 
 **Package:** tree  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://oldmanprogrammer.net/source.php?dir=projects/tree  
 **Type:** Utility tool (pkg)  
 **License:** GPL-2.0

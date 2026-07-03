@@ -3,8 +3,8 @@
 Better npm completion for ZSH
 
 **Package:** zsh-better-npm-completion  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/lukechilds/zsh-better-npm-completion  
 **Type:** ZSH plugin (git clone)  
 **License:** MIT

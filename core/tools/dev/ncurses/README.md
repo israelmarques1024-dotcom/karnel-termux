@@ -3,8 +3,8 @@
 Terminal UI manipulation utilities
 
 **Package:** ncurses-utils  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://invisible-island.net/ncurses  
 **Type:** System tool (pkg)  
 **License:** MIT

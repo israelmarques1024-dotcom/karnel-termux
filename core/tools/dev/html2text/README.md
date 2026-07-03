@@ -3,8 +3,8 @@
 Convert HTML documents to plain text
 
 **Package:** html2text  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/grobian/html2text  
 **Type:** Utility tool (pkg)  
 **License:** GPL-2.0

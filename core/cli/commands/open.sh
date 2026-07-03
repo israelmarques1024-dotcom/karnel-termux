@@ -15,11 +15,8 @@ open_main() {
 	local url=""
 
 	case "$target" in
-	devcorex)
-		url="$OPEN_BASE_URL"
-		;;
 	omni | help)
-		url="$OPEN_BASE_URL/omni"
+		url="$OPEN_BASE_URL"
 		;;
 	lang | db | ai | editor | dev | npm | shell | ui | auto | deploy)
 		url="$OPEN_BASE_URL/omni/$target"
@@ -55,8 +52,7 @@ open_help() {
 	echo
 	separator_section "Targets"
 	echo
-	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "omni" "Omni documentation"
-	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "devcorex" "DevCoreX website"
+	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "omni" "Omni website"
 	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "lang" "Language modules"
 	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "db" "Database modules"
 	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "ai" "AI tools"

@@ -3,8 +3,8 @@
 Find and update outdated npm dependencies
 
 **Package:** npm-check-updates  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/raineorshine/npm-check-updates  
 **Type:** Node.js global module (npm)  
 **License:** Apache 2.0

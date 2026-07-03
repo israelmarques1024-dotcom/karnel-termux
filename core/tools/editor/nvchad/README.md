@@ -3,9 +3,9 @@
 Modern Neovim configuration with preconfigured plugins
 
 **Package:** nvchad (configuration)  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
-**Official:** https://github.com/DevCoreXOfficial/nvchad-termux  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
+**Official:** https://github.com/israel676767/nvchad-termux  
 **Type:** Code editor configuration (git clone)  
 **License:** MIT
 
@@ -41,5 +41,5 @@ core update editor --nvchad
 - Installs to `~/.config/nvim/`
 - Includes GitHub Copilot and CodeCompanion
 - Preconfigured for TypeScript, JavaScript, Python, PHP, Perl, Rust, Lua
-- For detailed information: https://github.com/DevCoreXOfficial/nvchad-termux
+- For detailed information: https://github.com/israel676767/nvchad-termux
 

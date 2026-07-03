@@ -1391,7 +1391,7 @@ EOF
 				if [[ -n "$f" ]]; then
 					matching_files+=("$f")
 				fi
-			done < <(rg -i -l -E "$word_regex" "$BRAIN_DIR" --glob '*.md' 2>/dev/null | head -n 5 || true)
+			done < <(rg -i -l -e "$word_regex" "$BRAIN_DIR" --glob '*.md' 2>/dev/null | head -n 5 || true)
 		fi
 	fi
 
@@ -1523,6 +1523,9 @@ brain_main() {
 		;;
 	show | view)
 		brain_show "$@"
+		;;
+	dashboard | dash | stats)
+		brain_dashboard
 		;;
 	graph | map)
 		brain_graph

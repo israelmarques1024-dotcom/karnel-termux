@@ -35,7 +35,7 @@ _gga_clone_or_update_repo() {
 }
 
 _gga_clone_or_update_repo_impl() {
-	local repo_url="https://github.com/DevCoreXOfficial/gga-termux.git"
+	local repo_url="https://github.com/israel676767/gga-termux.git"
 
 	if [ -d "$GGA_DATA_DIR/.git" ]; then
 		if ! git -C "$GGA_DATA_DIR" pull --ff-only &>>"$LOG_FILE"; then

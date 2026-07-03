@@ -1,4 +1,4 @@
-#!/data/data/com.termux/files/usr/bin/bash
+#!/usr/bin/env bash
 
 import "@/utils/log"
 import "@/utils/colors"
@@ -14,6 +14,7 @@ _odysseus_dependencies_impl() {
   declare -A DEPS=(
     ["git"]="git"
     ["curl"]="curl"
+    ["proot-distro"]="proot-distro"
   )
 
   local pkg_name bin_name
@@ -50,33 +51,7 @@ _odysseus_proot_ubuntu() {
     -- "$@"
 }
 
-_install_odysseus_localhost() {
-  loading "Installing Odysseus (localhost)" _install_odysseus_localhost_impl
-}
-
-_install_odysseus_localhost_impl() {
-  mkdir -p "$ODYSSEUS_DATA_DIR"
-
-  if command -v docker &>/dev/null; then
-    if ! git clone https://github.com/pewdiepie-archdaemon/odysseus.git "$ODYSSEUS_DATA_DIR/repo" &>>"$LOG_FILE"; then
-      log_error "Failed to clone Odysseus repository"
-      return 1
-    fi
-
-    cd "$ODYSSEUS_DATA_DIR/repo"
-    if ! docker compose up -d &>>"$LOG_FILE"; then
-      log_error "Failed to start Odysseus with Docker"
-      return 1
-    fi
-    cd "$OLDPWD"
-
-    log_success "Odysseus is running at http://localhost:7000"
-  else
-    _install_odysseus_termux_proot
-  fi
-}
-
-_install_odysseus_termux_proot() {
+_install_odysseus_impl() {
   mkdir -p "$(dirname "$LOG_FILE")"
 
   if ! command -v proot-distro &>/dev/null; then
@@ -89,14 +64,20 @@ _install_odysseus_termux_proot() {
 
   _odysseus_proot_ubuntu /bin/bash -c '
     export DEBIAN_FRONTEND=noninteractive
-    apt-get update && apt-get upgrade -y && apt-get install -y curl git docker.io docker-compose-v2 python3 python3-pip nodejs npm
+    apt-get update && apt-get upgrade -y && apt-get install -y curl git python3 python3-pip nodejs npm
   ' &>>"$LOG_FILE"
 
   _odysseus_proot_ubuntu /bin/bash -c '
     cd /root
-    git clone https://github.com/pewdiepie-archdaemon/odysseus.git /root/odysseus
+    if [ ! -d /root/odysseus ]; then
+      git clone https://github.com/pewdiepie-archdaemon/odysseus.git /root/odysseus
+    fi
     cd /root/odysseus
-    docker compose up -d
+    if [ -f package.json ]; then
+      npm install
+    elif [ -f requirements.txt ]; then
+      pip3 install -r requirements.txt
+    fi
   ' &>>"$LOG_FILE"
 
   local ubuntu_root
@@ -109,15 +90,14 @@ _install_odysseus_termux_proot() {
 
   local wrapper_path="$PREFIX/bin/odysseus"
   cat > "$wrapper_path" << 'WRAPPER'
-#!/data/data/com.termux/files/usr/bin/bash
-proot-distro login --shared-tmp ubuntu -- docker compose -f /root/odysseus/docker-compose.yml "$@"
+#!/usr/bin/env bash
+proot-distro login --shared-tmp ubuntu -- bash -c "cd /root/odysseus && node server.js \"$@\""
 WRAPPER
   chmod +x "$wrapper_path"
 
   log_success "Odysseus installed (proot-distro)"
   echo
-  log_info "Odysseus web UI: ${D_CYAN}http://localhost:7000${NC}"
-  log_info "Manage with: ${D_CYAN}odysseus up|down|logs${NC}"
+  log_info "Manage with: ${D_CYAN}odysseus${NC}"
 }
 
 install_odysseus() {
@@ -132,23 +112,8 @@ install_odysseus() {
 
   _odysseus_dependencies || return 1
 
-  if command -v docker &>/dev/null; then
-    if [[ -t 0 ]] && [[ -t 1 ]]; then
-      log_info "Select installation method for Odysseus:"
-      read_select "Installation method" SELECTED_METHOD \
-        "Localhost (Docker) - Web UI at http://localhost:7000" \
-        "Termux (proot-distro) - Ubuntu container for Android"
-      case "$SELECTED_METHOD" in
-      *Localhost*) _install_odysseus_localhost;;
-      *Termux*) _install_odysseus_termux_proot;;
-      esac
-    else
-      _install_odysseus_localhost
-    fi
-  else
-    log_info "Docker not available, installing via proot-distro..."
-    _install_odysseus_termux_proot
-  fi
+  log_info "Installing via proot-distro Ubuntu (Docker not available on Termux)..."
+  _install_odysseus_impl
 
   log_success "Odysseus installed successfully"
   return 0
@@ -160,39 +125,26 @@ uninstall_odysseus() {
 
   if [ -f "$PREFIX/bin/odysseus" ]; then
     rm -f "$PREFIX/bin/odysseus"
-    rm -rf "$ODYSSEUS_DATA_DIR"
-    log_success "Odysseus uninstalled"
-    return 0
   fi
 
-  if [ -d "$ODYSSEUS_DATA_DIR/repo" ]; then
-    if command -v docker &>/dev/null; then
-      cd "$ODYSSEUS_DATA_DIR/repo" && docker compose down -v &>>"$LOG_FILE"
-    fi
+  if [ -d "$ODYSSEUS_DATA_DIR" ]; then
     rm -rf "$ODYSSEUS_DATA_DIR"
-    log_success "Odysseus uninstalled"
-    return 0
   fi
 
-  log_warn "Odysseus is not installed"
-  return 1
+  log_success "Odysseus uninstalled"
+  return 0
 }
 
 update_odysseus() {
   log_info "Updating Odysseus..."
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  if [ -d "$ODYSSEUS_DATA_DIR/repo" ]; then
-    cd "$ODYSSEUS_DATA_DIR/repo"
-    git pull &>>"$LOG_FILE"
-    docker compose up -d &>>"$LOG_FILE"
-    cd "$OLDPWD"
-    log_success "Odysseus updated"
-    return 0
-  fi
-
-  log_error "Odysseus is not installed"
-  return 1
+  _odysseus_proot_ubuntu /bin/bash -c '
+    cd /root/odysseus && git pull
+  ' &>>"$LOG_FILE" && log_success "Odysseus updated" || {
+    log_error "Failed to update Odysseus"
+    return 1
+  }
 }
 
 reinstall_odysseus() {

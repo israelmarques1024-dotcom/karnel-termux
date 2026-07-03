@@ -3,8 +3,8 @@
 Open-source agent that helps you write code in your terminal
 
 **Package:** opencode  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/anomalyco/opencode  
 **Type:** AI coding agent (Binary + glibc bootstrapper)  
 **License:** MIT

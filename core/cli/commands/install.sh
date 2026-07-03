@@ -290,6 +290,10 @@ _install_specific_tools() {
         install_odysseus
         case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
         ;;
+      kimchi-code)
+        install_kimchi_code
+        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
       *)
         log_warn "Unknown AI tool: --$tool"
         ;;

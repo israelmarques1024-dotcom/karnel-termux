@@ -1,7 +1,7 @@
 # Omni Catalyst — Modular Dev Environment
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/DevCoreXOfficial/omni-catalyst/main/assets/images/logo.svg" alt="Omni Catalyst Logo" width="600">
+  <img src="https://raw.githubusercontent.com/israel676767/omni/main/assets/images/logo.svg" alt="Omni Catalyst Logo" width="600">
 </p>
 
 <p align="center">
@@ -9,10 +9,10 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/DevCoreXOfficial/omni-catalyst">
+  <a href="https://github.com/israel676767/omni">
     <img src="https://img.shields.io/badge/version-4.4.0-0078D4?style=for-the-badge&logo=appveyor" alt="Version">
   </a>
-  <a href="https://github.com/DevCoreXOfficial/omni-catalyst/blob/main/LICENSE">
+  <a href="https://github.com/israel676767/omni/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-0078D4?style=for-the-badge&logo=bookstack" alt="License">
   </a>
   <a href="https://termux.dev/">
@@ -21,22 +21,22 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/DevCoreXOfficial/omni-catalyst/stargazers">
-    <img src="https://img.shields.io/github/stars/DevCoreXOfficial/omni-catalyst?style=for-the-badge&logo=github&color=f5c542" alt="Stars">
+  <a href="https://github.com/israel676767/omni/stargazers">
+    <img src="https://img.shields.io/github/stars/israel676767/omni-catalyst?style=for-the-badge&logo=github&color=f5c542" alt="Stars">
   </a>
-  <a href="https://github.com/DevCoreXOfficial/omni-catalyst/network/members">
-    <img src="https://img.shields.io/github/forks/DevCoreXOfficial/omni-catalyst?style=for-the-badge&logo=github&color=94a3b8" alt="Forks">
+  <a href="https://github.com/israel676767/omni/network/members">
+    <img src="https://img.shields.io/github/forks/israel676767/omni-catalyst?style=for-the-badge&logo=github&color=94a3b8" alt="Forks">
   </a>
-  <a href="https://github.com/DevCoreXOfficial/omni-catalyst/issues">
-    <img src="https://img.shields.io/github/issues/DevCoreXOfficial/omni-catalyst?style=for-the-badge&logo=github&color=ef4444" alt="Issues">
+  <a href="https://github.com/israel676767/omni/issues">
+    <img src="https://img.shields.io/github/issues/israel676767/omni-catalyst?style=for-the-badge&logo=github&color=ef4444" alt="Issues">
   </a>
-  <a href="https://github.com/DevCoreXOfficial/omni-catalyst/pulls">
-    <img src="https://img.shields.io/github/issues-pr/DevCoreXOfficial/omni-catalyst?style=for-the-badge&logo=github&color=22c55e" alt="Pull Requests">
+  <a href="https://github.com/israel676767/omni/pulls">
+    <img src="https://img.shields.io/github/issues-pr/israel676767/omni-catalyst?style=for-the-badge&logo=github&color=22c55e" alt="Pull Requests">
   </a>
 </p>
 
 <p align="center">
-  <a href="https://devcorex-web.vercel.app/omni">
+  <a href="https://omni-site-eight.vercel.app/omni">
     <img src="https://img.shields.io/badge/%F0%9F%9A%80_Get%20Started-0078D4?style=for-the-badge" alt="Get Started">
   </a>
 </p>
@@ -53,7 +53,7 @@
 ## Quick Installation
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/DevCoreXOfficial/omni-catalyst/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/israel676767/omni/main/install.sh | bash
 ```
 
 Then run:
@@ -297,7 +297,7 @@ core voice !                  # Alias for 'text'
 **Requirements:**
 - Termux:API package: `pkg install termux-api`
 - Neovim for editing: `core install editor`
-- Termux:API app: https://devcorex-web.vercel.app/termux/api
+- Termux:API app: https://omni-site-eight.vercel.app/termux/api
 
 > **Note:** `core voice` automatically runs `termux-api-start` before capturing audio to ensure the Termux:API service is running.
 
@@ -492,7 +492,7 @@ All [Common Modules](#common-modules) are valid targets, plus:
 | Target | Description |
 |--------|-------------|
 | `core` | Omni Catalyst documentation |
-| `devcorex` | DevCoreX official website |
+| `omni` | Omni Catalyst official website |
 
 ---
 
@@ -578,7 +578,7 @@ cd backend && core init nest
 **Configuration:**
 - `.prettierrc` with Tailwind CSS plugin
 - Scripts with `--webpack` flag
-- DevCoreX landing page included
+- israel676767 landing page included
 - Structure: `components/`, `lib/`, `hooks/`, `types/`, `config/`, `store/`
 
 ---
@@ -590,7 +590,7 @@ cd backend && core init nest
 **Configuration:**
 - `.prettierrc` with Tailwind CSS plugin
 - Custom Button component
-- DevCoreX landing page in `src/App.tsx`
+- israel676767 landing page in `src/App.tsx`
 - Structure: `components/`, `lib/`, `hooks/`, `types/`, `config/`, `store/`, `pages/`
 
 ---
@@ -750,7 +750,7 @@ core install npm
 
 ## Code Editor
 
-The `editor` module installs **Neovim** with a custom configuration based on [NvChad](https://github.com/DevCoreXOfficial/nvchad-termux).
+The `editor` module installs **Neovim** with a custom configuration based on [NvChad](https://github.com/israel676767/nvchad-termux).
 
 **Installation:**
 ```bash
@@ -774,7 +774,7 @@ core install editor
 - And more...
 
 **For detailed information about the editor configuration, plugins, and usage:**
-→ Visit: [https://github.com/DevCoreXOfficial/nvchad-termux](https://github.com/DevCoreXOfficial/nvchad-termux)
+→ Visit: [https://github.com/israel676767/nvchad-termux](https://github.com/israel676767/nvchad-termux)
 
 ---
 

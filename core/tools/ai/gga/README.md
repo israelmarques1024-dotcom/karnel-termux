@@ -4,9 +4,9 @@ Provider-agnostic AI code review on every commit
 
 **Package:** gga  
 **Author:** Gentleman-Programming  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/Gentleman-Programming/gentleman-guardian-angel  
-**Termux fork:** https://github.com/DevCoreXOfficial/gga-termux  
+**Termux fork:** https://github.com/israel676767/gga-termux  
 **Type:** AI code review CLI (Pure Bash)  
 **License:** MIT
 

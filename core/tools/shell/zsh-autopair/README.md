@@ -3,8 +3,8 @@
 Auto-close and delete matching parentheses and quotes
 
 **Package:** zsh-autopair  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/hlissner/zsh-autopair  
 **Type:** ZSH plugin (git clone)  
 **License:** MIT

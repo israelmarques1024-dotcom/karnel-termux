@@ -3,8 +3,8 @@
 Markdown live-preview server
 
 **Package:** markserv  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/nice-registry/markserv  
 **Type:** Node.js global module (npm)  
 **License:** MIT

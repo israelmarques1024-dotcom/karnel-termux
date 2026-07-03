@@ -3,8 +3,8 @@
 Self-contained, serverless, zero-configuration SQL database engine
 
 **Package:** sqlite  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://www.sqlite.org  
 **Type:** Database (pkg)  
 **License:** Public Domain

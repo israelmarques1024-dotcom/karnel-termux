@@ -3,8 +3,8 @@
 Fast, extensible code editor (modern Vim fork)
 
 **Package:** neovim  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://neovim.io  
 **Type:** Code editor (pkg)  
 **License:** Apache 2.0

@@ -79,7 +79,7 @@ configure_next() {
 EOF
 	log_success "Created .prettierrc"
 
-	log_info "Creating DevCoreX landing page..."
+	log_info "Creating omni landing page..."
 	[[ -f "src/app/page.tsx" ]] && cat >src/app/page.tsx <<'EOF'
 "use client"
 import { Button } from "@/components/ui/button"
@@ -99,13 +99,13 @@ export default function Home() {
             </div>
           </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-            DevCoreX
+            omni
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-xl md:text-2xl text-slate-400 mb-4">
             Comunidad de Desarrollo y Tecnología
           </motion.p>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="text-lg text-slate-500 mb-12 max-w-2xl mx-auto">
-            Este proyecto fue creado con herramientas de la comunidad DevCoreX.
+            Este proyecto fue creado con herramientas de la comunidad omni.
           </motion.p>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="grid md:grid-cols-3 gap-6 mb-12 max-w-4xl mx-auto">
             <div className="p-6 rounded-xl bg-slate-900/50 border border-slate-800"><Code2 className="w-12 h-12 text-blue-400 mb-4 mx-auto" /><h3 className="text-lg font-semibold text-white mb-2">Código de Calidad</h3></div>
@@ -114,10 +114,10 @@ export default function Home() {
           </motion.div>
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7 }} className="w-full max-w-sm mx-auto">
             <Button size="lg" onClick={() => window.open("https://youtube.com/@devcorex", "_blank")} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-6 text-lg font-semibold">
-              <Rocket className="w-5 h-5 mr-2" /> Únete a DevCoreX en YouTube
+              <Rocket className="w-5 h-5 mr-2" /> Únete a omni en YouTube
             </Button>
           </motion.div>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="mt-16 text-sm text-slate-600">Built with ❤️ using DevCoreX tools</motion.p>
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="mt-16 text-sm text-slate-600">Built with ❤️ using omni tools</motion.p>
         </motion.div>
       </div>
     </main>
@@ -139,8 +139,8 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
-  title: "DevCoreX - Comunidad de Desarrollo",
-  description: "Únete a la comunidad DevCoreX",
+  title: "omni - Comunidad de Desarrollo",
+  description: "Únete a la comunidad omni",
 }
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (<html lang="es"><body className={inter.className}>{children}</body></html>)
@@ -153,7 +153,7 @@ EOF
 	separator
 	echo
 	list_item "Dependencies installed"
-	list_item "DevCoreX landing page created"
+	list_item "omni landing page created"
 	list_item "Prettier configured"
 	echo
 	log_info "Next steps:"
@@ -207,7 +207,7 @@ configure_react() {
 EOF
 	log_success "Created .prettierrc"
 
-	log_info "Creating DevCoreX landing page..."
+	log_info "Creating omni landing page..."
 	if [[ -f "src/App.tsx" ]]; then
 		cat >src/App.tsx <<'EOF'
 import { Button } from "./components/ui/Button"
@@ -226,9 +226,9 @@ function App() {
               <Terminal className="w-16 h-16 text-white" />
             </div>
           </motion.div>
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">DevCoreX</motion.h1>
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">omni</motion.h1>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-xl md:text-2xl text-slate-400 mb-4">Comunidad de Desarrollo y Tecnología</motion.p>
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="text-lg text-slate-500 mb-12 max-w-2xl mx-auto">Este proyecto fue creado con herramientas de la comunidad DevCoreX.</motion.p>
+          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="text-lg text-slate-500 mb-12 max-w-2xl mx-auto">Este proyecto fue creado con herramientas de la comunidad omni.</motion.p>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="grid md:grid-cols-3 gap-6 mb-12 max-w-4xl mx-auto">
             <div className="p-6 rounded-xl bg-slate-900/50 border border-slate-800"><Code2 className="w-12 h-12 text-blue-400 mb-4 mx-auto" /><h3 className="text-lg font-semibold text-white mb-2">Código de Calidad</h3></div>
             <div className="p-6 rounded-xl bg-slate-900/50 border border-slate-800"><Rocket className="w-12 h-12 text-purple-400 mb-4 mx-auto" /><h3 className="text-lg font-semibold text-white mb-2">Proyectos Reales</h3></div>
@@ -236,10 +236,10 @@ function App() {
           </motion.div>
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7 }} className="w-full max-w-sm mx-auto">
             <Button size="lg" onClick={() => window.open("https://youtube.com/@devcorex", "_blank")} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-6 text-lg">
-              <Rocket className="w-5 h-5 mr-2" /> Únete a DevCoreX en YouTube
+              <Rocket className="w-5 h-5 mr-2" /> Únete a omni en YouTube
             </Button>
           </motion.div>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="mt-16 text-sm text-slate-600">Built with ❤️ using DevCoreX tools</motion.p>
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="mt-16 text-sm text-slate-600">Built with ❤️ using omni tools</motion.p>
         </motion.div>
       </div>
     </main>

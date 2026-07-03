@@ -3,8 +3,8 @@
 Modern and fast ZSH theme with customizable prompts
 
 **Package:** powerlevel10k  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/romkatv/powerlevel10k  
 **Type:** ZSH plugin (git clone)  
 **License:** MIT

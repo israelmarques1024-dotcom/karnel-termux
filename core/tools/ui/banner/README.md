@@ -3,8 +3,8 @@
 Customize Termux with Omni Catalyst Banner
 
 **Package:** omni-catalyst (banner config)  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Type:** Termux UI customization  
 **License:** MIT
 
@@ -36,7 +36,7 @@ core update ui --banner
 
 ## Notes
 
-- Source file: `~/.local/share/omni/assets/banner/devcorex.txt`
+- Source file: `~/.local/share/omni/assets/banner/omni.txt`
 - removes Termux welcome message: motd
 - Restart Termux to apply changes
 

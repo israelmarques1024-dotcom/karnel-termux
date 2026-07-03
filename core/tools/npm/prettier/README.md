@@ -3,8 +3,8 @@
 Opinionated code formatter supporting multiple languages
 
 **Package:** prettier  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://prettier.io  
 **Type:** Node.js global module (npm)  
 **License:** MIT

@@ -160,8 +160,9 @@ _list_ai() {
   table_row "HeyGen CLI" "--heygen" "heygen" "$(_check_cmd "heygen")"
   table_row "Seedance CLI" "--seedance" "seedance" "$(_check_cmd "seedance")"
   table_row "Veo 3 SDK" "--veo3" "veo3" "$(_check_cmd "veo3")"
-  table_row "Odysseus" "--odysseus" "odysseus" "$(_check_cmd "odysseus")"
-  table_end
+	table_row "Odysseus" "--odysseus" "odysseus" "$(_check_cmd "odysseus")"
+	table_row "Kimchi AI" "--kimchi-code" "kimchi" "$(_check_cmd "kimchi")"
+	table_end
 
   echo
   log_info "Install specific: ${D_CYAN}omni install ai --opencode --engram${NC}"
@@ -242,8 +243,9 @@ _list_npm() {
   table_row "Markserv" "--markserv" "markserv" "$(_check_cmd "markserv")"
   table_row "PSQL Format" "--psqlformat" "psqlformat" "$(_check_cmd "psqlformat")"
   table_row "NPM Check Updates" "--ncu" "ncu" "$(_check_cmd "ncu")"
-  table_row "Ngrok" "--ngrok" "ngrok" "$(_check_cmd "ngrok")"
-  table_end
+	table_row "Ngrok" "--ngrok" "ngrok" "$(_check_cmd "ngrok")"
+	table_row "Turbopack" "--turbopack" "turbo" "$(_check_cmd "turbo")"
+	table_end
 
   echo
   log_info "Install specific: ${D_CYAN}omni install npm --typescript --prettier${NC}"

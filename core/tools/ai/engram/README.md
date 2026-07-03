@@ -3,8 +3,8 @@
 Persistent memory system for AI coding agents
 
 **Package:** engram  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/Gentleman-Programming/engram  
 **Type:** AI memory system (Go binary)  
 **License:** MIT

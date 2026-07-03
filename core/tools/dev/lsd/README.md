@@ -3,8 +3,8 @@
 Modern ls replacement with icons and colors
 
 **Package:** lsd  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/lsd-rs/lsd  
 **Type:** Development tool (pkg)  
 **License:** Apache 2.0

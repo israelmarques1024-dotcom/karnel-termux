@@ -48,8 +48,9 @@ install_ai() {
   list_item "HeyGen CLI ${GRAY}(${D_GREEN}heygen${GRAY})"
   list_item "Seedance CLI ${GRAY}(${D_GREEN}seedance${GRAY})"
   list_item "Veo 3 SDK ${GRAY}(${D_GREEN}veo3${GRAY})"
-  list_item "Odysseus ${GRAY}(${D_GREEN}odysseus${GRAY})"
-  echo
+	list_item "Odysseus ${GRAY}(${D_GREEN}odysseus${GRAY})"
+	list_item "Kimchi AI ${GRAY}(${D_GREEN}kimchi${GRAY})"
+	echo
 }
 
 _install_ai_tools_wrapper() {
@@ -59,7 +60,7 @@ _install_ai_tools_wrapper() {
 
 uninstall_ai() {
   local found=false
-  for cmd in opencode claude gemini codex qwen vibe mimo hermes kimi ollama freebuff kiro heygen seedance veo3 odysseus openclaude openclaw engram codegraph pi agy mmx gentle-ai gga command-code; do
+	for cmd in opencode claude gemini codex qwen vibe mimo hermes kimi ollama freebuff kiro heygen seedance veo3 odysseus openclaude openclaw engram codegraph pi agy mmx gentle-ai gga command-code kimchi; do
     if command -v "$cmd" &>/dev/null; then
       found=true
       break

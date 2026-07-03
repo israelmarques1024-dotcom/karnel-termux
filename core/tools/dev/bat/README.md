@@ -3,8 +3,8 @@
 Modern cat replacement with syntax highlighting
 
 **Package:** bat  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/sharkdp/bat  
 **Type:** Development tool (pkg)  
 **License:** Apache 2.0 / MIT

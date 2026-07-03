@@ -3,8 +3,8 @@
 Fuzzy completion with fzf for ZSH
 
 **Package:** fzf-tab  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/Aloxaf/fzf-tab  
 **Type:** ZSH plugin (git clone)  
 **License:** MIT

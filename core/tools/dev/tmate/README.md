@@ -3,8 +3,8 @@
 Instant terminal sharing for pair programming
 
 **Package:** tmate  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://tmate.io  
 **Type:** Development tool (pkg)  
 **License:** Apache 2.0 / BSD 2-Clause

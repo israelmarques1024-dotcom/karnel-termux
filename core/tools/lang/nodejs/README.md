@@ -3,8 +3,8 @@
 JavaScript runtime environment (Long Term Support version)
 
 **Package:** nodejs-lts  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://nodejs.org  
 **Type:** Language runtime (pkg)  
 **License:** MIT

@@ -3,8 +3,8 @@
 Image manipulation and conversion suite
 
 **Package:** imagemagick  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://imagemagick.org  
 **Type:** Graphics tool (pkg)  
 **License:** ImageMagick License

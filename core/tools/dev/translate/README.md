@@ -3,8 +3,8 @@
 Command-line translator powered by Google Translate
 
 **Package:** translate-shell  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/omni-catalyst  
+**Author:** israel676767  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/soimort/translate-shell  
 **Type:** Utility tool (pkg)  
 **License:** MIT
