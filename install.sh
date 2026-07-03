@@ -10,7 +10,7 @@ readonly P_FAIL='\e[1;31m'
 readonly P_HL='\e[38;5;213m'
 readonly P_NC='\e[0m'
 
-REPO="https://github.com/IsraelMarques/omni"
+REPO="https://github.com/israel676767/omni"
 BRANCH="main"
 OMNI_DATA="${XDG_DATA_HOME:-$HOME/.local/share}/omni"
 OMNI_TOOL_DATA="${XDG_DATA_HOME:-$HOME/.local/share}/omni-data"

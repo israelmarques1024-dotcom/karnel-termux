@@ -434,13 +434,13 @@ loading() {
 	local delay=0.08
 	local tmpfile
 	tmpfile="$(mktemp)"
-	local donefile
-	donefile="$(mktemp)"
 
 	printf "    ${CYAN}⠋${D_CYAN} %s${NC}" "$message"
 
 	"$@" >"$tmpfile" 2>&1 &
 	local cmd_pid=$!
+
+	mkdir -p "$OMNI_CACHE"
 	echo "$cmd_pid" >> "$OMNI_CACHE/.loading_pids"
 
 	local frame_idx=0
@@ -450,7 +450,6 @@ loading() {
 		sleep "$delay"
 	done
 
-	echo "done" > "$donefile"
 	wait "$cmd_pid"
 	local exit_code=$?
 
@@ -465,7 +464,7 @@ loading() {
 		cat "$tmpfile"
 	fi
 
-	rm -f "$tmpfile" "$donefile"
+	rm -f "$tmpfile"
 	return $exit_code
 }
 

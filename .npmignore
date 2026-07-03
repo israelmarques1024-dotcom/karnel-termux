@@ -1,8 +1,11 @@
 .git
 .github
+.gitignore
 .cache
 node_modules
 *.log
 test_*.sh
 AGENTS.md
 opencode.jsonc
+scripts/
+assets/

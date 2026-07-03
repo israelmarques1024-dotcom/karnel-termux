@@ -23,6 +23,7 @@ uninstall_main() {
     list_item "shell      - Remove ZSH + Oh My Zsh"
     list_item "ui         - Restore Termux UI to default"
     list_item "auto       - Remove automation tools"
+    list_item "deploy     - Remove Deploy CLIs (Vercel, Railway, Netlify)"
     echo
     log_info "Uninstall specific tools with flags:"
     echo
@@ -650,6 +651,40 @@ _uninstall_specific_tools() {
     fi
     if [[ $failed_count -gt 0 ]]; then
       log_warn "$failed_count tool(s) failed to uninstall"
+    fi
+    echo
+    ;;
+  deploy)
+    import "@/tools/deploy/all"
+    local uninstalled_count=0
+    local failed_count=0
+
+    for tool in "${tools[@]}"; do
+      case "$tool" in
+      vercel)
+        uninstall_vercel
+        case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      railway)
+        uninstall_railway
+        case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      netlify)
+        uninstall_netlify
+        case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      *)
+        log_warn "Unknown deploy tool: --$tool"
+        ;;
+      esac
+    done
+
+    echo
+    if [[ $uninstalled_count -gt 0 ]]; then
+      log_success "$uninstalled_count deploy CLI(s) uninstalled"
+    fi
+    if [[ $failed_count -gt 0 ]]; then
+      log_warn "$failed_count CLI(s) failed to uninstall"
     fi
     echo
     ;;

@@ -3,10 +3,21 @@
   "version": "4.4.0",
   "description": "Modular Dev Environment for Termux — install languages, databases, AI agents, editors, and more with one command",
   "bin": {
-    "omni": "core/bin/omni"
+    "omni": "core/bin/omni",
+    "core": "core/bin/core"
   },
+  "main": "core/bin/core",
+  "files": [
+    "core/",
+    "install.sh",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "postinstall": "node scripts/npm-install.js"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   },
   "repository": {
     "type": "git",

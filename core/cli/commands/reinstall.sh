@@ -23,6 +23,7 @@ reinstall_main() {
     list_item "shell      - Reinstall ZSH + Oh My Zsh"
     list_item "ui         - Reinstall Termux UI"
     list_item "auto       - Reinstall automation tools"
+    list_item "deploy     - Reinstall Deploy CLIs (Vercel, Railway, Netlify)"
     echo
     log_info "Reinstall specific tools with flags:"
     echo
@@ -644,6 +645,40 @@ _reinstall_specific_tools() {
     fi
     if [[ $failed_count -gt 0 ]]; then
       log_warn "$failed_count tool(s) failed to reinstall"
+    fi
+    echo
+    ;;
+  deploy)
+    import "@/tools/deploy/all"
+    local reinstalled_count=0
+    local failed_count=0
+
+    for tool in "${tools[@]}"; do
+      case "$tool" in
+      vercel)
+        reinstall_vercel
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      railway)
+        reinstall_railway
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      netlify)
+        reinstall_netlify
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      *)
+        log_warn "Unknown deploy tool: --$tool"
+        ;;
+      esac
+    done
+
+    echo
+    if [[ $reinstalled_count -gt 0 ]]; then
+      log_success "$reinstalled_count deploy CLI(s) reinstalled"
+    fi
+    if [[ $failed_count -gt 0 ]]; then
+      log_warn "$failed_count CLI(s) failed to reinstall"
     fi
     echo
     ;;

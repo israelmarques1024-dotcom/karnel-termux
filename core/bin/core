@@ -43,7 +43,7 @@ check_for_updates() {
 
   # Verificar updates en background (no bloquear)
   (
-    local remote_version=$(curl -fsSL "https://raw.githubusercontent.com/IsraelMarques/omni/main/core/utils/env.sh" 2>/dev/null | grep "OMNI_VERSION=" | cut -d'"' -f2)
+    local remote_version=$(curl -fsSL "https://raw.githubusercontent.com/israel676767/omni/main/core/utils/env.sh" 2>/dev/null | grep "OMNI_VERSION=" | cut -d'"' -f2)
     local local_version="$OMNI_VERSION"
 
     if [[ -n "$remote_version" ]] && [[ "$remote_version" != "$local_version" ]]; then

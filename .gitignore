@@ -1,3 +1,6 @@
 .atl/
 .antigravitycli/
 .codegraph/
+node_modules/
+.cache/
+*.log

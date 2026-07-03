@@ -24,6 +24,7 @@ update_main() {
     list_item "shell      - Update ZSH plugins"
     list_item "ui         - Update Termux UI"
     list_item "auto       - Update Automation Tools"
+    list_item "deploy     - Update Deploy CLIs (Vercel, Railway, Netlify)"
     echo
     log_info "Update specific tools with flags:"
     echo
@@ -652,6 +653,40 @@ _update_specific_tools() {
     fi
     if [[ $failed_count -gt 0 ]]; then
       log_warn "$failed_count tool(s) failed to update"
+    fi
+    echo
+    ;;
+  deploy)
+    import "@/tools/deploy/all"
+    local updated_count=0
+    local failed_count=0
+
+    for tool in "${tools[@]}"; do
+      case "$tool" in
+      vercel)
+        update_vercel
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
+        ;;
+      railway)
+        update_railway
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
+        ;;
+      netlify)
+        update_netlify
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
+        ;;
+      *)
+        log_warn "Unknown deploy tool: --$tool"
+        ;;
+      esac
+    done
+
+    echo
+    if [[ $updated_count -gt 0 ]]; then
+      log_success "$updated_count deploy CLI(s) updated"
+    fi
+    if [[ $failed_count -gt 0 ]]; then
+      log_warn "$failed_count CLI(s) failed to update"
     fi
     echo
     ;;
