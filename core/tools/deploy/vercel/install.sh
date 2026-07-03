@@ -14,6 +14,7 @@ install_vercel() {
     log_error "Failed to install Vercel CLI"
     return 1
   }
+  command -v termux-fix-shebang &>/dev/null && termux-fix-shebang "$(command -v vercel)" &>/dev/null
   log_success "Vercel CLI installed"
 }
 
@@ -32,6 +33,7 @@ update_vercel() {
     log_error "Failed to update Vercel CLI"
     return 1
   }
+  command -v termux-fix-shebang &>/dev/null && termux-fix-shebang "$(command -v vercel)" &>/dev/null
   log_success "Vercel CLI updated"
 }
 

@@ -515,7 +515,7 @@ _install_specific_tools() {
     for tool in "${tools[@]}"; do
       case "$tool" in
       nodejs)
-        install_npmjs
+        install_nodejs
         case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
         ;;
       python)

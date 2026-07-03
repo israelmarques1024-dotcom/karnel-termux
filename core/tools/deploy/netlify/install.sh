@@ -12,6 +12,7 @@ install_netlify() {
     log_error "Failed to install Netlify CLI"
     return 1
   }
+  command -v termux-fix-shebang &>/dev/null && termux-fix-shebang "$(command -v netlify)" &>/dev/null
   log_success "Netlify CLI installed"
 }
 
@@ -30,6 +31,7 @@ update_netlify() {
     log_error "Failed to update Netlify CLI"
     return 1
   }
+  command -v termux-fix-shebang &>/dev/null && termux-fix-shebang "$(command -v netlify)" &>/dev/null
   log_success "Netlify CLI updated"
 }
 
