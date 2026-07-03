@@ -1,4 +1,4 @@
-#!/data/data/com.termux/files/usr/bin/bash
+#!/usr/bin/env bash
 import "@/utils/log"
 
 LOG_FILE="$OMNI_CACHE/install_ai.log"

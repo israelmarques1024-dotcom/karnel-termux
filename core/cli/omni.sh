@@ -1,4 +1,4 @@
-#!/data/data/com.termux/files/usr/bin/bash
+#!/usr/bin/env bash
 
 # Importar funciones de log y colores para el help
 import "@/utils/log"

@@ -1,4 +1,4 @@
-#!/data/data/com.termux/files/usr/bin/bash
+#!/usr/bin/env bash
 
 # evitar redeclaraciones
 [[ -n "${__OMNI_BOOTSTRAP_LOADED:-}" ]] && return
