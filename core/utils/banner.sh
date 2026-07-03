@@ -7,24 +7,43 @@ DGREEN="\033[0;32m"
 NC="\033[0m"
 GRAY="\033[0;90m"
 D_CYAN="\033[0;36m"
+WHITE="\033[1;37m"
 
 R1="\033[38;5;196m"
 R2="\033[38;5;160m"
 R3="\033[38;5;124m"
-R4="\033[38;5;88m"
-R5="\033[38;5;226m"
 
 P1="\033[38;5;93m"
 P2="\033[38;5;129m"
 P3="\033[38;5;55m"
-P4="\033[38;5;92m"
-P5="\033[38;5;183m"
+
+G1="\033[38;5;40m"
+G2="\033[38;5;34m"
+G3="\033[38;5;28m"
 
 BORDER="\033[38;5;33m"
 
+_ansi_len() {
+  local s="$1" esc
+  esc=$(printf '\033')
+  s="${s//\\033/${esc}}"
+  printf '%s' "$s" | sed 's/\x1b\[[0-9;]*m//g' | wc -c | tr -d ' '
+}
+
+_center() {
+  local text="$1" width="$2"
+  local vis; vis=$(_ansi_len "$text")
+  local total=$(( width - vis ))
+  local left=$(( total / 2 ))
+  local right=$(( total - left ))
+  printf '%*s' "$left" ''
+  printf '%s' "$text"
+  printf '%*s' "$right" ''
+}
+
 _banner_count_ai() {
   local count=0
-  for cmd in opencode claude gemini codex qwen vibe mimo hermes kimi ollama freebuff agy mmx pi engram codegraph command-code gentle-ai gga openclaude openclaw mistral-vibe minimax-cli antigravity-cli kiro heygen seedance veo3 odysseus; do
+  for cmd in opencode claude gemini codex qwen vibe mimo hermes kimi ollama freebuff agy mmx pi engram codegraph command-code gentle-ai gga openclaude openclaw mistral-vibe minimax-cli antigravity-cli kiro heygen seedance veo3 odysseus kimchi; do
     command -v "$cmd" &>/dev/null && ((count++))
   done
   echo "$count"
@@ -49,8 +68,7 @@ _banner_count_db() {
 
 _banner_uptime() {
   if [[ -f /proc/uptime ]]; then
-    local secs
-    secs=$(awk '{print int($1)}' /proc/uptime)
+    local secs; secs=$(awk '{print int($1)}' /proc/uptime)
     local days=$((secs / 86400))
     local hours=$(( (secs % 86400) / 3600 ))
     local mins=$(( (secs % 3600) / 60 ))
@@ -62,81 +80,52 @@ _banner_uptime() {
 
 _banner_ram_free() {
   if [[ -f /proc/meminfo ]]; then
-    local free_kb
-    free_kb=$(grep MemAvailable /proc/meminfo 2>/dev/null | awk '{print $2}')
+    local free_kb; free_kb=$(grep MemAvailable /proc/meminfo 2>/dev/null | awk '{print $2}')
     [[ -n "$free_kb" ]] && echo "$((free_kb / 1024))MB" || echo "?"
   else echo "?"; fi
 }
 
-# ── Alternating colors for center text ──
-_CM="${R1}O${NC} ${BORDER}M${NC} ${P2}N${NC} ${R1}I${NC}"
-_CA="${BORDER}C${NC} ${P2}A${NC} ${R1}T${NC} ${BORDER}A${NC} ${P2}L${NC} ${R1}Y${NC} ${BORDER}S${NC} ${P2}T${NC}"
-
-# ── Strip ANSI for visible-length calculation ──
-# Variables store \033 as literal text; convert to real ESC before stripping
-_ansi_len() {
-  local s="$1"
-  local esc
-  esc=$(printf '\033')
-  s="${s//\\033/${esc}}"
-  printf '%s' "$s" | sed 's/\x1b\[[0-9;]*m//g' | wc -c | tr -d ' '
-}
-
-# ── Center text to exactly N visible chars ──
-_center() {
-  local text="$1" width="$2"
-  local vis
-  vis=$(_ansi_len "$text")
-  local total=$(( width - vis ))
-  local left=$(( total / 2 ))
-  local right=$(( total - left ))
-  printf '%*s' "$left" ''
-  printf '%s' "$text"
-  printf '%*s' "$right" ''
-}
-
-# ── Render banner (62 inner chars per line) ──
 _render() {
-  local W=62
-  echo -e "  ${BORDER}+$(printf '%0*d' "$W" | tr '0' '-')+${NC}"
-  echo -e "  ${BORDER}|${NC}$(_center "${R5}*${NC}" "$W")${BORDER}|${NC}"
-  echo -e "  ${BORDER}|${NC}$(_center "${R2}ooo${NC}" "$W")${BORDER}|${NC}"
+  local cols="${COLUMNS:-$(tput cols 2>/dev/null || echo 80)}"
+  local W=$(( cols > 70 ? 68 : cols - 4 ))
+  (( W < 40 )) && W=40
 
-  # ── Gem rows: " <ruby> <gap> <obsidian> " ──
-  # vis = 1 + rv + gap + ov + 1 = 62  =>  gap = 60 - rv - ov
-  local _rv=(1 3 5 7 5 3 1)
-  local _ov=(1 3 5 7 5 3 1)
-  local _rc=("${R5}*${NC}" "${R2}ooo${NC}" "${R3}ooooo${NC}" "${R4}ooooooo${NC}" "${R3}ooooo${NC}" "${R2}ooo${NC}" "${R5}*${NC}")
-  local _oc=("${P1}*${NC}" "${P2}ooo${NC}" "${P3}ooooo${NC}" "${P4}ooooooo${NC}" "${P5}ooooo${NC}" "${P4}ooo${NC}" "${P3}*${NC}")
-  local i gap mid
-  for i in 0 1 2 3 4 5 6; do
-    gap=$(( 60 - _rv[i] - _ov[i] ))
-    if [[ $i -eq 2 ]]; then
-      mid="$(_center "${_CM}" "$gap")"
-    elif [[ $i -eq 4 ]]; then
-      mid="$(_center "${_CA}" "$gap")"
-    else
-      mid="$(printf '%*s' "$gap" '')"
-    fi
-    echo -e "  ${BORDER}|${NC} ${_rc[$i]}${mid}${_oc[$i]} ${BORDER}|${NC}"
-  done
+  local top_bot=$(printf '%*s' "$W" '' | tr ' ' '─')
+  local empty=$(printf '%*s' "$W" '')
 
-  echo -e "  ${BORDER}|${NC}$(_center "${R2}ooo${NC}" "$W")${BORDER}|${NC}"
-  echo -e "  ${BORDER}|${NC}$(_center "${R5}*${NC}" "$W")${BORDER}|${NC}"
-  echo -e "  ${BORDER}|${NC}$(printf '%*s' "$W" '')${BORDER}|${NC}"
-  echo -e "  ${BORDER}|${NC}$(_center "${R1}d${NC} ${R2}RUBY${NC} & ${P2}OBSIDIAN${NC} ${P1}d${NC}" "$W")${BORDER}|${NC}"
-  [[ -n "$BANNER_VERSION" ]] && echo -e "  ${BORDER}|${NC}$(_center "${GRAY}Omni${NC} ${DGREEN}v${BANNER_VERSION}${NC}" "$W")${BORDER}|${NC}"
-  echo -e "  ${BORDER}|${NC}$(_center "${GRAY}by israel marques${NC}" "$W")${BORDER}|${NC}"
-  echo -e "  ${BORDER}|${NC}$(printf '%*s' "$W" '')${BORDER}|${NC}"
-  echo -e "  ${BORDER}|${NC}$(_center "${GRAY}AI${NC}: ${DGREEN}$(_banner_count_ai)${NC}  ${GRAY}Lang${NC}: ${DGREEN}$(_banner_count_lang)${NC}  ${GRAY}DB${NC}: ${DGREEN}$(_banner_count_db)${NC}  ${GRAY}Up${NC}: ${DGREEN}$(_banner_uptime)${NC}  ${GRAY}RAM${NC}: ${DGREEN}$(_banner_ram_free)${NC}" "$W")${BORDER}|${NC}"
-  echo -e "  ${BORDER}|${NC}$(_center "${D_CYAN}Run${NC} ${DGREEN}omni${NC} ${D_CYAN}to get started${NC}" "$W")${BORDER}|${NC}"
-  echo -e "  ${BORDER}+$(printf '%0*d' "$W" | tr '0' '-')+${NC}"
+  echo -e "  ${BORDER}╭${NC}${BORDER}${top_bot}${NC}${BORDER}╮${NC}"
+
+  echo -e "  ${BORDER}│${NC}$(_center "${R2}◈${NC} ${WHITE}O M N I ${NC}${P2}C A T A L Y S T${NC} ${R2}◈${NC}" "$W")${BORDER}│${NC}"
+
+  echo -e "  ${BORDER}│${NC}$(_center "${GRAY}${empty}${NC}" "$W")${BORDER}│${NC}"
+
+  local gem_line="${R1}◆${NC}  ${R2}RUBY${NC}  ${R1}◆${NC}     ${P1}◆${NC}  ${P2}OBSIDIAN${NC}  ${P1}◆${NC}     ${G1}◆${NC}  ${G2}CATALYST${NC}  ${G1}◆${NC}"
+  echo -e "  ${BORDER}│${NC}$(_center "$gem_line" "$W")${BORDER}│${NC}"
+
+  echo -e "  ${BORDER}│${NC}$(_center "${GRAY}${empty}${NC}" "$W")${BORDER}│${NC}"
+
+  local diamond
+  diamond="${R3}▗${R2}▄${R1}▄${R2}▄${R3}▖${NC}  ${P3}▗${P2}▄${P1}▄${P2}▄${P3}▖${NC}  ${G3}▗${G2}▄${G1}▄${G2}▄${G3}▖${NC}"
+  echo -e "  ${BORDER}│${NC}$(_center "$diamond" "$W")${BORDER}│${NC}"
+  local diamond2
+  diamond2="${R2}▐${R1}▀${R2}▌${NC}  ${P2}▐${P1}▀${P2}▌${NC}  ${G2}▐${G1}▀${G2}▌${NC}"
+  echo -e "  ${BORDER}│${NC}$(_center "$diamond2" "$W")${BORDER}│${NC}"
+
+  echo -e "  ${BORDER}│${NC}$(_center "${GRAY}${empty}${NC}" "$W")${BORDER}│${NC}"
+
+  local stats="${GRAY}AI${NC} ${DGREEN}$(_banner_count_ai)${NC}  ${GRAY}Lang${NC} ${DGREEN}$(_banner_count_lang)${NC}  ${GRAY}DB${NC} ${DGREEN}$(_banner_count_db)${NC}  ${GRAY}Up${NC} ${DGREEN}$(_banner_uptime)${NC}  ${GRAY}RAM${NC} ${DGREEN}$(_banner_ram_free)${NC}"
+  echo -e "  ${BORDER}│${NC}$(_center "$stats" "$W")${BORDER}│${NC}"
+
+  echo -e "  ${BORDER}│${NC}$(_center "${GRAY}Omni${NC} ${DGREEN}v${BANNER_VERSION}${NC} ${GRAY}by israel marques${NC}" "$W")${BORDER}│${NC}"
+
+  echo -e "  ${BORDER}│${NC}$(_center "${D_CYAN}Run${NC} ${DGREEN}omni${NC} ${D_CYAN}to get started${NC}" "$W")${BORDER}│${NC}"
+
+  echo -e "  ${BORDER}╰${NC}${BORDER}${top_bot}${NC}${BORDER}╯${NC}"
 }
 
 echo
 _render
 
-# ── Persistent banner after clear ──
 _omni_banner_cache="${XDG_CACHE_HOME:-$HOME/.cache}/omni/banner_cache"
 mkdir -p "$(dirname "$_omni_banner_cache")" 2>/dev/null
 
@@ -153,7 +142,6 @@ if [[ -t 1 ]] && [[ -z "${_OMNI_RECURSING:-}" ]]; then
   }
 fi
 
-# ── Tips ──
 log_tip() { echo -e " ${D_CYAN}● Tip${NC} $*"; }
 
 OMNI_TIPS=(

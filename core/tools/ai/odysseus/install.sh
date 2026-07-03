@@ -67,7 +67,13 @@ _install_odysseus_impl() {
     export DEBIAN_FRONTEND=noninteractive
 
     apt-get update -qq && apt-get upgrade -y -qq && apt-get install -y -qq curl git python3-pip
-    python3 -m pip install --break-system-packages fastapi uvicorn python-multipart python-dotenv httpx pydantic pydantic-settings mcp bcrypt sqlalchemy aiosqlite jinja2 aiofiles python-dateutil
+
+    python3 -m pip install --break-system-packages \
+      fastapi uvicorn python-multipart python-dotenv httpx pydantic pydantic-settings \
+      mcp bcrypt sqlalchemy aiosqlite jinja2 aiofiles python-dateutil \
+      pyotp qrcode croniter pypdf beautifulsoup4 charset-normalizer \
+      numpy chromadb-client fastembed youtube-transcript-api markdown \
+      nh3 icalendar caldav pytest pytest-asyncio
   ' &>>"$LOG_FILE"
 
   _odysseus_proot_ubuntu /bin/bash -c '
