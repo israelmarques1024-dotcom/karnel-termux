@@ -1,94 +1,95 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/colors"
 
 LOG_FILE="$OMNI_CACHE/install_ai.log"
+KIMCHI_PLUGIN="@kimchi-dev/opencode-kimchi"
 
 _kimchi_dependencies() {
-  loading "Installing dependencies" _kimchi_dependencies_impl
+  loading "Checking dependencies" _kimchi_dependencies_impl
 }
 
 _kimchi_dependencies_impl() {
-  declare -A DEPS=(
-    ["nodejs-lts"]="node"
-    ["git"]="git"
-  )
-
-  local pkg_name bin_name
-  for pkg_name in "${!DEPS[@]}"; do
-    bin_name="${DEPS[$pkg_name]}"
-    if ! command -v "$bin_name" &>/dev/null; then
-      if ! pkg install "$pkg_name" -y &>>"$LOG_FILE"; then
-        log_error "Failed to install $pkg_name"
-        return 1
-      fi
-    fi
-  done
-
-  return 0
-}
-
-_install_kimchi_npm() {
-  loading "Installing Kimchi AI" _install_kimchi_npm_impl
-}
-
-_install_kimchi_npm_impl() {
-  if ! npm install -g @kimchi-ai/cli &>>"$LOG_FILE"; then
-    log_error "Failed to install Kimchi AI"
-    return 1
+  if ! command -v opencode &>/dev/null; then
+    log_warn "OpenCode is required for Kimchi AI plugin"
+    log_info "Installing OpenCode first..."
+    import "@/tools/ai/opencode/install"
+    install_opencode || {
+      log_error "Failed to install OpenCode (required for Kimchi)"
+      return 1
+    }
   fi
   return 0
 }
 
+_install_kimchi_plugin() {
+  loading "Installing Kimchi AI plugin" _install_kimchi_plugin_impl
+}
+
+_install_kimchi_plugin_impl() {
+  local opencode_config="${XDG_CONFIG_HOME:-$HOME/.config}/opencode"
+
+  if npm install -g "$KIMCHI_PLUGIN" &>>"$LOG_FILE"; then
+    mkdir -p "$opencode_config/node_modules"
+    ln -sf "$PREFIX/lib/node_modules/@kimchi-dev" \
+      "$opencode_config/node_modules/@kimchi-dev" 2>/dev/null
+    return 0
+  fi
+
+  log_error "Failed to install Kimchi AI plugin"
+  return 1
+}
+
 install_kimchi_code() {
-  if command -v kimchi &>/dev/null; then
+  if [ -f "$PREFIX/bin/kimchi" ]; then
     log_info "Kimchi AI is already installed"
     return 2
   fi
 
-  log_info "Installing Kimchi AI..."
+  log_info "Installing Kimchi AI (OpenCode plugin for Cast AI)..."
 
   mkdir -p "$(dirname "$LOG_FILE")"
 
   _kimchi_dependencies || return 1
-  _install_kimchi_npm || return 1
+  _install_kimchi_plugin || return 1
 
-  log_success "Kimchi AI installed successfully"
+  local wrapper_path="$PREFIX/bin/kimchi"
+  cat > "$wrapper_path" << WRAPPER
+#!$PREFIX/bin/bash
+exec opencode run "\$@"
+WRAPPER
+  chmod +x "$wrapper_path"
+
+  log_success "Kimchi AI installed (OpenCode plugin)"
+  log_info "Usage: ${D_CYAN}kimchi <prompt>${NC}"
+  log_info "Configure provider: ${D_CYAN}opencode providers login${NC}"
   return 0
 }
 
 uninstall_kimchi_code() {
-  if ! command -v kimchi &>/dev/null; then
-    log_success "Kimchi AI is not installed"
-    return 2
-  fi
-
   log_info "Uninstalling Kimchi AI..."
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  loading "Removing Kimchi AI" _uninstall_kimchi_impl
-  log_success "Kimchi AI uninstalled successfully"
-  return 0
-}
+  npm uninstall -g "$KIMCHI_PLUGIN" &>>"$LOG_FILE" 2>/dev/null || true
+  rm -f "$PREFIX/bin/kimchi" 2>/dev/null
+  rm -rf "$HOME/.config/opencode/node_modules/@kimchi-dev" 2>/dev/null
 
-_uninstall_kimchi_impl() {
-  npm uninstall -g @kimchi-ai/cli &>>"$LOG_FILE"
+  log_success "Kimchi AI uninstalled"
+  return 0
 }
 
 update_kimchi_code() {
-  if ! command -v kimchi &>/dev/null; then
-    log_error "Kimchi AI is not installed"
-    return 1
-  fi
   log_info "Updating Kimchi AI..."
   mkdir -p "$(dirname "$LOG_FILE")"
-  loading "Updating Kimchi AI" _update_kimchi_impl
-  log_success "Kimchi AI updated successfully"
-  return 0
-}
 
-_update_kimchi_impl() {
-  npm update -g @kimchi-ai/cli &>>"$LOG_FILE"
+  npm update -g "$KIMCHI_PLUGIN" &>>"$LOG_FILE" && {
+    log_success "Kimchi AI updated"
+    return 0
+  }
+
+  log_error "Failed to update Kimchi AI"
+  return 1
 }
 
 reinstall_kimchi_code() {

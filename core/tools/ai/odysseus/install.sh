@@ -89,9 +89,9 @@ _install_odysseus_impl() {
   fi
 
   local wrapper_path="$PREFIX/bin/odysseus"
-  cat > "$wrapper_path" << 'WRAPPER'
-#!/usr/bin/env bash
-proot-distro login --shared-tmp ubuntu -- bash -c "cd /root/odysseus && node server.js \"$@\""
+  cat > "$wrapper_path" << WRAPPER
+#!$PREFIX/bin/bash
+exec proot-distro login --shared-tmp ubuntu -- bash -c 'cd /root/odysseus && exec node server.js "\$@"' bash "\$@"
 WRAPPER
   chmod +x "$wrapper_path"
 

@@ -55,7 +55,7 @@ _install_command_code_wrappers() {
 }
 
 _install_command_code_wrappers_impl() {
-  local wrapper_content='#!/usr/bin/env bash
+  local wrapper_content='#!'"$PREFIX"'/bin/bash
 
 exec node '"$COMMAND_CODE_DATA_DIR"'/node_modules/command-code/dist/index.mjs "$@"'
 

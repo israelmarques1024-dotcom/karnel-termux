@@ -47,8 +47,8 @@ _install_heygen_cli_impl() {
 
 _install_heygen_stub() {
   mkdir -p "$PREFIX/bin"
-  cat > "$PREFIX/bin/heygen" << 'STUB'
-#!/usr/bin/env bash
+  cat > "$PREFIX/bin/heygen" << STUB
+#!$PREFIX/bin/bash
 echo "HeyGen CLI: offline mode. Installer URL (static.heygen.ai) unreachable."
 echo "Visit https://www.heygen.com for manual download."
 exit 1
