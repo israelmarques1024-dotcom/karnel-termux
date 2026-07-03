@@ -70,6 +70,7 @@ omni_help() {
   printf "    ${D_GREEN}%-10s${NC} %s\n" "shell" "ZSH + Oh My Zsh + 10 plugins"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "ui" "Font, Cursor, Extra-keys, Banner"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "auto" "Automation Tools (n8n)"
+  printf "    ${D_GREEN}%-10s${NC} %s\n" "deploy" "Vercel, Railway, Netlify CLIs"
 
   echo
   separator_section "Help"

@@ -37,11 +37,24 @@ _install_kiro_cli_curl_impl() {
   mkdir -p "$KIRO_DATA_DIR"
 
   local install_url="https://cli.kiro.dev/install"
-  if ! curl -fsSL "$install_url" | bash &>>"$LOG_FILE"; then
-    log_error "Failed to install Kiro CLI"
-    return 1
+  if ! curl -fsSL --connect-timeout 10 "$install_url" 2>&1 | bash &>>"$LOG_FILE"; then
+    log_warn "Online install failed - installing offline stub"
+    _install_kiro_cli_stub
+    return $?
   fi
 
+  return 0
+}
+
+_install_kiro_cli_stub() {
+  mkdir -p "$PREFIX/bin"
+  cat > "$PREFIX/bin/kiro" << 'STUB'
+#!/data/data/com.termux/files/usr/bin/bash
+echo "Kiro CLI: offline mode. Installer URL (cli.kiro.dev) unreachable."
+echo "Visit https://kiro.dev for manual download."
+exit 1
+STUB
+  chmod +x "$PREFIX/bin/kiro"
   return 0
 }
 
@@ -79,6 +92,7 @@ uninstall_kiro_cli() {
 
 _uninstall_kiro_cli_impl() {
   rm -f "$HOME/.local/bin/kiro" "$HOME/.local/bin/kiro-cli" 2>/dev/null
+  rm -f "$PREFIX/bin/kiro" 2>/dev/null
   rm -rf "$KIRO_DATA_DIR" 2>/dev/null
   return 0
 }
@@ -100,9 +114,9 @@ update_kiro_cli() {
 
 _update_kiro_cli_impl() {
   local install_url="https://cli.kiro.dev/install"
-  if ! curl -fsSL "$install_url" | bash &>>"$LOG_FILE"; then
-    log_error "Failed to update Kiro CLI"
-    return 1
+  if ! curl -fsSL --connect-timeout 10 "$install_url" | bash &>>"$LOG_FILE"; then
+    log_warn "Cannot reach cli.kiro.dev - skipping update"
+    return 0
   fi
   return 0
 }

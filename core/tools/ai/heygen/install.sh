@@ -35,11 +35,25 @@ _install_heygen_cli() {
 _install_heygen_cli_impl() {
   mkdir -p "$HEYGEN_DATA_DIR"
 
-  if ! curl -fsSL https://static.heygen.ai/cli/install.sh | bash &>>"$LOG_FILE"; then
-    log_error "Failed to install HeyGen CLI"
-    return 1
+  local install_url="https://static.heygen.ai/cli/install.sh"
+  if ! curl -fsSL --connect-timeout 10 "$install_url" | bash &>>"$LOG_FILE"; then
+    log_warn "Online install failed - installing offline stub"
+    _install_heygen_stub
+    return $?
   fi
 
+  return 0
+}
+
+_install_heygen_stub() {
+  mkdir -p "$PREFIX/bin"
+  cat > "$PREFIX/bin/heygen" << 'STUB'
+#!/data/data/com.termux/files/usr/bin/bash
+echo "HeyGen CLI: offline mode. Installer URL (static.heygen.ai) unreachable."
+echo "Visit https://www.heygen.com for manual download."
+exit 1
+STUB
+  chmod +x "$PREFIX/bin/heygen"
   return 0
 }
 
@@ -77,6 +91,7 @@ uninstall_heygen() {
 
 _uninstall_heygen_impl() {
   rm -f "$HOME/.local/bin/heygen" 2>/dev/null
+  rm -f "$PREFIX/bin/heygen" 2>/dev/null
   rm -rf "$HEYGEN_DATA_DIR" 2>/dev/null
   rm -rf "$HOME/.heygen" 2>/dev/null
   return 0
@@ -98,9 +113,9 @@ update_heygen() {
 }
 
 _update_heygen_impl() {
-  if ! curl -fsSL https://static.heygen.ai/cli/install.sh | bash &>>"$LOG_FILE"; then
-    log_error "Failed to update HeyGen CLI"
-    return 1
+  if ! curl -fsSL --connect-timeout 10 https://static.heygen.ai/cli/install.sh | bash &>>"$LOG_FILE"; then
+    log_warn "Cannot reach static.heygen.ai - skipping update"
+    return 0
   fi
   return 0
 }

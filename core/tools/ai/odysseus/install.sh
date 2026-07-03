@@ -132,22 +132,22 @@ install_odysseus() {
 
   _odysseus_dependencies || return 1
 
-  if [[ -t 0 ]] && [[ -t 1 ]]; then
-    log_info "Select installation method for Odysseus:"
-    read_select "Installation method" SELECTED_METHOD \
-      "Localhost (Docker) - Web UI at http://localhost:7000" \
-      "Termux (proot-distro) - Ubuntu container for Android"
-
-    case "$SELECTED_METHOD" in
-    *Localhost*)
+  if command -v docker &>/dev/null; then
+    if [[ -t 0 ]] && [[ -t 1 ]]; then
+      log_info "Select installation method for Odysseus:"
+      read_select "Installation method" SELECTED_METHOD \
+        "Localhost (Docker) - Web UI at http://localhost:7000" \
+        "Termux (proot-distro) - Ubuntu container for Android"
+      case "$SELECTED_METHOD" in
+      *Localhost*) _install_odysseus_localhost;;
+      *Termux*) _install_odysseus_termux_proot;;
+      esac
+    else
       _install_odysseus_localhost
-      ;;
-    *Termux*)
-      _install_odysseus_termux_proot
-      ;;
-    esac
+    fi
   else
-    _install_odysseus_localhost
+    log_info "Docker not available, installing via proot-distro..."
+    _install_odysseus_termux_proot
   fi
 
   log_success "Odysseus installed successfully"

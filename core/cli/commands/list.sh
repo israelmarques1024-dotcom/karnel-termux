@@ -55,12 +55,30 @@ list_main() {
     auto)
       _list_auto
       ;;
+    deploy)
+      _list_deploy
+      ;;
     *)
       log_warn "Unknown list target: $arg"
       echo "Run 'omni list' to see available targets"
       ;;
     esac
   done
+}
+
+# ===== LIST DEPLOY =====
+_list_deploy() {
+  echo
+  box "Deploy CLIs"
+  echo
+  printf "    ${D_GREEN}%-18s${NC} %s\n" "vercel" "Frontend & serverless deployment"
+  printf "    ${D_GREEN}%-18s${NC} %s\n" "railway" "Full-stack with databases"
+  printf "    ${D_GREEN}%-18s${NC} %s\n" "netlify" "Static sites & edge functions"
+  echo
+  list_item "Usage: ${D_CYAN}omni install deploy${NC} to install all"
+  list_item "Usage: ${D_CYAN}omni install deploy --vercel${NC} for specific"
+  list_item "After install: ${D_CYAN}vercel deploy --prod${NC} or ${D_CYAN}railway up${NC}"
+  echo
 }
 
 # ===== LIST LANGUAGE =====

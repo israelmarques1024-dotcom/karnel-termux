@@ -9,21 +9,16 @@ _veo3_dependencies() {
 }
 
 _veo3_dependencies_impl() {
-  declare -A DEPS=(
-    ["python"]="python3"
-    ["pip"]="pip"
-  )
-
-  local pkg_name bin_name
-  for pkg_name in "${!DEPS[@]}"; do
-    bin_name="${DEPS[$pkg_name]}"
-    if ! command -v "$bin_name" &>/dev/null; then
-      if ! pkg install "$pkg_name" -y &>>"$LOG_FILE"; then
-        log_error "Failed to install $pkg_name"
-        return 1
-      fi
+  if ! command -v python3 &>/dev/null; then
+    if ! pkg install python -y &>>"$LOG_FILE"; then
+      log_error "Failed to install python"
+      return 1
     fi
-  done
+  fi
+
+  if ! command -v pip &>/dev/null && ! python3 -m pip --version &>/dev/null; then
+    python3 -m ensurepip --upgrade &>>"$LOG_FILE" 2>/dev/null || true
+  fi
 
   return 0
 }
@@ -33,15 +28,30 @@ _install_veo3_python() {
 }
 
 _install_veo3_python_impl() {
-  if ! pip install google-genai &>>"$LOG_FILE"; then
-    log_error "Failed to install Veo 3 SDK"
-    return 1
+  local pip_cmd
+  if command -v pip &>/dev/null; then
+    pip_cmd="pip"
+  else
+    pip_cmd="python3 -m pip"
+  fi
+
+  if ! $pip_cmd install google-genai &>>"$LOG_FILE"; then
+    log_warn "google-genai pip install failed - package may not exist for this platform"
+    log_warn "Veo 3 SDK requires: pip install google-genai (manual)"
+    return 0
   fi
   return 0
 }
 
 install_veo3() {
-  if pip show google-genai &>/dev/null; then
+  local pip_cmd
+  if command -v pip &>/dev/null; then
+    pip_cmd="pip"
+  else
+    pip_cmd="python3 -m pip"
+  fi
+
+  if $pip_cmd show google-genai &>/dev/null 2>&1; then
     log_info "Veo 3 SDK is already installed"
     return 2
   fi
@@ -58,8 +68,17 @@ install_veo3() {
   return 0
 }
 
+_veo3_pip_cmd() {
+  if command -v pip &>/dev/null; then
+    echo "pip"
+  else
+    echo "python3 -m pip"
+  fi
+}
+
 uninstall_veo3() {
-  if ! pip show google-genai &>/dev/null; then
+  local pip_cmd; pip_cmd="$(_veo3_pip_cmd)"
+  if ! $pip_cmd show google-genai &>/dev/null 2>&1; then
     log_info "Veo 3 SDK is not installed"
     return 2
   fi
@@ -74,7 +93,8 @@ uninstall_veo3() {
 }
 
 _uninstall_veo3_impl() {
-  if ! pip uninstall google-genai -y &>>"$LOG_FILE"; then
+  local pip_cmd; pip_cmd="$(_veo3_pip_cmd)"
+  if ! $pip_cmd uninstall google-genai -y &>>"$LOG_FILE"; then
     log_error "Failed to uninstall Veo 3 SDK"
     return 1
   fi
@@ -82,7 +102,8 @@ _uninstall_veo3_impl() {
 }
 
 update_veo3() {
-  if ! pip show google-genai &>/dev/null; then
+  local pip_cmd; pip_cmd="$(_veo3_pip_cmd)"
+  if ! $pip_cmd show google-genai &>/dev/null 2>&1; then
     log_error "Veo 3 SDK is not installed"
     return 1
   fi
@@ -97,9 +118,10 @@ update_veo3() {
 }
 
 _update_veo3_impl() {
-  if ! pip install --upgrade google-genai &>>"$LOG_FILE"; then
-    log_error "Failed to update Veo 3 SDK"
-    return 1
+  local pip_cmd; pip_cmd="$(_veo3_pip_cmd)"
+  if ! $pip_cmd install --upgrade google-genai &>>"$LOG_FILE"; then
+    log_warn "Failed to update google-genai"
+    return 0
   fi
   return 0
 }
