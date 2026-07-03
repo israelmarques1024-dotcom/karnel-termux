@@ -63,20 +63,23 @@ _install_odysseus_impl() {
   fi
 
   _odysseus_proot_ubuntu /bin/bash -c '
+    export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     export DEBIAN_FRONTEND=noninteractive
-    apt-get update && apt-get upgrade -y && apt-get install -y curl git python3 python3-pip nodejs npm
+
+    apt-get update -qq && apt-get upgrade -y -qq && apt-get install -y -qq curl git python3-pip
+    python3 -m pip install --break-system-packages fastapi uvicorn python-multipart python-dotenv httpx pydantic pydantic-settings mcp bcrypt sqlalchemy aiosqlite jinja2 aiofiles python-dateutil
   ' &>>"$LOG_FILE"
 
   _odysseus_proot_ubuntu /bin/bash -c '
-    cd /root
+    export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
     if [ ! -d /root/odysseus ]; then
-      git clone https://github.com/pewdiepie-archdaemon/odysseus.git /root/odysseus
+      git clone --depth 1 https://github.com/pewdiepie-archdaemon/odysseus.git /root/odysseus
     fi
+
     cd /root/odysseus
-    if [ -f package.json ]; then
-      npm install
-    elif [ -f requirements.txt ]; then
-      pip3 install -r requirements.txt
+    if [ -f requirements.txt ]; then
+      python3 -m pip install --break-system-packages -r requirements.txt 2>&1
     fi
   ' &>>"$LOG_FILE"
 
@@ -91,13 +94,14 @@ _install_odysseus_impl() {
   local wrapper_path="$PREFIX/bin/odysseus"
   cat > "$wrapper_path" << WRAPPER
 #!$PREFIX/bin/bash
-exec proot-distro login --shared-tmp ubuntu -- bash -c 'cd /root/odysseus && exec node server.js "\$@"' bash "\$@"
+exec proot-distro login --shared-tmp ubuntu -- bash -c 'cd /root/odysseus && exec python3 app.py "\$@"' bash "\$@"
 WRAPPER
   chmod +x "$wrapper_path"
 
   log_success "Odysseus installed (proot-distro)"
   echo
-  log_info "Manage with: ${D_CYAN}odysseus${NC}"
+  log_info "Start with: ${D_CYAN}odysseus${NC}"
+  log_info "Web UI at: ${D_CYAN}http://localhost:7000${NC}"
 }
 
 install_odysseus() {
