@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/israel676767/omni/main/assets/images/logo.svg" alt="Omni Catalyst Logo" width="600">
+  <img src="https://omni-catalyst.vercel.app/omni-logo-pixel.svg" alt="Omni Catalyst Logo" width="600">
 </p>
 
 <p align="center">
@@ -95,6 +95,7 @@ omni
 | `omni install <modulo>` | Instala módulos e ferramentas |
 | `omni list <modulo>` | Lista ferramentas disponíveis |
 | `omni show <modulo> --<tool>` | Mostra documentação de uma ferramenta |
+| `omni open <modulo>` | Abre documentação no navegador |
 | `omni update <modulo>` | Atualiza módulos ou core |
 | `omni uninstall <modulo>` | Remove módulos instalados |
 | `omni reinstall <modulo>` | Reinstala módulos |
@@ -104,7 +105,7 @@ omni
 | `omni voice` | Comandos de voz para agentes IA |
 | `omni pg` | Gerenciador PostgreSQL |
 | `omni init <template>` | Inicializa projetos com templates |
-| `omni open <modulo>` | Abre documentação no navegador |
+| `omni deploy` | Publica projetos (Vercel, Railway, Netlify) |
 | `omni --version` | Mostra a versão instalada |
 
 ---
@@ -133,6 +134,9 @@ omni install ai                               # Instala todos
 omni install ai --opencode --ollama           # Instala específicos
 ```
 
+<details>
+<summary><strong>Ver lista completa de agentes</strong></summary>
+
 | Agente | Flag | Descrição |
 |--------|------|-----------|
 | **Qwen Code** | `--qwen-code` | Assistente de codificação da Alibaba |
@@ -156,13 +160,15 @@ omni install ai --opencode --ollama           # Instala específicos
 | **Kimi Code** | `--kimi-code` | CLI Kimi Code —下一代 agent |
 | **Command Code** | `--command-code` | Agente que aprende seu estilo |
 | **Freebuff** | `--freebuff` | Agente comunitário gratuito |
-| **Kilo Code CLI** | `--kilocode-cli` | Cli nativo glibc para Termux |
+| **Kilo Code CLI** | `--kilocode-cli` | CLI nativo glibc para Termux |
 | **Kiro CLI** | `--kiro-cli` | Assistente de linha de comando Kiro |
 | **HeyGen CLI** | `--heygen` | Interface para HeyGen |
 | **Seedance CLI** | `--seedance` | Ferramenta de linha de comando Seedance |
 | **Veo 3 SDK** | `--veo3` | SDK para vídeo Veo 3 |
 | **Odysseus** | `--odysseus` | Assistente de código Odysseus |
 | **Kimchi AI** | `--kimchi-code` | Agente de IA Kimchi |
+
+</details>
 
 ---
 
@@ -267,6 +273,34 @@ omni env export                    # Exporta para o shell atual
 
 ---
 
+## 🚢 omni deploy
+
+Publique seus projetos diretamente do terminal:
+
+```bash
+omni deploy vercel                  # Deploy para Vercel
+omni deploy railway                 # Deploy para Railway
+omni deploy netlify                 # Deploy para Netlify
+```
+
+Os CLIs das plataformas são instalados automaticamente e você faz deploy sem sair do Termux.
+
+---
+
+## 📖 omni open
+
+Abra a documentação de qualquer módulo ou ferramenta no navegador:
+
+```bash
+omni open ai                        # Abre documentação do módulo AI
+omni open db                        # Abre documentação do módulo DB
+omni open ai --opencode             # Abre docs do OpenCode no site
+```
+
+A documentação é carregada do site oficial em https://omni-catalyst.vercel.app.
+
+---
+
 ## 📖 Exemplos de Uso
 
 ```bash
@@ -290,6 +324,9 @@ omni reinstall shell
 
 # Diagnóstico completo
 omni doctor
+
+# Deploy direto
+omni deploy vercel
 ```
 
 ---
@@ -348,6 +385,12 @@ O framework verifica atualizações a cada 24 horas em background.
 ```bash
 omni update core     # Atualiza o framework
 ```
+
+---
+
+## ⭐ Apoie o Projeto
+
+Se o Omni Catalyst foi útil pra você, considere dar uma estrela no GitHub — isso ajuda outros desenvolvedores a descobrirem o projeto.
 
 ---
 
