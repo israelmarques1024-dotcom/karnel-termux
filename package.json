@@ -1,6 +1,6 @@
 {
-  "name": "omni",
-  "version": "4.4.0",
+  "name": "omni-catalyst",
+  "version": "4.7.0",
   "description": "Modular Dev Environment for Termux — install languages, databases, AI agents, editors, and more with one command",
   "bin": {
     "omni": "core/bin/omni",
@@ -36,7 +36,7 @@
   "bugs": {
     "url": "https://github.com/israel676767/omni/issues"
   },
-  "homepage": "https://omni-site-eight.vercel.app",
+  "homepage": "https://omni-catalyst.vercel.app",
   "os": [
     "android"
   ]

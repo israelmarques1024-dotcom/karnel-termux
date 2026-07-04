@@ -36,7 +36,7 @@
 </p>
 
 <p align="center">
-  <a href="https://omni-site-eight.vercel.app">
+  <a href="https://omni-catalyst.vercel.app">
     <img src="https://img.shields.io/badge/%F0%9F%9A%80_Get%20Started-0078D4?style=for-the-badge" alt="Get Started">
   </a>
 </p>
@@ -297,7 +297,7 @@ omni voice !                  # Alias for 'text'
 **Requirements:**
 - Termux:API package: `pkg install termux-api`
 - Neovim for editing: `omni install editor`
-- Termux:API app: https://omni-site-eight.vercel.app/termux/api
+- Termux:API app: https://omni-catalyst.vercel.app/termux/api
 
 > **Note:** `omni voice` automatically runs `termux-api-start` before capturing audio to ensure the Termux:API service is running.
 
