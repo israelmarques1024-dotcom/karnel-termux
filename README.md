@@ -22,28 +22,28 @@
 
 <p align="center">
   <a href="https://github.com/israel676767/omni/stargazers">
-    <img src="https://img.shields.io/github/stars/israel676767/omni-catalyst?style=for-the-badge&logo=github&color=f5c542" alt="Stars">
+    <img src="https://img.shields.io/github/stars/israel676767/omni?style=for-the-badge&logo=github&color=f5c542" alt="Stars">
   </a>
   <a href="https://github.com/israel676767/omni/network/members">
-    <img src="https://img.shields.io/github/forks/israel676767/omni-catalyst?style=for-the-badge&logo=github&color=94a3b8" alt="Forks">
+    <img src="https://img.shields.io/github/forks/israel676767/omni?style=for-the-badge&logo=github&color=94a3b8" alt="Forks">
   </a>
   <a href="https://github.com/israel676767/omni/issues">
-    <img src="https://img.shields.io/github/issues/israel676767/omni-catalyst?style=for-the-badge&logo=github&color=ef4444" alt="Issues">
+    <img src="https://img.shields.io/github/issues/israel676767/omni?style=for-the-badge&logo=github&color=ef4444" alt="Issues">
   </a>
   <a href="https://github.com/israel676767/omni/pulls">
-    <img src="https://img.shields.io/github/issues-pr/israel676767/omni-catalyst?style=for-the-badge&logo=github&color=22c55e" alt="Pull Requests">
+    <img src="https://img.shields.io/github/issues-pr/israel676767/omni?style=for-the-badge&logo=github&color=22c55e" alt="Pull Requests">
   </a>
 </p>
 
 <p align="center">
-  <a href="https://omni-site-eight.vercel.app/omni">
+  <a href="https://omni-site-eight.vercel.app">
     <img src="https://img.shields.io/badge/%F0%9F%9A%80_Get%20Started-0078D4?style=for-the-badge" alt="Get Started">
   </a>
 </p>
 
 <br>
 
-**OMNI CATALYST** is a _modular dev environment_ that turns Termux into a complete development workstation. Through a single core CLI, it provides a modular system that covers the full developer stack: programming languages, databases, AI agents, code editors, shell configuration, and automation — all manageable with simple, consistent commands like `core install`, `core update`, and `core uninstall`.
+**OMNI CATALYST** is a _modular dev environment_ that turns Termux into a complete development workstation. Through a single omni CLI, it provides a modular system that covers the full developer stack: programming languages, databases, AI agents, code editors, shell configuration, and automation — all manageable with simple, consistent commands like `omni install`, `omni update`, and `omni uninstall`.
 
 > [!IMPORTANT]
 > This project is designed exclusively for **Termux on Android** and is not supported on other platforms.
@@ -59,7 +59,7 @@ curl -fsSL https://raw.githubusercontent.com/israel676767/omni/main/install.sh |
 Then run:
 
 ```bash
-core
+omni
 ```
 
 ---
@@ -68,25 +68,25 @@ core
 
 | Command | Description |
 |---------|-------------|
-| [`core --version`](#core---version) | Show current version |
-| [`core brain`](#core-brain) | Second brain — save and search memories |
-| [`core env`](#core-env) | Manage environment variables |
-| [`core install`](#core-install) | Install specific modules |
-| [`core show`](#core-show) | Show tool documentation |
-| [`core update`](#core-update) | Update modules or framework |
-| [`core uninstall`](#core-uninstall) | Remove installed modules |
-| [`core reinstall`](#core-reinstall) | Uninstall + reinstall modules |
-| [`core voice`](#core-voice) | Speech-to-agent via microphone |
-| [`core open`](#core-open) | Open documentation in browser |
-| [`core list`](#core-list) | List available tools in modules |
-| [`core pg`](#core-pg) | PostgreSQL database manager |
-| [`core init`](#core-init) | Configure existing projects |
+| [`omni --version`](#omni---version) | Show current version |
+| [`omni brain`](#omni-brain) | Second brain — save and search memories |
+| [`omni env`](#omni-env) | Manage environment variables |
+| [`omni install`](#omni-install) | Install specific modules |
+| [`omni show`](#omni-show) | Show tool documentation |
+| [`omni update`](#omni-update) | Update modules or framework |
+| [`omni uninstall`](#omni-uninstall) | Remove installed modules |
+| [`omni reinstall`](#omni-reinstall) | Uninstall + reinstall modules |
+| [`omni voice`](#omni-voice) | Speech-to-agent via microphone |
+| [`omni open`](#omni-open) | Open documentation in browser |
+| [`omni list`](#omni-list) | List available tools in modules |
+| [`omni pg`](#omni-pg) | PostgreSQL database manager |
+| [`omni init`](#omni-init) | Configure existing projects |
 
 ---
 
 ## Common Modules
 
-These modules are available across most commands (`core list`, `core install`, `core update`, `core reinstall`, `core uninstall`, `core show`, and `core open`):
+These modules are available across most commands (`omni list`, `omni install`, `omni update`, `omni reinstall`, `omni uninstall`, `omni show`, and `omni open`):
 
 | Module | Description |
 |--------|-------------|
@@ -107,8 +107,8 @@ These modules are available across most commands (`core list`, `core install`, `
 The `ai` module installs AI-powered coding agents and assistants. Install all agents or pick specific ones with `--flag`:
 
 ```bash
-core install ai                    # Install all agents
-core install ai --opencode --ollama  # Install only OpenCode and Ollama
+omni install ai                    # Install all agents
+omni install ai --opencode --ollama  # Install only OpenCode and Ollama
 ```
 
 | Agent | Flag | Description |
@@ -139,12 +139,12 @@ core install ai --opencode --ollama  # Install only OpenCode and Ollama
 
 ## Detailed Commands
 
-### `core --version`
+### `omni --version`
 
 Display the installed version of Omni Catalyst.
 
 ```bash
-core --version
+omni --version
 ```
 
 **Output:**
@@ -154,15 +154,15 @@ core --version
 
 ---
 
-### `core env`
+### `omni env`
 
 Manage environment variables in your shell rc file (`.zshrc` or `.bashrc`). All operations are interactive.
 
 ```bash
-core env                     # Show help
-core env set                 # Add or update a variable (value is hidden while typing)
-core env unset               # Remove a variable (shows list to choose from)
-core env ls                  # List all user-defined variables
+omni env                     # Show help
+omni env set                 # Add or update a variable (value is hidden while typing)
+omni env unset               # Remove a variable (shows list to choose from)
+omni env ls                  # List all user-defined variables
 ```
 
 **Features:**
@@ -175,7 +175,7 @@ core env ls                  # List all user-defined variables
 **Example session:**
 
 ```bash
-$ core env set
+$ omni env set
 
     ┌─────────────────────────────────────────┐
     │         Set Environment Variable        │
@@ -191,7 +191,7 @@ $ core env set
     ✔ Variable OPENAI_API_KEY set in .zshrc
     • Run: source .zshrc to apply
 
-$ core env ls
+$ omni env ls
 
     ─────── Environment Variables ───────
 
@@ -206,25 +206,25 @@ $ core env ls
 
 ---
 
-### `core brain`
+### `omni brain`
 
 Save and search personal learnings and memories — your second brain in markdown files. All operations are local, synced optionally to a private GitHub repo.
 
 ```bash
-core brain                    # Dashboard with stats
-core brain init               # Initialize brain directory and GitHub repo
-core brain save               # Interactive: save a new memory
-core brain search <query>     # Search memories by keywords or tags
-core brain ls [category]      # List memories by category
-core brain edit               # Edit a memory in your $EDITOR
-core brain edit <slug>        # Edit a memory by slug name
-core brain delete             # Delete a memory permanently
-core brain show <slug>        # View a memory with its relations
-core brain reset              # Destroy the entire brain
-core brain graph              # Visual map of all connections
-core brain skill              # Create an AI skill from memories
-core brain relate             # Link two memories interactively
-core brain sync               # Push/pull to GitHub private repo
+omni brain                    # Dashboard with stats
+omni brain init               # Initialize brain directory and GitHub repo
+omni brain save               # Interactive: save a new memory
+omni brain search <query>     # Search memories by keywords or tags
+omni brain ls [category]      # List memories by category
+omni brain edit               # Edit a memory in your $EDITOR
+omni brain edit <slug>        # Edit a memory by slug name
+omni brain delete             # Delete a memory permanently
+omni brain show <slug>        # View a memory with its relations
+omni brain reset              # Destroy the entire brain
+omni brain graph              # Visual map of all connections
+omni brain skill              # Create an AI skill from memories
+omni brain relate             # Link two memories interactively
+omni brain sync               # Push/pull to GitHub private repo
 ```
 
 **Memory format (AI-consumable markdown):**
@@ -254,7 +254,7 @@ After hours of testing, the combination that worked...
 **Example session:**
 
 ```bash
-$ core brain save
+$ omni brain save
 
     ┌─────────────────────────────────────────┐
     │            Save a New Memory            │
@@ -283,23 +283,23 @@ $ core brain save
 
 ---
 
-### `core voice`
+### `omni voice`
 
 Capture voice from the microphone, review it in nvim, and launch an AI agent.
 
 ```bash
-core voice                    # Show help
-core voice <agent>            # Capture → nvim → launch agent
-core voice text               # Capture → nvim → print to stdout
-core voice !                  # Alias for 'text'
+omni voice                    # Show help
+omni voice <agent>            # Capture → nvim → launch agent
+omni voice text               # Capture → nvim → print to stdout
+omni voice !                  # Alias for 'text'
 ```
 
 **Requirements:**
 - Termux:API package: `pkg install termux-api`
-- Neovim for editing: `core install editor`
+- Neovim for editing: `omni install editor`
 - Termux:API app: https://omni-site-eight.vercel.app/termux/api
 
-> **Note:** `core voice` automatically runs `termux-api-start` before capturing audio to ensure the Termux:API service is running.
+> **Note:** `omni voice` automatically runs `termux-api-start` before capturing audio to ensure the Termux:API service is running.
 
 **Supported agents:**
 
@@ -321,7 +321,7 @@ core voice !                  # Alias for 'text'
 **Example session:**
 
 ```bash
-$ core voice opencode
+$ omni voice opencode
 
     ➜ Listening through the microphone...
     ➜ Review the prompt in nvim, fix mistakes, then save and quit
@@ -332,49 +332,49 @@ $ core voice opencode
 
 ---
 
-### `core show`
+### `omni show`
 
 Display help documentation for any installed tool. Documentation is loaded from the tool's `README.md` file in its module directory.
 
 ```bash
-core show                    # Show help
-core show <module>           # List all tools in a module
-core show <module> --<tool>  # Show specific tool documentation
+omni show                    # Show help
+omni show <module>           # List all tools in a module
+omni show <module> --<tool>  # Show specific tool documentation
 ```
 
 **Examples:**
 
 ```bash
-core show ai --opencode      # Show OpenCode documentation
-core show db --postgresql    # Show PostgreSQL documentation
-core show npm --typescript   # Show TypeScript documentation
+omni show ai --opencode      # Show OpenCode documentation
+omni show db --postgresql    # Show PostgreSQL documentation
+omni show npm --typescript   # Show TypeScript documentation
 ```
 
 **Colorized output:** If `bat` is installed, documentation is displayed with syntax highlighting. Otherwise, plain text is shown.
 
 ---
 
-### `core list`
+### `omni list`
 
 List available tools in a module and their installation status.
 
 ```bash
-core list                     # Show help
-core list <module>            # List tools in specific module
+omni list                     # Show help
+omni list <module>            # List tools in specific module
 ```
 
 All modules from [Common Modules](#common-modules) are valid targets.
 
 ---
 
-### `core install`
+### `omni install`
 
 Install individual modules or specific tools within modules.
 
 ```bash
-core install                  # Show help
-core install <module>         # Install entire module
-core install <module> --tool1 --tool2  # Install specific tools
+omni install                  # Show help
+omni install <module>         # Install entire module
+omni install <module> --tool1 --tool2  # Install specific tools
 ```
 
 All modules from [Common Modules](#common-modules) are valid targets.
@@ -382,36 +382,36 @@ All modules from [Common Modules](#common-modules) are valid targets.
 **Install entire module:**
 
 ```bash
-core install ai               # Install all AI tools
-core install db               # Install all databases
-core install dev              # Install all development tools
+omni install ai               # Install all AI tools
+omni install db               # Install all databases
+omni install dev              # Install all development tools
 ```
 
 **Install specific tools:**
 
 ```bash
-core install ai --qwen-code --ollama          # Install only Qwen Code and Ollama
-core install db --postgresql --sqlite         # Install only PostgreSQL and SQLite
-core install dev --gh --fzf --jq              # Install only gh, fzf, and jq
-core install npm --typescript --prettier      # Install only TypeScript and Prettier
+omni install ai --qwen-code --ollama          # Install only Qwen Code and Ollama
+omni install db --postgresql --sqlite         # Install only PostgreSQL and SQLite
+omni install dev --gh --fzf --jq              # Install only gh, fzf, and jq
+omni install npm --typescript --prettier      # Install only TypeScript and Prettier
 ```
 
-> **Tip:** Run `core list <module>` to see all available tools and their flags.
+> **Tip:** Run `omni list <module>` to see all available tools and their flags.
 
 ---
 
-### `core update`
+### `omni update`
 
 Update modules or the complete framework.
 
 ```bash
-core update                   # Show help
-core update <target>          # Update specific target
-core update <target> --tool1 --tool2  # Update specific tools
-core update core              # Update framework only
+omni update                   # Show help
+omni update <target>          # Update specific target
+omni update <target> --tool1 --tool2  # Update specific tools
+omni update core              # Update framework only
 ```
 
-In addition to all [Common Modules](#common-modules), `core update` also supports:
+In addition to all [Common Modules](#common-modules), `omni update` also supports:
 
 | Target | Description |
 |--------|-------------|
@@ -420,71 +420,71 @@ In addition to all [Common Modules](#common-modules), `core update` also support
 **Update entire module:**
 
 ```bash
-core update ai               # Update all AI tools
-core update db               # Update all databases
+omni update ai               # Update all AI tools
+omni update db               # Update all databases
 ```
 
 **Update specific tools:**
 
 ```bash
-core update ai --qwen-code --ollama          # Update only Qwen Code and Ollama
-core update db --postgresql --sqlite         # Update only PostgreSQL and SQLite
-core update dev --gh --fzf --jq             # Update only gh, fzf, and jq
+omni update ai --qwen-code --ollama          # Update only Qwen Code and Ollama
+omni update db --postgresql --sqlite         # Update only PostgreSQL and SQLite
+omni update dev --gh --fzf --jq             # Update only gh, fzf, and jq
 ```
 
 ---
 
-### `core uninstall`
+### `omni uninstall`
 
 Remove installed modules or specific tools.
 
 ```bash
-core uninstall                # Show help
-core uninstall <target>       # Uninstall specific target
-core uninstall <target> --tool1 --tool2  # Uninstall specific tools
+omni uninstall                # Show help
+omni uninstall <target>       # Uninstall specific target
+omni uninstall <target> --tool1 --tool2  # Uninstall specific tools
 ```
 
-In addition to all [Common Modules](#common-modules), `core uninstall` supports per-module and per-tool removal. No "uninstall all" — desinstalá solo lo que necesitás.
+In addition to all [Common Modules](#common-modules), `omni uninstall` supports per-module and per-tool removal. No "uninstall all" — desinstalá solo lo que necesitás.
 
 **Uninstall specific tools:**
 
 ```bash
-core uninstall ai --qwen-code --ollama        # Uninstall only Qwen Code and Ollama
-core uninstall db --postgresql --sqlite       # Uninstall only PostgreSQL and SQLite
-core uninstall dev --gh --fzf                 # Uninstall only gh and fzf
+omni uninstall ai --qwen-code --ollama        # Uninstall only Qwen Code and Ollama
+omni uninstall db --postgresql --sqlite       # Uninstall only PostgreSQL and SQLite
+omni uninstall dev --gh --fzf                 # Uninstall only gh and fzf
 ```
 
 ---
 
-### `core reinstall`
+### `omni reinstall`
 
 Reinstall modules or specific tools — uninstalls then installs from scratch.
 
 ```bash
-core reinstall                # Show help
-core reinstall <target>       # Reinstall specific target
-core reinstall <target> --tool1 --tool2  # Reinstall specific tools
+omni reinstall                # Show help
+omni reinstall <target>       # Reinstall specific target
+omni reinstall <target> --tool1 --tool2  # Reinstall specific tools
 ```
 
-In addition to all [Common Modules](#common-modules), `core reinstall` supports per-module and per-tool reinstallation. No "reinstall all".
+In addition to all [Common Modules](#common-modules), `omni reinstall` supports per-module and per-tool reinstallation. No "reinstall all".
 
 **Reinstall specific tools:**
 
 ```bash
-core reinstall ai --opencode --ollama       # Reinstall only OpenCode and Ollama
-core reinstall db --postgresql --sqlite     # Reinstall only PostgreSQL and SQLite
-core reinstall dev --gh --fzf               # Reinstall only gh and fzf
+omni reinstall ai --opencode --ollama       # Reinstall only OpenCode and Ollama
+omni reinstall db --postgresql --sqlite     # Reinstall only PostgreSQL and SQLite
+omni reinstall dev --gh --fzf               # Reinstall only gh and fzf
 ```
 
 ---
 
-### `core open`
+### `omni open`
 
 Open official documentation in browser
 
 ```bash
-core open                     # Show help
-core open <target>            # Open official documentation in browser
+omni open                     # Show help
+omni open <target>            # Open official documentation in browser
 ```
 
 All [Common Modules](#common-modules) are valid targets, plus:
@@ -496,21 +496,21 @@ All [Common Modules](#common-modules) are valid targets, plus:
 
 ---
 
-### `core pg`
+### `omni pg`
 
 PostgreSQL database manager.
 
 ```bash
-core pg                       # Show help
-core pg start                 # Start server
-core pg stop                  # Stop server
-core pg restart               # Restart server
-core pg status                # Check status
-core pg init                  # Initialize database
-core pg create <name>         # Create database
-core pg drop <name>           # Drop database
-core pg list                  # List databases
-core pg shell                 # Open psql console
+omni pg                       # Show help
+omni pg start                 # Start server
+omni pg stop                  # Stop server
+omni pg restart               # Restart server
+omni pg status                # Check status
+omni pg init                  # Initialize database
+omni pg create <name>         # Create database
+omni pg drop <name>           # Drop database
+omni pg list                  # List databases
+omni pg shell                 # Open psql console
 ```
 
 **Features:**
@@ -520,13 +520,13 @@ core pg shell                 # Open psql console
 
 ---
 
-### `core init`
+### `omni init`
 
 Configure existing projects with predefined dependencies and structure.
 
 ```bash
-core init                     # Show help
-core init <template>          # Configure with specific template
+omni init                     # Show help
+omni init <template>          # Configure with specific template
 ```
 
 **Available templates:**
@@ -541,17 +541,17 @@ core init <template>          # Configure with specific template
 **Usage:**
 
 ```bash
-cd my-next-app && core init next
-cd my-react-app && core init react
-cd api && core init express
-cd backend && core init nest
+cd my-next-app && omni init next
+cd my-react-app && omni init react
+cd api && omni init express
+cd backend && omni init nest
 ```
 
 ---
 
 ## Template Details
 
-### Next.js (`core init next`)
+### Next.js (`omni init next`)
 
 **Installed dependencies:**
 ```json
@@ -583,7 +583,7 @@ cd backend && core init nest
 
 ---
 
-### React + Vite (`core init react`)
+### React + Vite (`omni init react`)
 
 **Same dependencies as Next.js** (except Next.js-specific configs)
 
@@ -595,7 +595,7 @@ cd backend && core init nest
 
 ---
 
-### Express.js (`core init express`)
+### Express.js (`omni init express`)
 
 **Dependencies:**
 ```
@@ -661,7 +661,7 @@ src/
 
 ---
 
-### NestJS (`core init nest`)
+### NestJS (`omni init nest`)
 
 **Dependencies:**
 ```
@@ -678,7 +678,7 @@ bcryptjs, helmet, cloudinary
 The `lang` module installs the following programming languages and runtimes via `pkg`:
 
 ```bash
-core install lang
+omni install lang
 ```
 
 | Language/Runtime | Package | Description |
@@ -698,7 +698,7 @@ core install lang
 The `dev` module installs the following development utilities via `pkg`:
 
 ```bash
-core install dev
+omni install dev
 ```
 
 | Tool | Package | Description |
@@ -730,7 +730,7 @@ core install dev
 The `npm` module installs the following global npm packages:
 
 ```bash
-core install npm
+omni install npm
 ```
 
 | Package | Command | Description |
@@ -754,7 +754,7 @@ The `editor` module installs **Neovim** with a custom configuration based on [Nv
 
 **Installation:**
 ```bash
-core install editor
+omni install editor
 ```
 
 **Features:**
@@ -855,7 +855,7 @@ table_end
 
 ## Banner Tips
 
-Every time you open a new Termux session (or run the banner), Omni Catalyst shows a random tip to help you discover features you might not know about. Tips cover all modules: installing tools, using `core brain`, managing databases, voice commands, project initialization, and more.
+Every time you open a new Termux session (or run the banner), Omni Catalyst shows a random tip to help you discover features you might not know about. Tips cover all modules: installing tools, using `omni brain`, managing databases, voice commands, project initialization, and more.
 
 The tip system:
 - Picks a random tip from a pool of 65+ tips on each session
@@ -869,7 +869,7 @@ To refresh the tips pool or customize them, edit `core/utils/banner.sh`.
 ## Project Structure
 
 ```
-omni-catalyst/
+omni/
 ├── LICENSE
 ├── README.md
 ├── assets
@@ -988,22 +988,22 @@ The framework checks for updates automatically:
 
 - **Frequency:** Once every 24 hours
 - **Impact:** None (runs in background)
-- **Notification:** Shown when running `core` if new version exists
+- **Notification:** Shown when running `omni` if new version exists
 
 ```bash
-$ core
+$ omni
 
 ── Update Available ─────────────────────────────────
 
 ⚠ New version available: 4.4.1 (current: 4.4.0)
 
-➜ Run: core update core to update
+➜ Run: omni update core to update
 ```
 
 To update:
 
 ```bash
-core update core
+omni update core
 ```
 
 ---
@@ -1051,26 +1051,26 @@ $ pwd
 ### Install specific modules
 
 ```bash
-core install db
-core install shell
-core install npm
+omni install db
+omni install shell
+omni install npm
 ```
 
 ### Install specific tools within a module
 
 ```bash
-core list ai                                    # See available AI tools
-core install ai --qwen-code --ollama            # Install only Qwen Code and Ollama
-core install dev --gh --fzf --jq                # Install only gh, fzf, and jq
-core install npm --typescript --prettier        # Install only TypeScript and Prettier
+omni list ai                                    # See available AI tools
+omni install ai --qwen-code --ollama            # Install only Qwen Code and Ollama
+omni install dev --gh --fzf --jq                # Install only gh, fzf, and jq
+omni install npm --typescript --prettier        # Install only TypeScript and Prettier
 ```
 
 ### Reinstall
 
 ```bash
-core reinstall ai             # Reinstall all AI agents
-core reinstall shell          # Reinstall ZSH + plugins
-core reinstall ai --opencode --ollama  # Reinstall specific tools
+omni reinstall ai             # Reinstall all AI agents
+omni reinstall shell          # Reinstall ZSH + plugins
+omni reinstall ai --opencode --ollama  # Reinstall specific tools
 ```
 
 ### Configure Next.js project
@@ -1078,40 +1078,40 @@ core reinstall ai --opencode --ollama  # Reinstall specific tools
 ```bash
 npx create-next-app@latest my-app
 cd my-app
-core init next
+omni init next
 ```
 
 ### Manage PostgreSQL
 
 ```bash
-core pg init              # First time
-core pg start             # Start
-core pg create mydb       # Create database
-core pg shell             # Open psql
-core pg stop              # Stop
+omni pg init              # First time
+omni pg start             # Start
+omni pg create mydb       # Create database
+omni pg shell             # Open psql
+omni pg stop              # Stop
 ```
 
 ### Update
 
 ```bash
-core update core          # Framework only
-core update shell         # ZSH plugins only
-core update ai --qwen     # Specific AI tool only
+omni update core          # Framework only
+omni update shell         # ZSH plugins only
+omni update ai --qwen     # Specific AI tool only
 ```
 
 ### Uninstall
 
 ```bash
-core uninstall npm        # Remove Node.js modules
-core uninstall ai --ollama   # Remove only Ollama
+omni uninstall npm        # Remove Node.js modules
+omni uninstall ai --ollama   # Remove only Ollama
 ```
 
 ### List available tools
 
 ```bash
-core list ai              # List all AI tools and their status
-core list dev             # List all development tools
-core list db              # List all databases
+omni list ai              # List all AI tools and their status
+omni list dev             # List all development tools
+omni list db              # List all databases
 ```
 
 ---
@@ -1122,6 +1122,13 @@ core list db              # List all databases
 2. **Permissions:** Ensure you have write permissions in the installation directory
 3. **Connection:** Some installations require internet connection
 4. **Logs:** Check `~/.cache/omni/` if something fails
+
+---
+
+## Design Reference
+
+The Omni banner and visual identity were designed with reference to this ChatGPT conversation:
+[View Design Reference →](https://chatgpt.com/s/m_6a4808ae06e08191b35f3a0eb6f490cb)
 
 ---
 

@@ -20,7 +20,25 @@ _veo3_dependencies_impl() {
     python3 -m ensurepip --upgrade &>>"$LOG_FILE" 2>/dev/null || true
   fi
 
+  local build_deps=(binutils clang make)
+  local need_install=()
+  for dep in "${build_deps[@]}"; do
+    if ! dpkg -s "$dep" &>/dev/null 2>&1; then
+      need_install+=("$dep")
+    fi
+  done
+  if [[ ${#need_install[@]} -gt 0 ]]; then
+    loading "Installing build dependencies (${need_install[*]})" _install_veo3_build_deps
+  fi
+
   return 0
+}
+
+_install_veo3_build_deps() {
+  if ! pkg install "${need_install[@]}" -y &>>"$LOG_FILE"; then
+    log_warn "Failed to install some build dependencies"
+    return 0
+  fi
 }
 
 _install_veo3_python() {
@@ -35,9 +53,10 @@ _install_veo3_python_impl() {
     pip_cmd="python3 -m pip"
   fi
 
-  if ! $pip_cmd install google-genai &>>"$LOG_FILE"; then
+  if ! $pip_cmd install google-genai --only-binary :all: &>>"$LOG_FILE"; then
     log_warn "google-genai pip install failed - package may not exist for this platform"
     log_warn "Veo 3 SDK requires: pip install google-genai (manual)"
+    log_warn "If build deps are missing, try: pkg install binutils clang make && pip install google-genai"
     return 0
   fi
   return 0

@@ -33,15 +33,28 @@ _install_seedance_pip() {
 }
 
 _install_seedance_pip_impl() {
-  if ! pip install seedance-cli &>>"$LOG_FILE"; then
-    log_error "Failed to install Seedance CLI"
+  local pip_cmd
+  if command -v pip &>/dev/null; then
+    pip_cmd="pip"
+  else
+    pip_cmd="python3 -m pip"
+  fi
+  if ! $pip_cmd install seedance-cli &>>"$LOG_FILE"; then
+    log_warn "Failed to install seedance-cli via pip"
+    log_warn "Try: pip install seedance-cli (manual)"
     return 1
   fi
   return 0
 }
 
 install_seedance() {
-  if pip show seedance-cli &>/dev/null; then
+  local pip_cmd
+  if command -v pip &>/dev/null; then
+    pip_cmd="pip"
+  else
+    pip_cmd="python3 -m pip"
+  fi
+  if $pip_cmd show seedance-cli &>/dev/null; then
     log_info "Seedance CLI is already installed"
     return 2
   fi
@@ -57,8 +70,17 @@ install_seedance() {
   return 0
 }
 
+_seedance_pip_cmd() {
+  if command -v pip &>/dev/null; then
+    echo "pip"
+  else
+    echo "python3 -m pip"
+  fi
+}
+
 uninstall_seedance() {
-  if ! pip show seedance-cli &>/dev/null; then
+  local pip_cmd; pip_cmd="$(_seedance_pip_cmd)"
+  if ! $pip_cmd show seedance-cli &>/dev/null; then
     log_info "Seedance CLI is not installed"
     return 2
   fi
@@ -73,7 +95,8 @@ uninstall_seedance() {
 }
 
 _uninstall_seedance_impl() {
-  if ! pip uninstall seedance-cli -y &>>"$LOG_FILE"; then
+  local pip_cmd; pip_cmd="$(_seedance_pip_cmd)"
+  if ! $pip_cmd uninstall seedance-cli -y &>>"$LOG_FILE"; then
     log_error "Failed to uninstall Seedance CLI"
     return 1
   fi
@@ -81,7 +104,8 @@ _uninstall_seedance_impl() {
 }
 
 update_seedance() {
-  if ! pip show seedance-cli &>/dev/null; then
+  local pip_cmd; pip_cmd="$(_seedance_pip_cmd)"
+  if ! $pip_cmd show seedance-cli &>/dev/null; then
     log_error "Seedance CLI is not installed"
     return 1
   fi
@@ -96,7 +120,8 @@ update_seedance() {
 }
 
 _update_seedance_impl() {
-  if ! pip install --upgrade seedance-cli &>>"$LOG_FILE"; then
+  local pip_cmd; pip_cmd="$(_seedance_pip_cmd)"
+  if ! $pip_cmd install --upgrade seedance-cli &>>"$LOG_FILE"; then
     log_error "Failed to update Seedance CLI"
     return 1
   fi
