@@ -10,7 +10,7 @@ AI_TOOLS=(
   "opencode"          "mimocode"         "engram"            "codegraph"
   "pi"                "antigravity-cli"  "gentle-ai"        "minimax-cli"
   "gga"               "hermes-agent"     "kimi-code"         "command-code"
-  "freebuff"          "kiro-cli"         "heygen"            "seedance"
+  "freebuff"          "kilocode-cli"      "kiro-cli"         "heygen"            "seedance"
   "veo3"              "odysseus"         "kimchi-code"
 )
 

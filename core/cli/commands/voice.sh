@@ -13,6 +13,7 @@ voice_help() {
 	echo
 	separator_section "Agents"
 	echo
+	printf "    ${D_CYAN}%-16s${NC} %s\n" "kilo" "kilo --prompt \"prompt\""
 	printf "    ${D_CYAN}%-16s${NC} %s\n" "opencode" "opencode run \"prompt\""
 	printf "    ${D_CYAN}%-16s${NC} %s\n" "claude-code" "claude -p \"prompt\""
 	printf "    ${D_CYAN}%-16s${NC} %s\n" "codex" "codex \"prompt\""

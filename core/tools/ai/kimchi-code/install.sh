@@ -57,7 +57,29 @@ install_kimchi_code() {
   local wrapper_path="$PREFIX/bin/kimchi"
   cat > "$wrapper_path" << WRAPPER
 #!$PREFIX/bin/bash
-exec opencode run "\$@"
+if [ \$# -eq 0 ]; then
+  echo "Kimchi AI - OpenCode plugin for Cast AI"
+  echo "Usage: kimchi <prompt>"
+  echo "       kimchi -i                      # Interactive mode"
+  echo "Run an AI prompt using Kimchi's Cast AI models via OpenCode."
+  exit 0
+fi
+
+ARGS=()
+INTERACTIVE=false
+for arg in "\$@"; do
+  if [ "\$arg" = "-i" ] || [ "\$arg" = "--interactive" ]; then
+    INTERACTIVE=true
+  else
+    ARGS+=("\$arg")
+  fi
+done
+
+if [ "\$INTERACTIVE" = true ]; then
+  exec opencode run --interactive "\${ARGS[@]}"
+else
+  exec opencode run "\${ARGS[@]}"
+fi
 WRAPPER
   chmod +x "$wrapper_path"
 

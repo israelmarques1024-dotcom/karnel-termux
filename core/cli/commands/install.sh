@@ -222,6 +222,10 @@ _install_specific_tools() {
         install_opencode
         case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
         ;;
+      kilocode-cli)
+        install_kilocode_cli
+        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
       mimocode)
         install_mimocode
         case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
