@@ -27,20 +27,7 @@
   </a>
 </p>
 
-<p align="center">
-  <a href="https://github.com/israel676767/omni/stargazers">
-    <img src="https://img.shields.io/github/stars/israel676767/omni?style=for-the-badge&logo=github&color=f5c542" alt="Stars">
-  </a>
-  <a href="https://github.com/israel676767/omni/network/members">
-    <img src="https://img.shields.io/github/forks/israel676767/omni?style=for-the-badge&logo=github&color=94a3b8" alt="Forks">
-  </a>
-  <a href="https://github.com/israel676767/omni/issues">
-    <img src="https://img.shields.io/github/issues/israel676767/omni?style=for-the-badge&logo=github&color=ef4444" alt="Issues">
-  </a>
-  <a href="https://github.com/israel676767/omni/pulls">
-    <img src="https://img.shields.io/github/issues-pr/israel676767/omni?style=for-the-badge&logo=github&color=22c55e" alt="Pull Requests">
-  </a>
-</p>
+
 
 ---
 
