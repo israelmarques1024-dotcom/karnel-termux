@@ -39,7 +39,7 @@ voice_help() {
 	echo
 	list_item "Termux:API package: ${D_CYAN}pkg install termux-api${NC}"
 	list_item "Neovim for editing: ${D_CYAN}omni install editor${NC}"
-	list_item "Termux:API app: ${D_CYAN}https://omni-site-eight.vercel.app/termux/api${NC}"
+	list_item "Termux:API app: ${D_CYAN}https://omni-catalyst.vercel.app/termux/api${NC}"
 	echo
 }
 
@@ -55,7 +55,7 @@ voice_main() {
 	if ! command -v termux-dialog &>/dev/null; then
 		log_error "Termux:API is not installed"
 		list_item "Install the package: ${D_CYAN}pkg install termux-api${NC}"
-		list_item "Install the app from: https://omni-site-eight.vercel.app/termux/api"
+		list_item "Install the app from: https://omni-catalyst.vercel.app/termux/api"
 		separator
 		exit 1
 	fi

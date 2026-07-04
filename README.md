@@ -33,6 +33,8 @@
 
 **OMNI CATALYST** é um ambiente de desenvolvimento modular que transforma o Termux em uma workstation completa. Com um único CLI (`omni`), instale e gerencie:
 
+Criado por **israel marques** (tenho 12 anos).
+
 - **28 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama e mais
 - **8 linguagens** — Node.js, Python, Go, Rust, C/C++, PHP, Perl
 - **4 bancos de dados** — PostgreSQL, MariaDB, SQLite, MongoDB
