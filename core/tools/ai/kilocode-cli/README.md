@@ -3,8 +3,8 @@
 The open source coding agent for building with AI in VS Code, JetBrains, or the CLI
 
 **Package:** kilocode-cli  
-**Author:** DevCoreX  
-**Repository:** https://github.com/DevCoreXOfficial/core-termux  
+**Author:** israel marques  
+**Repository:** https://github.com/israel676767/omni  
 **Official:** https://github.com/Kilo-Org/kilocode  
 **Type:** AI coding agent (Binary + glibc bootstrapper)  
 **License:** MIT

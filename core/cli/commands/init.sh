@@ -113,7 +113,7 @@ export default function Home() {
             <div className="p-6 rounded-xl bg-slate-900/50 border border-slate-800"><Terminal className="w-12 h-12 text-pink-400 mb-4 mx-auto" /><h3 className="text-lg font-semibold text-white mb-2">Comunidad Activa</h3></div>
           </motion.div>
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7 }} className="w-full max-w-sm mx-auto">
-            <Button size="lg" onClick={() => window.open("https://youtube.com/@devcorex", "_blank")} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-6 text-lg font-semibold">
+            <Button size="lg" onClick={() => window.open("https://youtube.com/@israel676767", "_blank")} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-6 text-lg font-semibold">
               <Rocket className="w-5 h-5 mr-2" /> Únete a omni en YouTube
             </Button>
           </motion.div>
@@ -235,7 +235,7 @@ function App() {
             <div className="p-6 rounded-xl bg-slate-900/50 border border-slate-800"><Terminal className="w-12 h-12 text-pink-400 mb-4 mx-auto" /><h3 className="text-lg font-semibold text-white mb-2">Comunidad Activa</h3></div>
           </motion.div>
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7 }} className="w-full max-w-sm mx-auto">
-            <Button size="lg" onClick={() => window.open("https://youtube.com/@devcorex", "_blank")} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-6 text-lg">
+            <Button size="lg" onClick={() => window.open("https://youtube.com/@israel676767", "_blank")} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-6 text-lg">
               <Rocket className="w-5 h-5 mr-2" /> Únete a omni en YouTube
             </Button>
           </motion.div>

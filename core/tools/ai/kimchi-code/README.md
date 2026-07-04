@@ -1,6 +1,6 @@
 ### Kimchi AI Agent
 
-AI coding agent from the core-termux ecosystem. Installed via npm.
+AI coding agent for Termux. Installed via npm.
 
 **Repository:** https://github.com/israel676767/omni  
 
