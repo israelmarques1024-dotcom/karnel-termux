@@ -56,7 +56,7 @@ show_update_notification() {
     echo
     log_warn "New version available: ${D_GREEN}$new_version${D_NC} (current: ${D_CYAN}$OMNI_VERSION${D_NC})"
     echo
-    list_item "Run: ${D_CYAN}omni update core${D_NC} to update"
+    list_item "Run: ${D_CYAN}omni update${D_NC} to update"
     echo
   fi
 }
