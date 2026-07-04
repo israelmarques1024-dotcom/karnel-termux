@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-OMNI_VERSION="4.4.0"
+OMNI_VERSION="4.7.0"
 
 # -------------------------
 # Directorios del usuario
