@@ -27,7 +27,7 @@ doctor_main() {
 
   local termux_ver=""
   if command -v termux-info &>/dev/null; then
-    termux_ver=$(termux-info 2>/dev/null | grep -i "termux_version" | head -n1 | cut -d'=' -f2)
+    termux_ver=$(timeout 5 termux-info 2>/dev/null | grep -i "termux_version" | head -n1 | cut -d'=' -f2)
   fi
   if [[ -z "$termux_ver" ]]; then
     termux_ver=$(dpkg -s termux-tools 2>/dev/null | grep -i version | awk '{print $2}')
@@ -346,12 +346,12 @@ doctor_main() {
   log_success "Omni version: $omni_ver"
 
   # Check symlinks
-  if [[ -L "$PREFIX/bin/core" ]] && [[ -L "$PREFIX/bin/omni" ]]; then
-    log_success "CLI symlinks: core, omni"
+  if [[ -L "$PREFIX/bin/omni" ]]; then
+    log_success "CLI symlink: omni"
   else
     log_warn "CLI symlinks missing"
     ((warnings++))
-    fix_commands+=("ln -sf \"$OMNI_PATH/bin/core\" \"$PREFIX/bin/core\" && ln -sf \"$OMNI_PATH/bin/omni\" \"$PREFIX/bin/omni\"")
+    fix_commands+=("ln -sf \"$OMNI_PATH/bin/omni\" \"$PREFIX/bin/omni\"")
     fix_descriptions+=("Recreate CLI symlinks")
     fix_callbacks+=("_fix_symlinks")
   fi
@@ -746,9 +746,8 @@ _fix_pg_install() {
 }
 
 _fix_symlinks() {
-  ln -sf "$OMNI_PATH/bin/core" "$PREFIX/bin/core" 2>/dev/null
   ln -sf "$OMNI_PATH/bin/omni" "$PREFIX/bin/omni" 2>/dev/null
-  [[ -L "$PREFIX/bin/core" ]] && [[ -L "$PREFIX/bin/omni" ]]
+  [[ -L "$PREFIX/bin/omni" ]]
 }
 
 _fix_banner() {
