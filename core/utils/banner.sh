@@ -385,11 +385,11 @@ _render() {
   local phline; phline=$(_repeat '─' "$PW")
 
   # Panel top
-  echo "${pad_l}${TP[0]}│${NC} ${TP[3]}╭${NC}${phline}${TP[11]}╮${NC} ${TP[15]}│${NC}${pad_r}"
+  echo "${pad_l}${TP[0]}│${NC} ${TP[3]}┏${NC}${phline}${TP[11]}┓${NC} ${TP[15]}│${NC}${pad_r}"
 
   # Panel header
   local ph=" ${TP[3]}◈${NC} ${WHITE}STATUS${NC} ${TP[3]}◈${NC} "
-  echo "${pad_l}${TP[0]}│${NC} ${TP[3]}│${NC}$(_center "$ph" "$PW")${TP[11]}│${NC} ${TP[15]}│${NC}${pad_r}"
+  echo "${pad_l}${TP[0]}│${NC} ${TP[3]}┃${NC}$(_center "$ph" "$PW")${TP[11]}┃${NC} ${TP[15]}│${NC}${pad_r}"
 
   # Panel separator
   local psep="" j
@@ -400,7 +400,7 @@ _render() {
     elif (( m == 2 )); then psep+="·"
     else psep+="─"; fi
   done
-  echo "${pad_l}${TP[0]}│${NC} ${TP[3]}│${NC}${DIM}${psep}${NC}${TP[11]}│${NC} ${TP[15]}│${NC}${pad_r}"
+  echo "${pad_l}${TP[0]}│${NC} ${TP[3]}┃${NC}${DIM}${psep}${NC}${TP[11]}┃${NC} ${TP[15]}│${NC}${pad_r}"
 
   # Panel data row
   local col_w=$(( (PW - 4) / 5 ))
@@ -416,10 +416,10 @@ _render() {
     col_line+="$(printf '%*s' "$epad" '')${entry}$(printf '%*s' "$epad2" '')"
     (( i < 4 )) && col_line+="${GRAY}│${NC}"
   done
-  echo "${pad_l}${TP[0]}│${NC} ${TP[3]}│${NC}${col_line}${TP[11]}│${NC} ${TP[15]}│${NC}${pad_r}"
+  echo "${pad_l}${TP[0]}│${NC} ${TP[3]}┃${NC}${col_line}${TP[11]}┃${NC} ${TP[15]}│${NC}${pad_r}"
 
   # Panel bottom
-  echo "${pad_l}${TP[0]}│${NC} ${TP[3]}╰${NC}${phline}${TP[11]}╯${NC} ${TP[15]}│${NC}${pad_r}"
+  echo "${pad_l}${TP[0]}│${NC} ${TP[3]}┗${NC}${phline}${TP[11]}┛${NC} ${TP[15]}│${NC}${pad_r}"
 
   # ---- Empty row ----
   echo "${pad_l}${TP[0]}│${NC}${sp_line}${TP[15]}│${NC}${pad_r}"
