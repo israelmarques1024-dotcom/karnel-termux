@@ -410,8 +410,8 @@ _render() {
     local entry="${TP[$(( i * 3 + 1 ))]}${PANEL_ICONS[$i]}${NC} ${WHITE}${PANEL_HEADERS[$i]}${NC} ${GREEN1}${val}${NC}"
     local ev; ev=$(_ansi_len "$entry")
     local epad=$(( (col_w - ev) / 2 ))
-    (( epad < 1 )) && epad=1
     local epad2=$(( col_w - ev - epad ))
+    (( epad < 0 )) && epad=0
     (( epad2 < 0 )) && epad2=0
     col_line+="$(printf '%*s' "$epad" '')${entry}$(printf '%*s' "$epad2" '')"
     (( i < 4 )) && col_line+="${GRAY}│${NC}"
