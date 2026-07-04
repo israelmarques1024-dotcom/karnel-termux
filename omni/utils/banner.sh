@@ -450,8 +450,27 @@ _render() {
   echo "${pad_l}${TP[0]}╰${NC}${bot_frame}${TP[15]}╯${NC}${pad_r}"
 }
 
+# Block user input while banner renders
+_omni_banner_block_input() {
+  if [[ -t 0 ]] && [[ -t 1 ]]; then
+    _OMNI_SAVED_STTY=$(stty -g 2>/dev/null)
+    stty -echo -icanon min 0 time 0 2>/dev/null
+    # Drain any buffered input
+    while IFS= read -rsn1 -t 0.01 _drain 2>/dev/null; do :; done
+  fi
+}
+
+_omni_banner_unblock_input() {
+  if [[ -n "${_OMNI_SAVED_STTY:-}" ]]; then
+    stty "$_OMNI_SAVED_STTY" 2>/dev/null
+    unset _OMNI_SAVED_STTY
+  fi
+}
+
+_omni_banner_block_input
 echo
 _render
+_omni_banner_unblock_input
 
 # Cache banner for clear() override
 _omni_banner_cache="${XDG_CACHE_HOME:-$HOME/.cache}/omni/banner_cache"

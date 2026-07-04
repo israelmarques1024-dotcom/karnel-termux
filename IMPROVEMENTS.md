@@ -9,7 +9,7 @@ Este relatório documenta os bugs encontrados, melhorias implementadas e sugest�
 ## Bugs Corrigidos
 
 ### 1. Inconsistência de Cores (Crítico)
-**Arquivo:** `core/utils/colors.sh`
+**Arquivo:** `omni/utils/colors.sh`
 **Problema:** Cores definidas incorretamente
 - `CYAN` estava definido como Ruby Red (vermelho)
 - `D_CYAN` estava definido como Obsidian Purple (roxo)
@@ -27,8 +27,8 @@ D_CYAN="\e[0;36m"
 ```
 
 ### 2. Inconsistência de Branding (Médio)
-**Arquivo:** `core/cli/core.sh`
-**Probrema:** Help mostrava "OMNI" mas README mostra "OMNI CATALYST"
+**Arquivo:** `omni/cli/omni.sh`
+**Problema:** Help mostrava "OMNI" mas README mostra "OMNI CATALYST"
 
 **Correção:**
 ```bash
@@ -40,7 +40,7 @@ box "◈ OMNI CATALYST v${OMNI_VERSION} ◈"
 ```
 
 ### 3. Comandos Inconsistentes (Médio)
-**Arquivo:** `core/cli/core.sh`
+**Arquivo:** `omni/cli/omni.sh`
 **Problema:** Help referenciava apenas "omni", mas o projeto suporta "core" também
 
 **Correção:** Atualizado help para mostrar ambos os comandos
@@ -50,7 +50,7 @@ box "◈ OMNI CATALYST v${OMNI_VERSION} ◈"
 ## Melhorias Implementadas
 
 ### 1. Função Genérica de Instalação
-**Arquivo:** `core/cli/commands/install.sh`
+**Arquivo:** `omni/cli/commands/install.sh`
 **Benefício:** Reduz código repetitivo em ~80%
 
 **Implementação:**
@@ -134,9 +134,10 @@ _install_tools_in_module() {
 
 ## Arquivos Modificados
 
-1. `core/utils/colors.sh` - Correção de cores
-2. `core/cli/core.sh` - Atualização de branding e help
-3. `core/cli/commands/install.sh` - Refatoração com funções genéricas
+1. `omni/utils/colors.sh` - Correção de cores
+2. `omni/cli/omni.sh` - Atualização de branding e help
+3. `omni/cli/commands/install.sh` - Refatoração com funções genéricas
+4. `core/` → `omni/` - Renomeação completa do diretório
 
 ---
 

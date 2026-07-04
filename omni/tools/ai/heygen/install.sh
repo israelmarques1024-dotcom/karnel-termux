@@ -37,24 +37,20 @@ _install_heygen_cli_impl() {
 
   local install_url="https://static.heygen.ai/cli/install.sh"
   if ! curl -fsSL --connect-timeout 10 "$install_url" | bash &>>"$LOG_FILE"; then
-    log_warn "Online install failed - installing offline stub"
-    _install_heygen_stub
-    return $?
+    log_warn "Online install failed — static.heygen.ai inacessível"
+    log_warn "Isso é uma limitação do serviço externo, não do Omni"
+    # NÃO cria stub — apenas retorna erro.
+    # O _validate_tool_installed em all.sh detectará corretamente como falha.
+    return 1
   fi
 
-  return 0
-}
+  # Valida que o instalador realmente criou o binário
+  if command -v heygen &>/dev/null; then
+    return 0
+  fi
 
-_install_heygen_stub() {
-  mkdir -p "$PREFIX/bin"
-  cat > "$PREFIX/bin/heygen" << STUB
-#!$PREFIX/bin/bash
-echo "HeyGen CLI: offline mode. Installer URL (static.heygen.ai) unreachable."
-echo "Visit https://www.heygen.com for manual download."
-exit 1
-STUB
-  chmod +x "$PREFIX/bin/heygen"
-  return 0
+  log_warn "Instalador do HeyGen executou mas binário 'heygen' não foi encontrado no PATH"
+  return 1
 }
 
 install_heygen() {
@@ -70,8 +66,14 @@ install_heygen() {
   _heygen_dependencies || return 1
   _install_heygen_cli || return 1
 
-  log_success "HeyGen CLI installed successfully"
-  return 0
+  # Validação pós-instalação: só declara sucesso se o binário REAL existe
+  if command -v heygen &>/dev/null; then
+    log_success "HeyGen CLI installed successfully"
+    return 0
+  fi
+
+  log_error "HeyGen CLI: binário não encontrado no PATH após instalação"
+  return 1
 }
 
 uninstall_heygen() {
@@ -114,8 +116,9 @@ update_heygen() {
 
 _update_heygen_impl() {
   if ! curl -fsSL --connect-timeout 10 https://static.heygen.ai/cli/install.sh | bash &>>"$LOG_FILE"; then
-    log_warn "Cannot reach static.heygen.ai - skipping update"
-    return 0
+    log_warn "Cannot reach static.heygen.ai — serviço externo indisponível"
+    log_warn "Nada foi alterado. Tente novamente mais tarde."
+    return 1
   fi
   return 0
 }

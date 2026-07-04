@@ -2,14 +2,14 @@
 
 **Author:** israel marques
 
-Omni is a Termux environment manager. The project is at `~/omni/` with code under `core/`.
+Omni is a Termux environment manager. The project is at `~/omni/` with code under `omni/`.
 
-- CLI commands: `core` and `omni` (both in PATH)
-- Main entry: `core/bin/core` or `core/bin/omni`
-- Module orchestrators: `core/modules/` (ai.sh, auto.sh, db.sh, deploy.sh, dev.sh, editor.sh, lang.sh, npm.sh, shell.sh, ui.sh)
-- Tool installers: `core/tools/` (ai/*, auto/*, db/*, deploy/*, dev/*, editor/*, lang/*, npm/*, shell/*, ui/*)
-- CLI commands: `core/cli/commands/` (install.sh, uninstall.sh, update.sh, reinstall.sh, list.sh, show.sh, open.sh, doctor.sh, brain.sh, env.sh, init.sh, pg.sh, voice.sh)
-- Utils: `core/utils/` (banner.sh, bootstrap.sh, colors.sh, env.sh, log.sh)
+- CLI command: `omni` (in PATH)
+- Main entry: `omni/bin/omni`
+- Module orchestrators: `omni/modules/` (ai.sh, auto.sh, db.sh, deploy.sh, dev.sh, editor.sh, lang.sh, npm.sh, shell.sh, ui.sh)
+- Tool installers: `omni/tools/` (ai/*, auto/*, db/*, deploy/*, dev/*, editor/*, lang/*, npm/*, shell/*, ui/*)
+- CLI commands: `omni/cli/commands/` (install.sh, uninstall.sh, update.sh, reinstall.sh, list.sh, show.sh, open.sh, doctor.sh, brain.sh, env.sh, init.sh, pg.sh, voice.sh)
+- Utils: `omni/utils/` (banner.sh, bootstrap.sh, colors.sh, env.sh, log.sh)
 
 <!-- CODEGRAPH_START -->
 ## CodeGraph

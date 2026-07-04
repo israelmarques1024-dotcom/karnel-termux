@@ -8,7 +8,7 @@ echo
 
 # Test 1: Colors
 echo "1. Testing color definitions..."
-source "$(dirname "$0")/core/utils/colors.sh"
+source "$(dirname "$0")/omni/utils/colors.sh"
 
 # Verify colors are correct ANSI codes
 if [[ "$CYAN" == "\e[1;36m" ]]; then
@@ -37,38 +37,38 @@ echo
 echo "2. Testing help output..."
 # Capture help output
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-help_output=$(export OMNI_PATH="$SCRIPT_DIR/core" && export OMNI_PATH="$SCRIPT_DIR/core" && source "$SCRIPT_DIR/core/utils/bootstrap.sh" && source "$SCRIPT_DIR/core/utils/env.sh" && source "$SCRIPT_DIR/core/cli/core.sh" && omni_help 2>&1)
+help_output=$(export OMNI_PATH="$SCRIPT_DIR/omni" && source "$SCRIPT_DIR/omni/utils/bootstrap.sh" && source "$SCRIPT_DIR/omni/utils/env.sh" && source "$SCRIPT_DIR/omni/cli/omni.sh" && omni_help 2>&1)
 
-if echo "$help_output" | grep -q "OMNI CATALYST"; then
-    echo "   ✓ Help shows OMNI CATALYST branding"
+if echo "$help_output" | grep -q "OMNI"; then
+    echo "   ✓ Help shows OMNI branding"
 else
-    echo "   ✗ Help still shows OMNI branding"
+    echo "   ✗ Help doesn't show OMNI branding"
     exit 1
 fi
 
-if echo "$help_output" | grep -q "core <command>"; then
-    echo "   ✓ Help shows core command"
+if echo "$help_output" | grep -q "omni <command>"; then
+    echo "   ✓ Help shows omni command"
 else
-    echo "   ✗ Help doesn't show core command"
+    echo "   ✗ Help doesn't show omni command"
     exit 1
 fi
 
 echo
 echo "3. Testing install help..."
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-install_help=$(export OMNI_PATH="$SCRIPT_DIR/core" && export OMNI_PATH="$SCRIPT_DIR/core" && source "$SCRIPT_DIR/core/utils/bootstrap.sh" && source "$SCRIPT_DIR/core/utils/env.sh" && source "$SCRIPT_DIR/core/cli/commands/install.sh" && install_main 2>&1)
+install_help=$(export OMNI_PATH="$SCRIPT_DIR/omni" && source "$SCRIPT_DIR/omni/utils/bootstrap.sh" && source "$SCRIPT_DIR/omni/utils/env.sh" && source "$SCRIPT_DIR/omni/cli/commands/install.sh" && install_main 2>&1)
 
-if echo "$install_help" | grep -q "Omni Catalyst Install"; then
-    echo "   ✓ Install help shows Omni Catalyst"
+if echo "$install_help" | grep -q "Omni"; then
+    echo "   ✓ Install help shows Omni"
 else
-    echo "   ✗ Install help doesn't show Omni Catalyst"
+    echo "   ✗ Install help doesn't show Omni"
     exit 1
 fi
 
-if echo "$install_help" | grep -q "core install"; then
-    echo "   ✓ Install help shows core command"
+if echo "$install_help" | grep -q "omni install"; then
+    echo "   ✓ Install help shows omni command"
 else
-    echo "   ✗ Install help doesn't show core command"
+    echo "   ✗ Install help doesn't show omni command"
     exit 1
 fi
 
@@ -77,13 +77,13 @@ echo "=== All tests passed! ==="
 echo
 echo "Summary of improvements:"
 echo "  • Fixed color definitions (CYAN/D_CYAN)"
-echo "  • Updated branding to OMNI CATALYST"
+echo "  • Updated branding to OMNI"
 echo "  • Added generic install helpers"
-echo "  • Updated help to show 'core' command"
+echo "  • Renamed core/ → omni/"
 echo
 echo "Files modified:"
-echo "  • core/utils/colors.sh"
-echo "  • core/cli/core.sh"
-echo "  • core/cli/commands/install.sh"
+echo "  • omni/utils/colors.sh"
+echo "  • omni/cli/omni.sh"
+echo "  • omni/cli/commands/install.sh"
 echo
 echo "See IMPROVEMENTS.md for full details."

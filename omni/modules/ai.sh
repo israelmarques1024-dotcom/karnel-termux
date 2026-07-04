@@ -19,39 +19,37 @@ install_ai() {
 
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  _install_ai_tools_wrapper
-  log_success "AI tools installed successfully"
+  # Captura o exit code do instalador batch
+  local install_rc=0
+  _install_ai_tools_wrapper || install_rc=$?
+
   separator
+
+  if [ "$install_rc" -eq 0 ]; then
+    log_success "AI tools installed successfully"
+  else
+    log_warn "AI tools installed with $install_rc failure(s)"
+    log_info "Check the details above for which tools failed"
+    log_info "Run ${D_CYAN}omni doctor${NC} for system diagnostics"
+  fi
+
   echo
-  list_item "Qwen Code ${GRAY}(${D_GREEN}qwen${GRAY})"
-  list_item "Gemini CLI ${GRAY}(${D_GREEN}gemini${GRAY})"
-  list_item "Claude Code ${GRAY}(${D_GREEN}claude${GRAY})"
-  list_item "Mistral Vibe ${GRAY}(${D_GREEN}vibe${GRAY})"
-  list_item "OpenClaude ${GRAY}(${D_GREEN}openclaude${GRAY})"
-  list_item "OpenClaw ${GRAY}(${D_GREEN}openclaw${GRAY})"
-  list_item "Ollama ${GRAY}(${D_GREEN}ollama${GRAY})"
-  list_item "Codex ${GRAY}(${D_GREEN}codex${GRAY})"
-  list_item "OpenCode ${GRAY}(${D_GREEN}opencode${GRAY})"
-  list_item "Kilo Code CLI ${GRAY}(${D_GREEN}kilo${GRAY})"
-  list_item "MiMo Code ${GRAY}(${D_GREEN}mimocode${GRAY})"
-  list_item "Engram ${GRAY}(${D_GREEN}engram${GRAY})"
-  list_item "CodeGraph ${GRAY}(${D_GREEN}codegraph${GRAY})"
-  list_item "Pi ${GRAY}(${D_GREEN}pi${GRAY})"
-  list_item "Antigravity CLI ${GRAY}(${D_GREEN}agy${GRAY})"
-  list_item "Minimax CLI ${GRAY}(${D_GREEN}mmx${GRAY})"
-  list_item "Gentle AI ${GRAY}(${D_GREEN}gentle-ai${GRAY})"
-  list_item "GGA ${GRAY}(${D_GREEN}gga${GRAY})"
-  list_item "Hermes Agent ${GRAY}(${D_GREEN}hermes${GRAY})"
-  list_item "Kimi Code ${GRAY}(${D_GREEN}kimi${GRAY})"
-  list_item "Command Code ${GRAY}(${D_GREEN}command-code${GRAY})"
-  list_item "Freebuff ${GRAY}(${D_GREEN}freebuff${GRAY})"
-  list_item "Kiro CLI ${GRAY}(${D_GREEN}kiro${GRAY})"
-  list_item "HeyGen CLI ${GRAY}(${D_GREEN}heygen${GRAY})"
-  list_item "Seedance CLI ${GRAY}(${D_GREEN}seedance${GRAY})"
-  list_item "Veo 3 SDK ${GRAY}(${D_GREEN}veo3${GRAY})"
-	list_item "Odysseus ${GRAY}(${D_GREEN}odysseus${GRAY})"
-	list_item "Kimchi AI ${GRAY}(${D_GREEN}kimchi${GRAY})"
-	echo
+  log_info "Tools installed and their commands:"
+  echo
+
+  # Mostra apenas ferramentas que foram realmente instaladas (command -v)
+  local _reg_entry _id _name _bins
+  for _reg_entry in "${AI_TOOLS_REGISTRY[@]}"; do
+    IFS=':' read -r _id _name _bins <<< "$_reg_entry"
+    # Pega o primeiro binario da lista (separado por virgula)
+    local _first_bin="${_bins%%,*}"
+    if command -v "$_first_bin" &>/dev/null; then
+      list_item "$_name ${GRAY}(${D_GREEN}$_first_bin${GRAY})"
+    fi
+  done
+
+  echo
+  return $install_rc
 }
 
 _install_ai_tools_wrapper() {

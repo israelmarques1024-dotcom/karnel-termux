@@ -93,16 +93,31 @@ install_main() {
   # Separate module target from tool flags
   local module_target=""
   local -a tool_flags=()
+  local -a invalid_args=()
 
   for arg in "$@"; do
     if [[ "$arg" == --* ]]; then
-      # Remove -- prefix and convert to lowercase
+      # Remove -- prefix
       local flag="${arg#--}"
       tool_flags+=("$flag")
     elif [[ -z "$module_target" ]]; then
       module_target="$arg"
+    else
+      # Argumento extra sem -- é inválido
+      invalid_args+=("$arg")
     fi
   done
+
+  # Se houver argumentos inválidos, mostrar erro e abortar
+  if [[ ${#invalid_args[@]} -gt 0 ]]; then
+    log_error "Argumentos inválidos: ${invalid_args[*]}"
+    echo
+    log_info "Para instalar ferramentas específicas, use -- antes do nome:"
+    log_info "  ${D_CYAN}omni install $module_target --${invalid_args[0]}${NC}"
+    echo
+    log_info "Exemplo correto: ${D_CYAN}omni install ai --opencode --ollama${NC}"
+    return 1
+  fi
 
   # If no module target specified, show error
   if [[ -z "$module_target" ]]; then
@@ -184,124 +199,63 @@ _install_specific_tools() {
     local installed_count=0
     local failed_count=0
 
+    # ⚠️ Estas entradas DEVEM permanecer em sincronia com AI_TOOLS_REGISTRY em omni/tools/ai/all.sh
+    # Para adicionar nova ferramenta: 1) criar install.sh 2) adicionar ao AI_TOOLS_REGISTRY 3) adicionar case aqui
+    # Importa o registry para usar _validate_tool_installed
+    local -A _tool_binaries=()
+    local _entry _id _name _bins
+    for _entry in "${AI_TOOLS_REGISTRY[@]}"; do
+      IFS=':' read -r _id _name _bins <<< "$_entry"
+      _tool_binaries["$_id"]="$_bins"
+    done
+
     for tool in "${tools[@]}"; do
-      case "$tool" in
-      qwen-code)
-        install_qwen_code
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      gemini-cli)
-        install_gemini_cli
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      claude-code)
-        install_claude_code
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      mistral-vibe)
-        install_mistral_vibe
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      openclaude)
-        install_openclaude
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      openclaw)
-        install_openclaw
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      ollama)
-        install_ollama
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      codex)
-        install_codex
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      opencode)
-        install_opencode
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      kilocode-cli)
-        install_kilocode_cli
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      mimocode)
-        install_mimocode
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      engram)
-        install_engram
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      codegraph)
-        install_codegraph
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      pi)
-        install_pi
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      antigravity-cli)
-        install_antigravity_cli
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      minimax-cli)
-        install_minimax_cli
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      gentle-ai)
-        install_gentle_ai
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      gga)
-        install_gga
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      hermes-agent)
-        install_hermes_agent
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      kimi-code)
-        install_kimi_code
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      command-code)
-        install_command_code
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      freebuff)
-        install_freebuff
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      kiro-cli)
-        install_kiro_cli
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      heygen)
-        install_heygen
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      seedance)
-        install_seedance
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      veo3)
-        install_veo3
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      odysseus)
-        install_odysseus
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      kimchi-code)
-        install_kimchi_code
-        case $? in 0) ((installed_count++));; 1) ((failed_count++));; esac
-        ;;
-      *)
-        log_warn "Unknown AI tool: --$tool"
-        ;;
-      esac
+      local func_name="install_${tool//-/_}"
+      local tool_display="${tool//-/_}"
+
+      if declare -f "$func_name" &>/dev/null; then
+        "$func_name"
+        local func_rc=$?
+
+        case $func_rc in
+          0)
+            # Validacao pos-instalacao: command -v para o(s) binario(s)
+            local bins="${_tool_binaries[$tool]:-$tool}"
+            local found_bin=""
+            local _bin
+            IFS=',' read -ra _bin_list <<< "$bins"
+            for _bin in "${_bin_list[@]}"; do
+              if command -v "$_bin" &>/dev/null; then
+                # Verifica se nao e um stub
+                local _bin_path
+                _bin_path=$(command -v "$_bin")
+                if [ -f "$_bin_path" ] && [ -x "$_bin_path" ]; then
+                  if ! grep -qiE "offline|unreachable|not.available|stub|indisponivel|inacessivel" "$_bin_path" 2>/dev/null || [ "$(head -c 2 "$_bin_path")" != "#!" ]; then
+                    found_bin="$_bin"
+                    break
+                  fi
+                fi
+              fi
+            done
+            if [ -n "$found_bin" ]; then
+              ((installed_count++))
+            else
+              log_warn "$tool: binário não encontrado no PATH após instalação"
+              ((failed_count++))
+            fi
+            ;;
+          1)
+            ((failed_count++))
+            ;;
+          2)
+            # Ja instalado (skipped)
+            ((installed_count++))
+            ;;
+        esac
+      else
+        log_warn "Function not found: $func_name"
+        ((failed_count++))
+      fi
     done
 
     echo

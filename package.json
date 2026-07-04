@@ -3,12 +3,11 @@
   "version": "1.0.1",
   "description": "Modular Dev Environment for Termux — install languages, databases, AI agents, editors, and more with one command",
   "bin": {
-    "omni": "core/bin/omni",
-    "core": "core/bin/core"
+    "omni": "omni/bin/omni"
   },
-  "main": "core/bin/core",
+  "main": "omni/bin/omni",
   "files": [
-    "core/",
+    "omni/",
     "install.sh",
     "README.md",
     "LICENSE"

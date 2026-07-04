@@ -209,13 +209,12 @@ create_symlink() {
 	log_step 4 "Creating symlinks"
 
 	rm -f "$PREFIX/bin/core" "$PREFIX/bin/omni"
-	ln -sf "$OMNI_DATA/core/bin/core" "$PREFIX/bin/core"
-	ln -sf "$OMNI_DATA/core/bin/omni" "$PREFIX/bin/omni"
+	ln -sf "$OMNI_DATA/omni/bin/omni" "$PREFIX/bin/omni"
 
-	if [[ -L "$PREFIX/bin/core" ]]; then
-		log_ok "Symlinks created: core, omni → ${OMNI_DATA}/core/bin/"
+	if [[ -L "$PREFIX/bin/omni" ]]; then
+		log_ok "Symlink created: omni → ${OMNI_DATA}/omni/bin/omni"
 	else
-		log_fail "Failed to create symlinks"
+		log_fail "Failed to create symlink"
 		return 1
 	fi
 }

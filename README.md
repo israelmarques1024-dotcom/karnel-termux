@@ -324,11 +324,11 @@ omni deploy vercel
 
 ```
 omni/
-├── core/
-│   ├── bin/           # Binários (core, omni)
+├── omni/
+│   ├── bin/           # Binário (omni)
 │   ├── cli/
 │   │   ├── commands/  # Comandos CLI (install, list, show, etc.)
-│   │   └── core.sh    # CLI principal
+│   │   └── omni.sh    # CLI principal (com TUI)
 │   ├── modules/       # Orquestradores de módulos
 │   ├── tools/         # Instaladores de ferramentas
 │   │   ├── ai/        # 28 agentes de IA

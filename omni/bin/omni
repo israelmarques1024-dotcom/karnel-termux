@@ -27,35 +27,28 @@ check_for_updates() {
   local check_interval=86400  # 24 horas en segundos
   local last_check=0
 
-  # Leer último check
   if [[ -f "$version_file" ]]; then
     last_check=$(cat "$version_file" 2>/dev/null | head -1)
   fi
 
-  # Verificar si ya pasó 24 horas
   if (( current_time - last_check < check_interval )); then
     return 0
   fi
 
-  # Guardar timestamp actual
   mkdir -p "$OMNI_CACHE"
   echo "$current_time" > "$version_file"
 
-  # Verificar updates en background (no bloquear)
   (
-    local remote_version=$(curl -fsSL "https://raw.githubusercontent.com/israel676767/omni/main/core/utils/env.sh" 2>/dev/null | grep "OMNI_VERSION=" | cut -d'"' -f2)
+    local remote_version=$(curl -fsSL "https://raw.githubusercontent.com/israel676767/omni/main/omni/utils/env.sh" 2>/dev/null | grep "OMNI_VERSION=" | cut -d'"' -f2)
     local local_version="$OMNI_VERSION"
-
     if [[ -n "$remote_version" ]] && [[ "$remote_version" != "$local_version" ]]; then
       echo "$remote_version" > "$OMNI_CACHE/new_version"
     fi
   ) &>/dev/null &
 }
 
-# Mostrar notificación de update
 show_update_notification() {
   local new_version_file="$OMNI_CACHE/new_version"
-
   if [[ -f "$new_version_file" ]]; then
     local new_version=$(cat "$new_version_file")
     echo
@@ -68,18 +61,14 @@ show_update_notification() {
   fi
 }
 
-# Check updates (solo si no es comando de update)
 if [[ "$1" != "update" ]] && [[ "$1" != "uninstall" ]] && [[ "$1" != "reinstall" ]]; then
   check_for_updates
-  
-  # Importar logs para la notificación
   import "@/utils/log"
   import "@/utils/colors"
-  
   show_update_notification
 fi
 
-# cargar CLI
-import "@/cli/core"
+# cargar CLI unificado (com TUI + help)
+import "@/cli/omni"
 
 omni_main "$@"
