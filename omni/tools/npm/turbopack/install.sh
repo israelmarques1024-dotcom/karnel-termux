@@ -14,6 +14,7 @@ install_turbopack() {
     log_error "Failed to install Turbopack"
     return 1
   }
+  _fix_npm_shebang "turbo"
   log_success "Turbopack installed"
 }
 

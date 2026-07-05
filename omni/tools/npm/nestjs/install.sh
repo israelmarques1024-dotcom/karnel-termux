@@ -24,6 +24,7 @@ _install_nestjs_npm_impl() {
     log_error "Failed to install NestJS CLI"
     return 1
   fi
+  _fix_npm_shebang "nest"
   return 0
 }
 

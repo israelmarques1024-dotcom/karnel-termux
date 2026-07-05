@@ -24,6 +24,7 @@ _install_vercel_npm_impl() {
     log_error "Failed to install Vercel CLI"
     return 1
   fi
+  _fix_npm_shebang "vercel"
   return 0
 }
 

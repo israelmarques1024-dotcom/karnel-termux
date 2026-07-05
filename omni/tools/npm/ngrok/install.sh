@@ -21,9 +21,10 @@ _install_ngrok_npm() {
 
 _install_ngrok_npm_impl() {
   if ! npm install -g ngrok &>>"$LOG_FILE"; then
-    log_error "Failed to install Ngrok"
+    log_error "Failed to install ngrok"
     return 1
   fi
+  _fix_npm_shebang "ngrok"
   return 0
 }
 

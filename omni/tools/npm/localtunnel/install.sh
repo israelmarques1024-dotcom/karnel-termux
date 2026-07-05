@@ -41,6 +41,7 @@ _install_localtunnel_npm_impl() {
   fi
   log_info "Applying localtunnel fix for Android..."
   _localtunnel_fix_openurl &>>"$LOG_FILE"
+  _fix_npm_shebang "lt"
   return 0
 }
 

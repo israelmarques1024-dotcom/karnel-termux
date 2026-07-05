@@ -21,9 +21,10 @@ _install_markserv_npm() {
 
 _install_markserv_npm_impl() {
   if ! npm install -g markserv &>>"$LOG_FILE"; then
-    log_error "Failed to install Markserv"
+    log_error "Failed to install markserv"
     return 1
   fi
+  _fix_npm_shebang "markserv"
   return 0
 }
 

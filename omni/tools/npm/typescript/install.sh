@@ -24,6 +24,7 @@ _install_typescript_npm_impl() {
     log_error "Failed to install TypeScript"
     return 1
   fi
+  _fix_npm_shebang "tsc"
   return 0
 }
 

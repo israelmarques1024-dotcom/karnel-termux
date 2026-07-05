@@ -21,9 +21,10 @@ _install_live_server_npm() {
 
 _install_live_server_npm_impl() {
   if ! npm install -g live-server &>>"$LOG_FILE"; then
-    log_error "Failed to install Live Server"
+    log_error "Failed to install live-server"
     return 1
   fi
+  _fix_npm_shebang "live-server"
   return 0
 }
 

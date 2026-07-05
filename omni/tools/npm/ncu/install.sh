@@ -21,9 +21,10 @@ _install_ncu_npm() {
 
 _install_ncu_npm_impl() {
   if ! npm install -g npm-check-updates &>>"$LOG_FILE"; then
-    log_error "Failed to install NPM Check Updates"
+    log_error "Failed to install npm-check-updates"
     return 1
   fi
+  _fix_npm_shebang "ncu"
   return 0
 }
 

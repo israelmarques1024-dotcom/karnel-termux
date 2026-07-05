@@ -24,6 +24,7 @@ _install_prettier_npm_impl() {
     log_error "Failed to install Prettier"
     return 1
   fi
+  _fix_npm_shebang "prettier"
   return 0
 }
 

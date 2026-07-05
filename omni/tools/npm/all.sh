@@ -23,6 +23,30 @@ for _tool in "${NODE_PACKAGES[@]}"; do
 done
 unset _tool
 
+_fix_npm_shebang() {
+  local bin_name="$1"
+  local bin_path="$PREFIX/bin/$bin_name"
+  [ ! -f "$bin_path" ] && [ ! -L "$bin_path" ] && return 0
+
+  local real_path
+  real_path=$(readlink -f "$bin_path" 2>/dev/null || echo "$bin_path")
+  [ ! -f "$real_path" ] && return 0
+
+  local shebang
+  shebang=$(head -1 "$real_path")
+
+  case "$shebang" in
+    "#!/usr/bin/env node"|"#!/data/data/com.termux/files/usr/bin/env node")
+      sed -i "1s|.*|#!$PREFIX/bin/node|" "$real_path"
+      log_info "Fixed shebang for $bin_name: $shebang → $PREFIX/bin/node"
+      ;;
+    "#!/usr/bin/env bash"|"#!/data/data/com.termux/files/usr/bin/env bash")
+      sed -i "1s|.*|#!$PREFIX/bin/bash|" "$real_path"
+      log_info "Fixed shebang for $bin_name: $shebang → $PREFIX/bin/bash"
+      ;;
+  esac
+}
+
 _batch_npm() {
   local action="$1"
   local action_past="$2"

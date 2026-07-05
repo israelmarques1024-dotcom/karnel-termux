@@ -21,9 +21,10 @@ _install_psqlformat_npm() {
 
 _install_psqlformat_npm_impl() {
   if ! npm install -g psqlformat &>>"$LOG_FILE"; then
-    log_error "Failed to install PSQL Format"
+    log_error "Failed to install psqlformat"
     return 1
   fi
+  _fix_npm_shebang "psqlformat"
   return 0
 }
 
