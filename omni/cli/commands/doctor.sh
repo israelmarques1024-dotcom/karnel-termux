@@ -333,7 +333,83 @@ doctor_main() {
     fix_callbacks+=("_fix_pg_install")
   fi
 
-  # ===== 9. OMNI FRAMEWORK =====
+  # ===== 9. PYTHON COMPATIBILITY CHECKS =====
+  echo
+  separator_section "Python Compatibility (Termux patches)"
+  echo
+
+  # psutil Android check
+  if python3 -c "import psutil; print(psutil.__version__)" &>/dev/null; then
+    log_success "psutil: $(python3 -c 'import psutil; print(psutil.__version__)') — Android patch OK"
+  else
+    log_warn "psutil not installed — needed by hermes-agent and other AI tools"
+    ((warnings++))
+    fix_commands+=("pip install psutil==7.2.2")
+    fix_descriptions+=("Install psutil for Python process monitoring")
+    fix_callbacks+=("_fix_psutil")
+  fi
+
+  # Python version constraint check (pyproject.toml files)
+  local constraint_issues=0
+  while IFS= read -r -d '' pyproject; do
+    local require_py
+    require_py=$(grep -E 'requires-python\s*=' "$pyproject" 2>/dev/null | grep -oP '>=3\.\d+,<3\.\d+')
+    if [[ -n "$require_py" ]]; then
+      local max_ver
+      max_ver=$(echo "$require_py" | grep -oP '<3\.\K\d+')
+      if [[ -n "$max_ver" ]] && (( max_ver <= 14 )); then
+        log_warn "Constraint in $(basename "$(dirname "$pyproject")"): $require_py may block Python 3.14"
+        ((constraint_issues++))
+      fi
+    fi
+  done < <(timeout 10 find "$HOME/.hermes" "$HOME/omni" -name "pyproject.toml" -maxdepth 3 -print0 2>/dev/null || true)
+  if (( constraint_issues == 0 )); then
+    log_success "No Python version constraints blocking 3.14"
+  fi
+
+  # C extension build capability
+  local cc_test="$PREFIX/tmp/cext_test.c"
+  echo '#include <Python.h>' > "$cc_test"
+  if python3-config --includes &>/dev/null && \
+     clang $(python3-config --includes) -shared -fPIC -o /dev/null -x c - <<<'#include <Python.h>' &>/dev/null; then
+    log_success "C extensions can be compiled (Python.h + clang OK)"
+  else
+    log_warn "C extension build may fail — clang or Python headers issue"
+    ((warnings++))
+    fix_commands+=("pkg install -y clang python-dev")
+    fix_descriptions+=("Install C build dependencies for Python extensions")
+    fix_callbacks+=("_fix_pkg_install")
+  fi
+  rm -f "$cc_test"
+
+  # uv availability (used by hermes-agent installer)
+  if command -v uv &>/dev/null; then
+    log_success "uv package manager: available"
+  else
+    log_info "uv not installed (used by hermes-agent, optional)"
+  fi
+
+  # pip check — detect broken dependencies
+  local pip_check_output
+  pip_check_output=$(timeout 15 pip check 2>&1 | grep -i "broken\|missing\|conflict\|incompatible" || true)
+  if [[ -z "$pip_check_output" ]]; then
+    log_success "pip dependencies: consistent"
+  else
+    log_warn "pip dependency issues detected"
+    echo "$pip_check_output" | while IFS= read -r line; do
+      list_item "$line"
+    done
+    ((warnings++))
+    local broken_pkgs
+    broken_pkgs=$(timeout 10 pip check 2>&1 | grep -oP '^\S+' | head -3 | tr '\n' ' ')
+    if [[ -n "$broken_pkgs" ]]; then
+      fix_commands+=("pip install --upgrade --force-reinstall $broken_pkgs")
+      fix_descriptions+=("Fix pip dependency conflicts: $broken_pkgs")
+      fix_callbacks+=("_fix_pip_check")
+    fi
+  fi
+
+  # ===== 10. OMNI FRAMEWORK =====
   echo
   separator_section "Omni Framework"
   echo
@@ -398,7 +474,90 @@ doctor_main() {
     log_info "$ai_count AI tool(s) installed"
   fi
 
-  # ===== 11. SHELL CONFIGURATION =====
+  # Registry consistency check
+  local registry_file="$OMNI_PATH/omni/tools/ai/all.sh"
+  if [[ -f "$registry_file" ]]; then
+    local registered_tools
+    registered_tools=$(grep -cE '^[[:space:]]*"[^:]+:[^:]+:[^"]+"' "$registry_file" 2>/dev/null || echo 0)
+    local installed_ai
+    installed_ai=0
+    for cmd in "${ai_cmds[@]}"; do
+      command -v "$cmd" &>/dev/null && ((installed_ai++))
+    done
+    log_info "AI registry: $registered_tools tools | Installed: $installed_ai"
+  fi
+
+  # Check for discontinued/removed tools still referenced
+  local discontinued_refs
+  discontinued_refs=$(grep -rl "kiro-cli\|hermes-agent" "$OMNI_PATH/omni/tools/ai/" 2>/dev/null | grep -v "all.sh" || true)
+  if [[ -n "$discontinued_refs" ]]; then
+    log_warn "Removed tools still referenced: $(echo "$discontinued_refs" | tr '\n' ' ')"
+    ((warnings++))
+  fi
+
+  # ===== SHEBANG & BINARY HEALTH =====
+  echo
+  separator_section "Binary & Shebang Health"
+  echo
+
+  # Check for bad shebangs (#!/usr/bin/env) in PREFIX/bin (fast grep)
+  local bad_shebangs=0
+  local bad_files
+  bad_files=$(timeout 10 rg -l "^#!/usr/bin/env" "$PREFIX/bin/" 2>/dev/null || true)
+  if [[ -n "$bad_files" ]]; then
+    bad_shebangs=$(echo "$bad_files" | wc -l)
+    log_warn "$bad_shebangs binary(s) with #!/usr/bin/env — will fail on Termux"
+    echo "$bad_files" | while IFS= read -r f; do
+      list_item "$(basename "$f")"
+    done
+    ((warnings++))
+    fix_commands+=("omni install npm --all 2>/dev/null || true")
+    fix_descriptions+=("Reinstall npm tools to fix shebangs")
+    fix_callbacks+=("_fix_npm_shebangs")
+  else
+    log_success "All binaries have valid shebangs"
+  fi
+
+  # Check for broken symlinks in PREFIX/bin
+  local broken_symlinks=0
+  for f in "$PREFIX/bin/"*; do
+    [[ -L "$f" ]] && [[ ! -e "$f" ]] && ((broken_symlinks++))
+  done
+  if (( broken_symlinks > 0 )); then
+    log_warn "$broken_symlinks broken symlink(s) in $PREFIX/bin"
+    ((warnings++))
+    fix_commands+=("find $PREFIX/bin -type l ! -exec test -e {} \; -delete")
+    fix_descriptions+=("Remove broken symlinks from PREFIX/bin")
+    fix_callbacks+=("_fix_broken_symlinks")
+  else
+    log_success "No broken symlinks in $PREFIX/bin"
+  fi
+
+  # Detect glibc-dependent binaries (need proot)
+  local glibc_bins=0
+  local -a glibc_dependent=("kimchi")
+  for cmd in "${glibc_dependent[@]}"; do
+    local path
+    path=$(command -v "$cmd" 2>/dev/null)
+    if [[ -n "$path" ]]; then
+      if file "$path" 2>/dev/null | grep -qi "ELF\|executable" && \
+         ! ldd "$path" &>/dev/null 2>&1; then
+        log_info "$cmd: glibc binary (needs proot)"
+        if command -v proot-distro &>/dev/null; then
+          log_success "  proot-distro available as fallback"
+        else
+          log_warn "  $cmd needs proot but proot-distro not installed"
+          ((warnings++))
+        fi
+        ((glibc_bins++))
+      fi
+    fi
+  done
+  if (( glibc_bins == 0 )); then
+    log_success "No glibc-dependent binaries detected"
+  fi
+
+  # ===== SHELL CONFIGURATION =====
   echo
   separator_section "Shell Configuration"
   echo
@@ -423,7 +582,79 @@ doctor_main() {
     ((warnings++))
   fi
 
-  # ===== 12. PHANTOM PROCESS KILLER =====
+  # ===== CACHE & BUILD ARTIFACTS =====
+  echo
+  separator_section "Cache & Build Artifacts"
+  echo
+
+  # npm cache
+  local npm_cache_dir
+  npm_cache_dir=$(npm config get cache 2>/dev/null)
+  if [[ -n "$npm_cache_dir" ]] && [[ -d "$npm_cache_dir" ]]; then
+    local npm_cache_size
+    npm_cache_size=$(du -sh "$npm_cache_dir" 2>/dev/null | awk '{print $1}')
+    log_info "npm cache: $npm_cache_size"
+    if [[ "$npm_cache_size" =~ [0-9]+G ]]; then
+      log_warn "npm cache is large (${npm_cache_size}) — consider cleaning"
+      ((warnings++))
+      fix_commands+=("npm cache clean --force 2>/dev/null")
+      fix_descriptions+=("Clean npm cache")
+      fix_callbacks+=("_fix_npm_cache")
+    fi
+  fi
+
+  # pip cache
+  local pip_cache_dir
+  pip_cache_dir=$(pip cache dir 2>/dev/null)
+  if [[ -n "$pip_cache_dir" ]] && [[ -d "$pip_cache_dir" ]]; then
+    local pip_cache_size
+    pip_cache_size=$(du -sh "$pip_cache_dir" 2>/dev/null | awk '{print $1}')
+    log_info "pip cache: $pip_cache_size"
+    if [[ "$pip_cache_size" =~ [0-9]+G ]]; then
+      log_warn "pip cache is large (${pip_cache_size})"
+      ((warnings++))
+      fix_commands+=("pip cache purge 2>/dev/null")
+      fix_descriptions+=("Clean pip cache")
+      fix_callbacks+=("_fix_pip_cache")
+    fi
+  fi
+
+  # Python __pycache__ bloat
+  local pycache_size
+  pycache_size=$(find "$PREFIX/lib/python3.*" -name "__pycache__" -type d -exec du -sk {} + 2>/dev/null | awk '{s+=$1}END{printf "%.0f", s/1024}')
+  if [[ -n "$pycache_size" ]] && (( pycache_size > 50 )); then
+    log_info "Python __pycache__: ${pycache_size}MB"
+    if (( pycache_size > 200 )); then
+      log_warn "Large Python cache (${pycache_size}MB) — may slow imports"
+      fix_commands+=("find $PREFIX/lib/python3.* -name __pycache__ -exec rm -rf {} + 2>/dev/null")
+      fix_descriptions+=("Clean Python __pycache__ directories")
+      fix_callbacks+=("_fix_pycache")
+    fi
+  fi
+
+  # cargo cache (if rust installed)
+  if [[ -d "$HOME/.cargo/registry" ]]; then
+    local cargo_size
+    cargo_size=$(du -sh "$HOME/.cargo/registry" 2>/dev/null | awk '{print $1}')
+    log_info "cargo registry: $cargo_size"
+  fi
+
+  # omni cache
+  if [[ -d "$OMNI_CACHE" ]]; then
+    local omni_cache_size
+    omni_cache_size=$(du -sh "$OMNI_CACHE" 2>/dev/null | awk '{print $1}')
+    log_info "omni cache: $omni_cache_size"
+  fi
+
+  # Zombie/stale build processes
+  local stale_builds
+  stale_builds=$(pgrep -f "pip.*install\|npm.*install\|cargo.*build" 2>/dev/null | wc -l)
+  if (( stale_builds > 0 )); then
+    log_warn "$stale_builds build process(es) still running"
+    list_item "Run 'kill \$(pgrep -f \"pip.*install\")' to clean up"
+  fi
+
+  # ===== PHANTOM PROCESS KILLER =====
   echo
   separator_section "Android Compatibility"
   echo
@@ -437,7 +668,37 @@ doctor_main() {
     log_success "No phantom killer warnings apply"
   fi
 
-  # ===== 13. TERMUX:API =====
+  # ===== PROOT / GLIBC ENVIRONMENT =====
+  echo
+  separator_section "Proot & glibc Environment"
+  echo
+
+  if command -v proot-distro &>/dev/null; then
+    log_success "proot-distro: available"
+    local ubuntu_installed=false
+    if proot-distro list 2>/dev/null | grep -qi ubuntu; then
+      ubuntu_installed=true
+      log_success "Ubuntu proot container: installed"
+    else
+      log_info "Ubuntu proot container: not installed (needed by kimchi)"
+      fix_commands+=("proot-distro install ubuntu 2>/dev/null")
+      fix_descriptions+=("Install Ubuntu proot container for glibc tools")
+      fix_callbacks+=("_fix_proot_ubuntu")
+    fi
+  else
+    log_info "proot-distro not installed (optional, needed for kimchi)"
+    fix_commands+=("pkg install -y proot-distro")
+    fix_descriptions+=("Install proot-distro for glibc compatibility")
+    fix_callbacks+=("_fix_pkg_install")
+  fi
+
+  if command -v proot &>/dev/null; then
+    log_success "proot: available"
+  else
+    log_info "proot not installed (optional)"
+  fi
+
+  # ===== TERMUX:API =====
   echo
   separator_section "Termux:API"
   echo
@@ -489,11 +750,41 @@ doctor_main() {
   separator_section "Network"
   echo
 
+  # DNS resolution
+  if nslookup github.com &>/dev/null || host github.com &>/dev/null; then
+    log_success "DNS resolution: OK"
+  else
+    log_warn "DNS resolution failed"
+    ((warnings++))
+    fix_commands+=("echo 'nameserver 8.8.8.8' > $PREFIX/etc/resolv.conf")
+    fix_descriptions+=("Set Google DNS (8.8.8.8) for Termux")
+    fix_callbacks+=("_fix_dns")
+  fi
+
   if curl -fsSL --max-time 5 https://github.com &>/dev/null; then
-    log_success "Network connectivity: OK"
+    log_success "HTTPS connectivity: OK"
   else
     log_warn "Network connectivity issue detected"
     ((warnings++))
+  fi
+
+  # Termux mirror speed
+  local active_mirror=""
+  if [[ -f "$PREFIX/etc/apt/sources.list" ]]; then
+    active_mirror=$(grep -oP 'https?://[^ ]+' "$PREFIX/etc/apt/sources.list" 2>/dev/null | head -1)
+  fi
+  if [[ -n "$active_mirror" ]]; then
+    local mirror_host
+    mirror_host=$(echo "$active_mirror" | awk -F/ '{print $3}')
+    local ping_time
+    ping_time=$(timeout 5 ping -c 1 -W 3 "$mirror_host" 2>/dev/null | grep -oP 'time=\K[0-9.]+' || echo "slow")
+    log_info "Termux mirror: $mirror_host (${ping_time}ms)"
+    if [[ "$ping_time" == "slow" ]]; then
+      log_warn "Termux mirror is slow — consider switching"
+      fix_commands+=("termux-change-repo")
+      fix_descriptions+=("Switch to a faster Termux mirror")
+      fix_callbacks+=("_fix_mirror")
+    fi
   fi
 
   # ===== 17. OPENSSH =====
@@ -543,7 +834,67 @@ doctor_main() {
     fi
   done
 
-  # ===== 20. GENERATE REPORT =====
+  # ===== ZSH PLUGINS & OMNI INTEGRATION =====
+  echo
+  separator_section "Zsh Plugins & Omni Integration"
+  echo
+
+  local zsh_plugins_dir="$HOME/.oh-my-zsh/custom/plugins"
+  if [[ -d "$zsh_plugins_dir" ]]; then
+    local -a needed_plugins=("history-substring-search" "you-should-use")
+    for plugin in "${needed_plugins[@]}"; do
+      if [[ -d "$zsh_plugins_dir/$plugin" ]]; then
+        log_success "zsh plugin: $plugin"
+      else
+        log_info "zsh plugin: $plugin not found (optional)"
+      fi
+    done
+  else
+    local zsh_custom="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+    if [[ ! -d "$zsh_custom" ]]; then
+      log_info "Oh My Zsh not installed (optional)"
+    fi
+  fi
+
+  # Check omni module loading
+  if [[ -f "$HOME/.zshrc" ]] && grep -q "omni" "$HOME/.zshrc" 2>/dev/null; then
+    log_success "Omni integration in .zshrc"
+  fi
+
+  # ===== GPU / OPENGL INFO =====
+  echo
+  separator_section "GPU & Hardware Acceleration"
+  echo
+
+  if command -v termux-info &>/dev/null; then
+    local gpu_info
+    gpu_info=$(termux-info 2>/dev/null | grep -i "gpu\|render\|opengl" | head -3)
+    if [[ -n "$gpu_info" ]]; then
+      log_success "GPU: $(echo "$gpu_info" | tr -s ' ')"
+    fi
+  fi
+
+  # Check /dev/dri or /dev/ Mali for GPU acceleration
+  if [[ -e /dev/dri/renderD128 ]] || [[ -e /dev/mali0 ]]; then
+    log_success "GPU render node accessible"
+  fi
+
+  # ===== ENCODING & LOCALE =====
+  echo
+  separator_section "Locale & Encoding"
+  echo
+
+  if locale 2>/dev/null | grep -qi "utf8\|utf-8"; then
+    log_success "UTF-8 locale: OK"
+  else
+    log_warn "UTF-8 locale not set — may cause encoding issues"
+    ((warnings++))
+    fix_commands+=("echo 'export LANG=en_US.UTF-8' >> $HOME/.zshrc")
+    fix_descriptions+=("Set UTF-8 locale in shell config")
+    fix_callbacks+=("_fix_locale")
+  fi
+
+  # ===== GENERATE REPORT =====
   local report_dir="$OMNI_DATA/doctor_reports"
   mkdir -p "$report_dir"
   local report_file="$report_dir/doctor_report_latest.md"
@@ -830,4 +1181,92 @@ _fix_mkdir_single() {
     [[ -d "$dir" ]] || mkdir -p "$dir" 2>/dev/null
   done
   return 0
+}
+
+# ===== NEW FIX CALLBACKS =====
+
+_fix_psutil() {
+  local tmp="$PREFIX/tmp/psutil_patch"
+  mkdir -p "$tmp"
+  pip download psutil==7.2.2 --no-binary :all: --no-deps -d "$tmp" 2>/dev/null || return 1
+  tar xzf "$tmp/psutil-7.2.2.tar.gz" -C "$tmp"
+  sed -i 's/LINUX = sys.platform.startswith("linux")/LINUX = sys.platform.startswith(("linux", "android"))/' "$tmp/psutil-7.2.2/psutil/_common.py"
+  pip install "$tmp/psutil-7.2.2" 2>/dev/null
+  local rc=$?
+  rm -rf "$tmp"
+  return $rc
+}
+
+_fix_pip_check() {
+  local broken
+  broken=$(pip check 2>&1 | grep -oP '^\S+' | head -3)
+  if [[ -n "$broken" ]]; then
+    pip install --upgrade --force-reinstall $broken 2>/dev/null
+  fi
+  return 0
+}
+
+_fix_npm_shebangs() {
+  local fixed=0
+  for f in "$PREFIX/bin/"*; do
+    [[ -f "$f" ]] || continue
+    local shebang
+    shebang=$(head -1 "$f" 2>/dev/null)
+    if [[ "$shebang" == "#!/usr/bin/env node" ]]; then
+      sed -i "1s|^.*$|#!$PREFIX/bin/node|" "$f"
+      ((fixed++))
+    elif [[ "$shebang" == "#!/usr/bin/env bash" ]] || [[ "$shebang" == "#!/usr/bin/env sh" ]]; then
+      sed -i "1s|^.*$|#!$PREFIX/bin/bash|" "$f"
+      ((fixed++))
+    fi
+  done
+  return 0
+}
+
+_fix_broken_symlinks() {
+  find "$PREFIX/bin" -type l ! -exec test -e {} \; -delete 2>/dev/null
+  return 0
+}
+
+_fix_npm_cache() {
+  npm cache clean --force 2>/dev/null
+  return $?
+}
+
+_fix_pip_cache() {
+  pip cache purge 2>/dev/null
+  return $?
+}
+
+_fix_pycache() {
+  find "$PREFIX/lib/python3.*" -name "__pycache__" -exec rm -rf {} + 2>/dev/null
+  return 0
+}
+
+_fix_proot_ubuntu() {
+  if command -v proot-distro &>/dev/null; then
+    proot-distro install ubuntu 2>/dev/null
+    return $?
+  fi
+  return 1
+}
+
+_fix_dns() {
+  echo 'nameserver 8.8.8.8' > "$PREFIX/etc/resolv.conf" 2>/dev/null
+  return $?
+}
+
+_fix_mirror() {
+  if command -v termux-change-repo &>/dev/null; then
+    termux-change-repo 2>/dev/null
+    return $?
+  fi
+  return 1
+}
+
+_fix_locale() {
+  local config="$HOME/.zshrc"
+  [[ -f "$HOME/.bashrc" ]] && config="$HOME/.bashrc"
+  echo 'export LANG=en_US.UTF-8' >> "$config" 2>/dev/null
+  return $?
 }
