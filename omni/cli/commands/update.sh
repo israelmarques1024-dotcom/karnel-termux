@@ -241,6 +241,10 @@ _update_specific_tools() {
         update_odysseus
         case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
+      kimchi-code)
+        update_kimchi_code
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
+        ;;
       *)
         log_warn "Unknown AI tool: --$tool"
         ;;
@@ -437,6 +441,10 @@ _update_specific_tools() {
         ;;
       ngrok)
         update_ngrok
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
+        ;;
+      turbopack)
+        update_turbopack
         case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       *)

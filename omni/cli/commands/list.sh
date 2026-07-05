@@ -22,6 +22,7 @@ list_main() {
     list_item "shell      - List ZSH plugins"
     list_item "ui         - List Termux UI components"
     list_item "auto       - List automation tools"
+    list_item "deploy     - List deploy CLIs"
     echo
     return
   fi
