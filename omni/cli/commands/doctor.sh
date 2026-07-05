@@ -1211,7 +1211,7 @@ _fix_npm_shebangs() {
   for f in "$PREFIX/bin/"*; do
     [[ -f "$f" ]] || continue
     local shebang
-    shebang=$(head -1 "$f" 2>/dev/null)
+    shebang=$(head -1 "$f" 2>/dev/null | tr -d '\0')
     if [[ "$shebang" == "#!/usr/bin/env node" ]]; then
       sed -i "1s|^.*$|#!$PREFIX/bin/node|" "$f"
       ((fixed++))

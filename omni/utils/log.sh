@@ -309,6 +309,11 @@ read_confirm() {
 	local var="$2"
 	local _val
 
+	if [[ ! -t 0 ]]; then
+		read -r "$var" <<<"n"
+		return 1
+	fi
+
 	while true; do
 		echo -e -n "    ${GRAY}┌─${D_YELLOW} ${prompt} ${GRAY}[${D_GREEN}y${GRAY}/${D_RED}n${GRAY}]${D_NC}\n" >&2
 		echo -e -n "    ${GRAY}└─${D_YELLOW}▶ ${D_NC}" >&2

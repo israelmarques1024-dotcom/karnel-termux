@@ -6,8 +6,8 @@ Omni is a Termux environment manager. The project is at `~/omni/` with code unde
 
 - CLI command: `omni` (in PATH)
 - Main entry: `omni/bin/omni`
-- Module orchestrators: `omni/modules/` (ai.sh, auto.sh, db.sh, deploy.sh, dev.sh, editor.sh, lang.sh, npm.sh, shell.sh, ui.sh)
-- Tool installers: `omni/tools/` (ai/*, auto/*, db/*, deploy/*, dev/*, editor/*, lang/*, npm/*, shell/*, ui/*)
+- Module orchestrators: `omni/modules/` (ai.sh, auto.sh, db.sh, deploy.sh, dev.sh, editor.sh, lang.sh, npm.sh, shell.sh, ui.sh, voice.sh)
+- Tool installers: `omni/tools/` (ai/*, auto/*, db/*, deploy/*, dev/*, editor/*, lang/*, npm/*, shell/*, ui/*, voice/*)
 - CLI commands: `omni/cli/commands/` (install.sh, uninstall.sh, update.sh, reinstall.sh, list.sh, show.sh, open.sh, doctor.sh, brain.sh, env.sh, init.sh, pg.sh, voice.sh)
 - Utils: `omni/utils/` (banner.sh, bootstrap.sh, colors.sh, env.sh, log.sh)
 

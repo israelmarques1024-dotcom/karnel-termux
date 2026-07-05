@@ -210,12 +210,57 @@ omni brain sync                    # Sincroniza com GitHub privado
 
 ## 🎤 omni voice
 
-Capture áudio, revise no Neovim e envie para qualquer agente de IA.
+Capture áudio pelo microfone, revise no Neovim, copie para a área de transferência e dispare qualquer agente de IA com o prompt transcrito.
 
 ```bash
-omni voice gemini                  # Grava → revisa → envia pro Gemini
-omni voice text                    # Grava → revisa → imprime no terminal
+omni voice opencode                # Grava → edita → opencode run
+omni voice text                    # Grava → edita → imprime no terminal
+omni voice claude-code --lang pt-BR # Fala em português → claude -p
+omni voice "!"                     # Atalho para "text"
 ```
+
+### Agentes Suportados (12)
+
+| Agente | Comando executado |
+|--------|------------------|
+| `kilo` | `kilo --prompt "..."` |
+| `opencode` | `opencode run "..."` |
+| `claude-code` | `claude -p "..."` |
+| `codex` | `codex "..."` |
+| `gemini-cli` | `gemini -p "..."` |
+| `hermes-agent` | `hermes chat -q "..."` |
+| `kimi-code` | `kimi -p "..."` |
+| `mimocode` | `mimo run "..."` |
+| `mistral-vibe` | `vibe --prompt "..."` |
+| `openclaude` | `openclaude --bg "..."` |
+| `pi` | `pi -p "..."` |
+| `qwen-code` | `qwen -p "..."` |
+| `text` | Imprime o prompt no terminal |
+
+### Opções
+
+| Flag | Descrição |
+|------|-----------|
+| `--lang <code>` | Idioma da fala: `pt-BR`, `en-US`, `es`, etc |
+| `--raw` | Pula edição no nvim, usa captura direta |
+| `--no-clip` | Não copia prompt para área de transferência |
+
+### Fluxo de Uso
+
+```
+Microfone → termux-speech-to-text → nvim (edição) → clipboard → AI agent
+```
+
+1. Fale o prompt
+2. Revise e corrija no Neovim
+3. Prompt é copiado pro clipboard
+4. Agente de IA é disparado com o prompt
+
+### Requisitos
+
+- Termux:API: `pkg install termux-api`
+- App Termux:API: https://omni-catalyst.vercel.app/termux/api
+- Neovim: `omni install editor`
 
 ---
 
