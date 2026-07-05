@@ -20,19 +20,19 @@ Zsh-autopair automatically inserts closing pairs for parentheses, brackets, brac
 ## Install
 
 ```bash
-core install shell --zsh-autopair
+omni install shell --zsh-autopair
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall shell --zsh-autopair
+omni uninstall shell --zsh-autopair
 ```
 
 ## Update
 
 ```bash
-core update shell --zsh-autopair
+omni update shell --zsh-autopair
 ```
 
 ## Notes

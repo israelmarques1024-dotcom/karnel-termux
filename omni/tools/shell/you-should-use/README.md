@@ -20,19 +20,19 @@ Zsh-you-should-use reminds you when there are alternative, more modern commands 
 ## Install
 
 ```bash
-core install shell --you-should-use
+omni install shell --you-should-use
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall shell --you-should-use
+omni uninstall shell --you-should-use
 ```
 
 ## Update
 
 ```bash
-core update shell --you-should-use
+omni update shell --you-should-use
 ```
 
 ## Notes

@@ -4,7 +4,7 @@ import "@/utils/log"
 import "@/utils/colors"
 
 : "${OMNI_CACHE:=$HOME/.cache/omni}"
-: "${OMNI_PATH:=$HOME/omni/core}"
+: "${OMNI_PATH:=$HOME/omni}"
 : "${PREFIX:=$PREFIX}"
 
 LOG_FILE="$OMNI_CACHE/install_ai.log"

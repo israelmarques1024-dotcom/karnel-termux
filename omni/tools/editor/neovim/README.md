@@ -20,19 +20,19 @@ Neovim is a hyper-extensible, modern fork of Vim. It provides a powerful editing
 ## Install
 
 ```bash
-core install editor --neovim
+omni install editor --neovim
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall editor --neovim
+omni uninstall editor --neovim
 ```
 
 ## Update
 
 ```bash
-core update editor --neovim
+omni update editor --neovim
 ```
 
 ## Notes

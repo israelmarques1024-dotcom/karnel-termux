@@ -20,19 +20,19 @@ Powerlevel10k is a fast and feature-rich ZSH theme that provides a highly custom
 ## Install
 
 ```bash
-core install shell --powerlevel10k
+omni install shell --powerlevel10k
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall shell --powerlevel10k
+omni uninstall shell --powerlevel10k
 ```
 
 ## Update
 
 ```bash
-core update shell --powerlevel10k
+omni update shell --powerlevel10k
 ```
 
 ## Notes

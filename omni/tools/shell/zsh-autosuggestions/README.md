@@ -20,19 +20,19 @@ Zsh-autosuggestions suggests commands as you type based on your history and comp
 ## Install
 
 ```bash
-core install shell --zsh-autosuggestions
+omni install shell --zsh-autosuggestions
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall shell --zsh-autosuggestions
+omni uninstall shell --zsh-autosuggestions
 ```
 
 ## Update
 
 ```bash
-core update shell --zsh-autosuggestions
+omni update shell --zsh-autosuggestions
 ```
 
 ## Notes

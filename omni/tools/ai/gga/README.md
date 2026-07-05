@@ -24,19 +24,19 @@ The Termux fork adapts the installer/uninstaller for Android environments (Termu
 ## Install
 
 ```bash
-core install ai --gga
+omni install ai --gga
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall ai --gga
+omni uninstall ai --gga
 ```
 
 ## Update
 
 ```bash
-core update ai --gga
+omni update ai --gga
 ```
 
 ## Notes
@@ -45,5 +45,5 @@ core update ai --gga
 - Binary installed to `$PREFIX/bin/gga`
 - Libraries installed to `$PREFIX/share/gga/lib/`
 - Clones the Termux-compatible fork and runs its bundled `install.sh` / `uninstall.sh`
-- Repository is updated via `git pull` on `core update ai --gga`
+- Repository is updated via `git pull` on `omni update ai --gga`
 - Requires the gga repo to be present at runtime only during install/update (can be safely removed afterward)

@@ -41,9 +41,9 @@ box "◈ OMNI CATALYST v${OMNI_VERSION} ◈"
 
 ### 3. Comandos Inconsistentes (Médio)
 **Arquivo:** `omni/cli/omni.sh`
-**Problema:** Help referenciava apenas "omni", mas o projeto suporta "core" também
+**Problema:** Help referenciava apenas "omni"
 
-**Correção:** Atualizado help para mostrar ambos os comandos
+**Correção:** Atualizado help para mostrar "omni" como comando único
 
 ---
 
@@ -77,8 +77,8 @@ _install_tools_in_module() {
 - Remove dependência de `setterm`
 
 ### 3. Consistência de Nomenclatura
-- Help atualizado para mostrar "core" como comando primário
-- Mantido "omni" como alias para compatibilidade
+- Help atualizado para mostrar "omni" como comando único
+- Removido alias "core"
 
 ---
 
@@ -137,7 +137,7 @@ _install_tools_in_module() {
 1. `omni/utils/colors.sh` - Correção de cores
 2. `omni/cli/omni.sh` - Atualização de branding e help
 3. `omni/cli/commands/install.sh` - Refatoração com funções genéricas
-4. `core/` → `omni/` - Renomeação completa do diretório
+4. Renomeação completa para omni
 
 ---
 

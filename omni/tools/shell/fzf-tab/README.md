@@ -20,25 +20,25 @@ Fzf-tab replaces ZSH's default completion menu with an fzf-based fuzzy finder. I
 ## Install
 
 ```bash
-core install shell --fzf-tab
+omni install shell --fzf-tab
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall shell --fzf-tab
+omni uninstall shell --fzf-tab
 ```
 
 ## Update
 
 ```bash
-core update shell --fzf-tab
+omni update shell --fzf-tab
 ```
 
 ## Notes
 
 - Installed in `~/.zsh-plugins/`
-- Requires fzf (install via `core install dev --fzf`)
+- Requires fzf (install via `omni install dev --fzf`)
 - Fuzzy completion with preview
 - Replaces default ZSH completion menu
 

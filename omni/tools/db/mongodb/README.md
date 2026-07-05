@@ -20,19 +20,19 @@ MongoDB is a source-available, cross-platform, document-oriented database progra
 ## Install
 
 ```bash
-core install db --mongodb
+omni install db --mongodb
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall db --mongodb
+omni uninstall db --mongodb
 ```
 
 ## Update
 
 ```bash
-core update db --mongodb
+omni update db --mongodb
 ```
 
 ## Notes

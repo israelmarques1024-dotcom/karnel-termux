@@ -31,19 +31,19 @@ On Termux, the global `npm install -g command-code` creates a binary named `cmd`
 ## Install
 
 ```bash
-core install ai --command-code
+omni install ai --command-code
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall ai --command-code
+omni uninstall ai --command-code
 ```
 
 ## Update
 
 ```bash
-core update ai --command-code
+omni update ai --command-code
 ```
 
 ## Commands

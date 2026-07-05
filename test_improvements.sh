@@ -79,7 +79,7 @@ echo "Summary of improvements:"
 echo "  • Fixed color definitions (CYAN/D_CYAN)"
 echo "  • Updated branding to OMNI"
 echo "  • Added generic install helpers"
-echo "  • Renamed core/ → omni/"
+echo "  • Renamed to omni/"
 echo
 echo "Files modified:"
 echo "  • omni/utils/colors.sh"

@@ -20,19 +20,19 @@ Zsh-syntax-highlighting provides real-time syntax highlighting for commands as y
 ## Install
 
 ```bash
-core install shell --zsh-syntax-highlighting
+omni install shell --zsh-syntax-highlighting
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall shell --zsh-syntax-highlighting
+omni uninstall shell --zsh-syntax-highlighting
 ```
 
 ## Update
 
 ```bash
-core update shell --zsh-syntax-highlighting
+omni update shell --zsh-syntax-highlighting
 ```
 
 ## Notes

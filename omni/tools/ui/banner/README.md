@@ -19,19 +19,19 @@ Configure a custom banner for Termux using Omni Catalyst. This package allows yo
 ## Install
 
 ```bash
-core install ui --banner
+omni install ui --banner
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall ui --banner
+omni uninstall ui --banner
 ```
 
 ## Update
 
 ```bash
-core update ui --banner
+omni update ui --banner
 ```
 
 ## Notes

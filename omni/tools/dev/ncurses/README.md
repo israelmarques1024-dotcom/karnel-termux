@@ -20,19 +20,19 @@ Ncurses utilities provide terminal manipulation tools including tput, clear, res
 ## Install
 
 ```bash
-core install dev --ncurses
+omni install dev --ncurses
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall dev --ncurses
+omni uninstall dev --ncurses
 ```
 
 ## Update
 
 ```bash
-core update dev --ncurses
+omni update dev --ncurses
 ```
 
 ## Notes

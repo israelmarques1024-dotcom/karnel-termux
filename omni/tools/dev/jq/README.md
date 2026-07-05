@@ -20,19 +20,19 @@ jq is a lightweight and flexible command-line JSON processor. It is like sed for
 ## Install
 
 ```bash
-core install dev --jq
+omni install dev --jq
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall dev --jq
+omni uninstall dev --jq
 ```
 
 ## Update
 
 ```bash
-core update dev --jq
+omni update dev --jq
 ```
 
 ## Notes

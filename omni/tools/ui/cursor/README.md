@@ -19,19 +19,19 @@ Configures the Termux terminal cursor color to a custom value (default: green #0
 ## Install
 
 ```bash
-core install ui --cursor
+omni install ui --cursor
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall ui --cursor
+omni uninstall ui --cursor
 ```
 
 ## Update
 
 ```bash
-core update ui --cursor
+omni update ui --cursor
 ```
 
 ## Notes

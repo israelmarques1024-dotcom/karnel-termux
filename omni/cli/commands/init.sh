@@ -593,10 +593,10 @@ configure_python() {
 	read_select "Enable Docker & Udocker support?" docker_choice "Yes" "No"
 
 	log_info "Creating folder structure..."
-	mkdir -p app/api/v1/endpoints app/core app/models app/schemas scripts 2>/dev/null
+	mkdir -p app/api/v1/endpoints app/omni app/models app/schemas scripts 2>/dev/null
 
-	# Create app/core/config.py
-	cat >app/core/config.py <<'EOF'
+	# Create app/omni/config.py
+	cat >app/omni/config.py <<'EOF'
 import os
 from pydantic_settings import BaseSettings
 
@@ -607,7 +607,7 @@ class Settings(BaseSettings):
 
 settings = Settings()
 EOF
-	log_success "Created app/core/config.py"
+	log_success "Created app/omni/config.py"
 
 	# Create app/models/item.py
 	if [[ "$orm_choice" == "SQLModel" ]]; then
@@ -623,7 +623,7 @@ EOF
 	elif [[ "$orm_choice" == "SQLAlchemy" ]]; then
 		cat >app/models/item.py <<'EOF'
 from sqlalchemy import Column, Integer, String
-from app.core.db import Base
+from app.omni.db import Base
 
 class Item(Base):
     __tablename__ = "items"
@@ -635,11 +635,11 @@ EOF
 	fi
 	log_success "Created app/models/item.py"
 
-	# Create app/core/db.py
+	# Create app/omni/db.py
 	if [[ "$orm_choice" == "SQLModel" ]]; then
-		cat >app/core/db.py <<'EOF'
+		cat >app/omni/db.py <<'EOF'
 from sqlmodel import create_engine, Session, SQLModel
-from app.core.config import settings
+from app.omni.config import settings
 
 engine = create_engine(settings.DATABASE_URL, echo=True)
 
@@ -648,11 +648,11 @@ def get_session():
         yield session
 EOF
 	elif [[ "$orm_choice" == "SQLAlchemy" ]]; then
-		cat >app/core/db.py <<'EOF'
+		cat >app/omni/db.py <<'EOF'
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from app.core.config import settings
+from app.omni.config import settings
 
 engine = create_engine(settings.DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -666,11 +666,11 @@ def get_session():
         db.close()
 EOF
 	else
-		cat >app/core/db.py <<'EOF'
+		cat >app/omni/db.py <<'EOF'
 # No ORM configured
 EOF
 	fi
-	log_success "Created app/core/db.py"
+	log_success "Created app/omni/db.py"
 
 	# Create app/api/v1/endpoints/items.py
 	cat >app/api/v1/endpoints/items.py <<'EOF'
@@ -688,7 +688,7 @@ EOF
 	# Create app/main.py
 	cat >app/main.py <<'EOF'
 from fastapi import FastAPI
-from app.core.config import settings
+from app.omni.config import settings
 from app.api.v1.endpoints import items
 
 app = FastAPI(title=settings.APP_NAME, version="0.1.0")
@@ -805,7 +805,7 @@ Este projeto foi inicializado pelo **Omni** utilizando boas práticas de desenvo
 
 ## Estrutura do Projeto
 - \`app/main.py\`: Ponto de entrada do FastAPI.
-- \`app/core/\`: Configurações globais e banco de dados.
+- \`app/omni/\`: Configurações globais e banco de dados.
 - \`app/api/\`: Endpoints divididos por versão.
 - \`app/models/\`: Definição dos modelos ORM ($orm_choice).
 - \`scripts/\`: Scripts utilitários de execução.

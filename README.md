@@ -85,7 +85,7 @@ omni
 | `omni list <modulo>` | Lista ferramentas disponíveis |
 | `omni show <modulo> --<tool>` | Mostra documentação de uma ferramenta |
 | `omni open <modulo>` | Abre documentação no navegador |
-| `omni update <modulo>` | Atualiza módulos ou core |
+| `omni update <modulo>` | Atualiza módulos ou o omni |
 | `omni uninstall <modulo>` | Remove módulos instalados |
 | `omni reinstall <modulo>` | Reinstala módulos |
 | `omni doctor` | Diagnostica o ambiente (20 verificações) |
@@ -306,7 +306,7 @@ omni list ai
 omni show ai --opencode
 
 # Atualizar tudo
-omni update core
+omni update omni
 
 # Reinstalar um módulo
 omni reinstall shell
@@ -372,7 +372,7 @@ export OMNI_DEBUG=1      # Logs de debug
 O framework verifica atualizações a cada 24 horas em background.
 
 ```bash
-omni update core     # Atualiza o framework
+omni update omni     # Atualiza o framework
 ```
 
 ---

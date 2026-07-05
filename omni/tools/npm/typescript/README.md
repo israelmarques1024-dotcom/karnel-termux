@@ -20,24 +20,24 @@ TypeScript adds optional static typing, classes, and modules to JavaScript, enab
 ## Install
 
 ```bash
-core install npm --typescript
+omni install npm --typescript
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall npm --typescript
+omni uninstall npm --typescript
 ```
 
 ## Update
 
 ```bash
-core update npm --typescript
+omni update npm --typescript
 ```
 
 ## Notes
 
 - Command: `tsc`
 - Installed as a global npm package
-- Required for `core init` templates (Next.js, React, Express, NestJS)
+- Required for `omni init` templates (Next.js, React, Express, NestJS)
 

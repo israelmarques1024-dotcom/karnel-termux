@@ -20,19 +20,19 @@ Perl is a highly capable, feature-rich programming language with over 30 years o
 ## Install
 
 ```bash
-core install lang --perl
+omni install lang --perl
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall lang --perl
+omni uninstall lang --perl
 ```
 
 ## Update
 
 ```bash
-core update lang --perl
+omni update lang --perl
 ```
 
 ## Notes

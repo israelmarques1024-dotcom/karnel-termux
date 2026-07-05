@@ -20,19 +20,19 @@ Live Server is a simple development HTTP server with live reload capability. It 
 ## Install
 
 ```bash
-core install npm --live-server
+omni install npm --live-server
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall npm --live-server
+omni uninstall npm --live-server
 ```
 
 ## Update
 
 ```bash
-core update npm --live-server
+omni update npm --live-server
 ```
 
 ## Notes

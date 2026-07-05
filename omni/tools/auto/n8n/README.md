@@ -22,19 +22,19 @@ n8n is a powerful workflow automation tool that connects various services and AP
 ## Install
 
 ```bash
-core install auto --n8n
+omni install auto --n8n
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall auto --n8n
+omni uninstall auto --n8n
 ```
 
 ## Update
 
 ```bash
-core update auto --n8n
+omni update auto --n8n
 ```
 
 ## Notes

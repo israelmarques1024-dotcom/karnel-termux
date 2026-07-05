@@ -20,19 +20,19 @@ bc is an arbitrary precision calculator language that supports interactive execu
 ## Install
 
 ```bash
-core install dev --bc
+omni install dev --bc
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall dev --bc
+omni uninstall dev --bc
 ```
 
 ## Update
 
 ```bash
-core update dev --bc
+omni update dev --bc
 ```
 
 ## Notes

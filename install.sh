@@ -208,7 +208,7 @@ clone_repo() {
 create_symlink() {
 	log_step 4 "Creating symlinks"
 
-	rm -f "$PREFIX/bin/core" "$PREFIX/bin/omni"
+	rm -f "$PREFIX/bin/omni"
 	ln -sf "$OMNI_DATA/omni/bin/omni" "$PREFIX/bin/omni"
 
 	if [[ -L "$PREFIX/bin/omni" ]]; then

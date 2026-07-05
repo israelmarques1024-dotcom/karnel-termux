@@ -20,19 +20,19 @@ curl is a command-line tool and library for transferring data with URLs. It supp
 ## Install
 
 ```bash
-core install dev --curl
+omni install dev --curl
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall dev --curl
+omni uninstall dev --curl
 ```
 
 ## Update
 
 ```bash
-core update dev --curl
+omni update dev --curl
 ```
 
 ## Notes

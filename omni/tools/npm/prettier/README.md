@@ -20,24 +20,24 @@ Prettier is an opinionated code formatter that supports many languages including
 ## Install
 
 ```bash
-core install npm --prettier
+omni install npm --prettier
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall npm --prettier
+omni uninstall npm --prettier
 ```
 
 ## Update
 
 ```bash
-core update npm --prettier
+omni update npm --prettier
 ```
 
 ## Notes
 
 - Command: `prettier`
-- Used in `core init` templates with `prettier-plugin-tailwindcss`
+- Used in `omni init` templates with `prettier-plugin-tailwindcss`
 - Supports most popular file formats
 

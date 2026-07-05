@@ -480,7 +480,7 @@ mkdir -p "$(dirname "$_omni_banner_cache")" 2>/dev/null
 log_tip() { echo " ${TP[3]}●${NC} ${GRAY}Tip${NC} $*"; }
 
 OMNI_TIPS=(
-  "Keep Omni updated: ${TP[3]}omni update core${NC}"
+  "Keep Omni updated: ${TP[3]}omni update omni${NC}"
   "Check your version: ${TP[3]}omni --version${NC}"
   "Enable debug logs: ${TP[3]}export OMNI_DEBUG=1${NC}"
   "Open framework docs: ${TP[3]}omni open omni${NC}"

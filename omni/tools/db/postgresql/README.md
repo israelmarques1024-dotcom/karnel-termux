@@ -11,34 +11,34 @@ Advanced open-source relational database
 
 ## Description
 
-PostgreSQL is a powerful, open-source object-relational database system with over 30 years of active development. It has a strong reputation for reliability, feature robustness, and performance. Omni Catalyst includes a dedicated manager (`core pg`) for starting, stopping, and managing PostgreSQL instances.
+PostgreSQL is a powerful, open-source object-relational database system with over 30 years of active development. It has a strong reputation for reliability, feature robustness, and performance. Omni Catalyst includes a dedicated manager (`omni pg`) for starting, stopping, and managing PostgreSQL instances.
 
 ## Dependencies
 
 - Installed via pkg
-- Data directory managed by `core pg`
+- Data directory managed by `omni pg`
 
 ## Install
 
 ```bash
-core install db --postgresql
+omni install db --postgresql
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall db --postgresql
+omni uninstall db --postgresql
 ```
 
 ## Update
 
 ```bash
-core update db --postgresql
+omni update db --postgresql
 ```
 
 ## Notes
 
-- Managed via `core pg` commands (start, stop, restart, status, init, create, drop, list, shell)
+- Managed via `omni pg` commands (start, stop, restart, status, init, create, drop, list, shell)
 - Logs: `~/.cache/omni/postgresql.log`
 - Automatic data directory detection
 - Support for existing installations

@@ -11,7 +11,7 @@ Modern cat replacement with syntax highlighting
 
 ## Description
 
-Bat is a modern replacement for the `cat` command written in Rust. It provides syntax highlighting for over 200 languages, Git change integration, automatic paging, and line numbers. Used by `core show` for colorized documentation output.
+Bat is a modern replacement for the `cat` command written in Rust. It provides syntax highlighting for over 200 languages, Git change integration, automatic paging, and line numbers. Used by `omni show` for colorized documentation output.
 
 ## Dependencies
 
@@ -20,19 +20,19 @@ Bat is a modern replacement for the `cat` command written in Rust. It provides s
 ## Install
 
 ```bash
-core install dev --bat
+omni install dev --bat
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall dev --bat
+omni uninstall dev --bat
 ```
 
 ## Update
 
 ```bash
-core update dev --bat
+omni update dev --bat
 ```
 
 ## Notes
@@ -40,5 +40,5 @@ core update dev --bat
 - Command: `bat`
 - Syntax highlighting for 200+ languages
 - Git change markers in output
-- Used by `core show` for documentation display
+- Used by `omni show` for documentation display
 

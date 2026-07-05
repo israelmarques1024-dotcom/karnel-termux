@@ -69,7 +69,7 @@ _update_full_module() {
   local target="$1"
 
   case "$target" in
-  core|omni)
+  omni)
     update_omni
     ;;
   lang)

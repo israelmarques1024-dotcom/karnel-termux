@@ -20,19 +20,19 @@ Shfmt is a shell script formatter written in Go. It supports POSIX shell, Bash, 
 ## Install
 
 ```bash
-core install dev --shfmt
+omni install dev --shfmt
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall dev --shfmt
+omni uninstall dev --shfmt
 ```
 
 ## Update
 
 ```bash
-core update dev --shfmt
+omni update dev --shfmt
 ```
 
 ## Notes

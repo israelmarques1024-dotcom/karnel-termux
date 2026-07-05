@@ -20,19 +20,19 @@ Node.js is an open-source, cross-platform JavaScript runtime environment that ex
 ## Install
 
 ```bash
-core install lang --nodejs
+omni install lang --nodejs
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall lang --nodejs
+omni uninstall lang --nodejs
 ```
 
 ## Update
 
 ```bash
-core update lang --nodejs
+omni update lang --nodejs
 ```
 
 ## Notes

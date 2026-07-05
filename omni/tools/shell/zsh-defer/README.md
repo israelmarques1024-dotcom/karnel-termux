@@ -20,19 +20,19 @@ Zsh-defer defers the loading of ZSH plugins to after the first prompt, significa
 ## Install
 
 ```bash
-core install shell --zsh-defer
+omni install shell --zsh-defer
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall shell --zsh-defer
+omni uninstall shell --zsh-defer
 ```
 
 ## Update
 
 ```bash
-core update shell --zsh-defer
+omni update shell --zsh-defer
 ```
 
 ## Notes

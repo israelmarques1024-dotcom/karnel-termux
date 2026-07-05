@@ -20,19 +20,19 @@ Zsh-completions provides additional completion definitions for a wide range of c
 ## Install
 
 ```bash
-core install shell --zsh-completions
+omni install shell --zsh-completions
 ```
 
 ## Uninstall
 
 ```bash
-core uninstall shell --zsh-completions
+omni uninstall shell --zsh-completions
 ```
 
 ## Update
 
 ```bash
-core update shell --zsh-completions
+omni update shell --zsh-completions
 ```
 
 ## Notes
