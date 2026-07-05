@@ -78,7 +78,7 @@ _install_tools_in_module() {
 
 ### 3. Consistência de Nomenclatura
 - Help atualizado para mostrar "omni" como comando único
-- Removido alias "core"
+- Rebrand: `core` → `omni` / `core-termux` → `omni-catalyst`
 
 ---
 
