@@ -153,7 +153,6 @@ _list_ai() {
   table_row "Minimax CLI" "--minimax-cli" "mmx" "$(_check_cmd "mmx")"
   table_row "Gentle AI" "--gentle-ai" "gentle-ai" "$(_check_cmd "gentle-ai")"
   table_row "GGA" "--gga" "gga" "$(_check_cmd "gga")"
-  table_row "Hermes Agent" "--hermes-agent" "hermes" "$(_check_cmd "hermes")"
   table_row "Kimi Code" "--kimi-code" "kimi" "$(_check_cmd "kimi")"
   table_row "Command Code" "--command-code" "command-code" "$(_check_cmd "command-code")"
   table_row "Freebuff" "--freebuff" "freebuff" "$(_check_cmd "freebuff")"

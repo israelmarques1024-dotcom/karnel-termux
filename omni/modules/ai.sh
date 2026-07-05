@@ -59,7 +59,7 @@ _install_ai_tools_wrapper() {
 
 uninstall_ai() {
   local found=false
-	for cmd in opencode claude gemini codex qwen vibe mimo hermes kimi ollama freebuff heygen seedance veo3 odysseus openclaude openclaw engram codegraph pi agy mmx gentle-ai gga command-code kimchi; do
+	for cmd in opencode claude gemini codex qwen vibe mimo kimi ollama freebuff heygen seedance veo3 odysseus openclaude openclaw engram codegraph pi agy mmx gentle-ai gga command-code kimchi; do
     if command -v "$cmd" &>/dev/null; then
       found=true
       break

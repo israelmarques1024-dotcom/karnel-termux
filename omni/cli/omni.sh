@@ -425,7 +425,6 @@ _tui_install_checklist() {
         "gentle-ai" "Gentle AI" OFF
         "minimax-cli" "Minimax CLI" OFF
         "gga" "GGA" OFF
-        "hermes-agent" "Hermes Agent" OFF
         "kimi-code" "Kimi Code" OFF
         "command-code" "Command Code" OFF
         "freebuff" "Freebuff" OFF

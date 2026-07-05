@@ -205,10 +205,6 @@ _update_specific_tools() {
         update_gga
         case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
-      hermes-agent)
-        update_hermes_agent
-        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
-        ;;
       kimi-code)
         update_kimi_code
         case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac

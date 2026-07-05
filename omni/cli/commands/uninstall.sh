@@ -203,10 +203,6 @@ _uninstall_specific_tools() {
         uninstall_gga
         case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
         ;;
-      hermes-agent)
-        uninstall_hermes_agent
-        case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
-        ;;
       kimi-code)
         uninstall_kimi_code
         case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
