@@ -487,11 +487,17 @@ doctor_main() {
     log_info "AI registry: $registered_tools tools | Installed: $installed_ai"
   fi
 
-  # Check for discontinued/removed tools still referenced
-  local discontinued_refs
-  discontinued_refs=$(grep -rl "kiro-cli\|hermes-agent" "$OMNI_PATH/omni/tools/ai/" 2>/dev/null | grep -v "all.sh" || true)
-  if [[ -n "$discontinued_refs" ]]; then
-    log_warn "Removed tools still referenced: $(echo "$discontinued_refs" | tr '\n' ' ')"
+  # Check for discontinued tools still referenced in active installers
+  local -a removed_tools=()
+  for tool_dir in "$OMNI_PATH/omni/tools/ai/"*/; do
+    local tool_name
+    tool_name=$(basename "${tool_dir%/}")
+    if [[ ! -f "$tool_dir/install.sh" && ! -f "$tool_dir/all.sh" ]]; then
+      removed_tools+=("$tool_name")
+    fi
+  done
+  if [[ ${#removed_tools[@]} -gt 0 ]]; then
+    log_warn "Orphaned tool directories (no installer): ${removed_tools[*]}"
     ((warnings++))
   fi
 
@@ -859,6 +865,15 @@ doctor_main() {
   # Check omni module loading
   if [[ -f "$HOME/.zshrc" ]] && grep -q "omni" "$HOME/.zshrc" 2>/dev/null; then
     log_success "Omni integration in .zshrc"
+  fi
+
+  # Check url-quote-magic for parse errors (Termux zsh bug)
+  local uqm_file="$PREFIX/share/zsh/functions/Zle/url-quote-magic"
+  if [[ -f "$uqm_file" ]] && grep -q '((${~localschema})' "$uqm_file" 2>/dev/null; then
+    log_warning "url-quote-magic: double-paren parse error found (zsh 5.9 bug)"
+    problems+=("url-quote-magic has known double-paren syntax error")
+    fix_descriptions+=("Patch url-quote-magic double-paren parse error")
+    fix_callbacks+=("_fix_url_quote_magic")
   fi
 
   # ===== GPU / OPENGL INFO =====
@@ -1268,5 +1283,19 @@ _fix_locale() {
   local config="$HOME/.zshrc"
   [[ -f "$HOME/.bashrc" ]] && config="$HOME/.bashrc"
   echo 'export LANG=en_US.UTF-8' >> "$config" 2>/dev/null
+  return $?
+}
+
+_fix_url_quote_magic() {
+  local uqm_file="$PREFIX/share/zsh/functions/Zle/url-quote-magic"
+  if [[ ! -f "$uqm_file" ]]; then
+    return 1
+  fi
+  # Fix double-paren case patterns: (( -> ( for localschema and otherschema
+  sed -i \
+    -e 's/((${~localschema})/(${~localschema})/g' \
+    -e 's/((${~otherschema})/(${~otherschema})/g' \
+    -e 's/${~localchema}/${~localschema}/g' \
+    "$uqm_file" 2>/dev/null
   return $?
 }

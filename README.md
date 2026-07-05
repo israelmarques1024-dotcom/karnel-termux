@@ -150,7 +150,6 @@ omni install ai --opencode --ollama           # Instala específicos
 | **Command Code** | `--command-code` | Agente que aprende seu estilo |
 | **Freebuff** | `--freebuff` | Agente comunitário gratuito |
 | **Kilo Code CLI** | `--kilocode-cli` | CLI nativo glibc para Termux |
-| **Kiro CLI** | `--kiro-cli` | Assistente de linha de comando Kiro |
 | **HeyGen CLI** | `--heygen` | Interface para HeyGen |
 | **Seedance CLI** | `--seedance` | Ferramenta de linha de comando Seedance |
 | **Veo 3 SDK** | `--veo3` | SDK para vídeo Veo 3 |

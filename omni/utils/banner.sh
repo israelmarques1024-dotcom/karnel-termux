@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # shellcheck disable=all
 [[ -n "$ZSH_VERSION" ]] && emulate -L bash 2>/dev/null || true
-set -e 2>/dev/null || true
+# Note: deliberately NOT using set -e here — it leaks errexit to the parent
+# shell, causing non-existent commands to exit zsh with code 127.
 
 BANNER_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 BANNER_VERSION="$(grep "^OMNI_VERSION=" "$BANNER_SCRIPT_DIR/env.sh" 2>/dev/null | cut -d'"' -f2)"
