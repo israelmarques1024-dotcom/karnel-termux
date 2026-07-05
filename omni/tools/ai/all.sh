@@ -43,6 +43,7 @@ AI_TOOLS_REGISTRY=(
   "minimax-cli:Minimax CLI:mmx"
   "gentle-ai:Gentle AI:gentle-ai"
   "gga:GGA:gga"
+  "hermes-agent:Hermes Agent:hermes"
   "kimi-code:Kimi Code:kimi"
   "command-code:Command Code:command-code"
   "freebuff:Freebuff:freebuff"

@@ -197,6 +197,10 @@ _reinstall_specific_tools() {
         reinstall_gga
         case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
+      hermes-agent)
+        reinstall_hermes_agent
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
       kimi-code)
         reinstall_kimi_code
         case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
