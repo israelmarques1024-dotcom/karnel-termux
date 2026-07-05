@@ -49,6 +49,13 @@ _install_heygen_cli_impl() {
     return 0
   fi
 
+  # Try to find it in ~/.local/bin and link
+  if [ -f "$HOME/.local/bin/heygen" ]; then
+    ln -sf "$HOME/.local/bin/heygen" "$PREFIX/bin/heygen"
+    log_info "Linked heygen from ~/.local/bin to $PREFIX/bin/heygen"
+    return 0
+  fi
+
   log_warn "Instalador do HeyGen executou mas binário 'heygen' não foi encontrado no PATH"
   return 1
 }

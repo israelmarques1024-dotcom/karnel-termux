@@ -123,6 +123,31 @@ WRAPPER
     return 1
   fi
 
+  # Kimchi é glibc — precisa rodar dentro do proot ubuntu no Termux
+  if ! command -v proot-distro &>/dev/null; then
+    pkg install proot-distro -y &>>"$LOG_FILE" || true
+  fi
+
+  # Rewrite wrapper to use proot-distro
+  cat > "$wrapper_path" << 'PROOT_WRAPPER'
+#!/data/data/com.termux/files/usr/bin/bash
+KIMCHI_DIR="/data/data/com.termux/files/home/.local/share/omni-data/kimchi"
+KIMCHI_BIN="$KIMCHI_DIR/kimchi"
+
+ARGS=""
+for arg in "$@"; do
+  ARGS="$ARGS '$arg'"
+done
+
+exec proot-distro login ubuntu -- bash -c "
+  export HOME=/root
+  mkdir -p /root/.local/share/kimchi
+  cp -r $KIMCHI_DIR/share/kimchi/* /root/.local/share/kimchi/ 2>/dev/null || true
+  $KIMCHI_BIN $ARGS
+" 2>&1
+PROOT_WRAPPER
+  chmod +x "$wrapper_path"
+
   return 0
 }
 
