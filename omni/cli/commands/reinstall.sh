@@ -213,10 +213,6 @@ _reinstall_specific_tools() {
         reinstall_freebuff
         case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
-      kiro-cli)
-        reinstall_kiro_cli
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
       heygen)
         reinstall_heygen
         case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac

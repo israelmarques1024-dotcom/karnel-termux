@@ -158,7 +158,6 @@ _list_ai() {
   table_row "Command Code" "--command-code" "command-code" "$(_check_cmd "command-code")"
   table_row "Freebuff" "--freebuff" "freebuff" "$(_check_cmd "freebuff")"
   table_row "Kilo Code CLI" "--kilocode-cli" "kilo" "$(_check_cmd "kilo")"
-  table_row "Kiro CLI" "--kiro-cli" "kiro" "$(_check_cmd "kiro")"
   table_row "HeyGen CLI" "--heygen" "heygen" "$(_check_cmd "heygen")"
   table_row "Seedance CLI" "--seedance" "seedance" "$(_check_cmd "seedance")"
   table_row "Veo 3 SDK" "--veo3" "veo3" "$(_check_cmd "veo3")"

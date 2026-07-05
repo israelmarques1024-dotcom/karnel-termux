@@ -429,7 +429,6 @@ _tui_install_checklist() {
         "kimi-code" "Kimi Code" OFF
         "command-code" "Command Code" OFF
         "freebuff" "Freebuff" OFF
-        "kiro-cli" "Kiro CLI" OFF
         "heygen" "HeyGen CLI" OFF
         "seedance" "Seedance CLI" OFF
         "veo3" "Veo 3 SDK" OFF

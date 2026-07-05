@@ -48,7 +48,6 @@ AI_TOOLS_REGISTRY=(
   "command-code:Command Code:command-code"
   "freebuff:Freebuff:freebuff"
   "kilocode-cli:Kilo Code CLI:kilocode,kilo"
-  "kiro-cli:Kiro CLI:kiro"
   "heygen:HeyGen CLI:heygen"
   "seedance:Seedance CLI:seedance"
   "veo3:Veo 3 SDK:veo3"

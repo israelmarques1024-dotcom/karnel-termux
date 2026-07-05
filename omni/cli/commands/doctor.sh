@@ -378,7 +378,7 @@ doctor_main() {
   separator_section "AI Tools Installed"
   echo
 
-  local -a ai_cmds=("opencode" "claude" "gemini" "codex" "qwen" "vibe" "mimo" "hermes" "kimi" "ollama" "freebuff" "pi" "agy" "mmx" "gentle-ai" "gga" "engram" "codegraph" "kiro" "kilo" "heygen" "seedance" "veo3" "odysseus" "openclaude" "openclaw" "command-code" "kimchi")
+  local -a ai_cmds=("opencode" "claude" "gemini" "codex" "qwen" "vibe" "mimo" "hermes" "kimi" "ollama" "freebuff" "pi" "agy" "mmx" "gentle-ai" "gga" "engram" "codegraph" "kilo" "heygen" "seedance" "veo3" "odysseus" "openclaude" "openclaw" "command-code" "kimchi")
   local ai_count=0
 
   for cmd in "${ai_cmds[@]}"; do

@@ -221,10 +221,7 @@ _update_specific_tools() {
         update_freebuff
         case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
-      kiro-cli)
-        update_kiro_cli
         case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
-        ;;
       heygen)
         update_heygen
         case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
