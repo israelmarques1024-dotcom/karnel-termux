@@ -54,6 +54,7 @@ omni_help() {
   printf "    ${D_CYAN}%-12s${NC} %s\n" "doctor" "Diagnose and fix environment"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "init" "Configure existing projects"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "voice" "Speech-to-agent via microphone"
+  printf "    ${D_CYAN}%-12s${NC} %s\n" "ia" "AI agent manager — sessions, install, routes"
   echo
   separator_section "Quick Start"
   echo
@@ -181,6 +182,7 @@ _tui_main_menu() {
       "pg" "PostgreSQL Database Manager" \
       "init" "Project Initializer" \
       "voice" "Speech-to-Agent" \
+      "ia" "AI Agent Manager" \
       "doctor" "Run Diagnostics" \
       "update" "Update Omni" \
       "help" "Show Help Documentation" \
@@ -202,6 +204,12 @@ _tui_main_menu() {
       voice)
         clear
         omni_main "voice"
+        echo
+        read -p "Press Enter to return to menu..." temp
+        ;;
+      ia)
+        clear
+        omni_main "ia"
         echo
         read -p "Press Enter to return to menu..." temp
         ;;
@@ -608,10 +616,11 @@ omni_fallback_tui() {
     printf "    ${D_GREEN}%2d.${D_NC} %s\n" 4 "PostgreSQL Database Manager (pg)"
     printf "    ${D_GREEN}%2d.${D_NC} %s\n" 5 "Project Initializer (init)"
     printf "    ${D_GREEN}%2d.${D_NC} %s\n" 6 "Speech-to-Agent (voice)"
-    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 7 "Run Diagnostics (doctor)"
-    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 8 "Update Omni (update)"
-    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 9 "Help & Documentation (help)"
-    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 10 "Exit"
+    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 7 "AI Agent Manager (ia)"
+    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 8 "Run Diagnostics (doctor)"
+    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 9 "Update Omni (update)"
+    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 10 "Help & Documentation (help)"
+    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 11 "Exit"
     echo
     
     local choice
