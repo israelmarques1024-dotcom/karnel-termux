@@ -16,17 +16,16 @@ ia_help() {
 	separator_section "Commands"
 	echo
 	printf "    ${D_CYAN}%-12s${NC} %s\n" "sessions" "List all AI conversation sessions"
-	printf "    ${D_CYAN}%-12s${NC} %s\n" "install" "Install AI tools (omniRoute, odysseus, opencode, claude, etc)"
-	printf "    ${D_CYAN}%-12s${NC} %s\n" "list" "List all installed AI tools"
+	printf "    ${D_CYAN}%-12s${NC} %s\n" "install" "Install AI tools"
 	printf "    ${D_CYAN}%-12s${NC} %s\n" "routes" "Show available AI CLI methods/launchers"
 	echo
 	separator_section "Examples"
 	echo
 	printf "    ${D_CYAN}omni ia sessions${NC}         # Show all AI sessions\n"
 	printf "    ${D_CYAN}omni ia sessions --all${NC}   # Include agent names\n"
-	printf "    ${D_CYAN}omni ia install omni-route${NC}# Install omniRoute\n"
-	printf "    ${D_CYAN}omni ia install odysseus${NC}  # Install Odysseus web UI\n"
-	printf "    ${D_CYAN}omni ia list${NC}             # List installed AI tools\n"
+	printf "    ${D_CYAN}omni ia install omni-route${NC}  # Install omniRoute\n"
+	printf "    ${D_CYAN}omni ia routes${NC}             # Show AI CLI routes\n"
+	printf "    ${D_CYAN}omni list ai${NC}               # List installed AI tools\n"
 	echo
 }
 
@@ -457,34 +456,6 @@ ia_routes() {
 	log_info "Install missing ones with: ${D_CYAN}omni install ai${NC}"
 }
 
-# List installed AI tools
-ia_list() {
-	local -a installed=()
-	for cmd in opencode claude codex qwen vibe mimo hermes kimi ollama odysseus openclaw freebuff pi agy mmx gentle-ai gga engram codegraph kilow command-code kimchi omni-route; do
-		if command -v "$cmd" &>/dev/null; then
-			installed+=("$cmd")
-		fi
-	done
-
-	if [[ ${#installed[@]} -eq 0 ]]; then
-		log_warn "No AI tools installed"
-		log_info "Install with: ${D_CYAN}omni install ai${NC}"
-		return 0
-	fi
-
-	separator
-	box "Installed AI Tools (${#installed[@]})"
-	separator
-	echo
-
-	for tool in "${installed[@]}"; do
-		list_item "${D_GREEN}✔${NC} ${D_CYAN}${tool}${NC}"
-	done
-
-	echo
-	log_info "Run ${D_CYAN}omni ia routes${NC} for full CLI paths"
-}
-
 # Install AI tools
 ia_install() {
 	local tool="${1:-}"
@@ -511,9 +482,6 @@ ia_main() {
 		;;
 	install)
 		ia_install "$@"
-		;;
-	list | ls)
-		ia_list
 		;;
 	routes | launchers)
 		ia_routes
