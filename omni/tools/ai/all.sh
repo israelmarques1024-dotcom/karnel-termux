@@ -53,6 +53,7 @@ AI_TOOLS_REGISTRY=(
   "veo3:Veo 3 SDK:veo3"
   "odysseus:Odysseus:odysseus"
   "kimchi-code:Kimchi CLI:kimchi"
+  "omni-route:omniRoute:omni-route"
 )
 
 # ---- IMPORTAR TODOS OS SCRIPTS INDIVIDUAIS ----
