@@ -16,7 +16,7 @@ ia_help() {
 	separator_section "Commands"
 	echo
 	printf "    ${D_CYAN}%-12s${NC} %s\n" "sessions" "List all AI conversation sessions"
-	printf "    ${D_CYAN}%-12s${NC} %s\n" "install" "Install AI tools (odysseus, opencode, claude, etc)"
+	printf "    ${D_CYAN}%-12s${NC} %s\n" "install" "Install AI tools (omniRoute, odysseus, opencode, claude, etc)"
 	printf "    ${D_CYAN}%-12s${NC} %s\n" "list" "List all installed AI tools"
 	printf "    ${D_CYAN}%-12s${NC} %s\n" "routes" "Show available AI CLI methods/launchers"
 	echo
@@ -24,6 +24,7 @@ ia_help() {
 	echo
 	printf "    ${D_CYAN}omni ia sessions${NC}         # Show all AI sessions\n"
 	printf "    ${D_CYAN}omni ia sessions --all${NC}   # Include agent names\n"
+	printf "    ${D_CYAN}omni ia install omni-route${NC}# Install omniRoute\n"
 	printf "    ${D_CYAN}omni ia install odysseus${NC}  # Install Odysseus web UI\n"
 	printf "    ${D_CYAN}omni ia list${NC}             # List installed AI tools\n"
 	echo
@@ -417,7 +418,7 @@ ia_routes() {
 	local -a routes=()
 
 	# Collect all available AI CLIs
-	for cmd in opencode claude codex qwen vibe mimo hermes kimi ollama odysseus openclaude freebuff pi agy mmx gentle-ai gga engram codegraph kilow command-code kimchi; do
+	for cmd in opencode claude codex qwen vibe mimo hermes kimi ollama odysseus openclaw freebuff pi agy mmx gentle-ai gga engram codegraph kilow command-code kimchi omni-route; do
 		if command -v "$cmd" &>/dev/null; then
 			local path
 			path=$(command -v "$cmd")
@@ -459,7 +460,7 @@ ia_routes() {
 # List installed AI tools
 ia_list() {
 	local -a installed=()
-	for cmd in opencode claude codex qwen vibe mimo hermes kimi ollama odysseus openclaude freebuff pi agy mmx gentle-ai gga engram codegraph kilow command-code kimchi; do
+	for cmd in opencode claude codex qwen vibe mimo hermes kimi ollama odysseus openclaw freebuff pi agy mmx gentle-ai gga engram codegraph kilow command-code kimchi omni-route; do
 		if command -v "$cmd" &>/dev/null; then
 			installed+=("$cmd")
 		fi

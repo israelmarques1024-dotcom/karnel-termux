@@ -5,9 +5,9 @@ import "@/utils/log"
 LOG_FILE="$OMNI_CACHE/install_ai.log"
 
 _install_omni_route_impl() {
-  mkdir -p "$HOME/.local/bin"
-  cat > "$HOME/.local/bin/omni-route" <<'EOS'
-#!/usr/bin/env bash
+  mkdir -p "$PREFIX/bin"
+  cat > "$PREFIX/bin/omni-route" <<'EOS'
+#!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
 usage() {
   cat <<'USAGE'
@@ -42,7 +42,7 @@ case "$cmd" in
     ;;
 esac
 EOS
-  chmod +x "$HOME/.local/bin/omni-route"
+  chmod +x "$PREFIX/bin/omni-route"
   log_success "omniRoute installed"
 }
 
