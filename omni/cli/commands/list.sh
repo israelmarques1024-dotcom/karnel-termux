@@ -163,6 +163,7 @@ _list_ai() {
   table_row "Veo 3 SDK" "--veo3" "veo3" "$(_check_cmd "veo3")"
   table_row "Odysseus" "--odysseus" "odysseus" "$(_check_cmd "odysseus")"
   table_row "Kimchi CLI" "--kimchi-code" "kimchi" "$(_check_cmd "kimchi")"
+  table_row "omniRoute" "--omni-route" "omni-route" "$(_check_cmd "omni-route")"
 	table_end
 
   echo
