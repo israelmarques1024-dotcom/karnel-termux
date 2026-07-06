@@ -3,12 +3,50 @@
 import "@/utils/log"
 import "@/utils/colors"
 
-# Variables de PostgreSQL
-PG_DATA="$PREFIX/var/lib/postgresql"
+# Variáveis globais do PostgreSQL
+PG_DATA_DEFAULT="$PREFIX/var/lib/postgresql"
 PG_LOG="$OMNI_CACHE/postgresql.log"
 PG_USER="postgres"
 
-# Mostrar ayuda
+# Função para exportar variáveis de ambiente do PostgreSQL
+pg_export_env() {
+	local data_dir="$1"
+	if [[ -n "$data_dir" ]]; then
+		export PGDATA="$data_dir"
+		export PGUSER="$PG_USER"
+		export PGPORT="5432"
+		export PGHOST="localhost"
+		export PGDATABASE="postgres"
+		# Adicionar binários do PostgreSQL ao PATH se necessário
+		if [[ -d "$PREFIX/bin" ]]; then
+			export PATH="$PREFIX/bin:$PATH"
+		fi
+	fi
+}
+
+# Detectar e exportar diretório de dados do PostgreSQL
+pg_detect_data() {
+	local data_dirs=(
+		"$PREFIX/var/lib/postgresql"
+		"$PREFIX/var/lib/postgresql/data"
+		"$PG_DATA_DEFAULT"
+		"$PG_DATA_DEFAULT/data"
+		"$HOME/.termux/postgresql"
+		"$HOME/.termux/postgresql/data"
+	)
+
+	for dir in "${data_dirs[@]}"; do
+		if [[ -d "$dir" ]] && [[ -f "$dir/PG_VERSION" ]]; then
+			PG_DATA="$dir"
+			pg_export_env "$dir"
+			return 0
+		fi
+	done
+
+	return 1
+}
+
+# Mostrar ajuda
 pg_help() {
 	echo
 	box "Omni PostgreSQL Manager"
@@ -31,18 +69,9 @@ pg_help() {
 	printf "    ${D_CYAN}%-12s${NC} %s\n" "list" "List all databases"
 	printf "    ${D_CYAN}%-12s${NC} %s\n" "shell" "Open psql shell"
 	echo
-	separator_section "Examples"
-	echo
-	printf "    ${D_CYAN}omni pg start${NC}              # Start PostgreSQL\n"
-	printf "    ${D_CYAN}omni pg backup mydb${NC}        # Backup 'mydb'\n"
-	printf "    ${D_CYAN}omni pg restore mydb${NC}       # Restore 'mydb'\n"
-	printf "    ${D_CYAN}omni pg list-backups${NC}      # List backups table\n"
-	printf "    ${D_CYAN}omni pg schedule${NC}          # Setup automated crontab backup\n"
-	printf "    ${D_CYAN}omni pg shell${NC}              # Open psql shell\n"
-	echo
 }
 
-# Verificar si PostgreSQL está instalado
+# Verificar se PostgreSQL está instalado
 check_pg_installed() {
 	if ! command -v pg_ctl &>/dev/null; then
 		log_error "PostgreSQL is not installed"
@@ -52,30 +81,9 @@ check_pg_installed() {
 	return 0
 }
 
-# Verificar si está inicializado (solo informativo)
+# Verificar se está inicializado
 check_pg_initialized() {
-	# Verificar múltiples rutas posibles
-	local data_dirs=(
-		"$PREFIX/var/lib/postgresql/data"
-		"$PG_DATA/data"
-		"$HOME/.termux/postgresql/data"
-		"$PREFIX/var/lib/postgresql/data"
-	)
-
-	for dir in "${data_dirs[@]}"; do
-		if [[ -d "$dir" ]] && [[ -f "$dir/PG_VERSION" ]]; then
-			# Actualizar PG_DATA a la ruta correcta
-			PG_DATA="$(dirname "$dir")"
-			return 0
-		fi
-	done
-
-	# También verificar si el servicio está corriendo
-	if pg_ctl status &>/dev/null; then
-		return 0
-	fi
-
-	return 1
+	pg_detect_data && [[ -f "$PG_DATA/PG_VERSION" ]]
 }
 
 # Inicializar PostgreSQL
@@ -87,7 +95,7 @@ pg_init() {
 
 	check_pg_installed || return 1
 
-	# Verificar si ya está inicializado
+	# Verificar se já está inicializado
 	if check_pg_initialized; then
 		log_warn "PostgreSQL is already initialized"
 		echo
@@ -97,16 +105,16 @@ pg_init() {
 		return 0
 	fi
 
-	mkdir -p "$PG_DATA"
+	mkdir -p "$PG_DATA_DEFAULT"
 
 	log_info "Initializing PostgreSQL database..."
 	echo
 
-	# En Termux, initdb necesita ejecutarse como el usuario actual
-	if loading "Initializing database" _pg_init_db; then
+	# Executar initdb
+	if loading "Initializing database" initdb -D "$PG_DATA_DEFAULT"; then
 		log_success "PostgreSQL initialized successfully"
 		echo
-		list_item "Data directory: $PG_DATA"
+		list_item "Data directory: $PG_DATA_DEFAULT"
 		list_item "Default user: $PG_USER"
 		echo
 		log_info "Start PostgreSQL with: ${D_CYAN}omni pg start${NC}"
@@ -119,10 +127,6 @@ pg_init() {
 	echo
 }
 
-_pg_init_db() {
-	initdb -D "$PG_DATA" &>"$PG_LOG" 2>&1
-}
-
 # Iniciar PostgreSQL
 pg_start() {
 	separator
@@ -132,45 +136,36 @@ pg_start() {
 
 	check_pg_installed || return 1
 
-	# Intentar detectar la ruta de datos antes de iniciar
-	local found_dir=""
-	local data_dirs=(
-		"$PREFIX/var/lib/postgresql"
-		"$PREFIX/var/lib/postgresql/data"
-		"$PG_DATA"
-		"$PG_DATA/data"
-		"$HOME/.termux/postgresql"
-		"$HOME/.termux/postgresql/data"
-	)
-
-	for dir in "${data_dirs[@]}"; do
-		if [[ -d "$dir" ]] && [[ -f "$dir/PG_VERSION" ]]; then
-			PG_DATA="$dir"
-			found_dir="$dir"
-			break
-		fi
-	done
-
-	# Si no encontramos datos, intentar init primero
-	if [[ -z "$found_dir" ]]; then
+	# Detectar diretório de dados
+	if ! pg_detect_data; then
 		log_warn "PostgreSQL not initialized yet"
 		log_info "Initializing first..."
-		mkdir -p "$PG_DATA"
-		if ! loading "Initializing database" _pg_init_db; then
+		mkdir -p "$PG_DATA_DEFAULT"
+		if ! loading "Initializing database" initdb -D "$PG_DATA_DEFAULT"; then
 			log_error "Failed to initialize PostgreSQL"
 			log_warn "Check log: $PG_LOG"
 			return 1
 		fi
+		pg_export_env "$PG_DATA_DEFAULT"
 	fi
 
 	log_info "Starting PostgreSQL server..."
+	echo
 
-	if loading "Starting PostgreSQL" _pg_start_server; then
-		log_success "PostgreSQL started successfully"
-		echo
-		list_item "Listening on: localhost:5432"
-		list_item "User: $PG_USER"
-		echo
+	# Iniciar servidor e verificar se funcionou
+	if loading "Starting PostgreSQL" pg_ctl -D "$PG_DATA" -l "$PG_LOG" start 2>&1; then
+		sleep 2
+		# Verificar se realmente está rodando
+		if pg_ctl -D "$PG_DATA" status &>/dev/null; then
+			log_success "PostgreSQL started successfully"
+			echo
+			list_item "Listening on: localhost:5432"
+			list_item "User: $PG_USER"
+		else
+			log_error "PostgreSQL failed to start"
+			log_warn "Check log: $PG_LOG"
+			return 1
+		fi
 	else
 		log_error "Failed to start PostgreSQL"
 		log_warn "Check log: $PG_LOG"
@@ -178,13 +173,6 @@ pg_start() {
 	fi
 
 	echo
-}
-
-_pg_start_server() {
-	pg_ctl -D "$PG_DATA" -l "$PG_LOG" start 2>&1
-	sleep 2
-	# Verificar que efectivamente arrancó
-	pg_ctl -D "$PG_DATA" status &>/dev/null
 }
 
 # Detener PostgreSQL
@@ -196,40 +184,22 @@ pg_stop() {
 
 	check_pg_installed || return 1
 
-	# Intentar detectar la ruta de datos
-	local found_dir=""
-	local data_dirs=(
-		"$PREFIX/var/lib/postgresql"
-		"$PREFIX/var/lib/postgresql/data"
-		"$PG_DATA"
-		"$PG_DATA/data"
-		"$HOME/.termux/postgresql"
-		"$HOME/.termux/postgresql/data"
-	)
-
-	for dir in "${data_dirs[@]}"; do
-		if [[ -d "$dir" ]] && [[ -f "$dir/PG_VERSION" ]]; then
-			PG_DATA="$dir"
-			found_dir="$dir"
-			break
-		fi
-	done
+	# Detectar diretório de dados
+	if ! pg_detect_data; then
+		log_warn "PostgreSQL is not initialized"
+		return 0
+	fi
 
 	log_info "Stopping PostgreSQL server..."
+	echo
 
-	if loading "Stopping PostgreSQL" _pg_stop_server; then
+	if loading "Stopping PostgreSQL" pg_ctl -D "$PG_DATA" stop 2>&1; then
 		log_success "PostgreSQL stopped successfully"
 	else
-		log_error "Failed to stop PostgreSQL"
-		log_warn "PostgreSQL may not be running"
-		return 1
+		log_warn "PostgreSQL may not be running or failed to stop"
 	fi
 
 	echo
-}
-
-_pg_stop_server() {
-	pg_ctl -D "$PG_DATA" stop &>/dev/null
 }
 
 # Reiniciar PostgreSQL
@@ -240,10 +210,18 @@ pg_restart() {
 	echo
 
 	check_pg_installed || return 1
-	check_pg_initialized || return 1
 
-	pg_stop
-	sleep 1
+	# Detectar diretório de dados
+	if ! pg_detect_data; then
+		log_warn "PostgreSQL not initialized yet"
+		log_info "Initializing first..."
+		pg_init || return 1
+		sleep 1
+	else
+		pg_stop
+		sleep 1
+	fi
+
 	pg_start
 
 	echo
@@ -262,31 +240,9 @@ pg_status() {
 
 	check_pg_installed || return 1
 
-	# Intentar detectar la ruta de datos
-	local found_dir=""
-	local data_dirs=(
-		"$PREFIX/var/lib/postgresql"
-		"$PREFIX/var/lib/postgresql/data"
-		"$PG_DATA"
-		"$PG_DATA/data"
-		"$HOME/.termux/postgresql"
-		"$HOME/.termux/postgresql/data"
-	)
-
-	for dir in "${data_dirs[@]}"; do
-		if [[ -d "$dir" ]] && [[ -f "$dir/PG_VERSION" ]]; then
-			PG_DATA="$dir"
-			found_dir="$dir"
-			break
-		fi
-	done
-
-	log_info "Checking PostgreSQL status..."
-	echo
-
-	# Verificar estado
-	if [[ -n "$found_dir" ]]; then
-		if pg_ctl -D "$found_dir" status &>/dev/null; then
+	# Detectar diretório de dados
+	if pg_detect_data && [[ -f "$PG_DATA/PG_VERSION" ]]; then
+		if pg_ctl -D "$PG_DATA" status &>/dev/null; then
 			log_success "PostgreSQL is RUNNING"
 			echo
 			list_item "Data directory: $PG_DATA"
@@ -308,7 +264,7 @@ pg_status() {
 	echo
 }
 
-# Crear base de datos
+# Criar base de dados
 pg_create() {
 	local db_name="$1"
 
@@ -320,12 +276,15 @@ pg_create() {
 
 	check_pg_installed || return 1
 
-	# Detectar ruta de datos
-	_detect_pg_data
+	# Detectar diretório de dados e exportar variáveis
+	if ! pg_detect_data; then
+		log_error "PostgreSQL not initialized. Run: omni pg init"
+		return 1
+	fi
 
 	log_info "Creating database: $db_name..."
 
-	if createdb "$db_name" &>/dev/null; then
+	if createdb -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" "$db_name" 2>&1; then
 		log_success "Database '$db_name' created successfully"
 	else
 		log_error "Failed to create database '$db_name'"
@@ -334,7 +293,7 @@ pg_create() {
 	fi
 }
 
-# Eliminar base de datos
+# Eliminar base de dados
 pg_drop() {
 	local db_name="$1"
 
@@ -346,6 +305,11 @@ pg_drop() {
 
 	check_pg_installed || return 1
 
+	if ! pg_detect_data; then
+		log_error "PostgreSQL not initialized. Run: omni pg init"
+		return 1
+	fi
+
 	log_warn "This will permanently delete database: $db_name"
 
 	read_confirm "Are you sure?" CONFIRM
@@ -354,12 +318,9 @@ pg_drop() {
 		return 0
 	fi
 
-	# Detectar ruta de datos
-	_detect_pg_data
-
 	log_info "Dropping database: $db_name..."
 
-	if dropdb "$db_name" &>/dev/null; then
+	if dropdb -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" "$db_name" 2>&1; then
 		log_success "Database '$db_name' dropped successfully"
 	else
 		log_error "Failed to drop database '$db_name'"
@@ -367,7 +328,7 @@ pg_drop() {
 	fi
 }
 
-# Listar bases de datos
+# Listar bases de dados
 pg_list() {
 	separator
 	box "PostgreSQL Databases"
@@ -376,53 +337,102 @@ pg_list() {
 
 	check_pg_installed || return 1
 
-	# Detectar ruta de datos
-	_detect_pg_data
+	# Detectar diretório de dados
+	if ! pg_detect_data; then
+		log_error "PostgreSQL not initialized. Run: omni pg init"
+		return 1
+	fi
 
 	log_info "Listing databases..."
 	echo
 
-	psql -c '\l' 2>/dev/null || {
+	# Usar psql com variáveis de ambiente corretas
+	if psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -c '\l' 2>&1; then
+		echo
+	else
+		echo
 		log_error "Failed to list databases"
 		log_warn "PostgreSQL may not be running. Run: omni pg start"
 		return 1
-	}
-
-	echo
+	fi
 }
 
 # Abrir shell psql
 pg_shell() {
 	check_pg_installed || return 1
 
-	# Detectar ruta de datos
-	_detect_pg_data
+	# Detectar diretório de dados
+	if ! pg_detect_data; then
+		log_error "PostgreSQL not initialized. Run: omni pg init"
+		return 1
+	fi
+
+	if [[ -z "$PGDATA" ]]; then
+		log_error "PGDATA not set. PostgreSQL may not be properly configured"
+		return 1
+	fi
 
 	log_info "Opening psql shell..."
 	echo
 
-	psql 2>/dev/null
+	# Executar psql com variáveis corretas
+	psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER"
 }
 
-# Función auxiliar para detectar ruta de datos
-_detect_pg_data() {
-	local data_dirs=(
-		"$PREFIX/var/lib/postgresql"
-		"$PREFIX/var/lib/postgresql/data"
-		"$PG_DATA"
-		"$PG_DATA/data"
-		"$HOME/.termux/postgresql"
-		"$HOME/.termux/postgresql/data"
-	)
+# Função principal
+pg_main() {
+	local cmd="$1"
+	shift || true
 
-	for dir in "${data_dirs[@]}"; do
-		if [[ -d "$dir" ]] && [[ -f "$dir/PG_VERSION" ]]; then
-			PG_DATA="$dir"
-			return 0
-		fi
-	done
-
-	return 1
+	case "$cmd" in
+	start)
+		pg_start
+		;;
+	stop)
+		pg_stop
+		;;
+	restart)
+		pg_restart
+		;;
+	status)
+		pg_status
+		;;
+	init)
+		pg_init
+		;;
+	create)
+		pg_create "$1"
+		;;
+	drop)
+		pg_drop "$1"
+		;;
+	backup)
+		pg_backup "$@"
+		;;
+	restore)
+		pg_restore "$@"
+		;;
+	list-backups | backups)
+		pg_list_backups
+		;;
+	schedule)
+		pg_schedule
+		;;
+	list | ls)
+		pg_list
+		;;
+	shell | psql)
+		pg_shell
+		;;
+	"")
+		pg_help
+		;;
+	*)
+		log_error "Unknown command: $cmd"
+		pg_help
+		exit 1
+		;;
+	esac
 }
 
 _run_backup_cmd() {
@@ -472,27 +482,22 @@ pg_backup() {
 		return 1
 	fi
 
-	# check if db exists
-	if ! psql -lqt | cut -d \| -f 1 | grep -w "$db_name" &>/dev/null; then
-		log_error "Database '$db_name' does not exist"
+	if ! pg_detect_data; then
+		log_error "PostgreSQL not initialized. Run: omni pg init"
 		return 1
 	fi
 
+	log_info "Creating compressed backup for '$db_name'..."
 	local backup_dir="$OMNI_DATA/pg_backups"
 	mkdir -p "$backup_dir"
 	local file_name="${db_name}_$(date +%Y%m%d_%H%M%S).backup.gz"
 	local file_path="$backup_dir/$file_name"
 
-	log_info "Creating compressed backup for '$db_name'..."
 	if loading "Running backup dump" _run_backup_cmd "$db_name" "$file_path"; then
-		# Integrity checksum
 		sha256sum "$file_path" | cut -d' ' -f1 > "${file_path}.sha256"
-		
 		log_success "Backup created successfully:"
 		list_item "$file_path"
 		list_item "Checksum generated: $(cat "${file_path}.sha256")"
-		
-		# Cleanup old backups
 		_pg_cleanup_old_backups "$db_name"
 	else
 		log_error "Failed to create backup"
@@ -512,13 +517,12 @@ pg_restore() {
 		return 1
 	fi
 
-	# List backups (both legacy .backup and new compressed .backup.gz)
 	local -a files=()
 	while IFS= read -r f; do
 		if [[ -n "$f" ]]; then
 			files+=("$f")
 		fi
-	done < <(find "$backup_dir" \( -name "*.backup" -o -name "*.backup.gz" \) 2>/dev/null | sort -r)
+	done < <(find "$backup_dir" \( -name "*.backup" -o -name "*.backup.gz" \) -type f 2>/dev/null | sort -r)
 
 	if [[ ${#files[@]} -eq 0 ]]; then
 		log_error "No backup files found in $backup_dir"
@@ -548,7 +552,6 @@ pg_restore() {
 		return 1
 	fi
 
-	# Integrity verification
 	if [[ -f "${backup_file}.sha256" ]]; then
 		log_info "Verifying backup integrity..."
 		local current_hash
@@ -581,10 +584,14 @@ pg_restore() {
 		return 1
 	fi
 
-	# Create db if not exists
+	if ! pg_detect_data; then
+		log_error "PostgreSQL not initialized. Run: omni pg init"
+		return 1
+	fi
+
 	if ! psql -lqt | cut -d \| -f 1 | grep -w "$db_name" &>/dev/null; then
 		log_info "Target database '$db_name' does not exist. Creating it..."
-		if ! createdb "$db_name" &>/dev/null; then
+		if ! createdb -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" "$db_name" &>/dev/null; then
 			log_error "Failed to create target database '$db_name'"
 			return 1
 		fi
@@ -592,7 +599,7 @@ pg_restore() {
 	fi
 
 	log_info "Restoring backup into '$db_name'..."
-	
+
 	local success=false
 	if [[ "$backup_file" == *.gz ]]; then
 		if loading "Restoring compressed database" _run_restore_cmd "$db_name" "$backup_file"; then
@@ -695,67 +702,11 @@ pg_schedule() {
 			log_warn "crontab command not found. Trying to install cronie..."
 			pkg install -y cronie >/dev/null 2>&1 || true
 		fi
-		
+
 		local job="$cron_expr OMNI_PATH=$OMNI_PATH $OMNI_PATH/bin/omni pg backup $db_name >/dev/null 2>&1"
 		(crontab -l 2>/dev/null | grep -v "omni pg backup $db_name"; echo "$job") | crontab -
 		log_success "Backup scheduled successfully ($interval) for database '$db_name'!"
 		list_item "Ensure cron daemon is running (run: 'crond')"
 	fi
 	echo
-}
-
-# Función principal
-pg_main() {
-	local cmd="$1"
-	shift || true
-
-	case "$cmd" in
-	start)
-		pg_start
-		;;
-	stop)
-		pg_stop
-		;;
-	restart)
-		pg_restart
-		;;
-	status)
-		pg_status
-		;;
-	init)
-		pg_init
-		;;
-	create)
-		pg_create "$2"
-		;;
-	drop)
-		pg_drop "$2"
-		;;
-	backup)
-		pg_backup "$@"
-		;;
-	restore)
-		pg_restore "$@"
-		;;
-	list-backups | backups)
-		pg_list_backups
-		;;
-	schedule)
-		pg_schedule
-		;;
-	list | ls)
-		pg_list
-		;;
-	shell | psql)
-		pg_shell
-		;;
-	"")
-		pg_help
-		;;
-	*)
-		log_error "Unknown command: $cmd"
-		pg_help
-		exit 1
-		;;
-	esac
 }
