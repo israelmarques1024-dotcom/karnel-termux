@@ -71,6 +71,15 @@ _install_banner_impl() {
 
 $OMNI_BANNER_MARKER
 source "$banner_script"
+
+clear() {
+	builtin clear 2>/dev/null || /usr/bin/clear 2>/dev/null || clear
+	local _banner_cache="\${XDG_CACHE_HOME:-$HOME/.cache}/omni/banner_cache"
+	if [[ -f "$_banner_cache" ]]; then
+		cat "$_banner_cache"
+	fi
+}
+export -f clear 2>/dev/null
 EOF
 
 	log_success "Omni Banner installed"
