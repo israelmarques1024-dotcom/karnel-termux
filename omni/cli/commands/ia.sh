@@ -36,31 +36,40 @@ ia_sessions() {
 	mkdir -p "$IA_SESSIONS_DIR"
 
 	local -a sessions=()
+	local session_file=""
 
 	# OpenCode prompt history
 	if [[ -f "$HOME/.local/state/opencode/prompt-history.jsonl" ]]; then
 		while IFS= read -r line; do
+			[[ -z "$line" ]] && continue
 			local input=""
-			input=$(printf '%s' "$line" | jq -r '.input // ""' 2>/dev/null || true)
+			input=$(printf '%s' "$line" | jq -r '.input // empty' 2>/dev/null || true)
 			if [[ -n "$input" ]]; then
-				local ts
-				ts=$(date +%Y%m%d_%H%M%S)
+				local ts="unknown"
+				local json_ts
+				json_ts=$(printf '%s' "$line" | jq -r '.timestamp // empty' 2>/dev/null || true)
+				if [[ -n "$json_ts" && "$json_ts" != "null" ]]; then
+					ts=$(date -d "@$json_ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "$json_ts")
+				else
+					local mtime
+					mtime=$(stat -c %Y "$HOME/.local/state/opencode/prompt-history.jsonl" 2>/dev/null || echo "unknown")
+					ts=$(date -d "@$mtime" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+				fi
 				local display="${input:0:60}"
 				display="${display//$'\n'/ }"
 				sessions+=("[opencode]|$ts|$display")
 			fi
-		done < <(tail -50 "$HOME/.local/state/opencode/prompt-history.jsonl" 2>/dev/null || true)
+		done < <(cat "$HOME/.local/state/opencode/prompt-history.jsonl" 2>/dev/null || true)
 	fi
 
 	# Hermes sessions
 	if [[ -d "$HOME/.hermes/sessions" ]]; then
 		for f in "$HOME/.hermes/sessions"/*.json; do
 			[[ -f "$f" ]] || continue
-			local basename
-			basename=$(basename "$f")
-			local ts
-			ts=$(echo "$basename" | grep -oE '[0-9]{8}_[0-9]{6}' | head -1 || echo "unknown")
-			sessions+=("[hermes]|$ts|$basename")
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			sessions+=("[hermes]|$readable_ts|$basename")
 		done
 	fi
 
@@ -68,12 +77,9 @@ ia_sessions() {
 	if [[ -d "$HOME/.kimi-code/sessions" ]]; then
 		for d in "$HOME/.kimi-code/sessions"/*; do
 			[[ -d "$d" ]] || continue
-			local basename
-			basename=$(basename "$d")
-			local ts
-			ts=$(stat -c %Y "$d" 2>/dev/null || echo "unknown")
-			local readable_ts
-			readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			local basename; basename=$(basename "$d")
+			local ts; ts=$(stat -c %Y "$d" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
 			sessions+=("[kimi]|$readable_ts|$basename")
 		done
 	fi
@@ -82,12 +88,9 @@ ia_sessions() {
 	if [[ -d "$HOME/.pi/agent/sessions" ]]; then
 		for d in "$HOME/.pi/agent/sessions"/*; do
 			[[ -d "$d" ]] || continue
-			local basename
-			basename=$(basename "$d")
-			local ts
-			ts=$(stat -c %Y "$d" 2>/dev/null || echo "unknown")
-			local readable_ts
-			readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			local basename; basename=$(basename "$d")
+			local ts; ts=$(stat -c %Y "$d" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
 			sessions+=("[pi]|$readable_ts|$basename")
 		done
 	fi
@@ -96,12 +99,9 @@ ia_sessions() {
 	if [[ -d "$HOME/.codex" ]]; then
 		for f in "$HOME/.codex"/*.json; do
 			[[ -f "$f" ]] || continue
-			local basename
-			basename=$(basename "$f")
-			local ts
-			ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
-			local readable_ts
-			readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
 			sessions+=("[codex]|$readable_ts|$basename")
 		done
 	fi
@@ -110,12 +110,9 @@ ia_sessions() {
 	if [[ -d "$HOME/.openclaw/agents/main/sessions" ]]; then
 		for f in "$HOME/.openclaw/agents/main/sessions"/*.json; do
 			[[ -f "$f" ]] || continue
-			local basename
-			basename=$(basename "$f")
-			local ts
-			ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
-			local readable_ts
-			readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
 			sessions+=("[openclaw]|$readable_ts|$basename")
 		done
 	fi
@@ -126,12 +123,9 @@ ia_sessions() {
 		if [[ -d "$ody_sessions_dir" ]]; then
 			for f in "$ody_sessions_dir"/*.json; do
 				[[ -f "$f" ]] || continue
-				local basename
-				basename=$(basename "$f")
-				local ts
-				ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
-				local readable_ts
-				readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+				local basename; basename=$(basename "$f")
+				local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+				local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
 				sessions+=("[odysseus]|$readable_ts|$basename")
 			done
 		fi
@@ -143,15 +137,216 @@ ia_sessions() {
 		if [[ -d "$mimo_sessions_dir" ]]; then
 			for f in "$mimo_sessions_dir"/*.json; do
 				[[ -f "$f" ]] || continue
-				local basename
-				basename=$(basename "$f")
-				local ts
-				ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
-				local readable_ts
-				readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+				local basename; basename=$(basename "$f")
+				local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+				local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
 				sessions+=("[mimocode]|$readable_ts|$basename")
 			done
 		fi
+	fi
+
+	# Claude Code sessions
+	if [[ -d "$HOME/.claude" ]]; then
+		for f in "$HOME/.claude"/*.json; do
+			[[ -f "$f" ]] || continue
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			sessions+=("[claude]|$readable_ts|$basename")
+		done
+		for f in "$HOME/.claude"/*.jsonl; do
+			[[ -f "$f" ]] || continue
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			sessions+=("[claude]|$readable_ts|$basename")
+		done
+	fi
+
+	# Gemini CLI sessions
+	if [[ -d "$HOME/.gemini" ]]; then
+		for f in "$HOME/.gemini"/*.json; do
+			[[ -f "$f" ]] || continue
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			sessions+=("[gemini]|$readable_ts|$basename")
+		done
+		for f in "$HOME/.gemini"/*.jsonl; do
+			[[ -f "$f" ]] || continue
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			sessions+=("[gemini]|$readable_ts|$basename")
+		done
+	fi
+
+	# Qwen sessions
+	if [[ -d "$HOME/.qwen" ]]; then
+		for f in "$HOME/.qwen"/*.json; do
+			[[ -f "$f" ]] || continue
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			sessions+=("[qwen]|$readable_ts|$basename")
+		done
+		for f in "$HOME/.qwen"/*.jsonl; do
+			[[ -f "$f" ]] || continue
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			sessions+=("[qwen]|$readable_ts|$basename")
+		done
+	fi
+
+	# Vibe sessions
+	if [[ -d "$HOME/.vibe" ]]; then
+		for f in "$HOME/.vibe"/*.json; do
+			[[ -f "$f" ]] || continue
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			sessions+=("[vibe]|$readable_ts|$basename")
+		done
+		for f in "$HOME/.vibe"/*.jsonl; do
+			[[ -f "$f" ]] || continue
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			sessions+=("[vibe]|$readable_ts|$basename")
+		done
+	fi
+
+	# Freebuff sessions
+	if [[ -d "$HOME/.freebuff" ]]; then
+		for f in "$HOME/.freebuff"/*.json; do
+			[[ -f "$f" ]] || continue
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			sessions+=("[freebuff]|$readable_ts|$basename")
+		done
+	fi
+
+	# Agnostic sessions
+	if [[ -d "$HOME/.agy" ]]; then
+		for f in "$HOME/.agy"/*.json; do
+			[[ -f "$f" ]] || continue
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			sessions+=("[agy]|$readable_ts|$basename")
+		done
+	fi
+
+	# MMX sessions
+	if [[ -d "$HOME/.mmx" ]]; then
+		for f in "$HOME/.mmx"/*.json; do
+			[[ -f "$f" ]] || continue
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			sessions+=("[mmx]|$readable_ts|$basename")
+		done
+	fi
+
+	# Gentle AI sessions
+	if [[ -d "$HOME/.gentle-ai" ]]; then
+		for f in "$HOME/.gentle-ai"/*.json; do
+			[[ -f "$f" ]] || continue
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			sessions+=("[gentle-ai]|$readable_ts|$basename")
+		done
+	fi
+
+	# GGA sessions
+	if [[ -d "$HOME/.gga" ]]; then
+		for f in "$HOME/.gga"/*.json; do
+			[[ -f "$f" ]] || continue
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			sessions+=("[gga]|$readable_ts|$basename")
+		done
+	fi
+
+	# Engram sessions
+	if [[ -d "$HOME/.engram" ]]; then
+		for f in "$HOME/.engram"/*.json; do
+			[[ -f "$f" ]] || continue
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			sessions+=("[engram]|$readable_ts|$basename")
+		done
+	fi
+
+	# CodeGraph sessions
+	if [[ -d "$HOME/.codegraph" ]]; then
+		for f in "$HOME/.codegraph"/*.json; do
+			[[ -f "$f" ]] || continue
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			sessions+=("[codegraph]|$readable_ts|$basename")
+		done
+	fi
+
+	# Kilow sessions
+	if [[ -d "$HOME/.kilow" ]]; then
+		for f in "$HOME/.kilow"/*.json; do
+			[[ -f "$f" ]] || continue
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			sessions+=("[kilow]|$readable_ts|$basename")
+		done
+	fi
+
+	# Command Code sessions
+	if [[ -d "$HOME/.command-code" ]]; then
+		for f in "$HOME/.command-code"/*.json; do
+			[[ -f "$f" ]] || continue
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			sessions+=("[command-code]|$readable_ts|$basename")
+		done
+	fi
+
+	# Kimchi sessions
+	if [[ -d "$HOME/.kimchi" ]]; then
+		for f in "$HOME/.kimchi"/*.json; do
+			[[ -f "$f" ]] || continue
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			sessions+=("[kimchi]|$readable_ts|$basename")
+		done
+	fi
+
+	# Ollama model sessions/local chat
+	if [[ -d "$HOME/.ollama/history" ]]; then
+		for f in "$HOME/.ollama/history"/*.json; do
+			[[ -f "$f" ]] || continue
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			sessions+=("[ollama]|$readable_ts|$basename")
+		done
+	fi
+
+	# Brain AI cache as sessions
+	if [[ -d "$OMNI_CACHE/brain_ai_cache" ]]; then
+		for f in "$OMNI_CACHE/brain_ai_cache"/*; do
+			[[ -f "$f" ]] || continue
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			sessions+=("[brain]|$readable_ts|$basename")
+		done
 	fi
 
 	if [[ ${#sessions[@]} -eq 0 ]]; then
@@ -159,6 +354,29 @@ ia_sessions() {
 		log_info "Start an AI tool to create your first session"
 		return 0
 	fi
+
+	# Persist all discovered sessions to IA_SESSIONS_DIR for history
+	local persist_file="$IA_SESSIONS_DIR/.all_sessions.json"
+	local tmp_persist
+	tmp_persist=$(mktemp)
+	echo "[" > "$tmp_persist"
+	local first=1
+	for session in "${sessions[@]}"; do
+		local tool ts_raw name
+		tool=$(echo "$session" | cut -d'|' -f1)
+		ts_raw=$(echo "$session" | cut -d'|' -f2)
+		name=$(echo "$session" | cut -d'|' -f3-)
+		local escaped_name
+		escaped_name=$(printf '%s' "$name" | sed 's/"/\\"/g')
+		if [[ $first -eq 1 ]]; then
+			first=0
+		else
+			echo "," >> "$tmp_persist"
+		fi
+		printf '{"tool":"%s","ts":"%s","name":"%s"}\n' "$tool" "$ts_raw" "$escaped_name" >> "$tmp_persist"
+	done
+	echo "]" >> "$tmp_persist"
+	mv "$tmp_persist" "$persist_file" 2>/dev/null || true
 
 	separator
 	box "AI Sessions (${#sessions[@]})"
@@ -170,11 +388,9 @@ ia_sessions() {
 
 	local idx=1
 	for session in "${sorted_sessions[@]}"; do
-		local tool
+		local tool ts name
 		tool=$(echo "$session" | cut -d'|' -f1)
-		local ts
 		ts=$(echo "$session" | cut -d'|' -f2)
-		local name
 		name=$(echo "$session" | cut -d'|' -f3-)
 
 		local display_name="$name"
@@ -188,6 +404,7 @@ ia_sessions() {
 
 	echo
 	log_info "Total: ${#sessions[@]} sessions across all AI tools"
+	log_info "History saved in: $IA_SESSIONS_DIR"
 }
 
 # List available AI CLI launchers/routers

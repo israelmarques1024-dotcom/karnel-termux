@@ -35,8 +35,8 @@
 
 Criado por **israel marques** (tenho 12 anos).
 
-- **28 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama e mais
-- **8 linguagens** — Node.js, Python, Go, Rust, C/C++, PHP, Perl
+- **27 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama e mais
+- **7 linguagens** — Node.js, Python, Go, Rust, C/C++, PHP, Perl
 - **4 bancos de dados** — PostgreSQL, MariaDB, SQLite, MongoDB
 - **19 ferramentas dev** — gh, curl, fzf, bat, lsd, jq e muito mais
 - **3 CLIs de deploy** — Vercel, Railway, Netlify
@@ -423,7 +423,9 @@ omni update omni     # Atualiza o framework
 
 ## ⭐ Apoie o Projeto
 
-Se o Omni Catalyst foi útil pra você, considere dar uma estrela no GitHub — isso ajuda outros desenvolvedores a descobrirem o projeto.
+Se o Omni Catalyst foi útil pra você, considere apoiar via Pix ou dar uma estrela no GitHub — isso ajuda outros desenvolvedores a descobrirem o projeto.
+
+**Pix:** `037f07bd-a326-42b6-a5a3-f29b36e703db`
 
 ---
 

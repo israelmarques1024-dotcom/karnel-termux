@@ -110,6 +110,41 @@ WRAPPER
   log_info "Web UI at: ${D_CYAN}http://localhost:7000${NC}"
 }
 
+_install_odysseus_native() {
+  mkdir -p "$(dirname "$LOG_FILE")"
+
+  if ! command -v glibc-repo &>/dev/null && ! command -v glibc &>/dev/null; then
+    pkg install glibc-repo glibc clang curl git tar -y &>>"$LOG_FILE" || true
+  fi
+
+  _odysseus_proot_ubuntu /bin/bash -c '
+    export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    export DEBIAN_FRONTEND=noninteractive
+
+    if [ ! -d /root/odysseus ]; then
+      git clone --depth 1 https://github.com/pewdiepie-archdaemon/odysseus.git /root/odysseus
+    fi
+
+    cd /root/odysseus
+    if [ -f requirements.txt ]; then
+      python3 -m pip install --break-system-packages -r requirements.txt 2>&1
+    fi
+  ' &>>"$LOG_FILE"
+
+  mkdir -p "$ODYSSEUS_DATA_DIR"
+  local wrapper_path="$PREFIX/bin/odysseus"
+  cat > "$wrapper_path" << WRAPPER
+#!$PREFIX/bin/bash
+exec proot-distro login --shared-tmp ubuntu -- bash -c 'cd /root/odysseus && exec python3 app.py "\$@"' bash "\$@"
+WRAPPER
+  chmod +x "$wrapper_path"
+
+  log_success "Odysseus installed (native glibc)"
+  echo
+  log_info "Start with: ${D_CYAN}odysseus${NC}"
+  log_info "Web UI at: ${D_CYAN}http://localhost:7000${NC}"
+}
+
 install_odysseus() {
   if command -v odysseus &>/dev/null || [ -d "$ODYSSEUS_DATA_DIR/repo" ]; then
     log_info "Odysseus is already installed"
