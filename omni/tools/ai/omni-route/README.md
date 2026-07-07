@@ -1,8 +1,6 @@
 # omniRoute
 
-**AI CLI Routes Manager**
-
-CLI tool to list installed AI tools in the Omni ecosystem.
+**AI Gateway CLI** - Integrates the official `omniroute` npm package.
 
 ## Installation
 
@@ -10,19 +8,25 @@ CLI tool to list installed AI tools in the Omni ecosystem.
 omni install ai --omni-route
 ```
 
+This installs `omniroute` globally via npm:
+```bash
+npm install -g omniroute
+```
+
 ## Usage
 
 ```bash
-omni-route list           # List installed AI CLIs
-omni-route show <cli>     # Show CLI path
-
-# Example output:
-# /data/data/com.termux/files/usr/bin/opencode
-# /data/data/com.termux/files/usr/bin/claude
-# /data/data/com.termux/files/usr/bin/codex
+omniroute          # Start AI gateway on localhost:20128
+omniroute --help   # Show all commands
 ```
+
+Features:
+- 236+ AI providers (OpenAI, Claude, Gemini, etc.)
+- One endpoint for all tools
+- Auto-fallback to free providers
+- Smart routing with compression
 
 ## Related
 
-- Run `omni ia sessions` to view active sessions
-- Run `omni ia routes` to view installed AI CLI paths in table format
+- `omni ia routes` - List installed AI CLI tools
+- `omni ia sessions` - View active AI sessions

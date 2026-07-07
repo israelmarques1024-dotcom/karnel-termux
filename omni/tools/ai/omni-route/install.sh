@@ -5,65 +5,30 @@ import "@/utils/log"
 LOG_FILE="$OMNI_CACHE/install_ai.log"
 
 _install_omni_route_impl() {
-  mkdir -p "$PREFIX/bin"
-  cat > "$PREFIX/bin/omni-route" <<'EOS'
-#!/data/data/com.termux/files/usr/bin/env bash
-set -euo pipefail
-
-usage() {
-  cat <<'USAGE'
-omniRoute - AI CLI routes manager
-
-Usage:
-  omni-route list          List installed AI CLIs
-  omni-route show <cli>    Show CLI path
-  omni-route --help        Show this help
-USAGE
-}
-
-cmd="${1:-}"
-shift || true
-
-case "$cmd" in
-  list)
-    IFS=$'\n'
-    for bin in $(command -v opencode claude codex qwen vibe hermes kimi ollama odysseus openclaw freebuff pi agy mmx gentle-ai gga engram codegraph kilow command-code kimchi 2>/dev/null || true); do
-      [ -n "$bin" ] && echo "$bin"
-    done | sort
-    ;;
-  show)
-    echo "$1"
-    ;;
-  -h|--help|help|"")
-    usage
-    ;;
-  *)
-    echo "Unknown command: $cmd"
-    usage
-    return 1
-    ;;
-esac
-EOS
-  chmod +x "$PREFIX/bin/omni-route"
-  log_success "omniRoute installed"
+  if ! command -v npm &>/dev/null; then
+    pkg install nodejs -y &>>"$LOG_FILE" || log_error "Failed to install Node.js"
+  fi
+  
+  npm install -g omniroute@latest &>>"$LOG_FILE" && log_success "omniRoute installed (npm)" || log_error "Failed to install omniRoute"
 }
 
 install_omni_route() {
-  if command -v omni-route &>/dev/null; then
+  if command -v omniroute &>/dev/null; then
     log_info "omniRoute already installed"
     return 2
   fi
-  log_info "Installing omniRoute..."
+  log_info "Installing omniRoute (AI gateway)..."
   _install_omni_route_impl
 }
 
 uninstall_omni_route() {
-  rm -f "$PREFIX/bin/omni-route"
+  npm uninstall -g omniroute 2>/dev/null || true
   log_success "omniRoute uninstalled"
 }
 
 update_omni_route() {
-  log_info "omniRoute updated"
+  log_info "Updating omniRoute..."
+  npm update -g omniroute 2>&1 &>>"$LOG_FILE" && log_success "omniRoute updated" || log_error "Failed to update omniRoute"
 }
 
 reinstall_omni_route() {
