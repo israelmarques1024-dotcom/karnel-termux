@@ -1,37 +1,33 @@
 # omniRoute
 
-**AI CLI Manager with Web Interface for Termux**
+**AI CLI Routes Manager**
 
-A simple web-based interface to manage and run installed AI CLI tools.
+List and manage installed AI CLI tools.
 
 ## Installation
 
 ```bash
+# Via npm (global):
+npm install -g @omnitermux/omni-route
+
+# Via Omni (Termux):
 omni install ai --omni-route
 ```
 
 ## Usage
 
 ```bash
-omni-route start   # Start web interface
-omni-route stop    # Stop web interface  
-omni-route status  # Check status
+omni-route list           # List installed AI CLIs
+omni-route show <cli>     # Show CLI path
 
-# Open in browser:
-# http://localhost:7331
+# Examples:
+omni-route list
+omni-route show opencode
 ```
 
-## Features
+## Supported CLIs
 
-- Visual grid of installed AI CLIs (opencode, claude, gemini, ollama, etc.)
-- One-click launch from web interface
-- Shows installation status for each tool
-- Glassmorphism UI design optimized for Termux
-
-## Dependencies
-
-- Python 3 + Flask (auto-installed via pip)
-- Installed AI CLIs (install via `omni install ai`)
+Lists: opencode, claude, codex, qwen, hermes, odysseus, ollama, gemini, kilow, engram, freebuff
 
 ## Related
 

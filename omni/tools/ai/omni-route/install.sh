@@ -1,166 +1,45 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
-import "@/utils/colors"
 
 LOG_FILE="$OMNI_CACHE/install_ai.log"
-OMNIROUTE_HOME="$HOME/.local/share/omni-route"
 
 _install_omni_route_impl() {
-  mkdir -p "$OMNIROUTE_HOME"
   mkdir -p "$PREFIX/bin"
-
-# Create Python web interface
-  cat > "$OMNIROUTE_HOME/omni_route.py" << 'PYEOF'
-#!/usr/bin/env python3
-import subprocess
-import os
-import http.server
-import socketserver
-from urllib.parse import urlparse
-
-PORT = int(os.environ.get('OMNIROUTE_PORT', 7331))
-
-CLIS = [
-    ("opencode", "OpenCode", "💻", "Multi-provider AI"),
-    ("claude", "Claude", "🔷", "Anthropic AI"),
-    ("codex", "OpenAI Codex", "🌐", "OpenAI CLI"),
-    ("qwen", "Qwen Code", "🖥", "Alibaba AI"),
-    ("hermes", "Hermes Agent", "🦅", "Persistent agent"),
-    ("odysseus", "Odysseus", "⚡", "AI workspace"),
-    ("ollama", "Ollama", "🦙", "Local LLM runner"),
-    ("gemini", "Gemini CLI", "💎", "Google AI"),
-]
-
-def get_installed():
-    installed = {}
-    for cli, _, _, _ in CLIS:
-        installed[cli] = subprocess.run(['which', cli], capture_output=True).returncode == 0
-    return installed
-
-HTML = '''<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>omniRoute</title>
-<style>
-*{{margin:0;padding:0;box-sizing:border-box}}
-body{{font-family:'JetBrains Mono',monospace;background:linear-gradient(135deg,#0a0a0f,#1a1a2e);color:#fff;min-height:100vh;padding:40px 20px}}
-.container{{max-width:800px;margin:0 auto}}
-h1{{text-align:center;margin-bottom:40px;font-size:2.5rem}}
-h1 span{{color:#00d4ff}}
-.grid{{display:grid;gap:16px}}
-.card{{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:20px;display:flex;align-items:center;gap:16px}}
-.icon{{font-size:2rem}}
-.info{{flex:1}}
-.name{{font-weight:bold;font-size:1.1rem}}
-.desc{{color:#888;font-size:0.9rem}}
-.status{{padding:4px 12px;border-radius:20px;font-size:0.8rem}}
-.installed{{background:#00c853;color:#000}}
-.not-installed{{background:#666}}
-.run-btn{{padding:8px 16px;background:#00d4ff;border:none;border-radius:6px;color:#000;font-weight:bold;cursor:pointer}}
-.run-btn:disabled{{background:#444;cursor:not-allowed}}
-</style>
-</head><body>
-<div class="container">
-<h1><span>omni</span>Route</h1>
-<div class="grid">
-{}</div>
-</div>
-<script>
-function runCli(cli){{fetch('/run/'+cli)}}
-</script>
-</body></html>'''
-
-def generate_cards():
-    installed = get_installed()
-    cards = []
-    for cli, name, icon, desc in CLIS:
-        status_class = "installed" if installed[cli] else "not-installed"
-        status_text = "Installed" if installed[cli] else "Not Installed"
-        disabled = "" if installed[cli] else "disabled"
-        cards.append(f'''<div class="card">
-<div class="icon">{icon}</div>
-<div class="info"><div class="name">{name}<code>{cli}</code></div><div class="desc">{desc}</div></div>
-<span class="status {status_class}">{status_text}</span>
-<button class="run-btn" {disabled} onclick="runCli('{cli}')">Run</button>
-</div>''')
-    return '\n'.join(cards)
-
-class Handler(http.server.SimpleHTTPRequestHandler):
-    def do_GET(self):
-        path = urlparse(self.path).path
-        if path == '/':
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write(HTML.format(generate_cards()).encode())
-        elif path.startswith('/run/'):
-            cli = path[5:]
-            subprocess.Popen([cli], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
-            self.send_response(200)
-            self.end_headers()
-        else:
-            self.send_response(404)
-            self.end_headers()
-
-    def log_message(self, format, *args): pass
-
-if __name__ == '__main__':
-    print(f"omniRoute running at http://localhost:{PORT}")
-    with socketserver.TCPServer(("", PORT), Handler) as httpd:
-        httpd.serve_forever()
-PYEOF
-
-  # Create wrapper script
-  cat > "$PREFIX/bin/omni-route" << 'EOS'
+  cat > "$PREFIX/bin/omni-route" <<'EOS'
 #!/data/data/com.termux/files/usr/bin/bash
-set -e
+set -euo pipefail
 
-OMNIROUTE_PORT="${OMNIROUTE_PORT:-7331}"
-OMNIROUTE_HOME="${HOME}/.local/share/omni-route"
+usage() {
+  cat <<'USAGE'
+omniRoute - AI CLI routes manager
 
-start() {
-  if pgrep -f "python.*omni_route.py" > /dev/null 2>&1; then
-    echo "omniRoute already running"
-    echo "Interface: http://localhost:${OMNIROUTE_PORT}"
-    return 0
-  fi
-  
-  cd "$OMNIROUTE_HOME"
-  nohup python3 omni_route.py > /dev/null 2>&1 &
-  
-  sleep 2
-  echo "omniRoute started"
-  echo "Interface: http://localhost:${OMNIROUTE_PORT}"
+Usage:
+  omni-route list          List installed AI CLIs
+  omni-route show <cli>    Show CLI path
+  omni-route --help        Show this help
+USAGE
 }
 
-stop() {
-  pkill -f "python.*omni_route.py" 2>/dev/null || true
-  echo "omniRoute stopped"
-}
+cmd="${1:-}"
+shift || true
 
-status() {
-  if pgrep -f "python.*omni_route.py" > /dev/null 2>&1; then
-    echo "omniRoute is running"
-    echo "Interface: http://localhost:${OMNIROUTE_PORT}"
-  else
-    echo "omniRoute is not running"
-  fi
-}
-
-case "${1:-}" in
-  start) start ;;
-  stop) stop ;;
-  status) status ;;
+case "$cmd" in
+  list)
+    IFS=$'\n'
+    for bin in $(command -v opencode claude codex qwen vibe hermes kimi ollama odysseus openclaw freebuff pi agy mmx gentle-ai gga engram codegraph kilow command-code kimchi 2>/dev/null || true); do
+      [ -n "$bin" ] && echo "$bin"
+    done | sort
+    ;;
+  show)
+    echo "$1"
+    ;;
   -h|--help|help|"")
-    echo "omniRoute - AI CLI Manager"
-    echo "Usage: omni-route [start|stop|status]"
-    echo "Interface: http://localhost:${OMNIROUTE_PORT}"
+    usage
     ;;
   *)
-    echo "Unknown command: $1"
-    echo "Usage: omni-route [start|stop|status]"
+    echo "Unknown command: $cmd"
+    usage
     return 1
     ;;
 esac
@@ -180,13 +59,11 @@ install_omni_route() {
 
 uninstall_omni_route() {
   rm -f "$PREFIX/bin/omni-route"
-  rm -rf "$OMNIROUTE_HOME"
-  pkill -f "omni_route.py" 2>/dev/null || true
   log_success "omniRoute uninstalled"
 }
 
 update_omni_route() {
-  log_info "omniRoute is up to date"
+  log_info "omniRoute updated"
 }
 
 reinstall_omni_route() {
