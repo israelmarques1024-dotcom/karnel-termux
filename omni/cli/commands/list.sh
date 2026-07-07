@@ -161,6 +161,7 @@ _list_ai() {
   table_row "HeyGen CLI" "--heygen" "heygen" "$(_check_cmd "heygen")"
   table_row "Seedance CLI" "--seedance" "seedance" "$(_check_cmd "seedance")"
   table_row "Veo 3 SDK" "--veo3" "veo3" "$(_check_cmd "veo3")"
+  table_row "Cline CLI" "--cline" "cline" "$(_check_cmd "cline")"
   table_row "Odysseus" "--odysseus" "odysseus" "$(_check_cmd "odysseus")"
   table_row "Kimchi CLI" "--kimchi-code" "kimchi" "$(_check_cmd "kimchi")"
   table_row "omniRoute" "--omni-route" "omni-route" "$(_check_cmd "omni-route")"
