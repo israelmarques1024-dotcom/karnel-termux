@@ -241,6 +241,10 @@ _update_specific_tools() {
         update_kimchi_code
         case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
+      omni-route)
+        update_omni_route
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
+        ;;
       *)
         log_warn "Unknown AI tool: --$tool"
         ;;
@@ -466,7 +470,7 @@ _update_specific_tools() {
     for tool in "${tools[@]}"; do
       case "$tool" in
       nodejs)
-        update_npmjs
+        update_nodejs
         case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       python)

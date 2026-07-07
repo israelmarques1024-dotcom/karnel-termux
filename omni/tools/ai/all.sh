@@ -10,8 +10,10 @@
 import "@/utils/log"
 import "@/utils/colors"
 
-export OMNI_CACHE="${OMNI_CACHE:-$HOME/.cache/omni}"
-export PREFIX="${PREFIX:-/data/data/com.termux/files/usr}"
+# OMNI_CACHE e PREFIX são definidos via env.sh
+# Exportados aqui apenas como fallback para scripts que carregam all.sh diretamente
+: "${OMNI_CACHE:=$HOME/.cache/omni}"
+: "${PREFIX:=/data/data/com.termux/files/usr}"
 
 # ---- Progress helpers (replicados do log.sh para consistência) ----
 

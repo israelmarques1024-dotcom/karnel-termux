@@ -235,6 +235,10 @@ _uninstall_specific_tools() {
         uninstall_odysseus
         case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
         ;;
+      kimchi-code)
+        uninstall_kimchi_code
+        case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
+        ;;
       omni-route)
         uninstall_omni_route
         case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
@@ -460,7 +464,7 @@ _uninstall_specific_tools() {
     for tool in "${tools[@]}"; do
       case "$tool" in
       nodejs)
-        uninstall_npmjs
+        uninstall_nodejs
         case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
         ;;
       python)

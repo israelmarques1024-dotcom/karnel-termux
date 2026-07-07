@@ -58,9 +58,15 @@ _install_ai_tools_wrapper() {
 }
 
 uninstall_ai() {
+  import "@/tools/ai/all"
+
+  # Verifica se alguma ferramenta AI está instalada via AI_TOOLS_REGISTRY
   local found=false
-	for cmd in opencode claude gemini codex qwen vibe mimo hermes kimi ollama freebuff heygen seedance veo3 odysseus openclaude openclaw engram codegraph pi agy mmx gentle-ai gga command-code kilo kimchi; do
-    if command -v "$cmd" &>/dev/null; then
+  local _reg_entry _id _name _bins
+  for _reg_entry in "${AI_TOOLS_REGISTRY[@]}"; do
+    IFS=':' read -r _id _name _bins <<< "$_reg_entry"
+    local _first_bin="${_bins%%,*}"
+    if command -v "$_first_bin" &>/dev/null; then
       found=true
       break
     fi
@@ -111,41 +117,19 @@ reinstall_ai() {
   log_info "Reinstalling AI tools..."
   echo
 
-  _reinstall_ai_tools_wrapper
-  log_success "AI tools reinstalled successfully"
-  separator
-  echo
-  list_item "Qwen Code"
-  list_item "Gemini CLI"
-  list_item "Mistral Vibe"
-  list_item "OpenClaude"
-  list_item "Claude Code"
-  list_item "OpenClaw"
-  list_item "Ollama"
-  list_item "Codex"
-  list_item "OpenCode"
-  list_item "MiMo Code"
-  list_item "Engram"
-  list_item "CodeGraph"
-  list_item "Pi"
-  list_item "Antigravity CLI"
-  list_item "Minimax CLI"
-  list_item "Gentle AI"
-  list_item "GGA"
-  list_item "Hermes Agent"
-  list_item "Kimi Code"
-  list_item "Command Code"
-  list_item "Freebuff"
-  list_item "Kilo Code CLI"
-  list_item "HeyGen CLI"
-  list_item "Seedance CLI"
-  list_item "Veo 3 SDK"
-  list_item "Odysseus"
-  list_item "Kimchi CLI"
-  echo
-}
-
-_reinstall_ai_tools_wrapper() {
   import "@/tools/ai/all"
   reinstall_all_ai_tools
+  echo
+  log_info "Reinstalled tools:"
+  echo
+
+  local _reg_entry _id _name _bins
+  for _reg_entry in "${AI_TOOLS_REGISTRY[@]}"; do
+    IFS=':' read -r _id _name _bins <<< "$_reg_entry"
+    list_item "$_name"
+  done
+  echo
+
+  log_success "AI tools reinstalled successfully"
+  echo
 }
