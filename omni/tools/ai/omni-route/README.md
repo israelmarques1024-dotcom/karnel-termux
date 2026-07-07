@@ -1,6 +1,6 @@
 # omniRoute
 
-**AI Gateway CLI** - Integrates the official `omniroute` npm package.
+**AI Gateway CLI** - Wrapper for official `omniroute` npm package.
 
 ## Installation
 
@@ -8,9 +8,9 @@
 omni install ai --omni-route
 ```
 
-This installs `omniroute` globally via npm:
+This creates a wrapper that runs the official package via `npx`:
 ```bash
-npm install -g omniroute
+npm install -g omniroute  # Official package
 ```
 
 ## Usage
@@ -21,10 +21,16 @@ omniroute --help   # Show all commands
 ```
 
 Features:
-- 236+ AI providers (OpenAI, Claude, Gemini, etc.)
-- One endpoint for all tools
-- Auto-fallback to free providers
-- Smart routing with compression
+- 236+ AI providers via one endpoint
+- Auto-fallback to free providers  
+- Smart routing with compression (15-95% token savings)
+- Dashboard at `http://localhost:20128/dashboard`
+
+## Docs
+
+- Website: https://omniroute.online
+- GitHub: https://github.com/diegosouzapw/OmniRoute
+- npm: https://www.npmjs.com/package/omniroute
 
 ## Related
 
