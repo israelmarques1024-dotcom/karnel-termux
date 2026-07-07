@@ -7,7 +7,7 @@ LOG_FILE="$OMNI_CACHE/install_ai.log"
 _install_omni_route_impl() {
   mkdir -p "$PREFIX/bin"
   cat > "$PREFIX/bin/omni-route" <<'EOS'
-#!/data/data/com.termux/files/usr/bin/bash
+#!/data/data/com.termux/files/usr/bin/env bash
 set -euo pipefail
 
 OMNIROUTE_PORT="${OMNIROUTE_PORT:-7331}"
