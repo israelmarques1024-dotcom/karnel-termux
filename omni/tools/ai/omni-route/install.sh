@@ -6,7 +6,10 @@ LOG_FILE="$OMNI_CACHE/install_ai.log"
 
 _install_omni_route_impl() {
   mkdir -p "$PREFIX/bin"
-  cat > "$PREFIX/bin/omniroute" <<'EOS'
+  
+  # Create both omniroute and omni-route binaries
+  for bin_name in omniroute omni-route; do
+    cat > "$PREFIX/bin/$bin_name" <<'EOS'
 #!/data/data/com.termux/files/usr/bin/env bash
 set -euo pipefail
 
@@ -34,12 +37,14 @@ fi
 # Run omniroute via npx (works even if not globally installed)
 npx omniroute "$@"
 EOS
-  chmod +x "$PREFIX/bin/omniroute"
+    chmod +x "$PREFIX/bin/$bin_name"
+  done
+  
   log_success "omniRoute wrapper installed (runs via npx)"
 }
 
 install_omni_route() {
-  if command -v omniroute &>/dev/null && omniroute --version &>/dev/null; then
+  if command -v omniroute &>/dev/null; then
     log_info "omniRoute already installed"
     return 2
   fi
@@ -48,7 +53,7 @@ install_omni_route() {
 }
 
 uninstall_omni_route() {
-  rm -f "$PREFIX/bin/omniroute"
+  rm -f "$PREFIX/bin/omniroute" "$PREFIX/bin/omni-route"
   log_success "omniRoute wrapper uninstalled"
   log_info "To remove npm package: npm uninstall -g omniroute"
 }
