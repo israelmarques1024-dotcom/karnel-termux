@@ -35,7 +35,7 @@
 
 Criado por **israel marques** (tenho 12 anos).
 
-- **27 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama e mais
+- **28 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama, omniRoute e mais
 - **7 linguagens** — Node.js, Python, Go, Rust, C/C++, PHP, Perl
 - **4 bancos de dados** — PostgreSQL, MariaDB, SQLite, MongoDB
 - **19 ferramentas dev** — gh, curl, fzf, bat, lsd, jq e muito mais
@@ -154,7 +154,8 @@ omni install ai --opencode --ollama           # Instala específicos
 | **Seedance CLI** | `--seedance` | Ferramenta de linha de comando Seedance |
 | **Veo 3 SDK** | `--veo3` | SDK para vídeo Veo 3 |
 | **Odysseus** | `--odysseus` | Assistente de código Odysseus |
-| **Kimchi AI** | `--kimchi-code` | Agente de IA Kimchi |
+| **Kimchi CLI** | `--kimchi-code` | Agente de IA Kimchi |
+| **omniRoute** | `--omni-route` | AI Gateway com 236+ provedores |
 
 </details>
 

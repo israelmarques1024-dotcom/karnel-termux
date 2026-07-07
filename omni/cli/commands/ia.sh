@@ -420,8 +420,8 @@ ia_routes() {
 
 	local -a routes=()
 
-	# Collect all available AI CLIs
-	for cmd in opencode claude codex qwen vibe mimo hermes kimi ollama odysseus openclaw freebuff pi agy mmx gentle-ai gga engram codegraph kilow command-code kimchi omni-route; do
+	# Collect all available AI CLIs (em sincronia com AI_TOOLS_REGISTRY em tools/ai/all.sh)
+	for cmd in qwen gemini claude vibe openclaude openclaw ollama codex opencode mimo engram codegraph pi agy mmx gentle-ai gga hermes kimi command-code freebuff kilocode heygen seedance veo3 odysseus kimchi omni-route; do
 		if command -v "$cmd" &>/dev/null; then
 			local path
 			path=$(command -v "$cmd")
