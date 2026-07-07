@@ -2,15 +2,11 @@
 
 **AI CLI Routes Manager**
 
-List and manage installed AI CLI tools.
+CLI tool to list installed AI tools in the Omni ecosystem.
 
 ## Installation
 
 ```bash
-# Via npm (global):
-npm install -g @omnitermux/omni-route
-
-# Via Omni (Termux):
 omni install ai --omni-route
 ```
 
@@ -20,16 +16,13 @@ omni install ai --omni-route
 omni-route list           # List installed AI CLIs
 omni-route show <cli>     # Show CLI path
 
-# Examples:
-omni-route list
-omni-route show opencode
+# Example output:
+# /data/data/com.termux/files/usr/bin/opencode
+# /data/data/com.termux/files/usr/bin/claude
+# /data/data/com.termux/files/usr/bin/codex
 ```
-
-## Supported CLIs
-
-Lists: opencode, claude, codex, qwen, hermes, odysseus, ollama, gemini, kilow, engram, freebuff
 
 ## Related
 
 - Run `omni ia sessions` to view active sessions
-- Run `omni ia routes` to view installed AI CLI paths
+- Run `omni ia routes` to view installed AI CLI paths in table format

@@ -11,7 +11,7 @@ Omni is a Termux environment manager. The project is at `~/omni/` with code unde
 - CLI commands: `omni/cli/commands/` (install.sh, uninstall.sh, update.sh, reinstall.sh, list.sh, show.sh, open.sh, doctor.sh, brain.sh, env.sh, init.sh, pg.sh, voice.sh, ia.sh)
 - CLI commands: AI subcommands include `omni ia sessions`, `omni ia routes`, `omni ia install`
 - AI listing: `omni list ai` (not `omni ia list`)
-- omniRoute: `omni install ai --omni-route` OR `npm install -g @omnitermux/omni-route`; lists AI CLIs on terminal
+- omniRoute: `omni install ai --omni-route`; lists AI CLIs on terminal
 - Utils: `omni/utils/` (banner.sh, bootstrap.sh, colors.sh, env.sh, log.sh)
 
 <!-- CODEGRAPH_START -->
