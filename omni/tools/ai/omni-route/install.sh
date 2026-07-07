@@ -33,7 +33,7 @@ get_installed_clis() {
 }
 
 start_server() {
-  if pgrep -f "omni-route-web" > /dev/null 2>&1; then
+  if pgrep -f "server.py" > /dev/null 2>&1; then
     echo "omniRoute already running at http://localhost:${OMNIROUTE_PORT}"
     return 0
   fi
@@ -52,12 +52,12 @@ start_server() {
 }
 
 stop_server() {
-  pkill -f "omni-route-web" 2>/dev/null || true
+  pkill -f "server.py" 2>/dev/null || true
   echo "omniRoute stopped"
 }
 
 status_server() {
-  if pgrep -f "omni-route-web" > /dev/null 2>&1; then
+  if pgrep -f "server.py" > /dev/null 2>&1; then
     echo "omniRoute is running"
     echo "Interface: http://localhost:${OMNIROUTE_PORT}"
   else
@@ -114,9 +114,12 @@ CLIS = [
 ]
 
 def get_installed():
-    return {c: subprocess.run(['which', c], capture_output=True).returncode == 0 for c,_,_,_ in CLIS}
+    result = {}
+    for cli in CLIS:
+        result[cli[0]] = subprocess.run(['which', cli[0]], capture_output=True).returncode == 0
+    return result
 
-HTML = '''<!DOCTYPE html><html lang="en"><head>
+HTML_HEAD = '''<!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>omniRoute</title>
 <style>
@@ -132,26 +135,27 @@ h1{{text-align:center;margin-bottom:40px}}
 .installed{{background:#00c853;color:#000;padding:3px 10px;border-radius:12px;font-size:0.75rem}}
 .not{{background:#666;padding:3px 10px;border-radius:12px;font-size:0.75rem}}
 .run{{padding:6px 12px;background:#00d4ff;border:none;border-radius:6px;color:#000;font-weight:bold;cursor:pointer}}
-.run:disabled{{background:#444;cursor:not-allowed}}
+.run[disabled]{{background:#444;cursor:not-allowed}}
 </style>
 </head><body><div class="container"><h1><span style="color:#00d4ff">omni</span>Route</h1>
-<div class="grid">{}</div></div>
-<script>function runCli(c){{fetch('/run/'+c)}};</script>
-</body></html>'''
+<div class="grid">'''
 
-def cards():
-    ins = get_installed()
-    return '\n'.join(f'<div class="card"><div style="font-size:1.5rem">{i}</div>
-<div class="info"><div class="name">{n} <code>{c}</code></div><div class="desc">{d}</div></div>
-<span class="{"installed" if ins[c] else "not"}">{"Installed" if ins[c] else "Not Installed"}</span>
-<button class="run" {"disabled" if not ins[c] else ""} onclick="runCli(\''+c+'\')">Run</button></div>' for c,n,i,d in CLIS)
+def generate_cards():
+    installed = get_installed()
+    cards_html = ''
+    for cli, name, icon, desc in CLIS:
+        st_class = "installed" if installed[cli] else "not"
+        st_text = "Installed" if installed[cli] else "Not Installed"
+        disabled = ' disabled' if not installed[cli] else ''
+        cards_html += '<div class="card"><div style="font-size:1.5rem">' + icon + '</div><div class="info"><div class="name">' + name + ' <code>' + cli + '</code></div><div class="desc">' + desc + '</div></div><span class="' + st_class + '">' + st_text + '</span><button class="run"' + disabled + ' onclick="runCli(\'' + cli + '\')">Run</button></div>'
+    return cards_html
 
 class H(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         p = urlparse(self.path).path
         if p == '/':
             self.send_response(200); self.send_header('Content-type', 'text/html'); self.end_headers()
-            self.wfile.write(HTML.format(cards()).encode())
+            self.wfile.write((HTML_HEAD + generate_cards() + '</div></body></html>').encode())
         elif p.startswith('/run/'):
             subprocess.Popen([p[5:]], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
             self.send_response(200); self.end_headers()
@@ -179,7 +183,7 @@ install_omni_route() {
 uninstall_omni_route() {
   rm -f "$PREFIX/bin/omni-route"
   rm -rf "${HOME}/.local/share/omni-route"
-  pkill -f "omni-route" 2>/dev/null || true
+  pkill -f "server.py" 2>/dev/null || true
   log_success "omniRoute uninstalled"
 }
 
