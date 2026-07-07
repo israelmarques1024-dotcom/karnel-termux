@@ -38,8 +38,7 @@ _cline_install_deps_impl() {
   fi
 
   if [ ! -d "$(_cline_detect_ubuntu_root)" ]; then
-    loading "Installing Ubuntu container (first time)" \
-      proot-distro install ubuntu:24.04 &>>"$LOG_FILE"
+    loading "Installing Ubuntu container" _cline_install_ubuntu
   fi
 
   declare -A DEPS=(
@@ -116,8 +115,12 @@ CLINEWRAPPER
   chmod 755 "$PREFIX/bin/cline"
 }
 
+_cline_install_ubuntu() {
+  proot-distro install ubuntu:24.04 &>>"$LOG_FILE"
+}
+
 install_cline() {
-  if command -v cline &>/dev/null; then
+  if grep -q 'proot-distro login ubuntu.*cline' "$PREFIX/bin/cline" 2>/dev/null; then
     log_info "Cline is already installed"
     return 2
   fi
