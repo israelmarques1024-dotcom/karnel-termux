@@ -53,6 +53,7 @@ AI_TOOLS_REGISTRY=(
   "heygen:HeyGen CLI:heygen"
   "seedance:Seedance CLI:seedance"
   "veo3:Veo 3 SDK:veo3"
+  "cline:Cline CLI:cline"
   "odysseus:Odysseus:odysseus"
   "kimchi-code:Kimchi CLI:kimchi"
   "omni-route:omniRoute:omni-route"

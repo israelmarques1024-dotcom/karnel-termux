@@ -35,7 +35,7 @@
 
 Criado por **israel marques** (tenho 12 anos).
 
-- **28 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama, omniRoute e mais
+- **29 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama, Cline, omniRoute e mais
 - **7 linguagens** — Node.js, Python, Go, Rust, C/C++, PHP, Perl
 - **4 bancos de dados** — PostgreSQL, MariaDB, SQLite, MongoDB
 - **19 ferramentas dev** — gh, curl, fzf, bat, lsd, jq e muito mais
@@ -105,7 +105,7 @@ omni
 |--------|-----------|------------|
 | `lang` | Node.js, Python, Go, Rust, C/C++, PHP, Perl | `omni install lang` |
 | `db` | PostgreSQL, MariaDB, SQLite, MongoDB | `omni install db` |
-| `ai` | 28 agentes de IA para coding | `omni install ai` |
+| `ai` | 29 agentes de IA para coding | `omni install ai` |
 | `editor` | Neovim + NvChad + LSP + Copilot | `omni install editor` |
 | `dev` | gh, curl, fzf, bat, lsd, jq e mais | `omni install dev` |
 | `npm` | TypeScript, NestJS CLI, Prettier e mais | `omni install npm` |
@@ -116,7 +116,7 @@ omni
 
 ---
 
-## 🤖 Agentes de IA (28)
+## 🤖 Agentes de IA (29)
 
 ```bash
 omni install ai                               # Instala todos
@@ -155,6 +155,7 @@ omni install ai --opencode --ollama           # Instala específicos
 | **Veo 3 SDK** | `--veo3` | SDK para vídeo Veo 3 |
 | **Odysseus** | `--odysseus` | Assistente de código Odysseus |
 | **Kimchi CLI** | `--kimchi-code` | Agente de IA Kimchi |
+| **Cline CLI** | `--cline` | Agente de codificação autônomo (via proot-distro) |
 | **omniRoute** | `--omni-route` | AI Gateway com 236+ provedores |
 
 </details>
@@ -376,7 +377,7 @@ omni/
 │   │   └── omni.sh    # CLI principal (com TUI)
 │   ├── modules/       # Orquestradores de módulos
 │   ├── tools/         # Instaladores de ferramentas
-│   │   ├── ai/        # 28 agentes de IA
+│   │   ├── ai/        # 29 agentes de IA
 │   │   ├── lang/      # Linguagens
 │   │   ├── db/        # Bancos de dados
 │   │   ├── dev/       # Ferramentas dev
