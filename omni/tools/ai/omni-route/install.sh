@@ -46,7 +46,7 @@ start_server() {
     sleep 1
     echo "omniRoute started at http://localhost:${OMNIROUTE_PORT}"
   else
-    echo "Web interface not available. Run 'omni install ai --omni-route' for web UI."
+    echo "Web UI files missing. Reinstall with 'omni install ai --omni-route'."
     return 1
   fi
 }
