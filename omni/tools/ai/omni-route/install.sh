@@ -52,6 +52,12 @@ with open('$BUNDLE', 'w') as f:
     f.write(c)
 " 2>/dev/null || true
   fi
+  # Patch SQLite journal_mode WAL→DELETE for Termux (prevents DB corruption)
+  for f in "$OMNIROUTE_DIR" "$OMNIROUTE_DIR/dist" "$OMNIROUTE_DIR/dist/.build"; do
+    find "$f" -name '*.js' -type f 2>/dev/null | xargs grep -l 'journal_mode = WAL' 2>/dev/null | while read jsf; do
+      sed -i 's/journal_mode = WAL/journal_mode = DELETE/g' "$jsf" 2>/dev/null || true
+    done
+  done 2>/dev/null || true
   exec node "$OMNIROUTE_BIN" "$@"
 fi
 
@@ -77,6 +83,12 @@ with open('$BUNDLE', 'w') as f:
     f.write(c)
 " 2>/dev/null || true
   fi
+  # Patch SQLite journal_mode WAL→DELETE for Termux
+  for f in "$OMNIROUTE_DIR" "$OMNIROUTE_DIR/dist" "$OMNIROUTE_DIR/dist/.build"; do
+    find "$f" -name '*.js' -type f 2>/dev/null | xargs grep -l 'journal_mode = WAL' 2>/dev/null | while read jsf; do
+      sed -i 's/journal_mode = WAL/journal_mode = DELETE/g' "$jsf" 2>/dev/null || true
+    done
+  done 2>/dev/null || true
   echo "omniRoute installed successfully!" >&2
   exec node "$OMNIROUTE_BIN" "$@"
 fi
@@ -112,9 +124,33 @@ update_omni_route() {
   # Re-patch playwright-core after npm update (npm overwrites node_modules)
   _patch_playwright_core
 
+  # Patch SQLite WAL→DELETE
+  _patch_omni_route_sqlite
+
   # Reinstall wrapper in case PREFIX changed
   _install_omni_route_impl
   log_success "omniRoute updated"
+}
+
+# Patch SQLite journal_mode: WAL → DELETE for Termux compatibility
+# WAL mode causes "out of memory" corruption on Termux/Android
+_patch_omni_route_sqlite() {
+  local base_dirs=(
+    "$HOME/.omni/packages/omniroute/node_modules/omniroute"
+    "$HOME/.omni/packages/omniroute/node_modules/omniroute/dist"
+    "$HOME/.omni/packages/omniroute/node_modules/omniroute/dist/.build"
+  )
+  local patched=0
+  for dir in "${base_dirs[@]}"; do
+    [ -d "$dir" ] || continue
+    while IFS= read -r -d '' jsf; do
+      if grep -q 'journal_mode = WAL' "$jsf" 2>/dev/null; then
+        sed -i 's/journal_mode = WAL/journal_mode = DELETE/g' "$jsf"
+        ((patched++))
+      fi
+    done < <(find "$dir" -name '*.js' -type f -print0 2>/dev/null)
+  done
+  [ "$patched" -gt 0 ] && log_info "SQLite WAL→DELETE patch applied to $patched file(s)"
 }
 
 reinstall_omni_route() {
