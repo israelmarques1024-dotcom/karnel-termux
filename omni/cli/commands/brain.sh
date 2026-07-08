@@ -150,8 +150,8 @@ _brain_pick_file() {
 _brain_editor() {
 	local title="$1"
 
-	if ! command -v code-server &>/dev/null; then
-		log_error "code-server not found"
+	if ! command -v ${EDITOR:-nano} &>/dev/null; then
+		log_error "${EDITOR:-nano} not found"
 		list_item "Install it: ${D_CYAN}omni install editor${D_NC}"
 		return 1
 	fi
@@ -163,7 +163,7 @@ _brain_editor() {
 	echo >>"$tmpfile"
 	echo "- " >>"$tmpfile"
 
-	code-server "$tmpfile" </dev/tty >/dev/tty
+	${EDITOR:-nano} "$tmpfile" </dev/tty >/dev/tty
 
 	local lines
 	lines=$(wc -l <"$tmpfile")
@@ -1074,8 +1074,8 @@ brain_edit() {
 	fi
 
 	local editor="${EDITOR:-}"
-	if command -v code-server &>/dev/null; then
-		editor="code-server"
+	if command -v ${EDITOR:-nano} &>/dev/null; then
+		editor="${EDITOR:-nano}"
 	elif [[ -z "$editor" ]] || ! command -v "$editor" &>/dev/null; then
 		for e in vim nano vi; do
 			if command -v "$e" &>/dev/null; then

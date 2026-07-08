@@ -35,12 +35,12 @@
 
 Criado por **israel marques** (tenho 12 anos).
 
-- **29 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama, Cline, omniRoute e mais
+- **31 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama, Cline, omniRoute e mais
 - **7 linguagens** — Node.js, Python, Go, Rust, C/C++, PHP, Perl
 - **4 bancos de dados** — PostgreSQL, MariaDB, SQLite, MongoDB
 - **19 ferramentas dev** — gh, curl, fzf, bat, lsd, jq e muito mais
 - **3 CLIs de deploy** — Vercel, Railway, Netlify
-- **Editor profissional** — Neovim + NvChad com LSP + Copilot
+- **Editor profissional** — code-server (VS Code no navegador)
 - **Segundo cérebro** — Sistema de memória com busca por IA e grafo de ideias
 - **Comandos de voz** — Fale com seus agentes de IA
 
@@ -105,8 +105,8 @@ omni
 |--------|-----------|------------|
 | `lang` | Node.js, Python, Go, Rust, C/C++, PHP, Perl | `omni install lang` |
 | `db` | PostgreSQL, MariaDB, SQLite, MongoDB | `omni install db` |
-| `ai` | 29 agentes de IA para coding | `omni install ai` |
-| `editor` | Neovim + NvChad + LSP + Copilot | `omni install editor` |
+| `ai` | 31 agentes de IA para coding | `omni install ai` |
+| `editor` | code-server (VS Code no navegador) | `omni install editor` |
 | `dev` | gh, curl, fzf, bat, lsd, jq e mais | `omni install dev` |
 | `npm` | TypeScript, NestJS CLI, Prettier e mais | `omni install npm` |
 | `shell` | ZSH + Oh My Zsh + 10 plugins | `omni install shell` |
@@ -116,7 +116,7 @@ omni
 
 ---
 
-## 🤖 Agentes de IA (29)
+## 🤖 Agentes de IA (31)
 
 ```bash
 omni install ai                               # Instala todos
@@ -157,6 +157,8 @@ omni install ai --opencode --ollama           # Instala específicos
 | **Kimchi CLI** | `--kimchi-code` | Agente de IA Kimchi |
 | **Cline CLI** | `--cline` | Agente de codificação autônomo (via proot-distro) |
 | **omniRoute** | `--omni-route` | AI Gateway com 236+ provedores |
+| **Context7** | `--ctx7` | Documentação para AI assistants |
+| **OpenSpec** | `--openspec` | Spec-Driven Development |
 
 </details>
 
@@ -211,7 +213,7 @@ omni brain sync                    # Sincroniza com GitHub privado
 
 ## 🎤 omni voice
 
-Capture áudio pelo microfone, revise no Neovim, copie para a área de transferência e dispare qualquer agente de IA com o prompt transcrito.
+Capture áudio pelo microfone, revise no editor, copie para a área de transferência e dispare qualquer agente de IA com o prompt transcrito.
 
 ```bash
 omni voice opencode                # Grava → edita → opencode run
@@ -243,17 +245,17 @@ omni voice "!"                     # Atalho para "text"
 | Flag | Descrição |
 |------|-----------|
 | `--lang <code>` | Idioma da fala: `pt-BR`, `en-US`, `es`, etc |
-| `--raw` | Pula edição no nvim, usa captura direta |
+| `--raw` | Pula edição no editor, usa captura direta |
 | `--no-clip` | Não copia prompt para área de transferência |
 
 ### Fluxo de Uso
 
 ```
-Microfone → termux-speech-to-text → nvim (edição) → clipboard → AI agent
+Microfone → termux-speech-to-text → editor (edição) → clipboard → AI agent
 ```
 
 1. Fale o prompt
-2. Revise e corrija no Neovim
+2. Revise e corrija no editor
 3. Prompt é copiado pro clipboard
 4. Agente de IA é disparado com o prompt
 
@@ -261,7 +263,7 @@ Microfone → termux-speech-to-text → nvim (edição) → clipboard → AI age
 
 - Termux:API: `pkg install termux-api`
 - App Termux:API: https://omni-catalyst.vercel.app/termux/api
-- Neovim: `omni install editor`
+- Editor: `omni install editor`
 
 ---
 
