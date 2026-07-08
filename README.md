@@ -35,7 +35,7 @@
 
 Criado por **israel marques** (tenho 12 anos).
 
-- **31 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama, Cline, omniRoute e mais
+- **33 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama, Cline, omniRoute e mais
 - **7 linguagens** — Node.js, Python, Go, Rust, C/C++, PHP, Perl
 - **4 bancos de dados** — PostgreSQL, MariaDB, SQLite, MongoDB
 - **19 ferramentas dev** — gh, curl, fzf, bat, lsd, jq e muito mais
@@ -223,7 +223,7 @@ omni voice claude-code --lang pt-BR # Fala em português → claude -p
 omni voice "!"                     # Atalho para "text"
 ```
 
-### Agentes Suportados (12)
+### Agentes Suportados (13)
 
 | Agente | Comando executado |
 |--------|------------------|
@@ -380,7 +380,7 @@ omni/
 │   │   └── omni.sh    # CLI principal (com TUI)
 │   ├── modules/       # Orquestradores de módulos
 │   ├── tools/         # Instaladores de ferramentas
-│   │   ├── ai/        # 29 agentes de IA
+│   │   ├── ai/        # 33 agentes de IA
 │   │   ├── lang/      # Linguagens
 │   │   ├── db/        # Bancos de dados
 │   │   ├── dev/       # Ferramentas dev
