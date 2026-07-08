@@ -222,7 +222,7 @@ omni voice claude-code --lang pt-BR # Fala em português → claude -p
 omni voice "!"                     # Atalho para "text"
 ```
 
-### Agentes Suportados (13)
+### Agentes Suportados (15)
 
 | Agente | Comando executado |
 |--------|------------------|
@@ -238,6 +238,8 @@ omni voice "!"                     # Atalho para "text"
 | `openclaude` | `openclaude --bg "..."` |
 | `pi` | `pi -p "..."` |
 | `qwen-code` | `qwen -p "..."` |
+| `crush` | `crush "..."` |
+| `kiro` | `kiro-cli "..."` |
 | `text` | Imprime o prompt no terminal |
 
 ### Opções

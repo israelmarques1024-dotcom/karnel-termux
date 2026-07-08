@@ -100,8 +100,12 @@ voice_main() {
   fi
 
   # -- start Termux API activity --
-  command -v termux-api-start &>/dev/null && termux-api-start &>/dev/null
-  local api_ok=$?
+  local api_ok=0
+  if command -v termux-api-start &>/dev/null; then
+    termux-api-start &>/dev/null || api_ok=$?
+  else
+    api_ok=1
+  fi
   if [[ $api_ok -ne 0 ]]; then
     log_warn "Failed to start Termux API activity — speech may not work"
   fi
