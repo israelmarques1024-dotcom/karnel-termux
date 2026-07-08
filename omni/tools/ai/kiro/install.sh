@@ -15,7 +15,7 @@ install_kiro() {
 
   # Try the official installer first
   log_info "Running official Kiro installer..."
-  if curl -fsSL https://cli.kiro.dev/install 2>/dev/null | bash 2>>"$LOG_FILE"; then
+  if echo "y" | curl -fsSL https://cli.kiro.dev/install 2>/dev/null | bash 2>>"$LOG_FILE"; then
     if command -v kiro &>/dev/null || command -v kiro-cli &>/dev/null; then
       log_success "Kiro installed successfully"
       return 0
@@ -35,16 +35,28 @@ install_kiro() {
     return 1
   fi
 
-  # Find the arm64 linux package
+  # Find the arm64 linux package (prefer musl for Termux compatibility)
   local download_path
+  # Try musl first (statically linked, works without glibc)
   download_path=$(echo "$manifest" | python3 -c "
 import json,sys
 d=json.load(sys.stdin)
 for p in d['packages']:
-    if p.get('architecture')=='aarch64' and p.get('os')=='linux' and p.get('fileType')=='tar.gz' and 'musl' not in p.get('download',''):
+    if p.get('architecture')=='aarch64' and p.get('os')=='linux' and 'tar' in p.get('fileType','').lower() and 'xz' not in p.get('fileType','').lower() and 'zst' not in p.get('fileType','').lower() and 'musl' in p.get('download',''):
         print(p['download'])
         break
 " 2>/dev/null)
+  # Fallback to glibc version
+  if [[ -z "$download_path" ]]; then
+    download_path=$(echo "$manifest" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+for p in d['packages']:
+    if p.get('architecture')=='aarch64' and p.get('os')=='linux' and 'tar' in p.get('fileType','').lower() and 'xz' not in p.get('fileType','').lower() and 'zst' not in p.get('fileType','').lower() and 'musl' not in p.get('download',''):
+        print(p['download'])
+        break
+" 2>/dev/null)
+  fi
 
   if [[ -z "$download_path" ]]; then
     log_error "No compatible package found for $arch"
@@ -74,6 +86,13 @@ for p in d['packages']:
         rm -rf "$tmpdir"
         if command -v kiro-cli &>/dev/null || command -v kiro &>/dev/null; then
           log_success "Kiro installed from direct download"
+          return 0
+        fi
+        # Binary exists but can't execute (missing glibc)
+        if [[ -f "$PREFIX/bin/kiro-cli" ]]; then
+          log_warn "Kiro binary installed but requires glibc to run"
+          log_info "Install glibc: ${D_CYAN}pkg install glibc-repo glibc${NC}"
+          log_info "Or use proot: ${D_CYAN}proot-distro install ubuntu${NC}"
           return 0
         fi
       fi
