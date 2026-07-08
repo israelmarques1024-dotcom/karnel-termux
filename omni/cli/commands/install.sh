@@ -103,19 +103,19 @@ install_main() {
     elif [[ -z "$module_target" ]]; then
       module_target="$arg"
     else
-      # Argumento extra sem -- é inválido
+      # Extra argument without -- is invalid
       invalid_args+=("$arg")
     fi
   done
 
-  # Se houver argumentos inválidos, mostrar erro e abortar
+  # If there are invalid arguments, show error and abort
   if [[ ${#invalid_args[@]} -gt 0 ]]; then
-    log_error "Argumentos inválidos: ${invalid_args[*]}"
+    log_error "Invalid arguments: ${invalid_args[*]}"
     echo
-    log_info "Para instalar ferramentas específicas, use -- antes do nome:"
+    log_info "To install specific tools, use -- before the name:"
     log_info "  ${D_CYAN}omni install $module_target --${invalid_args[0]}${NC}"
     echo
-    log_info "Exemplo correto: ${D_CYAN}omni install ai --opencode --ollama${NC}"
+    log_info "Correct example: ${D_CYAN}omni install ai --opencode --ollama${NC}"
     return 1
   fi
 
@@ -199,9 +199,9 @@ _install_specific_tools() {
     local installed_count=0
     local failed_count=0
 
-    # ⚠️ Estas entradas DEVEM permanecer em sincronia com AI_TOOLS_REGISTRY em omni/tools/ai/all.sh
-    # Para adicionar nova ferramenta: 1) criar install.sh 2) adicionar ao AI_TOOLS_REGISTRY 3) adicionar case aqui
-    # Importa o registry para usar _validate_tool_installed
+    # These entries MUST stay in sync with AI_TOOLS_REGISTRY in omni/tools/ai/all.sh
+    # To add a new tool: 1) create install.sh 2) add to AI_TOOLS_REGISTRY 3) add case here
+    # Import the registry for _validate_tool_installed
     local -A _tool_binaries=()
     local _entry _id _name _bins
     for _entry in "${AI_TOOLS_REGISTRY[@]}"; do
@@ -219,14 +219,14 @@ _install_specific_tools() {
 
         case $func_rc in
           0)
-            # Validacao pos-instalacao: command -v para o(s) binario(s)
+            # Post-install validation: command -v for binaries
             local bins="${_tool_binaries[$tool]:-$tool}"
             local found_bin=""
             local _bin
             IFS=',' read -ra _bin_list <<< "$bins"
             for _bin in "${_bin_list[@]}"; do
               if command -v "$_bin" &>/dev/null; then
-                # Verifica se nao e um stub
+                # Check if it is a stub
                 local _bin_path
                 _bin_path=$(command -v "$_bin")
                 if [ -f "$_bin_path" ] && [ -x "$_bin_path" ]; then
@@ -240,7 +240,7 @@ _install_specific_tools() {
             if [ -n "$found_bin" ]; then
               ((installed_count++))
             else
-              log_warn "$tool: binário não encontrado no PATH após instalação"
+              log_warn "$tool: binary not found in PATH after installation"
               ((failed_count++))
             fi
             ;;
@@ -248,7 +248,7 @@ _install_specific_tools() {
             ((failed_count++))
             ;;
           2)
-            # Ja instalado (skipped)
+            # Already installed (skipped)
             ((installed_count++))
             ;;
         esac

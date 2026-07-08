@@ -18,6 +18,13 @@ omni_main() {
     return
   fi
 
+  # special case: --version
+  if [[ "$cmd" == "--version" ]]; then
+    import "@/cli/commands/version"
+    version_main
+    return
+  fi
+
   local command_file="$OMNI_PATH/cli/commands/$cmd.sh"
 
   # verificar si existe el comando
