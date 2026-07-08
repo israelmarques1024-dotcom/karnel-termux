@@ -405,10 +405,10 @@ EOF
 NODE_ENV=development
 PORT=4000
 DB_NAME=postgres
-DATABASE_URL=postgresql://user:password@localhost:5432/dbname
-JWT_SECRET=your-super-secret-jwt-key
+DATABASE_URL=postgresql://user:changeme@localhost:5432/dbname
+JWT_SECRET=CHANGE_ME_TO_A_RANDOM_STRING
 FRONTEND_URL=http://localhost:3000
-CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME
+CLOUDINARY_URL=cloudinary://YOUR_API_KEY:YOUR_API_SECRET@YOUR_CLOUD_NAME
 EOF
 	log_success "Created .env.example"
 

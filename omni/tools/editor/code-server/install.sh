@@ -4,7 +4,7 @@
 # Official docs: https://coder.com/docs/code-server
 # Termux install: pkg install tur-repo && pkg install code-server
 
-CODE_SERVER_PASSWORD="12092013iI@"
+CODE_SERVER_PASSWORD="$(head -c 16 /dev/urandom | base64 | tr -d '/+=' | head -c 16)"
 
 install_code_server() {
   if command -v code-server &>/dev/null; then
