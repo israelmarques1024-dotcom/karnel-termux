@@ -239,6 +239,7 @@ _update_specific_tools() {
         ;;
       kimchi-code)
         update_kimchi_code
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       cline)
         update_cline

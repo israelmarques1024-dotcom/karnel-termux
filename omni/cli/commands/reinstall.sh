@@ -231,6 +231,7 @@ _reinstall_specific_tools() {
         ;;
       kimchi-code)
         reinstall_kimchi_code
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       cline)
         reinstall_cline
@@ -436,6 +437,7 @@ _reinstall_specific_tools() {
         ;;
       ngrok)
         reinstall_ngrok
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       turbopack)
         reinstall_turbopack

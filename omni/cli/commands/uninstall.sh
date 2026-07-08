@@ -237,6 +237,7 @@ _uninstall_specific_tools() {
         ;;
       kimchi-code)
         uninstall_kimchi_code
+        case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
         ;;
       cline)
         uninstall_cline
@@ -442,6 +443,7 @@ _uninstall_specific_tools() {
         ;;
       ngrok)
         uninstall_ngrok
+        case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
         ;;
       turbopack)
         uninstall_turbopack
