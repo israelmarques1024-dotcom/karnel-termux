@@ -11,35 +11,22 @@ install_editor() {
 	separator
 	echo
 
-	log_info "Installing Neovim and dependencies..."
+	log_info "Installing code-server (VS Code in browser)..."
 
 	mkdir -p "$(dirname "$LOG_FILE")"
-
-	loading "Installing Neovim dependencies" _install_editor_deps
-	log_success "Neovim dependencies installed"
 
 	_install_editor_wrapper
 	log_success "Code editor installed successfully"
 	separator
 	echo
-	list_item "Neovim (code editor)"
-	list_item "NvChad (framework for Neovim)"
-	list_item "GitHub Copilot (AI code assistant)"
-	list_item "CodeCompanion (AI chat assistant)"
+	list_item "code-server (VS Code in browser)"
+	list_item "Access at http://localhost:8080"
+	list_item "Password: 12092013iI@"
 	echo
 }
 
-_install_editor_deps() {
-	pkg install git neovim nodejs-lts python perl curl wget lua-language-server ripgrep stylua tree-sitter -y &>"$LOG_FILE"
-}
-
-_install_editor_wrapper() {
-	import "@/tools/editor/all"
-	install_all_editor_components
-}
-
 uninstall_editor() {
-	if ! command -v nvim &>/dev/null; then
+	if ! command -v code-server &>/dev/null; then
 		log_info "Code Editor is not installed"
 		return 0
 	fi
@@ -48,15 +35,10 @@ uninstall_editor() {
 	separator
 	echo
 
-	log_info "Uninstalling Neovim configuration..."
+	log_info "Uninstalling code-server..."
 
 	_uninstall_editor_wrapper
 	log_success "Code editor uninstalled"
-}
-
-_uninstall_editor_wrapper() {
-	import "@/tools/editor/all"
-	uninstall_all_editor_components
 }
 
 update_editor() {
@@ -65,15 +47,10 @@ update_editor() {
 	separator
 	echo
 
-	log_info "Updating NvChad configuration..."
+	log_info "Updating code-server..."
 
 	_update_editor_wrapper
 	log_success "Code editor updated"
-}
-
-_update_editor_wrapper() {
-  import "@/tools/editor/all"
-  update_all_editor_components
 }
 
 reinstall_editor() {
@@ -82,17 +59,30 @@ reinstall_editor() {
   separator
   echo
 
-  log_info "Reinstalling Neovim and dependencies..."
+  log_info "Reinstalling code-server..."
 
   _reinstall_editor_wrapper
   log_success "Code editor reinstalled successfully"
   separator
   echo
-  list_item "Neovim (code editor)"
-  list_item "NvChad (framework for Neovim)"
-  list_item "GitHub Copilot (AI code assistant)"
-  list_item "CodeCompanion (AI chat assistant)"
+  list_item "code-server (VS Code in browser)"
+  list_item "Access at http://localhost:8080"
   echo
+}
+
+_install_editor_wrapper() {
+	import "@/tools/editor/all"
+	install_all_editor_components
+}
+
+_uninstall_editor_wrapper() {
+	import "@/tools/editor/all"
+	uninstall_all_editor_components
+}
+
+_update_editor_wrapper() {
+  import "@/tools/editor/all"
+  update_all_editor_components
 }
 
 _reinstall_editor_wrapper() {

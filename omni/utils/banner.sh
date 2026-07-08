@@ -506,7 +506,7 @@ OMNI_TIPS=(
   "Install Codex CLI: ${TP[3]}omni install ai --codex${NC}"
   "Install Gemini CLI: ${TP[3]}omni install ai --gemini-cli${NC}"
   "Install MiMo Code: ${TP[3]}omni install ai --mimocode${NC}"
-  "Install Neovim + NvChad: ${TP[3]}omni install editor${NC}"
+  "Install code-server: ${TP[3]}omni install editor${NC}"
   "Fuzzy search: ${TP[3]}omni install dev --fzf${NC}"
   "Modern ls: ${TP[3]}omni install dev --lsd${NC}"
   "Syntax cat: ${TP[3]}omni install dev --bat${NC}"

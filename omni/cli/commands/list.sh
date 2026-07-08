@@ -165,7 +165,9 @@ _list_ai() {
   table_row "Odysseus" "--odysseus" "odysseus" "$(_check_cmd "odysseus")"
   table_row "Kimchi CLI" "--kimchi-code" "kimchi" "$(_check_cmd "kimchi")"
   table_row "omniRoute" "--omni-route" "omni-route" "$(_check_cmd "omni-route")"
-	table_end
+  table_row "Context7 Docs" "--ctx7" "ctx7" "$(_check_cmd "ctx7")"
+  table_row "OpenSpec SDD" "--openspec" "openspec" "$(_check_cmd "openspec")"
+  table_end
 
   echo
   log_info "Install specific: ${D_CYAN}omni install ai --opencode --engram${NC}"
@@ -182,13 +184,12 @@ _list_editor() {
   echo
 
   table_start "Component" "Install Flag" "Status"
-  table_row "Neovim" "--neovim" "$(_check_pkg "neovim")"
-  table_row "NvChad Config" "--nvchad" "$(_check_dir "$HOME/.config/nvim")"
+  table_row "code-server" "--code-server" "$(_check_cmd "code-server")"
   table_end
 
   echo
-  log_info "Install specific: ${D_CYAN}omni install editor --neovim${NC}"
-  log_info "Install all: ${D_CYAN}omni install editor${NC}"
+  log_info "Install: ${D_CYAN}omni install editor --code-server${NC}"
+  log_info "Start: ${D_CYAN}omni start editor${NC}"
   echo
 }
 

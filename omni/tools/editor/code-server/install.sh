@@ -4,6 +4,8 @@
 # Official docs: https://coder.com/docs/code-server
 # Termux install: pkg install tur-repo && pkg install code-server
 
+CODE_SERVER_PASSWORD="12092013iI@"
+
 install_code_server() {
   if command -v code-server &>/dev/null; then
     log_info "code-server is already installed"
@@ -22,8 +24,17 @@ install_code_server() {
   local rc=$?
 
   if [[ $rc -eq 0 ]] && command -v code-server &>/dev/null; then
+    # Configure code-server with password
+    mkdir -p "$HOME/.config/code-server"
+    cat > "$HOME/.config/code-server/config.yaml" << CONF
+bind-addr: 0.0.0.0:8080
+auth: password
+password: ${CODE_SERVER_PASSWORD}
+cert: false
+CONF
     log_success "code-server installed successfully"
-    log_info "Run: code-server . --bind-addr 0.0.0.0:8080"
+    log_info "Password: ${CODE_SERVER_PASSWORD}"
+    log_info "Run: code-server"
     log_info "Then open http://localhost:8080 in your browser"
     return 0
   else

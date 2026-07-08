@@ -5,8 +5,6 @@ import "@/utils/log"
 LOG_FILE="$OMNI_CACHE/install_editor.log"
 
 EDITOR_COMPONENTS=(
-  "neovim"
-  "nvchad"
   "code-server"
 )
 

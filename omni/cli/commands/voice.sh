@@ -7,7 +7,7 @@ voice_help() {
   echo
   box "OMNI VOICE — Speech-to-Agent"
   echo
-  log_info "Capture voice, review in nvim, copy to clipboard, launch any AI agent."
+  log_info "Capture voice, review in code-server, copy to clipboard, launch any AI agent."
   echo
   log_info "Usage: omni voice [agent] [options]"
   echo
@@ -30,13 +30,13 @@ voice_help() {
   separator_section "Options"
   echo
   printf "    ${D_CYAN}%-20s${NC} %s\n" "--lang <code>" "Speech language (e.g. pt-BR, en-US, es)"
-  printf "    ${D_CYAN}%-20s${NC} %s\n" "--raw" "Skip nvim editing, use raw capture"
+  printf "    ${D_CYAN}%-20s${NC} %s\n" "--raw" "Skip code-server editing, use raw capture"
   printf "    ${D_CYAN}%-20s${NC} %s\n" "--no-clip" "Skip clipboard copy"
   echo
   separator_section "Examples"
   echo
   printf "    ${D_CYAN}omni voice${NC}                         # Show this help\n"
-  printf "    ${D_CYAN}omni voice opencode${NC}                # Capture -> nvim -> opencode\n"
+  printf "    ${D_CYAN}omni voice opencode${NC}                # Capture -> code-server -> opencode\n"
   printf "    ${D_CYAN}omni voice claude-code --lang pt-BR${NC} # Portuguese speech -> claude\n"
   printf "    ${D_CYAN}omni voice text --raw${NC}              # Capture -> print (no edit)\n"
   printf "    ${D_CYAN}omni voice text --no-clip${NC}          # Capture -> edit -> print\n"
@@ -44,7 +44,7 @@ voice_help() {
   separator_section "Requirements"
   echo
   list_item "Termux:API package: ${D_CYAN}pkg install termux-api${NC}"
-  list_item "Neovim for editing: ${D_CYAN}omni install editor${NC}"
+  list_item "code-server editor: ${D_CYAN}omni install editor${NC}"
   list_item "Termux:API app: ${D_CYAN}https://omni-catalyst.vercel.app/termux/api${NC}"
   echo
 }
@@ -92,8 +92,8 @@ voice_main() {
     fi
   fi
 
-  if ! command -v nvim &>/dev/null && [[ "$skip_edit" == "false" ]]; then
-    log_warn "Neovim not installed — falling back to --raw mode"
+  if ! command -v code-server &>/dev/null && [[ "$skip_edit" == "false" ]]; then
+    log_warn "code-server not installed — falling back to --raw mode"
     skip_edit=true
   fi
 
@@ -133,8 +133,8 @@ voice_main() {
     local tmpfile
     tmpfile="$(mktemp)"
     echo "$raw" >"$tmpfile"
-    $is_text || log_info "Review the prompt in nvim, fix mistakes, then save and quit"
-    nvim "$tmpfile" </dev/tty >/dev/tty || true
+    $is_text || log_info "Review the prompt in code-server, fix mistakes, then save and quit"
+    code-server "$tmpfile" </dev/tty >/dev/tty || true
     prompt="$(< "$tmpfile")"
     rm -f "$tmpfile"
   elif [[ "$skip_edit" == "false" ]] && ! { [[ -t 0 ]] && [[ -t 1 ]]; }; then

@@ -60,7 +60,7 @@ omni_help() {
   printf "    ${D_CYAN}%-12s${NC} %s\n" "pg" "PostgreSQL database manager"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "doctor" "Diagnose and fix environment"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "init" "Configure existing projects"
-  printf "    ${D_CYAN}%-12s${NC} %s\n" "voice" "Speech-to-agent via microphone"
+  printf "    ${D_CYAN}%-12s${NC} %s\n" "start" "Start services (editor, etc.)"\n  printf "    ${D_CYAN}%-12s${NC} %s\n" "voice" "Speech-to-agent via microphone"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "ia" "AI agent manager — sessions, install, routes"
   echo
   separator_section "Quick Start"
@@ -76,7 +76,7 @@ omni_help() {
   printf "    ${D_GREEN}%-10s${NC} %s\n" "lang" "Node, Python, Perl, PHP, Rust, C/C++, Go"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "db" "PostgreSQL, MariaDB, SQLite, MongoDB"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "ai" "OpenCode, Gentle AI, Claude Code, etc."
-  printf "    ${D_GREEN}%-10s${NC} %s\n" "editor" "Neovim + NvChad + code-server"
+  printf "    ${D_GREEN}%-10s${NC} %s\n" "editor" "code-server (VS Code in browser)"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "dev" "GitHub CLI, wget, curl, fzf, etc."
   printf "    ${D_GREEN}%-10s${NC} %s\n" "npm" "Node.js global npm packages"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "shell" "ZSH + Oh My Zsh + 10 plugins"
@@ -368,7 +368,7 @@ _tui_install_menu() {
       "ai" "AI Tools (OpenCode, Claude, Ollama, etc.)" \
       "db" "Databases (PostgreSQL, MariaDB, SQLite, MongoDB)" \
       "lang" "Programming Languages (Node, Python, Go, Rust, etc.)" \
-      "editor" "Code Editor (Neovim + NvChad + code-server)" \
+      "editor" "Code Editor (code-server)" \
       "dev" "Development Tools (GitHub CLI, fzf, bat, etc.)" \
       "npm" "Node.js Global npm Packages" \
       "shell" "ZSH + Oh My Zsh + Plugins" \

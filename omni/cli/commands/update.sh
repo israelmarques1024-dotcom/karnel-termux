@@ -18,7 +18,7 @@ update_main() {
     list_item "lang       - Update language packages (pkg upgrade)"
     list_item "db         - Update databases"
     list_item "ai         - Update AI tools (npm/pip/pkg)"
-    list_item "editor     - Update Neovim configuration"
+    list_item "editor     - Update code-server"
     list_item "dev        - Update development tools"
     list_item "npm        - Update Node.js global modules"
     list_item "shell      - Update ZSH plugins"
@@ -593,14 +593,6 @@ _update_specific_tools() {
 
     for tool in "${tools[@]}"; do
       case "$tool" in
-      neovim)
-        update_neovim
-        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
-        ;;
-      nvchad)
-        update_nvchad
-        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
-        ;;
       code-server)
         update_code_server
         case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac

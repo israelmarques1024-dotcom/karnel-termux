@@ -150,8 +150,8 @@ _brain_pick_file() {
 _brain_editor() {
 	local title="$1"
 
-	if ! command -v nvim &>/dev/null; then
-		log_error "Neovim not found"
+	if ! command -v code-server &>/dev/null; then
+		log_error "code-server not found"
 		list_item "Install it: ${D_CYAN}omni install editor${D_NC}"
 		return 1
 	fi
@@ -163,7 +163,7 @@ _brain_editor() {
 	echo >>"$tmpfile"
 	echo "- " >>"$tmpfile"
 
-	nvim "$tmpfile" </dev/tty >/dev/tty
+	code-server "$tmpfile" </dev/tty >/dev/tty
 
 	local lines
 	lines=$(wc -l <"$tmpfile")
@@ -332,7 +332,7 @@ brain_save() {
 	local tags_formatted
 	tags_formatted=$(echo "$tags_input" | sed 's/, */, /g' | sed 's/^, \|, $//g')
 
-	# ── Content via neovim ──
+	# ── Content via editor ──
 	local tmpfile
 	tmpfile=$(_brain_editor "$title")
 	if [[ -z "$tmpfile" ]]; then
@@ -1074,8 +1074,8 @@ brain_edit() {
 	fi
 
 	local editor="${EDITOR:-}"
-	if command -v nvim &>/dev/null; then
-		editor="nvim"
+	if command -v code-server &>/dev/null; then
+		editor="code-server"
 	elif [[ -z "$editor" ]] || ! command -v "$editor" &>/dev/null; then
 		for e in vim nano vi; do
 			if command -v "$e" &>/dev/null; then

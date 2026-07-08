@@ -585,14 +585,6 @@ _reinstall_specific_tools() {
 
     for tool in "${tools[@]}"; do
       case "$tool" in
-      neovim)
-        reinstall_neovim
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      nvchad)
-        reinstall_nvchad
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
       code-server)
         reinstall_code_server
         case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
