@@ -35,7 +35,7 @@
 
 Criado por **israel marques** (tenho 12 anos).
 
-- **29 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama, Cline, omniRoute e mais
+- **30 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama, Cline, omniRoute e mais
 - **7 linguagens** — Node.js, Python, Go, Rust, C/C++, PHP, Perl
 - **4 bancos de dados** — PostgreSQL, MariaDB, SQLite, MongoDB
 - **19 ferramentas dev** — gh, curl, fzf, bat, lsd, jq e muito mais
@@ -106,7 +106,7 @@ omni
 |--------|-----------|------------|
 | `lang` | Node.js, Python, Go, Rust, C/C++, PHP, Perl | `omni install lang` |
 | `db` | PostgreSQL, MariaDB, SQLite, MongoDB | `omni install db` |
-| `ai` | 29 agentes de IA para coding | `omni install ai` |
+| `ai` | 30 agentes de IA para coding | `omni install ai` |
 | `editor` | code-server (VS Code no navegador) | `omni install editor` |
 | `dev` | gh, curl, fzf, bat, lsd, jq e mais | `omni install dev` |
 | `npm` | TypeScript, NestJS CLI, Prettier e mais | `omni install npm` |
@@ -117,7 +117,7 @@ omni
 
 ---
 
-## 🤖 Agentes de IA (29)
+## 🤖 Agentes de IA (30)
 
 ```bash
 omni install ai                               # Instala todos
@@ -151,6 +151,7 @@ omni install ai --opencode --ollama           # Instala específicos
 | **Command Code** | `--command-code` | Agente que aprende seu estilo |
 | **Freebuff** | `--freebuff` | Agente comunitário gratuito |
 | **Kilo Code CLI** | `--kilocode-cli` | CLI nativo glibc para Termux |
+| **Kiro CLI** | `--kiro` | Assistente de código AI da AWS |
 | **Crush CLI** | `--crush` | CLI para AI agents Charm |
 | **Odysseus** | `--odysseus` | Assistente de código Odysseus |
 | **Kimchi CLI** | `--kimchi-code` | Agente de IA Kimchi |
@@ -378,7 +379,7 @@ omni/
 │   │   └── omni.sh    # CLI principal (com TUI)
 │   ├── modules/       # Orquestradores de módulos
 │   ├── tools/         # Instaladores de ferramentas
-│   │   ├── ai/        # 29 agentes de IA
+│   │   ├── ai/        # 30 agentes de IA
 │   │   ├── lang/      # Linguagens
 │   │   ├── db/        # Bancos de dados
 │   │   ├── dev/       # Ferramentas dev

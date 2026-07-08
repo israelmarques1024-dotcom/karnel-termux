@@ -50,6 +50,7 @@ AI_TOOLS_REGISTRY=(
   "command-code:Command Code:command-code"
   "freebuff:Freebuff:freebuff"
   "kilocode-cli:Kilo Code CLI:kilocode,kilo"
+  "kiro:Kiro CLI:kiro,kiro-cli"
   "crush:Crush CLI:crush"
   "cline:Cline CLI:cline"
   "odysseus:Odysseus:odysseus"

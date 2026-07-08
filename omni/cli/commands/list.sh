@@ -158,6 +158,7 @@ _list_ai() {
   table_row "Command Code" "--command-code" "command-code" "$(_check_cmd "command-code")"
   table_row "Freebuff" "--freebuff" "freebuff" "$(_check_cmd "freebuff")"
   table_row "Kilo Code CLI" "--kilocode-cli" "kilocode" "$(_check_cmd "kilocode")"
+  table_row "Kiro CLI" "--kiro" "kiro" "$(_check_cmd "kiro")"
   table_row "Crush CLI" "--crush" "crush" "$(_check_cmd "crush")"
   table_row "Cline CLI" "--cline" "cline" "$(_check_cmd "cline")"
   table_row "Odysseus" "--odysseus" "odysseus" "$(_check_cmd "odysseus")"

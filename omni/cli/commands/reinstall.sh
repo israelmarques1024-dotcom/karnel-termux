@@ -165,52 +165,8 @@ _reinstall_specific_tools() {
         reinstall_kilocode_cli
         case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
-      mimocode)
-        reinstall_mimocode
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      engram)
-        reinstall_engram
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      codegraph)
-        reinstall_codegraph
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      pi)
-        reinstall_pi
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      antigravity-cli)
-        reinstall_antigravity_cli
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      minimax-cli)
-        reinstall_minimax_cli
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      gentle-ai)
-        reinstall_gentle_ai
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      gga)
-        reinstall_gga
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      hermes-agent)
-        reinstall_hermes_agent
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      kimi-code)
-        reinstall_kimi_code
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      command-code)
-        reinstall_command_code
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      freebuff)
-        reinstall_freebuff
+      kiro)
+        reinstall_kiro
         case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       crush)

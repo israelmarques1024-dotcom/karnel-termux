@@ -171,52 +171,8 @@ _uninstall_specific_tools() {
         uninstall_kilocode_cli
         case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
         ;;
-      mimocode)
-        uninstall_mimocode
-        case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      engram)
-        uninstall_engram
-        case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      codegraph)
-        uninstall_codegraph
-        case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      pi)
-        uninstall_pi
-        case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      antigravity-cli)
-        uninstall_antigravity_cli
-        case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      minimax-cli)
-        uninstall_minimax_cli
-        case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      gentle-ai)
-        uninstall_gentle_ai
-        case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      gga)
-        uninstall_gga
-        case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      hermes-agent)
-        uninstall_hermes_agent
-        case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      kimi-code)
-        uninstall_kimi_code
-        case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      command-code)
-        uninstall_command_code
-        case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      freebuff)
-        uninstall_freebuff
+      kiro)
+        uninstall_kiro
         case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
         ;;
       crush)

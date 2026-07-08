@@ -26,6 +26,7 @@ voice_help() {
   printf "    ${D_CYAN}%-16s${NC} %s\n" "pi" "pi -p \"prompt\""
   printf "    ${D_CYAN}%-16s${NC} %s\n" "qwen-code" "qwen -p \"prompt\""
   printf "    ${D_CYAN}%-16s${NC} %s\n" "crush" "crush \"prompt\""
+  printf "    ${D_CYAN}%-16s${NC} %s\n" "kiro" "kiro-cli \"prompt\""
   printf "    ${D_CYAN}%-16s${NC} %s\n" "text" "Print prompt to stdout (no agent)"
   echo
   separator_section "Options"
@@ -207,12 +208,15 @@ voice_main() {
     crush)
       crush "$prompt"
       ;;
+    kiro)
+      kiro-cli "$prompt"
+      ;;
     *)
       log_error "Unknown agent: $agent"
       echo
       log_info "Supported agents:"
       echo "  kilo, opencode, claude-code, codex, gemini-cli, hermes-agent,"
-      echo "  kimi-code, mimocode, mistral-vibe, openclaude, pi, qwen-code, crush"
+      echo "  kimi-code, mimocode, mistral-vibe, openclaude, pi, qwen-code, crush, kiro"
       echo
       log_info "Special: text (print only), ! (alias for text)"
       separator

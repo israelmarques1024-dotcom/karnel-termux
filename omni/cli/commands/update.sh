@@ -173,52 +173,8 @@ _update_specific_tools() {
         update_kilocode_cli
         case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
-      mimocode)
-        update_mimocode
-        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
-        ;;
-      engram)
-        update_engram
-        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
-        ;;
-      codegraph)
-        update_codegraph
-        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
-        ;;
-      pi)
-        update_pi
-        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
-        ;;
-      antigravity-cli)
-        update_antigravity_cli
-        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
-        ;;
-      minimax-cli)
-        update_minimax_cli
-        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
-        ;;
-      gentle-ai)
-        update_gentle_ai
-        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
-        ;;
-      gga)
-        update_gga
-        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
-        ;;
-      hermes-agent)
-        update_hermes_agent
-        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
-        ;;
-      kimi-code)
-        update_kimi_code
-        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
-        ;;
-      command-code)
-        update_command_code
-        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
-        ;;
-      freebuff)
-        update_freebuff
+      kiro)
+        update_kiro
         case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       crush)

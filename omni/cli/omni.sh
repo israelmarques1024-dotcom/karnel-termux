@@ -448,6 +448,7 @@ _tui_install_checklist() {
         "crush" "Crush CLI" OFF
         "odysseus" "Odysseus" OFF
         "kilocode-cli" "Kilo Code CLI" OFF
+        "kiro" "Kiro CLI" OFF
         "cline" "Cline CLI" OFF
         "kimchi-code" "Kimchi CLI" OFF
         "omni-route" "omniRoute" OFF
