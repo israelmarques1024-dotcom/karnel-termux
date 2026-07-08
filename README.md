@@ -92,6 +92,7 @@ omni
 | `omni brain` | Segundo cérebro — memórias e busca |
 | `omni env` | Gerencia variáveis de ambiente |
 | `omni voice` | Comandos de voz para agentes IA |
+| `omni start editor` | Inicia code-server (VS Code no navegador) |
 | `omni pg` | Gerenciador PostgreSQL |
 | `omni init <template>` | Inicializa projetos com templates |
 | `omni deploy` | Publica projetos (Vercel, Railway, Netlify) |
