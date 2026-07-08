@@ -241,6 +241,14 @@ _reinstall_specific_tools() {
         reinstall_omni_route
         case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
+      ctx7)
+        reinstall_ctx7
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      openspec)
+        reinstall_openspec
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
       *)
         log_warn "Unknown AI tool: --$tool"
         ;;
@@ -583,6 +591,10 @@ _reinstall_specific_tools() {
         ;;
       nvchad)
         reinstall_nvchad
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      code-server)
+        reinstall_code_server
         case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       *)

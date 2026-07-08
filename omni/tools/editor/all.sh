@@ -7,6 +7,7 @@ LOG_FILE="$OMNI_CACHE/install_editor.log"
 EDITOR_COMPONENTS=(
   "neovim"
   "nvchad"
+  "code-server"
 )
 
 for _tool in "${EDITOR_COMPONENTS[@]}"; do

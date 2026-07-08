@@ -249,6 +249,14 @@ _update_specific_tools() {
         update_omni_route
         case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
+      ctx7)
+        update_ctx7
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
+        ;;
+      openspec)
+        update_openspec
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
+        ;;
       *)
         log_warn "Unknown AI tool: --$tool"
         ;;
@@ -591,6 +599,10 @@ _update_specific_tools() {
         ;;
       nvchad)
         update_nvchad
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
+        ;;
+      code-server)
+        update_code_server
         case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       *)

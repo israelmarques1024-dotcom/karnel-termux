@@ -57,6 +57,8 @@ AI_TOOLS_REGISTRY=(
   "odysseus:Odysseus:odysseus"
   "kimchi-code:Kimchi CLI:kimchi"
   "omni-route:omniRoute:omni-route"
+  "ctx7:Context7 Documentation Provider:ctx7"
+  "openspec:OpenSpec SDD Framework:openspec"
 )
 
 # ---- IMPORTAR TODOS OS SCRIPTS INDIVIDUAIS ----

@@ -76,7 +76,7 @@ omni_help() {
   printf "    ${D_GREEN}%-10s${NC} %s\n" "lang" "Node, Python, Perl, PHP, Rust, C/C++, Go"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "db" "PostgreSQL, MariaDB, SQLite, MongoDB"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "ai" "OpenCode, Gentle AI, Claude Code, etc."
-  printf "    ${D_GREEN}%-10s${NC} %s\n" "editor" "Neovim + NvChad + Plugins"
+  printf "    ${D_GREEN}%-10s${NC} %s\n" "editor" "Neovim + NvChad + code-server"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "dev" "GitHub CLI, wget, curl, fzf, etc."
   printf "    ${D_GREEN}%-10s${NC} %s\n" "npm" "Node.js global npm packages"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "shell" "ZSH + Oh My Zsh + 10 plugins"
@@ -368,7 +368,7 @@ _tui_install_menu() {
       "ai" "AI Tools (OpenCode, Claude, Ollama, etc.)" \
       "db" "Databases (PostgreSQL, MariaDB, SQLite, MongoDB)" \
       "lang" "Programming Languages (Node, Python, Go, Rust, etc.)" \
-      "editor" "Code Editor (Neovim + NvChad)" \
+      "editor" "Code Editor (Neovim + NvChad + code-server)" \
       "dev" "Development Tools (GitHub CLI, fzf, bat, etc.)" \
       "npm" "Node.js Global npm Packages" \
       "shell" "ZSH + Oh My Zsh + Plugins" \
@@ -452,6 +452,8 @@ _tui_install_checklist() {
         "cline" "Cline CLI" OFF
         "kimchi-code" "Kimchi CLI" OFF
         "omni-route" "omniRoute" OFF
+        "ctx7" "Context7 Docs" OFF
+        "openspec" "OpenSpec SDD" OFF
       )
       ;;
     dev)

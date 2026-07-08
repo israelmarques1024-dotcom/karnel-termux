@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+# ctx7 (Context7) - Real-time documentation provider for AI coding assistants
+# Provides version-specific library docs and code examples on-demand
+# Solves stale knowledge issues in AI tools like Claude Code, Cursor
+# Official: npm install -g ctx7
+
+install_ctx7() {
+  if command -v ctx7 &>/dev/null; then
+    log_info "ctx7 is already installed"
+    return 2
+  fi
+
+  log_info "Installing ctx7 (Context7 documentation provider)..."
+  npm install -g ctx7 2>/dev/null
+  local rc=$?
+
+  if [[ $rc -eq 0 ]] && command -v ctx7 &>/dev/null; then
+    log_success "ctx7 installed successfully"
+    log_info "Use as MCP server: ctx7 --help"
+    return 0
+  else
+    log_error "ctx7 installation failed"
+    return 1
+  fi
+}
+
+uninstall_ctx7() {
+  if ! command -v ctx7 &>/dev/null; then
+    log_info "ctx7 is not installed"
+    return 0
+  fi
+
+  log_info "Uninstalling ctx7..."
+  npm uninstall -g ctx7 2>/dev/null
+  return $?
+}
+
+update_ctx7() {
+  if ! command -v ctx7 &>/dev/null; then
+    log_warn "ctx7 is not installed"
+    return 1
+  fi
+
+  log_info "Updating ctx7..."
+  npm update -g ctx7 2>/dev/null
+  return $?
+}
+
+reinstall_ctx7() {
+  uninstall_ctx7 2>/dev/null
+  install_ctx7
+  return $?
+}

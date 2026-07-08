@@ -454,7 +454,7 @@ doctor_main() {
   separator_section "AI Tools Installed"
   echo
 
-  local -a ai_cmds=("opencode" "claude" "gemini" "codex" "qwen" "vibe" "mimo" "hermes" "kimi" "ollama" "freebuff" "pi" "agy" "mmx" "gentle-ai" "gga" "engram" "codegraph" "kilo" "heygen" "seedance" "veo3" "odysseus" "openclaude" "openclaw" "command-code" "kimchi" "cline" "omni-route")
+  local -a ai_cmds=("opencode" "claude" "gemini" "codex" "qwen" "vibe" "mimo" "hermes" "kimi" "ollama" "freebuff" "pi" "agy" "mmx" "gentle-ai" "gga" "engram" "codegraph" "kilo" "heygen" "seedance" "veo3" "odysseus" "openclaude" "openclaw" "command-code" "kimchi" "cline" "omni-route" "ctx7" "openspec")
   local ai_count=0
 
   for cmd in "${ai_cmds[@]}"; do
@@ -870,8 +870,9 @@ doctor_main() {
   # Check url-quote-magic for parse errors (Termux zsh bug)
   local uqm_file="$PREFIX/share/zsh/functions/Zle/url-quote-magic"
   if [[ -f "$uqm_file" ]] && grep -q '((${~localschema})' "$uqm_file" 2>/dev/null; then
-    log_warning "url-quote-magic: double-paren parse error found (zsh 5.9 bug)"
-    problems+=("url-quote-magic has known double-paren syntax error")
+    log_warn "url-quote-magic: double-paren parse error found (zsh 5.9 bug)"
+    log_warn "url-quote-magic has known double-paren syntax error"
+    fix_commands+=("true")
     fix_descriptions+=("Patch url-quote-magic double-paren parse error")
     fix_callbacks+=("_fix_url_quote_magic")
   fi
@@ -907,6 +908,203 @@ doctor_main() {
     fix_commands+=("echo 'export LANG=en_US.UTF-8' >> $HOME/.zshrc")
     fix_descriptions+=("Set UTF-8 locale in shell config")
     fix_callbacks+=("_fix_locale")
+  fi
+
+
+  # ===== BATTERY & POWER MANAGEMENT =====
+  echo
+  separator_section "Battery & Power Management"
+  echo
+
+  if command -v termux-battery-status &>/dev/null; then
+    local battery_info
+    battery_info=$(termux-battery-status 2>/dev/null)
+    if [[ -n "$battery_info" ]]; then
+      local battery_pct
+      battery_pct=$(echo "$battery_info" | python3 -c "import json,sys; print(json.load(sys.stdin).get('percentage',0))" 2>/dev/null || echo "?")
+      log_success "Battery: ${battery_pct}%"
+
+      # Check if battery is critically low
+      if [[ "$battery_pct" =~ ^[0-9]+$ ]] && (( battery_pct < 15 )); then
+        log_warn "Battery critically low (${battery_pct}%) — processes may be killed"
+        ((warnings++))
+      fi
+
+      # Check charging status
+      local charging
+      charging=$(echo "$battery_info" | python3 -c "import json,sys; print(json.load(sys.stdin).get('status','Unknown'))" 2>/dev/null || echo "?")
+      log_info "Charging status: $charging"
+    fi
+  else
+    log_info "termux-battery-status not available (install termux-api)"
+  fi
+
+  # Check battery optimization exemption
+  if command -v termux-wake-lock &>/dev/null; then
+    log_success "termux-wake-lock available (prevents sleep)"
+  else
+    log_info "termux-wake-lock not installed (optional, prevents background killing)"
+  fi
+
+  # ===== API KEYS VALIDATION =====
+  echo
+  separator_section "API Keys & Environment"
+  echo
+
+  local -a api_keys=("OPENAI_API_KEY" "ANTHROPIC_API_KEY" "GOOGLE_API_KEY" "GEMINI_API_KEY" "OPENROUTER_API_KEY" "DEEPSEEK_API_KEY" "MISTRAL_API_KEY")
+  local keys_found=0
+
+  for key in "${api_keys[@]}"; do
+    if [[ -n "${!key:-}" ]]; then
+      local val="${!key}"
+      local masked="${val:0:8}****${val: -4}"
+      log_success "$key: $masked"
+      ((keys_found++))
+    fi
+  done
+
+  if [[ $keys_found -eq 0 ]]; then
+    log_info "No API keys found in environment"
+    log_info "Set keys with: ${D_CYAN}omni env set${NC}"
+  else
+    log_info "$keys_found API key(s) configured"
+  fi
+
+  # Check for .env files with leaked keys
+  local leaked_keys=0
+  while IFS= read -r -d '' envfile; do
+    if grep -qE '(sk-[a-zA-Z0-9]{20,}|ghp_[a-zA-Z0-9]{36}|xoxb-[0-9])' "$envfile" 2>/dev/null; then
+      log_warn "Potential API key found in: $envfile"
+      ((leaked_keys++))
+    fi
+  done < <(find "$HOME" -maxdepth 3 -name '.env' -not -path '*/node_modules/*' -not -path '*/.git/*' -print0 2>/dev/null || true)
+
+  if (( leaked_keys > 0 )); then
+    log_warn "$leaked_keys file(s) with potential API keys in tracked directories"
+    ((warnings++))
+  fi
+
+  # ===== PROCESS HEALTH =====
+  echo
+  separator_section "Process Health"
+  echo
+
+  # Check for zombie processes
+  local zombies
+  zombies=$(ps aux 2>/dev/null | awk '$8 ~ /^Z/ {count++} END {print count+0}')
+  if (( zombies > 0 )); then
+    log_warn "$zombies zombie process(es) detected"
+    ((warnings++))
+    fix_commands+=("kill -9 \$(ps aux | awk '\\$8 ~ /^Z/ {print \\$2}') 2>/dev/null")
+    fix_descriptions+=("Kill zombie processes")
+    fix_callbacks+=("_fix_zombies")
+  else
+    log_success "No zombie processes"
+  fi
+
+  # Check for orphaned node/python processes
+  local orphan_count=0
+  orphan_count=$(pgrep -c -f 'node.*omni\|python.*omni' 2>/dev/null || echo 0)
+  if (( orphan_count > 2 )); then
+    log_warn "$orphan_count Omni-related processes running (may be stale)"
+    ((warnings++))
+  fi
+
+  # ===== STORAGE I/O HEALTH =====
+  echo
+  separator_section "Storage I/O Health"
+  echo
+
+  local io_test_file="$HOME/.cache/omni_io_test"
+  mkdir -p "$(dirname "$io_test_file")" 2>/dev/null
+  local io_start io_end io_time
+  io_start=$(date +%s%N 2>/dev/null || echo 0)
+  dd if=/dev/zero of="$io_test_file" bs=4096 count=100 2>/dev/null
+  io_end=$(date +%s%N 2>/dev/null || echo 0)
+  rm -f "$io_test_file" 2>/dev/null
+
+  if [[ $io_start -gt 0 ]] && [[ $io_end -gt 0 ]]; then
+    io_time=$(( (io_end - io_start) / 1000000 ))
+    if (( io_time < 100 )); then
+      log_success "Storage I/O: fast (${io_time}ms for 400KB)"
+    elif (( io_time < 500 )); then
+      log_info "Storage I/O: moderate (${io_time}ms for 400KB)"
+    else
+      log_warn "Storage I/O: slow (${io_time}ms for 400KB) — may affect performance"
+      ((warnings++))
+    fi
+  fi
+
+  # ===== WIFI / NETWORK QUALITY =====
+  echo
+  separator_section "Network Quality"
+  echo
+
+  if command -v ping &>/dev/null; then
+    local ping_result
+    ping_result=$(timeout 10 ping -c 3 -W 5 8.8.8.8 2>/dev/null)
+    if [[ -n "$ping_result" ]]; then
+      local avg_ping
+      avg_ping=$(echo "$ping_result" | grep 'avg' | awk -F'/' '{print $5}')
+      if [[ -n "$avg_ping" ]]; then
+        local ping_int=${avg_ping%.*}
+        if (( ping_int < 50 )); then
+          log_success "Network latency: excellent (${avg_ping}ms)"
+        elif (( ping_int < 150 )); then
+          log_info "Network latency: good (${avg_ping}ms)"
+        else
+          log_warn "Network latency: high (${avg_ping}ms)"
+          ((warnings++))
+        fi
+      fi
+    fi
+  fi
+
+  # ===== SHELL HISTORY & PRIVACY =====
+  echo
+  separator_section "Shell Privacy"
+  echo
+
+  local histfiles=("$HOME/.zsh_history" "$HOME/.bash_history" "$HOME/.local/share/zsh/history")
+  for histfile in "${histfiles[@]}"; do
+    if [[ -f "$histfile" ]]; then
+      local hist_size
+      hist_size=$(du -sh "$histfile" 2>/dev/null | awk '{print $1}')
+      local hist_lines
+      hist_lines=$(wc -l < "$histfile" 2>/dev/null || echo 0)
+      log_info "History: $(basename "$histfile") ($hist_size, $hist_lines lines)"
+
+      # Check for sensitive patterns in recent history
+      if grep -qiE '(password=|secret=|token=|api_key=)' "$histfile" 2>/dev/null; then
+        log_warn "Potential secrets found in shell history"
+        ((warnings++))
+        log_info "Run: ${D_CYAN}omni brain save${NC} to protect sensitive data"
+      fi
+    fi
+  done
+
+  # ===== USB & EXTERNAL STORAGE =====
+  echo
+  separator_section "USB & External"
+  echo
+
+  if [[ -d /storage ]]; then
+    local storage_count
+    storage_count=$(ls -1 /storage 2>/dev/null | grep -v '^emulated$\|^self$' | wc -l)
+    if (( storage_count > 0 )); then
+      log_success "External storage: $storage_count volume(s) mounted"
+    else
+      log_info "No external storage mounted"
+    fi
+  fi
+
+  # Check USB devices
+  if [[ -d /dev/bus/usb ]]; then
+    local usb_count
+    usb_count=$(ls /dev/bus/usb/ 2>/dev/null | wc -l)
+    if (( usb_count > 0 )); then
+      log_info "USB: $usb_count bus(es) detected"
+    fi
   fi
 
   # ===== GENERATE REPORT =====
@@ -1284,6 +1482,12 @@ _fix_locale() {
   [[ -f "$HOME/.bashrc" ]] && config="$HOME/.bashrc"
   echo 'export LANG=en_US.UTF-8' >> "$config" 2>/dev/null
   return $?
+}
+
+
+_fix_zombies() {
+  ps aux 2>/dev/null | awk '$8 ~ /^Z/ {print $2}' | xargs kill -9 2>/dev/null
+  return 0
 }
 
 _fix_url_quote_magic() {
