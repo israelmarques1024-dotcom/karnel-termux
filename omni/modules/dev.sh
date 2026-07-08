@@ -44,8 +44,6 @@ install_dev() {
 _install_dev_wrapper() {
 	import "@/tools/dev/all"
 	install_all_dev
-	import "@/modules/deploy"
-	install_deploy
 }
 
 uninstall_dev() {

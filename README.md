@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/israel676767/omni">
-    <img src="https://img.shields.io/badge/version-4.7.3-0078D4?style=for-the-badge&logo=appveyor" alt="Version">
+    <img src="https://img.shields.io/badge/version-1.0.0-0078D4?style=for-the-badge&logo=appveyor" alt="Version">
   </a>
   <a href="https://www.npmjs.com/package/omni-catalyst">
     <img src="https://img.shields.io/npm/v/omni-catalyst?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
@@ -35,7 +35,7 @@
 
 Criado por **israel marques** (tenho 12 anos).
 
-- **33 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama, Cline, omniRoute e mais
+- **29 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama, Cline, omniRoute e mais
 - **7 linguagens** — Node.js, Python, Go, Rust, C/C++, PHP, Perl
 - **4 bancos de dados** — PostgreSQL, MariaDB, SQLite, MongoDB
 - **19 ferramentas dev** — gh, curl, fzf, bat, lsd, jq e muito mais
@@ -88,7 +88,7 @@ omni
 | `omni update <modulo>` | Atualiza módulos ou o omni |
 | `omni uninstall <modulo>` | Remove módulos instalados |
 | `omni reinstall <modulo>` | Reinstala módulos |
-| `omni doctor` | Diagnostica o ambiente (20 verificações) |
+| `omni doctor` | Diagnostica o ambiente (30+ verificações) |
 | `omni brain` | Segundo cérebro — memórias e busca |
 | `omni env` | Gerencia variáveis de ambiente |
 | `omni voice` | Comandos de voz para agentes IA |
@@ -106,7 +106,7 @@ omni
 |--------|-----------|------------|
 | `lang` | Node.js, Python, Go, Rust, C/C++, PHP, Perl | `omni install lang` |
 | `db` | PostgreSQL, MariaDB, SQLite, MongoDB | `omni install db` |
-| `ai` | 31 agentes de IA para coding | `omni install ai` |
+| `ai` | 29 agentes de IA para coding | `omni install ai` |
 | `editor` | code-server (VS Code no navegador) | `omni install editor` |
 | `dev` | gh, curl, fzf, bat, lsd, jq e mais | `omni install dev` |
 | `npm` | TypeScript, NestJS CLI, Prettier e mais | `omni install npm` |
@@ -117,7 +117,7 @@ omni
 
 ---
 
-## 🤖 Agentes de IA (31)
+## 🤖 Agentes de IA (29)
 
 ```bash
 omni install ai                               # Instala todos
@@ -151,9 +151,7 @@ omni install ai --opencode --ollama           # Instala específicos
 | **Command Code** | `--command-code` | Agente que aprende seu estilo |
 | **Freebuff** | `--freebuff` | Agente comunitário gratuito |
 | **Kilo Code CLI** | `--kilocode-cli` | CLI nativo glibc para Termux |
-| **HeyGen CLI** | `--heygen` | Interface para HeyGen |
-| **Seedance CLI** | `--seedance` | Ferramenta de linha de comando Seedance |
-| **Veo 3 SDK** | `--veo3` | SDK para vídeo Veo 3 |
+| **Crush CLI** | `--crush` | CLI para AI agents Charm |
 | **Odysseus** | `--odysseus` | Assistente de código Odysseus |
 | **Kimchi CLI** | `--kimchi-code` | Agente de IA Kimchi |
 | **Cline CLI** | `--cline` | Agente de codificação autônomo (via proot-distro) |
@@ -167,7 +165,7 @@ omni install ai --opencode --ollama           # Instala específicos
 
 ## 🏥 omni doctor
 
-Diagnostique seu ambiente Termux + Omni com 20 verificações automáticas:
+Diagnostique seu ambiente Termux + Omni com 30+ verificações automáticas:
 
 ```bash
 omni doctor
@@ -380,7 +378,7 @@ omni/
 │   │   └── omni.sh    # CLI principal (com TUI)
 │   ├── modules/       # Orquestradores de módulos
 │   ├── tools/         # Instaladores de ferramentas
-│   │   ├── ai/        # 33 agentes de IA
+│   │   ├── ai/        # 29 agentes de IA
 │   │   ├── lang/      # Linguagens
 │   │   ├── db/        # Bancos de dados
 │   │   ├── dev/       # Ferramentas dev

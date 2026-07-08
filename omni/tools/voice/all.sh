@@ -17,7 +17,8 @@ uninstall_all_voice_components() {
 }
 
 update_all_voice_components() {
-  log_info "Updating voice shell components..."
+  log_info "Voice components are managed by Termux:API — no update needed"
+  return 0
 }
 
 reinstall_all_voice_components() {

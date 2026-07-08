@@ -1248,7 +1248,7 @@ init_main() {
 	*)
 		log_error "Unknown template: $template"
 		init_help
-		exit 1
+		return 1
 		;;
 	esac
 }

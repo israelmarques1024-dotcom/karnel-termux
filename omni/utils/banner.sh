@@ -6,7 +6,7 @@
 
 BANNER_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 BANNER_VERSION="$(grep "^OMNI_VERSION=" "$BANNER_SCRIPT_DIR/env.sh" 2>/dev/null | cut -d'"' -f2)"
-[[ -z "$BANNER_VERSION" ]] && BANNER_VERSION="4.4.0"
+[[ -z "$BANNER_VERSION" ]] && BANNER_VERSION="1.0.0"
 
 ESC=$(printf '\033')
 
@@ -99,7 +99,7 @@ _mirror() {
 # ================================================================
 # Counters
 # ================================================================
-_count_ai() { local c=0; for cmd in opencode claude gemini codex qwen vibe mimo hermes kimi ollama freebuff agy mmx pi engram codegraph command-code gentle-ai gga openclaude openclaw heygen seedance veo3 odysseus kilo kilocode kimchi cline omni-route ctx7 openspec; do command -v "$cmd" &>/dev/null && ((c++)); done; echo "$c"; }
+_count_ai() { local c=0; for cmd in opencode claude gemini codex qwen vibe mimo hermes kimi ollama freebuff agy mmx pi engram codegraph command-code gentle-ai gga openclaude openclaw crush odysseus kilo kilocode kimchi cline omni-route ctx7 openspec; do command -v "$cmd" &>/dev/null && ((c++)); done; echo "$c"; }
 _count_lang() { local c=0; for cmd in node python python3 rustc go clang php perl; do command -v "$cmd" &>/dev/null && ((c++)); done; echo "$c"; }
 _count_db() { local c=0; command -v pg_ctl &>/dev/null && ((c++)); command -v mariadb &>/dev/null && ((c++)); command -v sqlite3 &>/dev/null && ((c++)); command -v mongod &>/dev/null && ((c++)); echo "$c"; }
 _uptime() {

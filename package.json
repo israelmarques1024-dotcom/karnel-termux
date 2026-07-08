@@ -1,6 +1,6 @@
 {
   "name": "omni-catalyst",
-  "version": "4.7.3",
+  "version": "1.0.0",
   "description": "Modular Dev Environment for Termux — install languages, databases, AI agents, editors, and more with one command",
   "bin": {
     "omni": "omni/bin/omni"

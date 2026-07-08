@@ -60,7 +60,8 @@ omni_help() {
   printf "    ${D_CYAN}%-12s${NC} %s\n" "pg" "PostgreSQL database manager"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "doctor" "Diagnose and fix environment"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "init" "Configure existing projects"
-  printf "    ${D_CYAN}%-12s${NC} %s\n" "start" "Start services (editor, etc.)"\n  printf "    ${D_CYAN}%-12s${NC} %s\n" "voice" "Speech-to-agent via microphone"
+  printf "    ${D_CYAN}%-12s${NC} %s\n" "start" "Start services (editor, etc.)"
+  printf "    ${D_CYAN}%-12s${NC} %s\n" "voice" "Speech-to-agent via microphone"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "ia" "AI agent manager — sessions, install, routes"
   echo
   separator_section "Quick Start"
@@ -444,9 +445,7 @@ _tui_install_checklist() {
         "kimi-code" "Kimi Code" OFF
         "command-code" "Command Code" OFF
         "freebuff" "Freebuff" OFF
-        "heygen" "HeyGen CLI" OFF
-        "seedance" "Seedance CLI" OFF
-        "veo3" "Veo 3 SDK" OFF
+        "crush" "Crush CLI" OFF
         "odysseus" "Odysseus" OFF
         "kilocode-cli" "Kilo Code CLI" OFF
         "cline" "Cline CLI" OFF

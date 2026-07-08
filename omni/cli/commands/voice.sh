@@ -25,6 +25,7 @@ voice_help() {
   printf "    ${D_CYAN}%-16s${NC} %s\n" "openclaude" "openclaude --bg \"prompt\""
   printf "    ${D_CYAN}%-16s${NC} %s\n" "pi" "pi -p \"prompt\""
   printf "    ${D_CYAN}%-16s${NC} %s\n" "qwen-code" "qwen -p \"prompt\""
+  printf "    ${D_CYAN}%-16s${NC} %s\n" "crush" "crush \"prompt\""
   printf "    ${D_CYAN}%-16s${NC} %s\n" "text" "Print prompt to stdout (no agent)"
   echo
   separator_section "Options"
@@ -88,11 +89,11 @@ voice_main() {
       list_item "Install the package: ${D_CYAN}pkg install termux-api${NC}"
       list_item "Install the app: https://omni-catalyst.vercel.app/termux/api"
       separator
-      exit 1
+      return 1
     fi
   fi
 
-  if ! command -v ${EDITOR:-nano} &>/dev/null && [[ "$skip_edit" == "false" ]]; then
+  if ! command -v "${EDITOR:-nano}" &>/dev/null && [[ "$skip_edit" == "false" ]]; then
     log_warn "${EDITOR:-nano} not installed — falling back to --raw mode"
     skip_edit=true
   fi
@@ -124,7 +125,7 @@ voice_main() {
   if [[ -z "$raw" ]]; then
     log_error "No speech detected or dialog cancelled"
     separator
-    exit 1
+    return 1
   fi
 
   # -- skip editor if --raw --
@@ -147,7 +148,7 @@ voice_main() {
   if [[ -z "$prompt" ]]; then
     log_error "Prompt is empty after editing"
     separator
-    exit 1
+    return 1
   fi
 
   # -- copy to clipboard --
@@ -203,16 +204,19 @@ voice_main() {
     qwen-code)
       qwen -p "$prompt"
       ;;
+    crush)
+      crush "$prompt"
+      ;;
     *)
       log_error "Unknown agent: $agent"
       echo
       log_info "Supported agents:"
       echo "  kilo, opencode, claude-code, codex, gemini-cli, hermes-agent,"
-      echo "  kimi-code, mimocode, mistral-vibe, openclaude, pi, qwen-code"
+      echo "  kimi-code, mimocode, mistral-vibe, openclaude, pi, qwen-code, crush"
       echo
       log_info "Special: text (print only), ! (alias for text)"
       separator
-      exit 1
+      return 1
       ;;
   esac
 }

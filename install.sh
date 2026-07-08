@@ -12,8 +12,8 @@ readonly P_NC='\e[0m'
 
 REPO="https://github.com/israel676767/omni"
 BRANCH="main"
-OMNI_DATA="${XDG_DATA_HOME:-$HOME/.local/share}/omni"
-OMNI_TOOL_DATA="${XDG_DATA_HOME:-$HOME/.local/share}/omni-data"
+OMNI_DATA="${XDG_DATA_HOME:-$HOME/.local/share}/omni-data"
+OMNI_REPO="${XDG_DATA_HOME:-$HOME/.local/share}/omni"
 OMNI_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/omni"
 OMNI_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/omni"
 
@@ -156,10 +156,10 @@ install_dependencies() {
 setup_directories() {
 	log_step 2 "Setting up directories"
 
-	mkdir -p "$OMNI_DATA" "$OMNI_TOOL_DATA" "$OMNI_CACHE" "$OMNI_CONFIG"
+	mkdir -p "$OMNI_REPO" "$OMNI_DATA" "$OMNI_CACHE" "$OMNI_CONFIG"
 
-	log_info "Repo    $OMNI_DATA"
-	log_info "Data    $OMNI_TOOL_DATA"
+	log_info "Repo    $OMNI_REPO"
+	log_info "Data    $OMNI_DATA"
 	log_info "Cache   $OMNI_CACHE"
 	log_info "Config  $OMNI_CONFIG"
 	log_ok "Directories created"
@@ -172,29 +172,29 @@ clone_repo() {
 	script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 	local is_dev_install=0
 
-	if [[ -d "$script_dir/.git" ]] && [[ "$script_dir" != "$OMNI_DATA" ]]; then
+	if [[ -d "$script_dir/.git" ]] && [[ "$script_dir" != "$OMNI_REPO" ]]; then
 		is_dev_install=1
 	fi
 
 	if [[ $is_dev_install -eq 1 ]]; then
-		OMNI_DATA="$script_dir"
+		OMNI_REPO="$script_dir"
 		log_info "Developer installation detected"
 		log_ok "Using local repository"
-	elif [[ -d "$OMNI_DATA/.git" ]]; then
+	elif [[ -d "$OMNI_REPO/.git" ]]; then
 		progress_bar 3 10
-		git -C "$OMNI_DATA" pull origin "$BRANCH" &>/dev/null
+		git -C "$OMNI_REPO" pull origin "$BRANCH" &>/dev/null
 		progress_bar 10 10
 		echo
 		log_ok "Repository updated"
 	else
 		progress_bar 0 10
-		git clone --depth=1 -b "$BRANCH" "$REPO" "$OMNI_DATA" &>/dev/null &
+		git clone --depth=1 -b "$BRANCH" "$REPO" "$OMNI_REPO" &>/dev/null &
 		local pid=$!
+		local dots=0
 		while kill -0 "$pid" 2>/dev/null; do
-			for i in $(seq 0 10); do
-				progress_bar $i 10
-				sleep 0.1
-			done
+			dots=$(( (dots + 1) % 4 ))
+			printf "\r  Cloning%s    " "$(printf '%*s' "$dots" '' | tr ' ' '.')"
+			sleep 0.5
 		done
 		wait "$pid"
 		progress_bar 10 10
@@ -202,17 +202,17 @@ clone_repo() {
 		log_ok "Repository cloned"
 	fi
 
-	export OMNI_DATA
+	export OMNI_REPO
 }
 
 create_symlink() {
 	log_step 4 "Creating symlinks"
 
 	rm -f "$PREFIX/bin/omni"
-	ln -sf "$OMNI_DATA/omni/bin/omni" "$PREFIX/bin/omni"
+	ln -sf "$OMNI_REPO/omni/bin/omni" "$PREFIX/bin/omni"
 
 	if [[ -L "$PREFIX/bin/omni" ]]; then
-		log_ok "Symlink created: omni → ${OMNI_DATA}/omni/bin/omni"
+		log_ok "Symlink created: omni → ${OMNI_REPO}/omni/bin/omni"
 	else
 		log_fail "Failed to create symlink"
 		return 1
@@ -223,11 +223,10 @@ save_config() {
 	log_step 5 "Saving configuration"
 
 	cat >"$OMNI_CONFIG/config" <<EOF
+omni_repo='$OMNI_REPO'
 omni_data='$OMNI_DATA'
 omni_cache='$OMNI_CACHE'
 omni_config='$OMNI_CONFIG'
-omni_source='$OMNI_DATA'
-omni_tool_data='$OMNI_TOOL_DATA'
 EOF
 
 	log_ok "Configuration saved"

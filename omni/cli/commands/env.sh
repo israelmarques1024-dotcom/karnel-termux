@@ -220,7 +220,7 @@ env_main() {
 		log_error "Unknown command: $cmd"
 		echo
 		env_help
-		exit 1
+		return 1
 		;;
 	esac
 }

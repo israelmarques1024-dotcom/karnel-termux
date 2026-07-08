@@ -434,8 +434,11 @@ doctor_main() {
 
   # Check if banner is installed in shell config
   local shell_config=""
-  [[ -f "$HOME/.zshrc" ]] && shell_config="$HOME/.zshrc"
-  [[ -f "$HOME/.bashrc" ]] && shell_config="$HOME/.bashrc"
+  if [[ -f "$HOME/.zshrc" ]]; then
+    shell_config="$HOME/.zshrc"
+  elif [[ -f "$HOME/.bashrc" ]]; then
+    shell_config="$HOME/.bashrc"
+  fi
 
   if [[ -n "$shell_config" ]]; then
     if grep -qF "# ===== Omni Banner =====" "$shell_config" 2>/dev/null; then
@@ -454,7 +457,7 @@ doctor_main() {
   separator_section "AI Tools Installed"
   echo
 
-  local -a ai_cmds=("opencode" "claude" "gemini" "codex" "qwen" "vibe" "mimo" "hermes" "kimi" "ollama" "freebuff" "pi" "agy" "mmx" "gentle-ai" "gga" "engram" "codegraph" "kilo" "kilocode" "heygen" "seedance" "veo3" "odysseus" "openclaude" "openclaw" "command-code" "kimchi" "cline" "omni-route" "ctx7" "openspec")
+  local -a ai_cmds=("opencode" "claude" "gemini" "codex" "qwen" "vibe" "mimo" "hermes" "kimi" "ollama" "freebuff" "pi" "agy" "mmx" "gentle-ai" "gga" "engram" "codegraph" "kilo" "kilocode" "crush" "odysseus" "openclaude" "openclaw" "command-code" "kimchi" "cline" "omni-route" "ctx7" "openspec")
   local ai_count=0
 
   for cmd in "${ai_cmds[@]}"; do
@@ -1211,7 +1214,7 @@ _fix_storage() {
 }
 
 _fix_mkdir() {
-  for dir in "${dirs[@]}"; do
+  for dir in "$OMNI_CONFIG" "$OMNI_CACHE" "$OMNI_DATA"; do
     mkdir -p "$dir" 2>/dev/null
     chmod 755 "$dir" 2>/dev/null
   done
@@ -1222,7 +1225,7 @@ _fix_pkg_install() {
   local pkg_to_install=""
   case "$1" in
     pkg) pkg_to_install="$2" ;;
-    *) pkg_to_install="${fix_commands[$i]}" ;;
+    *) pkg_to_install="${fix_commands[$i]:-}" ;;
   esac
   local pkg_name=""
   if [[ "$pkg_to_install" =~ pkg\ install\ -y\ (.+) ]]; then
@@ -1316,8 +1319,11 @@ _fix_symlinks() {
 
 _fix_banner() {
   local shell_config=""
-  [[ -f "$HOME/.zshrc" ]] && shell_config="$HOME/.zshrc"
-  [[ -f "$HOME/.bashrc" ]] && shell_config="$HOME/.bashrc"
+  if [[ -f "$HOME/.zshrc" ]]; then
+    shell_config="$HOME/.zshrc"
+  elif [[ -f "$HOME/.bashrc" ]]; then
+    shell_config="$HOME/.bashrc"
+  fi
   if [[ -z "$shell_config" ]]; then
     shell_config="$HOME/.zshrc"
     touch "$shell_config"
@@ -1347,8 +1353,11 @@ _fix_ai_install() {
 
 _fix_shell_syntax() {
   local config=""
-  [[ -f "$HOME/.zshrc" ]] && config="$HOME/.zshrc"
-  [[ -f "$HOME/.bashrc" ]] && config="$HOME/.bashrc"
+  if [[ -f "$HOME/.zshrc" ]]; then
+    config="$HOME/.zshrc"
+  elif [[ -f "$HOME/.bashrc" ]]; then
+    config="$HOME/.bashrc"
+  fi
   if [[ -n "$config" ]]; then
     cp "$config" "${config}.bak" 2>/dev/null
     local marker="# ===== Omni Banner ====="
@@ -1390,7 +1399,7 @@ _fix_disk_cleanup() {
 }
 
 _fix_mkdir_single() {
-  for dir in "${omni_dirs[@]}"; do
+  for dir in "$OMNI_CONFIG" "$OMNI_CACHE" "$OMNI_DATA" "$HOME/.local/share/omni-data"; do
     [[ -d "$dir" ]] || mkdir -p "$dir" 2>/dev/null
   done
   return 0
@@ -1479,7 +1488,9 @@ _fix_mirror() {
 
 _fix_locale() {
   local config="$HOME/.zshrc"
-  [[ -f "$HOME/.bashrc" ]] && config="$HOME/.bashrc"
+  if [[ ! -f "$config" ]] && [[ -f "$HOME/.bashrc" ]]; then
+    config="$HOME/.bashrc"
+  fi
   echo 'export LANG=en_US.UTF-8' >> "$config" 2>/dev/null
   return $?
 }
@@ -1499,7 +1510,6 @@ _fix_url_quote_magic() {
   sed -i \
     -e 's/((${~localschema})/(${~localschema})/g' \
     -e 's/((${~otherschema})/(${~otherschema})/g' \
-    -e 's/${~localchema}/${~localschema}/g' \
     "$uqm_file" 2>/dev/null
   return $?
 }

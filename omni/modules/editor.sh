@@ -21,7 +21,7 @@ install_editor() {
 	echo
 	list_item "code-server (VS Code in browser)"
 	list_item "Access at http://localhost:8080"
-	list_item "Password: 12092013iI@"
+	list_item "Set password: ${D_CYAN}code-server --auth password${NC}"
 	echo
 }
 

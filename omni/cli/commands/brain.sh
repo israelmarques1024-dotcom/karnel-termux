@@ -236,7 +236,7 @@ brain_init() {
 	fi
 
 	if ! $gh_ok; then
-		mkdir -p "$BRAIN_DIR"
+		mkdir -p "$BRAIN_DIR" 2>/dev/null
 		log_success "Local brain created: ${D_CYAN}$BRAIN_DIR${D_NC}"
 		list_item "Install gh for GitHub sync: ${D_CYAN}omni install dev${D_NC}"
 		separator
@@ -259,6 +259,7 @@ brain_init() {
 		fi
 	fi
 
+	local orig_dir="$PWD"
 	mkdir -p "$BRAIN_DIR"
 	log_success "Local brain created: ${D_CYAN}$BRAIN_DIR${D_NC}"
 	echo
@@ -272,13 +273,15 @@ brain_init() {
 
 	log_info "Creating private repo: ${D_CYAN}$gh_user/$repo_name${D_NC}..."
 	if gh repo create "$repo_name" --private &>/dev/null; then
-		cd "$BRAIN_DIR" || return 1
-		git init &>/dev/null
-		echo "# Omni Brain" >README.md
-		git add -A
-		git commit -m "init brain" &>/dev/null
-		git remote add origin "https://github.com/$gh_user/$repo_name.git"
-		loading "Pushing to GitHub..." git push -u origin main
+		(
+			cd "$BRAIN_DIR" || return 1
+			git init &>/dev/null
+			echo "# Omni Brain" >README.md
+			git add -A
+			git commit -m "init brain" &>/dev/null
+			git remote add origin "https://github.com/$gh_user/$repo_name.git"
+			loading "Pushing to GitHub..." git push -u origin main
+		)
 		log_success "Repo created and linked: ${D_CYAN}https://github.com/$gh_user/$repo_name${D_NC}"
 	else
 		log_warn "Failed to create repo. Check your permissions."
@@ -543,7 +546,7 @@ brain_ls() {
 	else
 		dirs=$(find "$BRAIN_DIR" -mindepth 1 -maxdepth 1 -type d ! -name ".git" 2>/dev/null | sort)
 		if [[ -z "$dirs" ]]; then
-			echo -e "    ${D_GRAY}No memories yet${D_NC}"
+			echo -e "    ${GRAY}No memories yet${D_NC}"
 			echo
 			list_item "Add one: ${D_CYAN}omni brain save${D_NC}"
 			return 0
@@ -1543,7 +1546,7 @@ brain_main() {
 		log_error "Unknown subcommand: $cmd"
 		echo
 		brain_help
-		exit 1
+		return 1
 		;;
 	esac
 }

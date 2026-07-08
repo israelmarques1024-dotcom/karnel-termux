@@ -43,7 +43,7 @@ _start_editor() {
   echo
   log_info "Starting VS Code in browser..."
   log_info "Port: $port"
-  log_info "Password: 12092013iI@"
+  log_info "Password set via --auth password flag"
   echo
   log_success "Open http://localhost:$port in your browser"
   echo

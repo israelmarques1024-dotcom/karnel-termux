@@ -103,28 +103,6 @@ box() {
 	echo -e "${GRAY}╰${line// /─}╯${NC}"
 }
 
-box_large() {
-	local text="$1"
-	local len=${#text}
-	local line=$(printf "%$((len + 4))s")
-
-	echo -e "${GRAY}╔${line// /═}╗${NC}"
-	echo -e "${GRAY}║${D_CYAN}  $text  ${GRAY}║${NC}"
-	echo -e "${GRAY}╚${line// /═}╝${NC}"
-}
-
-box_with_subtitle() {
-	local title="$1"
-	local subtitle="$2"
-	local max_len=$(( ${#title} > ${#subtitle} ? ${#title} : ${#subtitle} ))
-	local line=$(printf "%$((max_len + 2))s")
-
-	echo -e "${GRAY}╭${line// /─}╮${NC}"
-	echo -e "${GRAY}│${D_CYAN} $title${GRAY}$(printf "%$((max_len - ${#title}))s") │${NC}"
-	echo -e "${GRAY}│${D_PURPLE} $subtitle${GRAY}$(printf "%$((max_len - ${#subtitle}))s") │${NC}"
-	echo -e "${GRAY}╰${line// /─}╯${NC}"
-}
-
 # ===== TABLE FUNCTIONS =====
 
 # ===== INTERNAL TABLE STATE =====
@@ -393,43 +371,7 @@ read_select() {
 	echo -e "    ${GRAY}└─${D_CYAN}▶ ${D_NC}${options[$selected]}${D_NC}" >&2
 }
 
-# --- Entrada multi-línea (shell interactiva, sin editor externo) ---
-# Lee contenido línea por línea hasta Ctrl+D.
-# Uso: local tmp; tmp=$(read_multiline "Initial header"); content=$(cat "$tmp"); rm -f "$tmp"
-read_multiline() {
-	local initial="$1"
-	local tmpfile
-	tmpfile=$(mktemp)
-
-	echo "$initial" >"$tmpfile"
-	echo >>"$tmpfile"
-
-	local cols
-	cols=$(tput cols 2>/dev/null || echo 80)
-	local w=$((cols - 6))
-	local bar
-	printf -v bar '%*s' "$w" ''
-
-	echo -e "    ${GRAY}╭${bar// /─}╮${NC}" >&2
-	printf "    ${GRAY}│${NC}  ${D_CYAN}✎  Write your memory${D_NC}%*s ${GRAY}│${NC}\n" $((w - 24)) "" >&2
-	printf "    ${GRAY}│${NC}  ${D_DIM}(Ctrl+D to finish, Ctrl+C to cancel)${D_NC}%*s ${GRAY}│${NC}\n" $((w - 40)) "" >&2
-	echo -e "    ${GRAY}├${bar// /─}┤${NC}" >&2
-
-	local line
-	while IFS= read -r line; do
-		echo "$line" >>"$tmpfile"
-	done
-
-	echo >&2
-	echo -e "    ${GRAY}╰${bar// /─}╯${NC}" >&2
-	echo -e "    ${GRAY}${D_GREEN}✔ Content captured${D_NC}" >&2
-
-	echo "$tmpfile"
-}
-
 # ===== LOADING SPINNER =====
-
-_spinner_pids=()
 
 loading() {
 	local message="$1"
@@ -552,52 +494,4 @@ step_error() {
 	local step="$1"
 	local message="$2"
 	echo -e "    ${RED}[$step]${D_RED} $message ✖${NC}" >&2
-}
-
-# ===== STATUS ICONS =====
-
-icon_success() {
-	echo -e "${GREEN}✓${NC}"
-}
-
-icon_error() {
-	echo -e "${RED}✗${NC}"
-}
-
-icon_warning() {
-	echo -e "${YELLOW}⚠${NC}"
-}
-
-icon_info() {
-	echo -e "${CYAN}ℹ${NC}"
-}
-
-icon_arrow() {
-	echo -e "${D_CYAN}→${NC}"
-}
-
-# ===== BADGE FUNCTIONS =====
-
-badge() {
-	local text="$1"
-	local color="${2:-D_CYAN}"
-	echo -e "${!color}[ $text ]${NC}"
-}
-
-badge_new() {
-	echo -e "${D_GREEN}[ NEW ]${NC}"
-}
-
-badge_beta() {
-	echo -e "${D_YELLOW}[ BETA ]${NC}"
-}
-
-badge_deprecated() {
-	echo -e "${D_RED}[ DEPRECATED ]${NC}"
-}
-
-# ===== TIP FUNCTION =====
-
-log_tip() {
-	echo -e "    ${D_CYAN}●${NC} $*"
 }

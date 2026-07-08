@@ -430,7 +430,7 @@ pg_main() {
 	*)
 		log_error "Unknown command: $cmd"
 		pg_help
-		exit 1
+		return 1
 		;;
 	esac
 }

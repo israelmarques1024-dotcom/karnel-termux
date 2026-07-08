@@ -219,16 +219,8 @@ _uninstall_specific_tools() {
         uninstall_freebuff
         case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
         ;;
-      heygen)
-        uninstall_heygen
-        case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      seedance)
-        uninstall_seedance
-        case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      veo3)
-        uninstall_veo3
+      crush)
+        uninstall_crush
         case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
         ;;
       odysseus)

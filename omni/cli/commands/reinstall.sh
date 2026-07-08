@@ -213,16 +213,8 @@ _reinstall_specific_tools() {
         reinstall_freebuff
         case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
-      heygen)
-        reinstall_heygen
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      seedance)
-        reinstall_seedance
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      veo3)
-        reinstall_veo3
+      crush)
+        reinstall_crush
         case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       odysseus)
