@@ -441,6 +441,10 @@ _tui_install_checklist() {
         "seedance" "Seedance CLI" OFF
         "veo3" "Veo 3 SDK" OFF
         "odysseus" "Odysseus" OFF
+        "kilocode-cli" "Kilo Code CLI" OFF
+        "cline" "Cline CLI" OFF
+        "kimchi-code" "Kimchi CLI" OFF
+        "omni-route" "omniRoute" OFF
       )
       ;;
     dev)
@@ -450,11 +454,20 @@ _tui_install_checklist() {
         "curl" "Curl" OFF
         "fzf" "Fzf" OFF
         "jq" "Jq" OFF
-        "tmux" "Tmux" OFF
-        "ranger" "Ranger" OFF
-        "htop" "Htop" OFF
-        "neofetch" "Neofetch" OFF
-        "git" "Git" OFF
+        "lsd" "LSD (modern ls)" OFF
+        "bat" "Bat (modern cat)" OFF
+        "proot" "Proot" OFF
+        "ncurses" "Ncurses Utils" OFF
+        "tmate" "Tmate" OFF
+        "cloudflared" "Cloudflared" OFF
+        "translate" "Translate Shell" OFF
+        "html2text" "html2text" OFF
+        "bc" "Bc (calculator)" OFF
+        "tree" "Tree" OFF
+        "imagemagick" "ImageMagick" OFF
+        "shfmt" "Shfmt" OFF
+        "make" "Make" OFF
+        "udocker" "Udocker" OFF
       )
       ;;
     shell)
@@ -624,7 +637,7 @@ omni_fallback_tui() {
     echo
     
     local choice
-    read -p "  Enter choice (1-10): " choice
+    read -p "  Enter choice (1-11): " choice
     
     case "$choice" in
       1) omni_main "brain" ;;
@@ -633,10 +646,11 @@ omni_fallback_tui() {
       4) omni_main "pg" ;;
       5) omni_main "init" ;;
       6) omni_main "voice" ;;
-      7) omni_main "doctor" ;;
-      8) omni_main "update" ;;
-      9) omni_help ;;
-      10|q|exit) break ;;
+      7) omni_main "ia" ;;
+      8) omni_main "doctor" ;;
+      9) omni_main "update" ;;
+      10) omni_help ;;
+      11|q|exit) break ;;
       *) log_warn "Invalid option. Please try again." ;;
     esac
     echo
