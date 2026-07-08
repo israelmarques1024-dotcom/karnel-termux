@@ -19,10 +19,22 @@ _cline_detect_ubuntu_root() {
 }
 
 _cline_proot_ubuntu() {
-  proot-distro login \
-    --shared-tmp \
-    ubuntu \
-    -- "$@"
+  # Usa proot direto em vez de proot-distro login para evitar
+  # bloqueio de execucao aninhada
+  local root
+  root="$(_cline_detect_ubuntu_root)"
+  if [ -z "$root" ]; then
+    log_error "Ubuntu container not found"
+    return 1
+  fi
+  exec proot -r "$root" \
+    -b /proc \
+    -b /sys \
+    -b /dev \
+    -b /data:/data \
+    -b /data/data/com.termux/files/home:/home/termux \
+    -w /home/termux \
+    "$@"
 }
 
 _cline_install_deps() {
@@ -105,13 +117,37 @@ _cline_install_global_impl() {
 }
 
 _cline_create_wrapper() {
-  cat > "$PREFIX/bin/cline" << CLINEWRAPPER
-#!$PREFIX/bin/env bash
-# Cline CLI proot wrapper — executa o binario nativo dentro do container Ubuntu
+  cat > "$PREFIX/bin/cline" << PROOTWRAPPER
+#!/data/data/com.termux/files/usr/bin/env bash
+# Cline CLI wrapper — executa o binario glibc dentro do container Ubuntu via proot
+# Gambi inteligente: usa proot direto (nao proot-distro) pra evitar bloqueio de
+# execucao aninhada quando rodando dentro de outro PRoot.
 # Instalado pelo Omni Catalyst (omni install ai --cline)
 
-exec proot-distro login ubuntu --shared-tmp -- cline "\$@"
-CLINEWRAPPER
+UBUNTU_ROOT="/data/data/com.termux/files/usr/var/lib/proot-distro/containers/ubuntu/rootfs"
+CLINE_BIN="/data/data/com.termux/files/usr/lib/node_modules/@cline/cli-linux-arm64/bin/cline"
+
+if [ ! -d "\$UBUNTU_ROOT" ]; then
+  echo "Erro: Container Ubuntu nao encontrado em \$UBUNTU_ROOT"
+  echo "Rode: proot-distro install ubuntu:24.04"
+  exit 1
+fi
+
+if [ ! -f "\$CLINE_BIN" ]; then
+  echo "Erro: Cline binary nao encontrado em \$CLINE_BIN"
+  echo "Rode: npm i -g cline"
+  exit 1
+fi
+
+exec proot -r "\$UBUNTU_ROOT" \
+  -b /proc \
+  -b /sys \
+  -b /dev \
+  -b /data:/data \
+  -b /data/data/com.termux/files/home:/home/termux \
+  -w /home/termux \
+  "\$CLINE_BIN" "\$@"
+PROOTWRAPPER
   chmod 755 "$PREFIX/bin/cline"
 }
 
@@ -120,7 +156,7 @@ _cline_install_ubuntu() {
 }
 
 install_cline() {
-  if grep -q 'proot-distro login ubuntu.*cline' "$PREFIX/bin/cline" 2>/dev/null; then
+  if grep -q 'CLINE_BIN=' "$PREFIX/bin/cline" 2>/dev/null; then
     log_info "Cline is already installed"
     return 2
   fi
