@@ -237,6 +237,9 @@ _uninstall_specific_tools() {
         ;;
       kimchi-code)
         uninstall_kimchi_code
+        ;;
+      cline)
+        uninstall_cline
         case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
         ;;
       omni-route)
@@ -439,6 +442,9 @@ _uninstall_specific_tools() {
         ;;
       ngrok)
         uninstall_ngrok
+        ;;
+      turbopack)
+        uninstall_turbopack
         case $? in 0) ((uninstalled_count++));; 1) ((failed_count++));; esac
         ;;
       *)

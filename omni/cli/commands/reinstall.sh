@@ -231,6 +231,9 @@ _reinstall_specific_tools() {
         ;;
       kimchi-code)
         reinstall_kimchi_code
+        ;;
+      cline)
+        reinstall_cline
         case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       omni-route)
@@ -433,6 +436,9 @@ _reinstall_specific_tools() {
         ;;
       ngrok)
         reinstall_ngrok
+        ;;
+      turbopack)
+        reinstall_turbopack
         case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       *)
