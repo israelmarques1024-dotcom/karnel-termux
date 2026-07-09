@@ -110,6 +110,10 @@ _uninstall_full_module() {
     import "@/modules/deploy"
     uninstall_deploy
     ;;
+  voice)
+    import "@/modules/voice"
+    uninstall_voice
+    ;;
   *)
     log_warn "Unknown uninstall target: $target"
     echo "Run 'omni uninstall' to see available targets"

@@ -112,6 +112,10 @@ _update_full_module() {
     import "@/modules/deploy"
     update_deploy
     ;;
+  voice)
+    import "@/modules/voice"
+    update_voice
+    ;;
   *)
     log_warn "Unknown update target: $target"
     echo "Run 'omni update' to see available targets"

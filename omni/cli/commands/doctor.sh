@@ -478,7 +478,7 @@ doctor_main() {
   fi
 
   # Registry consistency check
-  local registry_file="$OMNI_PATH/omni/tools/ai/all.sh"
+  local registry_file="$OMNI_PATH/tools/ai/all.sh"
   if [[ -f "$registry_file" ]]; then
     local registered_tools
     registered_tools=$(grep -cE '^[[:space:]]*"[^:]+:[^:]+:[^"]+"' "$registry_file" 2>/dev/null || echo 0)

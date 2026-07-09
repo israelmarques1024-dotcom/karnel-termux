@@ -105,6 +105,10 @@ _reinstall_full_module() {
     import "@/modules/deploy"
     reinstall_deploy
     ;;
+  voice)
+    import "@/modules/voice"
+    reinstall_voice
+    ;;
   *)
     log_warn "Unknown reinstall target: $target"
     echo "Run 'omni reinstall' to see available targets"

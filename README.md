@@ -203,7 +203,7 @@ Cada verificação pode ser corrigida automaticamente com auto-fix.
 Sistema de memória integrado com busca semântica por IA e visualização em grafo.
 
 ```bash
-omni brain add "minha ideia"       # Salva um pensamento
+omni brain save "minha ideia"       # Salva um pensamento
 omni brain search "postgres"       # Busca por similaridade semântica
 omni brain graph                   # Visualiza conexões entre ideias
 omni brain sync                    # Sincroniza com GitHub privado
@@ -297,6 +297,9 @@ cd backend && omni init nest        # NestJS + autenticação
 | `react` | React + Vite com estrutura moderna |
 | `express` | Express API com TypeScript + TypeORM + migrations |
 | `nest` | NestJS com TypeORM e autenticação JWT |
+| `python` | FastAPI com SQLModel/SQLAlchemy |
+| `go` | Go com Gin ou Fiber |
+| `rust` | Rust com Axum ou Actix Web |
 
 ---
 
@@ -307,7 +310,7 @@ Gerencie variáveis de ambiente com segurança:
 ```bash
 omni env set OPENAI_API_KEY        # Adiciona chave (input oculto)
 omni env list                      # Lista variáveis
-omni env export                    # Exporta para o shell atual
+omni env ls                        # Lista variáveis
 ```
 
 ---

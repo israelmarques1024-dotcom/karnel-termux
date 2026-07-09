@@ -306,7 +306,7 @@ ia_sessions() {
 	fi
 	# Kilocode sessions
 	if command -v kilocode >/dev/null 2>&1; then
-		sessions+=("[kilow]|$(date +%Y%m%d_%H%M%S)|kilocode binary present")
+		sessions+=("[kilocode]|$(date +%Y%m%d_%H%M%S)|kilocode binary present")
 	fi
 
 	# Command Code sessions

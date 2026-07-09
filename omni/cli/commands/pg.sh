@@ -410,7 +410,7 @@ pg_main() {
 		pg_backup "$@"
 		;;
 	restore)
-		pg_restore "$@"
+		pg_restore_db "$@"
 		;;
 	list-backups | backups)
 		pg_list_backups
@@ -506,7 +506,7 @@ pg_backup() {
 	fi
 }
 
-pg_restore() {
+pg_restore_db() {
 	check_pg_installed || return 1
 	local db_name="$1"
 	local backup_file="$2"

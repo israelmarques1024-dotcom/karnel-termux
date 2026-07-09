@@ -180,6 +180,10 @@ _install_full_module() {
     import "@/modules/deploy"
     install_deploy
     ;;
+  voice)
+    import "@/modules/voice"
+    install_voice
+    ;;
   *)
     log_warn "Unknown install target: $target"
     echo "Run 'omni install' to see available targets"
