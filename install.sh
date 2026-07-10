@@ -208,6 +208,8 @@ clone_repo() {
 create_symlink() {
 	log_step 4 "Creating symlinks"
 
+	[[ -z "$PREFIX" ]] && { log_fail "PREFIX is not set. Are you running in Termux?"; return 1; }
+
 	rm -f "$PREFIX/bin/karnel"
 	ln -sf "$KARNEL_REPO/karnel/bin/karnel" "$PREFIX/bin/karnel"
 

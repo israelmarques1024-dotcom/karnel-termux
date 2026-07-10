@@ -14,7 +14,6 @@ NODE_PACKAGES=(
   "markserv"
   "psqlformat"
   "ncu"
-  "ngrok"
   "turbopack"
 )
 
