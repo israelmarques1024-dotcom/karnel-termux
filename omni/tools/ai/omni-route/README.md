@@ -46,9 +46,40 @@ The wrapper uses a **3-tier fallback** strategy:
 2. **npm install** (first run) — Downloads and caches locally with `--ignore-scripts`
 3. **npx** (last resort) — Falls back to on-demand execution
 
-### Playwright-core Patch (Termux/Android)
+### Termux / Android Native Fixes (root cause of "Internal Server Error" 500)
 
-On Termux, the `playwright-core` module throws `"Unsupported platform: android"`, which crashes the server. The wrapper automatically patches 3 occurrences in `coreBundle.js` to return `process.env.HOME + "/.cache"` instead, allowing the server to start. This patch is re-applied automatically on every execution (including after `npm update`).
+OmniRoute bundles `better-sqlite3` (and `sqlite-vec`) as **prebuilt `linux-x64` glibc**
+native addons. On Termux/Android the runtime is **aarch64 + Bionic libc** and
+`process.platform` reports `android`, so those addons fail to load
+(`dlopen: cannot locate symbol …`). With no working database, every HTTP request
+returns `500` and the logs show an `out of memory` DB-probe death spiral.
+
+The installer fixes this **definitively** (no workarounds) by rebuilding the
+native addons from source for the running Node/ABI:
+
+1. **Rebuild native modules** — `better-sqlite3` and `sqlite-vec` are recompiled
+   with Termux's `clang` against the local Node headers. `node-gyp` mis-detects
+   Termux as Android and demands `android_ndk_path`; the installer supplies a
+   dummy value so the Android gyp config resolves while Termux's clang compiles.
+2. **Instrumentation resilience** — Next.js `registerInstrumentation()` used to
+   *re-throw* any error from OmniRoute's (non-critical) instrumentation hook and
+   crash the whole server. The installer patches Next's
+   `instrumentation-globals.external.js` so a hook error is logged and the server
+   keeps running (the real application database is unaffected).
+
+Both fixes are re-applied automatically on every `install` / `update`, so a fresh
+or updated install keeps working on Termux/Android.
+
+### Resetting a corrupted database
+
+If `~/.omniroute/storage.sqlite` becomes corrupt, OmniRoute cannot auto-recover
+and renames it to `storage.sqlite.probe-failed-*`. Remove those files and let the
+server recreate a fresh database:
+
+```bash
+rm -f ~/.omniroute/storage.sqlite{,-wal,-shm} ~/.omniroute/storage.sqlite.probe-failed-*
+omni-route serve --daemon
+```
 
 ## Commands
 
