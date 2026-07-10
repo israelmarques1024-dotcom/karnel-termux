@@ -1,0 +1,338 @@
+#!/usr/bin/env bash
+
+import "@/utils/log"
+import "@/utils/colors"
+
+ZSH_PLUGINS_DIR="$HOME/.zsh-plugins"
+OH_MY_ZSH_DIR="$HOME/.oh-my-zsh"
+LOG_FILE="$KARNEL_CACHE/install_shell.log"
+
+install_termux_packages() {
+	log_info "Installing dependencies..."
+
+	if pkg install -y zsh lsd bat fzf zoxide &>>"$LOG_FILE"; then
+		log_success "Dependencies installed successfully"
+		return 0
+	else
+		log_error "Failed to install dependencies"
+		return 1
+	fi
+}
+
+install_oh_my_zsh() {
+	if [[ -d "$OH_MY_ZSH_DIR" ]]; then
+		log_warn "Oh My Zsh already installed"
+		return 0
+	fi
+
+	log_info "Downloading Oh My Zsh..."
+	log_info "When prompted, enter (Y/n) to set ZSH as your default shell"
+	echo
+
+	local temp_dir="${PREFIX:-/tmp}/tmp"
+	mkdir -p "$temp_dir"
+	local temp_file="$temp_dir/omz_install.sh"
+
+	if curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -o "$temp_file" &>>"$LOG_FILE"; then
+		sed -i '/exec zsh -l/s/^/#/' "$temp_file"
+		sh "$temp_file" &>>"$LOG_FILE"
+		rm "$temp_file"
+		log_success "Oh My Zsh installed successfully"
+		return 0
+	else
+		log_error "Failed to download Oh My Zsh"
+		return 1
+	fi
+}
+
+add_to_zshrc() {
+	local line="$1"
+	if ! grep -qxF "$line" ~/.zshrc 2>/dev/null; then
+		echo "$line" >>~/.zshrc
+	fi
+}
+
+setup_zsh_aliases() {
+	log_info "Setting up ZSH aliases..."
+
+	add_to_zshrc "alias ls=\"lsd\""
+	add_to_zshrc 'alias cat="bat --theme=Dracula --style=plain --paging=never"'
+	add_to_zshrc 'eval "$(zoxide init zsh)"'
+
+	log_success "ZSH aliases configured"
+}
+
+setup_shell_env() {
+	log_info "Setting up shell environment..."
+
+	add_to_zshrc "unalias gga 2>/dev/null"
+	add_to_zshrc "export GOPATH=\"\$HOME/.local/go\""
+	add_to_zshrc "export GOCACHE=\"\$HOME/.cache/go\""
+	add_to_zshrc "export GOMODCACHE=\"\$GOPATH/pkg/mod\""
+	add_to_zshrc "export PATH=\$PATH:\$HOME/go/bin"
+	add_to_zshrc "export OPENCLAW_DISABLE_BONJOUR=1"
+
+	log_success "Shell environment configured"
+}
+
+setupPersistentSession() {
+	log_info "Configuring persistent session..."
+
+	mkdir -p "$KARNEL_CACHE" 2>/dev/null || mkdir -p ~/.cache/karnel
+
+	echo "$HOME" > ~/.cache/karnel/last_dir
+
+	if grep -q "# ===== Persistent Directory =====" ~/.zshrc 2>/dev/null; then
+		log_warn "Persistent session already configured"
+		return 0
+	fi
+
+	cat >>~/.zshrc <<'EOF'
+
+# ===== Persistent Directory =====
+LAST_DIR_FILE="$HOME/.cache/karnel/last_dir"
+SESSION_TIMESTAMP="$HOME/.cache/karnel/.session_time"
+SESSION_TIMEOUT=5
+
+save_dir() {
+  mkdir -p ~/.cache/karnel 2>/dev/null
+  pwd > "$LAST_DIR_FILE"
+  date +%s > "$SESSION_TIMESTAMP"
+}
+
+restore_dir() {
+  if [[ -f "$SESSION_TIMESTAMP" ]] && [[ -f "$LAST_DIR_FILE" ]]; then
+    local current_time
+    local last_time
+    current_time=$(date +%s)
+    last_time=$(cat "$SESSION_TIMESTAMP" 2>/dev/null || echo 0)
+    local diff=$((current_time - last_time))
+
+    if [[ $diff -lt $SESSION_TIMEOUT ]]; then
+      local dir
+      dir=$(cat "$LAST_DIR_FILE" 2>/dev/null)
+      if [[ -d "$dir" ]] && [[ "$dir" != "$HOME" ]]; then
+        cd "$dir" 2>/dev/null
+      fi
+    fi
+  fi
+  date +%s > "$SESSION_TIMESTAMP"
+}
+
+if typeset -f add-zsh-hook &>/dev/null; then
+  add-zsh-hook precmd save_dir
+  restore_dir
+else
+  restore_dir
+  trap 'save_dir' EXIT
+fi
+echo
+EOF
+
+	log_success "Persistent session configured"
+	log_info "New sessions within Termux will restore last directory"
+}
+
+install_shell() {
+	separator
+	box "Installing ZSH Shell Environment"
+	separator
+	echo
+
+	mkdir -p "$(dirname "$LOG_FILE")"
+
+	loading "Installing base packages" install_termux_packages
+	log_success "Base packages installed"
+	echo
+
+	install_oh_my_zsh
+	echo
+
+	local rc=0
+	_install_shell_plugins_wrapper || rc=$?
+	log_success "ZSH plugins installed"
+	echo
+
+	setup_zsh_aliases
+	echo
+
+	setup_shell_env
+	echo
+
+	setupPersistentSession
+	echo
+
+	separator
+	if [ "$rc" -eq 0 ]; then
+		log_success "ZSH shell environment setup completed"
+	else
+		log_warn "$rc ZSH plugin(s) failed to install"
+	fi
+	separator
+	echo
+	log_warn "Please restart Termux or run: exec zsh"
+	echo
+}
+
+_install_shell_plugins_wrapper() {
+	import "@/tools/shell/all"
+	install_all_shell_plugins
+	local plugin_rc=$?
+
+	if [[ -d "$ZSH_PLUGINS_DIR/powerlevel10k" ]]; then
+		add_to_zshrc 'source ~/.zsh-plugins/powerlevel10k/powerlevel10k.zsh-theme'
+	fi
+	if [[ -d "$ZSH_PLUGINS_DIR/zsh-defer" ]]; then
+		add_to_zshrc 'source ~/.zsh-plugins/zsh-defer/zsh-defer.plugin.zsh'
+	fi
+	if [[ -d "$ZSH_PLUGINS_DIR/zsh-autosuggestions" ]]; then
+		add_to_zshrc 'source ~/.zsh-plugins/zsh-autosuggestions/zsh-autosuggestions.zsh'
+	fi
+	if [[ -d "$ZSH_PLUGINS_DIR/zsh-syntax-highlighting" ]]; then
+		add_to_zshrc 'source ~/.zsh-plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh'
+	fi
+	if [[ -d "$ZSH_PLUGINS_DIR/zsh-history-substring-search" ]]; then
+		add_to_zshrc 'source ~/.zsh-plugins/zsh-history-substring-search/zsh-history-substring-search.zsh'
+		add_to_zshrc "bindkey '^[[A' history-substring-search-up"
+		add_to_zshrc "bindkey '^[[B' history-substring-search-down"
+	fi
+	if [[ -d "$ZSH_PLUGINS_DIR/zsh-completions" ]]; then
+		add_to_zshrc 'fpath+=~/.zsh-plugins/zsh-completions'
+	fi
+	if [[ -d "$ZSH_PLUGINS_DIR/fzf-tab" ]]; then
+		add_to_zshrc 'source ~/.zsh-plugins/fzf-tab/fzf-tab.plugin.zsh'
+		add_to_zshrc "zstyle ':completion:*' menu-select yes"
+		add_to_zshrc "zstyle ':fzf-tab:*' switch-word yes"
+	fi
+	if [[ -d "$ZSH_PLUGINS_DIR/zsh-you-should-use" ]]; then
+		add_to_zshrc 'source ~/.zsh-plugins/zsh-you-should-use/you-should-use.plugin.zsh'
+	fi
+	if [[ -d "$ZSH_PLUGINS_DIR/zsh-autopair" ]]; then
+		add_to_zshrc 'source ~/.zsh-plugins/zsh-autopair/autopair.zsh'
+	fi
+	if [[ -d "$ZSH_PLUGINS_DIR/zsh-better-npm-completion" ]]; then
+		add_to_zshrc 'source ~/.zsh-plugins/zsh-better-npm-completion/zsh-better-npm-completion.plugin.zsh'
+	fi
+
+	return $plugin_rc
+}
+
+uninstall_oh_my_zsh() {
+	if [[ ! -d "$OH_MY_ZSH_DIR" ]]; then
+		log_warn "Oh My Zsh not installed"
+		return 0
+	fi
+
+	log_info "Uninstalling Oh My Zsh..."
+
+	if rm -rf "$OH_MY_ZSH_DIR" &>>"$LOG_FILE"; then
+		log_success "Oh My Zsh uninstalled"
+	else
+		log_error "Failed to uninstall Oh My Zsh"
+		return 1
+	fi
+}
+
+uninstall_shell() {
+	if [[ ! -d "$OH_MY_ZSH_DIR" ]]; then
+		log_info "ZSH Shell Environment is not installed"
+		return 0
+	fi
+	separator
+	box "Uninstalling ZSH Shell Environment"
+	separator
+	echo
+
+	mkdir -p "$(dirname "$LOG_FILE")"
+
+	local rc=0
+	_uninstall_shell_plugins_wrapper || rc=$?
+	loading "Removing Oh My Zsh" uninstall_oh_my_zsh
+
+	echo
+	separator
+	if [ "$rc" -eq 0 ]; then
+		log_success "ZSH shell environment uninstalled"
+	else
+		log_warn "$rc ZSH plugin(s) failed to uninstall"
+	fi
+	separator
+	echo
+}
+
+_uninstall_shell_plugins_wrapper() {
+	import "@/tools/shell/all"
+	uninstall_all_shell_plugins
+	return $?
+}
+
+update_shell() {
+	separator
+	box "Updating ZSH Shell Environment"
+	separator
+	echo
+
+	mkdir -p "$(dirname "$LOG_FILE")"
+
+	local rc=0
+	_update_shell_plugins_wrapper || rc=$?
+	if [ "$rc" -eq 0 ]; then
+		log_success "ZSH shell environment updated"
+	else
+		log_warn "$rc ZSH plugin(s) failed to update"
+	fi
+
+	setup_shell_env
+	echo
+
+	separator
+	log_success "ZSH update completed"
+	separator
+	echo
+}
+
+_update_shell_plugins_wrapper() {
+  import "@/tools/shell/all"
+  update_all_shell_plugins
+  return $?
+}
+
+reinstall_shell() {
+  separator
+  box "Reinstalling ZSH Shell Environment"
+  separator
+  echo
+
+  mkdir -p "$(dirname "$LOG_FILE")"
+
+  local rc=0
+  _reinstall_shell_plugins_wrapper || rc=$?
+  log_success "ZSH plugins reinstalled"
+  echo
+
+  setup_zsh_aliases
+  echo
+
+  setup_shell_env
+  echo
+
+  setupPersistentSession
+  echo
+
+  separator
+  if [ "$rc" -eq 0 ]; then
+		log_success "ZSH shell environment reinstallation completed"
+  else
+		log_warn "$rc ZSH plugin(s) failed to reinstall"
+  fi
+  separator
+  echo
+  log_warn "Please restart Termux or run: exec zsh"
+  echo
+}
+
+_reinstall_shell_plugins_wrapper() {
+  import "@/tools/shell/all"
+  reinstall_all_shell_plugins
+  return $?
+}

@@ -1,18 +1,18 @@
-# Omni
+# Karnel
 
 **Author:** israel marques
 
-Omni is a Termux environment manager. The project is at `~/omni/` with code under `omni/`.
+Karnel is a Termux environment manager. The project is at `~/karnel/` with code under `karnel/`.
 
-- CLI command: `omni` (in PATH)
-- Main entry: `omni/bin/omni`
-- Module orchestrators: `omni/modules/` (ai.sh, auto.sh, db.sh, deploy.sh, dev.sh, editor.sh, lang.sh, npm.sh, shell.sh, ui.sh, voice.sh)
-- Tool installers: `omni/tools/` (ai/*, auto/*, db/*, deploy/*, dev/*, editor/*, lang/*, npm/*, shell/*, ui/*, voice/*)
-- CLI commands: `omni/cli/commands/` (install.sh, uninstall.sh, update.sh, reinstall.sh, list.sh, show.sh, open.sh, doctor.sh, brain.sh, env.sh, init.sh, pg.sh, voice.sh, ia.sh)
-- CLI commands: AI subcommands include `omni ia sessions`, `omni ia routes`, `omni ia install`
-- AI listing: `omni list ai` (not `omni ia list`)
-- omniRoute: `omni install ai --omni-route`; installs omni-route wrapper; official AI gateway: https://omniroute.online
-- Utils: `omni/utils/` (banner.sh, bootstrap.sh, colors.sh, env.sh, log.sh)
+- CLI command: `karnel` (in PATH)
+- Main entry: `karnel/bin/karnel`
+- Module orchestrators: `karnel/modules/` (ai.sh, auto.sh, db.sh, deploy.sh, dev.sh, editor.sh, lang.sh, npm.sh, shell.sh, ui.sh, voice.sh)
+- Tool installers: `karnel/tools/` (ai/*, auto/*, db/*, deploy/*, dev/*, editor/*, lang/*, npm/*, shell/*, ui/*, voice/*)
+- CLI commands: `karnel/cli/commands/` (install.sh, uninstall.sh, update.sh, reinstall.sh, list.sh, show.sh, open.sh, doctor.sh, brain.sh, env.sh, init.sh, pg.sh, voice.sh, ia.sh)
+- CLI commands: AI subcommands include `karnel ia sessions`, `karnel ia routes`, `karnel ia install`
+- AI listing: `karnel list ai` (not `karnel ia list`)
+- karnelRoute: `karnel install ai --karnel-route`; installs karnel-route wrapper; official AI gateway: https://karnelroute.online
+- Utils: `karnel/utils/` (banner.sh, bootstrap.sh, colors.sh, env.sh, log.sh)
 
 <!-- CODEGRAPH_START -->
 ## CodeGraph

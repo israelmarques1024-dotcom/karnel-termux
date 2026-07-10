@@ -10,12 +10,12 @@ readonly P_FAIL='\e[1;31m'
 readonly P_HL='\e[38;5;213m'
 readonly P_NC='\e[0m'
 
-REPO="https://github.com/israel676767/omni"
+REPO="https://github.com/israel676767/karnel"
 BRANCH="main"
-OMNI_DATA="${XDG_DATA_HOME:-$HOME/.local/share}/omni-data"
-OMNI_REPO="${XDG_DATA_HOME:-$HOME/.local/share}/omni"
-OMNI_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/omni"
-OMNI_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/omni"
+KARNEL_DATA="${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data"
+KARNEL_REPO="${XDG_DATA_HOME:-$HOME/.local/share}/karnel"
+KARNEL_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/karnel"
+KARNEL_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/karnel"
 
 TOTAL_STEPS=6
 CURRENT_STEP=0
@@ -73,7 +73,7 @@ separator() {
 banner() {
 	echo
 	echo -e "  ${P_BORDER}┌────────────────────────────────────┐${P_NC}"
-	echo -e "  ${P_BORDER}│${P_NC}        ${P_PRIMARY}  ◈ OMNI CATALYST ◈${P_NC}           ${P_BORDER}│${P_NC}"
+	echo -e "  ${P_BORDER}│${P_NC}        ${P_PRIMARY}  ◈ KARNEL CATALYST ◈${P_NC}           ${P_BORDER}│${P_NC}"
 	echo -e "  ${P_BORDER}│${P_NC} ${P_DIM}Modular Dev Environment for Termux${P_NC} ${P_BORDER}│${P_NC}"
 	echo -e "  ${P_BORDER}└────────────────────────────────────┘${P_NC}"
 	echo
@@ -156,12 +156,12 @@ install_dependencies() {
 setup_directories() {
 	log_step 2 "Setting up directories"
 
-	mkdir -p "$OMNI_REPO" "$OMNI_DATA" "$OMNI_CACHE" "$OMNI_CONFIG"
+	mkdir -p "$KARNEL_REPO" "$KARNEL_DATA" "$KARNEL_CACHE" "$KARNEL_CONFIG"
 
-	log_info "Repo    $OMNI_REPO"
-	log_info "Data    $OMNI_DATA"
-	log_info "Cache   $OMNI_CACHE"
-	log_info "Config  $OMNI_CONFIG"
+	log_info "Repo    $KARNEL_REPO"
+	log_info "Data    $KARNEL_DATA"
+	log_info "Cache   $KARNEL_CACHE"
+	log_info "Config  $KARNEL_CONFIG"
 	log_ok "Directories created"
 }
 
@@ -172,23 +172,23 @@ clone_repo() {
 	script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 	local is_dev_install=0
 
-	if [[ -d "$script_dir/.git" ]] && [[ "$script_dir" != "$OMNI_REPO" ]]; then
+	if [[ -d "$script_dir/.git" ]] && [[ "$script_dir" != "$KARNEL_REPO" ]]; then
 		is_dev_install=1
 	fi
 
 	if [[ $is_dev_install -eq 1 ]]; then
-		OMNI_REPO="$script_dir"
+		KARNEL_REPO="$script_dir"
 		log_info "Developer installation detected"
 		log_ok "Using local repository"
-	elif [[ -d "$OMNI_REPO/.git" ]]; then
+	elif [[ -d "$KARNEL_REPO/.git" ]]; then
 		progress_bar 3 10
-		git -C "$OMNI_REPO" pull origin "$BRANCH" &>/dev/null
+		git -C "$KARNEL_REPO" pull origin "$BRANCH" &>/dev/null
 		progress_bar 10 10
 		echo
 		log_ok "Repository updated"
 	else
 		progress_bar 0 10
-		git clone --depth=1 -b "$BRANCH" "$REPO" "$OMNI_REPO" &>/dev/null &
+		git clone --depth=1 -b "$BRANCH" "$REPO" "$KARNEL_REPO" &>/dev/null &
 		local pid=$!
 		local dots=0
 		while kill -0 "$pid" 2>/dev/null; do
@@ -202,17 +202,17 @@ clone_repo() {
 		log_ok "Repository cloned"
 	fi
 
-	export OMNI_REPO
+	export KARNEL_REPO
 }
 
 create_symlink() {
 	log_step 4 "Creating symlinks"
 
-	rm -f "$PREFIX/bin/omni"
-	ln -sf "$OMNI_REPO/omni/bin/omni" "$PREFIX/bin/omni"
+	rm -f "$PREFIX/bin/karnel"
+	ln -sf "$KARNEL_REPO/karnel/bin/karnel" "$PREFIX/bin/karnel"
 
-	if [[ -L "$PREFIX/bin/omni" ]]; then
-		log_ok "Symlink created: omni → ${OMNI_REPO}/omni/bin/omni"
+	if [[ -L "$PREFIX/bin/karnel" ]]; then
+		log_ok "Symlink created: karnel → ${KARNEL_REPO}/karnel/bin/karnel"
 	else
 		log_fail "Failed to create symlink"
 		return 1
@@ -222,11 +222,11 @@ create_symlink() {
 save_config() {
 	log_step 5 "Saving configuration"
 
-	cat >"$OMNI_CONFIG/config" <<EOF
-omni_repo='$OMNI_REPO'
-omni_data='$OMNI_DATA'
-omni_cache='$OMNI_CACHE'
-omni_config='$OMNI_CONFIG'
+	cat >"$KARNEL_CONFIG/config" <<EOF
+karnel_repo='$KARNEL_REPO'
+karnel_data='$KARNEL_DATA'
+karnel_cache='$KARNEL_CACHE'
+karnel_config='$KARNEL_CONFIG'
 EOF
 
 	log_ok "Configuration saved"
@@ -235,24 +235,24 @@ EOF
 show_final_message() {
 	echo
 	separator
-	echo -e "  ${P_OK}◆${P_NC}  ${P_PRIMARY}Omni Installed${P_NC}"
+	echo -e "  ${P_OK}◆${P_NC}  ${P_PRIMARY}Karnel Installed${P_NC}"
 	separator
 	echo
 	echo -e "  ${P_DIM}Author:${P_NC}  ${P_HL}israel marques${P_NC}"
 	echo
-	echo -e "  ${P_DIM}Run${P_NC}  ${P_HL}omni${P_NC}  ${P_DIM}to get started${P_NC}"
+	echo -e "  ${P_DIM}Run${P_NC}  ${P_HL}karnel${P_NC}  ${P_DIM}to get started${P_NC}"
 	echo
 	echo -e "  ${P_DIM}Install modules:${P_NC}"
 	echo
-	printf "    ${P_PRIMARY}%-20s${P_NC} ${P_DIM}%s${P_NC}\n" "omni install lang" "Programming languages"
-	printf "    ${P_PRIMARY}%-20s${P_NC} ${P_DIM}%s${P_NC}\n" "omni install db" "Databases"
-	printf "    ${P_PRIMARY}%-20s${P_NC} ${P_DIM}%s${P_NC}\n" "omni install ai" "AI tools"
-	printf "    ${P_PRIMARY}%-20s${P_NC} ${P_DIM}%s${P_NC}\n" "omni install editor" "Code editor"
-	printf "    ${P_PRIMARY}%-20s${P_NC} ${P_DIM}%s${P_NC}\n" "omni install dev" "Dev tools"
-	printf "    ${P_PRIMARY}%-20s${P_NC} ${P_DIM}%s${P_NC}\n" "omni install npm" "Node.js tools"
-	printf "    ${P_PRIMARY}%-20s${P_NC} ${P_DIM}%s${P_NC}\n" "omni install shell" "ZSH shell"
-	printf "    ${P_PRIMARY}%-20s${P_NC} ${P_DIM}%s${P_NC}\n" "omni install ui" "Termux UI"
-	printf "    ${P_PRIMARY}%-20s${P_NC} ${P_DIM}%s${P_NC}\n" "omni install auto" "n8n"
+	printf "    ${P_PRIMARY}%-20s${P_NC} ${P_DIM}%s${P_NC}\n" "karnel install lang" "Programming languages"
+	printf "    ${P_PRIMARY}%-20s${P_NC} ${P_DIM}%s${P_NC}\n" "karnel install db" "Databases"
+	printf "    ${P_PRIMARY}%-20s${P_NC} ${P_DIM}%s${P_NC}\n" "karnel install ai" "AI tools"
+	printf "    ${P_PRIMARY}%-20s${P_NC} ${P_DIM}%s${P_NC}\n" "karnel install editor" "Code editor"
+	printf "    ${P_PRIMARY}%-20s${P_NC} ${P_DIM}%s${P_NC}\n" "karnel install dev" "Dev tools"
+	printf "    ${P_PRIMARY}%-20s${P_NC} ${P_DIM}%s${P_NC}\n" "karnel install npm" "Node.js tools"
+	printf "    ${P_PRIMARY}%-20s${P_NC} ${P_DIM}%s${P_NC}\n" "karnel install shell" "ZSH shell"
+	printf "    ${P_PRIMARY}%-20s${P_NC} ${P_DIM}%s${P_NC}\n" "karnel install ui" "Termux UI"
+	printf "    ${P_PRIMARY}%-20s${P_NC} ${P_DIM}%s${P_NC}\n" "karnel install auto" "n8n"
 	echo
 }
 

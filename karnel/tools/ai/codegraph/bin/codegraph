@@ -1,0 +1,5 @@
+#!/data/data/com.termux/files/usr/bin/bash
+
+export CODEGRAPH_ALLOW_UNSAFE_NODE=1
+
+exec node "$HOME/.local/share/karnel-data/codegraph-linux-arm64/lib/dist/bin/codegraph.js" "$@"

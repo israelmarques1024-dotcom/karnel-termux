@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 /**
- * npm/postinstall helper for Omni
+ * npm/postinstall helper for Karnel
  *
- * Runs when `npm install -g omni` is executed.
+ * Runs when `npm install -g karnel` is executed.
  * Detects Termux environment and triggers install.sh if appropriate.
  */
 
@@ -21,9 +21,9 @@ const isTermux = () => {
 
 const isAlreadyInstalled = () => {
   try {
-    const symlink = process.env.PREFIX + '/bin/omni';
+    const symlink = process.env.PREFIX + '/bin/karnel';
     const target = execFileSync('readlink', ['-f', symlink], { encoding: 'utf8' }).trim();
-    const ourTarget = path.resolve(__dirname, '..', 'omni/bin/omni');
+    const ourTarget = path.resolve(__dirname, '..', 'karnel/bin/karnel');
     return target === ourTarget;
   } catch {
     return false;
@@ -32,27 +32,27 @@ const isAlreadyInstalled = () => {
 
 const main = () => {
   if (!isTermux()) {
-    console.log('[omni] Not a Termux environment — skipping install.');
-    console.log('[omni] Run "bash install.sh" manually if needed.');
+    console.log('[karnel] Not a Termux environment — skipping install.');
+    console.log('[karnel] Run "bash install.sh" manually if needed.');
     process.exit(0);
   }
 
   if (isAlreadyInstalled()) {
-    console.log('[omni] Omni is already installed and up-to-date.');
+    console.log('[karnel] Karnel is already installed and up-to-date.');
     process.exit(0);
   }
 
-  console.log('[omni] Installing Omni for Termux...');
+  console.log('[karnel] Installing Karnel for Termux...');
   try {
     execSync('bash install.sh', {
       cwd: path.resolve(__dirname, '..'),
       stdio: 'inherit',
-      env: { ...process.env, OMNI_NPM_INSTALL: '1' }
+      env: { ...process.env, KARNEL_NPM_INSTALL: '1' }
     });
-    console.log('[omni] Installation complete! Run "omni" to get started.');
+    console.log('[karnel] Installation complete! Run "karnel" to get started.');
   } catch (err) {
-    console.error('[omni] Installation failed:', err.message);
-    console.log('[omni] Try running "bash install.sh" manually.');
+    console.error('[karnel] Installation failed:', err.message);
+    console.log('[karnel] Try running "bash install.sh" manually.');
     process.exit(1);
   }
 };

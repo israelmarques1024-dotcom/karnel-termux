@@ -1,12 +1,12 @@
 {
-  "name": "omni-catalyst",
+  "name": "karnel-catalyst",
   "version": "4.7.4",
   "description": "Modular Dev Environment for Termux — install languages, databases, AI agents, editors, and more with one command",
   "bin": {
-    "omni": "omni/bin/omni"
+    "karnel": "karnel/bin/karnel"
   },
   "files": [
-    "omni/",
+    "karnel/",
     "scripts/",
     "install.sh",
     "README.md",
@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/israel676767/omni.git"
+    "url": "git+https://github.com/israel676767/karnel.git"
   },
   "keywords": [
     "termux",
@@ -33,9 +33,9 @@
   "author": "israel marques",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/israel676767/omni/issues"
+    "url": "https://github.com/israel676767/karnel/issues"
   },
-  "homepage": "https://omni-catalyst.vercel.app",
+  "homepage": "https://karnel-catalyst.vercel.app",
   "os": [
     "android"
   ]

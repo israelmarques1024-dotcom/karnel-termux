@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://omni-catalyst.vercel.app/omni-logo-pixel.svg" alt="Omni Catalyst Logo" width="600">
+  <img src="https://karnel-catalyst.vercel.app/karnel-logo-pixel.svg" alt="Karnel Catalyst Logo" width="600">
 </p>
 
 <p align="center">
@@ -7,23 +7,23 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/israel676767/omni">
+  <a href="https://github.com/israel676767/karnel">
     <img src="https://img.shields.io/badge/version-1.0.0-0078D4?style=for-the-badge&logo=appveyor" alt="Version">
   </a>
-  <a href="https://www.npmjs.com/package/omni-catalyst">
-    <img src="https://img.shields.io/npm/v/omni-catalyst?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
+  <a href="https://www.npmjs.com/package/karnel-catalyst">
+    <img src="https://img.shields.io/npm/v/karnel-catalyst?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
   </a>
-  <a href="https://www.npmjs.com/package/omni-catalyst">
-    <img src="https://img.shields.io/npm/dt/omni-catalyst?style=for-the-badge&logo=npm&color=cb3837" alt="npm downloads">
+  <a href="https://www.npmjs.com/package/karnel-catalyst">
+    <img src="https://img.shields.io/npm/dt/karnel-catalyst?style=for-the-badge&logo=npm&color=cb3837" alt="npm downloads">
   </a>
-  <a href="https://github.com/israel676767/omni/blob/main/LICENSE">
+  <a href="https://github.com/israel676767/karnel/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-0078D4?style=for-the-badge&logo=bookstack" alt="License">
   </a>
   <a href="https://termux.dev/">
     <img src="https://img.shields.io/badge/platform-Termux%20%7C%20Android-0078D4?style=for-the-badge&logo=android" alt="Platform">
   </a>
-  <a href="https://omni-catalyst.vercel.app">
-    <img src="https://img.shields.io/badge/%F0%9F%8C%90%20Site-omni--catalyst.vercel.app-0078D4?style=for-the-badge" alt="Website">
+  <a href="https://karnel-catalyst.vercel.app">
+    <img src="https://img.shields.io/badge/%F0%9F%8C%90%20Site-karnel--catalyst.vercel.app-0078D4?style=for-the-badge" alt="Website">
   </a>
 </p>
 
@@ -31,11 +31,11 @@
 
 ---
 
-**OMNI CATALYST** é um ambiente de desenvolvimento modular que transforma o Termux em uma workstation completa. Com um único CLI (`omni`), instale e gerencie:
+**KARNEL CATALYST** é um ambiente de desenvolvimento modular que transforma o Termux em uma workstation completa. Com um único CLI (`karnel`), instale e gerencie:
 
 Criado por **israel marques** (tenho 12 anos).
 
-- **30 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama, Cline, omniRoute e mais
+- **30 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama, Cline, karnelRoute e mais
 - **7 linguagens** — Node.js, Python, Go, Rust, C/C++, PHP, Perl
 - **4 bancos de dados** — PostgreSQL, MariaDB, SQLite, MongoDB
 - **19 ferramentas dev** — gh, curl, fzf, bat, lsd, jq e muito mais
@@ -54,25 +54,25 @@ Criado por **israel marques** (tenho 12 anos).
 ### Via curl (recomendado)
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/israel676767/omni/main/install.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/israel676767/karnel/main/install.sh)"
 ```
 
 ### Via npm
 
 ```bash
-npm install -g omni-catalyst
+npm install -g karnel-catalyst
 ```
 
 ### Via pnpm
 
 ```bash
-pnpm add -g omni-catalyst
+pnpm add -g karnel-catalyst
 ```
 
 Depois de instalar, execute:
 
 ```bash
-omni
+karnel
 ```
 
 ---
@@ -81,22 +81,22 @@ omni
 
 | Comando | Descrição |
 |---------|-----------|
-| `omni install <modulo>` | Instala módulos e ferramentas |
-| `omni list <modulo>` | Lista ferramentas disponíveis |
-| `omni show <modulo> --<tool>` | Mostra documentação de uma ferramenta |
-| `omni open <modulo>` | Abre documentação no navegador |
-| `omni update <modulo>` | Atualiza módulos ou o omni |
-| `omni uninstall <modulo>` | Remove módulos instalados |
-| `omni reinstall <modulo>` | Reinstala módulos |
-| `omni doctor` | Diagnostica o ambiente (30+ verificações) |
-| `omni brain` | Segundo cérebro — memórias e busca |
-| `omni env` | Gerencia variáveis de ambiente |
-| `omni voice` | Comandos de voz para agentes IA |
-| `omni start editor` | Inicia code-server (VS Code no navegador) |
-| `omni pg` | Gerenciador PostgreSQL |
-| `omni init <template>` | Inicializa projetos com templates |
-| `omni deploy` | Publica projetos (Vercel, Railway, Netlify) |
-| `omni --version` | Mostra a versão instalada |
+| `karnel install <modulo>` | Instala módulos e ferramentas |
+| `karnel list <modulo>` | Lista ferramentas disponíveis |
+| `karnel show <modulo> --<tool>` | Mostra documentação de uma ferramenta |
+| `karnel open <modulo>` | Abre documentação no navegador |
+| `karnel update <modulo>` | Atualiza módulos ou o karnel |
+| `karnel uninstall <modulo>` | Remove módulos instalados |
+| `karnel reinstall <modulo>` | Reinstala módulos |
+| `karnel doctor` | Diagnostica o ambiente (30+ verificações) |
+| `karnel brain` | Segundo cérebro — memórias e busca |
+| `karnel env` | Gerencia variáveis de ambiente |
+| `karnel voice` | Comandos de voz para agentes IA |
+| `karnel start editor` | Inicia code-server (VS Code no navegador) |
+| `karnel pg` | Gerenciador PostgreSQL |
+| `karnel init <template>` | Inicializa projetos com templates |
+| `karnel deploy` | Publica projetos (Vercel, Railway, Netlify) |
+| `karnel --version` | Mostra a versão instalada |
 
 ---
 
@@ -104,24 +104,24 @@ omni
 
 | Módulo | Descrição | Instalação |
 |--------|-----------|------------|
-| `lang` | Node.js, Python, Go, Rust, C/C++, PHP, Perl | `omni install lang` |
-| `db` | PostgreSQL, MariaDB, SQLite, MongoDB | `omni install db` |
-| `ai` | 30 agentes de IA para coding | `omni install ai` |
-| `editor` | code-server (VS Code no navegador) | `omni install editor` |
-| `dev` | gh, curl, fzf, bat, lsd, jq e mais | `omni install dev` |
-| `npm` | TypeScript, NestJS CLI, Prettier e mais | `omni install npm` |
-| `shell` | ZSH + Oh My Zsh + 10 plugins | `omni install shell` |
-| `ui` | Fonte, cursor, extra-keys, banner | `omni install ui` |
-| `auto` | Automação com n8n | `omni install auto` |
-| `deploy` | Vercel, Railway, Netlify | `omni install deploy` |
+| `lang` | Node.js, Python, Go, Rust, C/C++, PHP, Perl | `karnel install lang` |
+| `db` | PostgreSQL, MariaDB, SQLite, MongoDB | `karnel install db` |
+| `ai` | 30 agentes de IA para coding | `karnel install ai` |
+| `editor` | code-server (VS Code no navegador) | `karnel install editor` |
+| `dev` | gh, curl, fzf, bat, lsd, jq e mais | `karnel install dev` |
+| `npm` | TypeScript, NestJS CLI, Prettier e mais | `karnel install npm` |
+| `shell` | ZSH + Oh My Zsh + 10 plugins | `karnel install shell` |
+| `ui` | Fonte, cursor, extra-keys, banner | `karnel install ui` |
+| `auto` | Automação com n8n | `karnel install auto` |
+| `deploy` | Vercel, Railway, Netlify | `karnel install deploy` |
 
 ---
 
 ## 🤖 Agentes de IA (30)
 
 ```bash
-omni install ai                               # Instala todos
-omni install ai --opencode --ollama           # Instala específicos
+karnel install ai                               # Instala todos
+karnel install ai --opencode --ollama           # Instala específicos
 ```
 
 <details>
@@ -156,7 +156,7 @@ omni install ai --opencode --ollama           # Instala específicos
 | **Odysseus** | `--odysseus` | Assistente de código Odysseus |
 | **Kimchi CLI** | `--kimchi-code` | Agente de IA Kimchi |
 | **Cline CLI** | `--cline` | Agente de codificação autônomo (via proot-distro) |
-| **omniRoute** | `--omni-route` | AI Gateway com 236+ provedores |
+| **karnelRoute** | `--karnel-route` | AI Gateway com 236+ provedores |
 | **Context7** | `--ctx7` | Documentação para AI assistants |
 | **OpenSpec** | `--openspec` | Spec-Driven Development |
 
@@ -164,12 +164,12 @@ omni install ai --opencode --ollama           # Instala específicos
 
 ---
 
-## 🏥 omni doctor
+## 🏥 karnel doctor
 
-Diagnostique seu ambiente Termux + Omni com 30+ verificações automáticas:
+Diagnostique seu ambiente Termux + Karnel com 30+ verificações automáticas:
 
 ```bash
-omni doctor
+karnel doctor
 ```
 
 **Verificações incluídas:**
@@ -181,7 +181,7 @@ omni doctor
 6. Node.js e npm
 7. Ambiente Python
 8. PostgreSQL
-9. Framework Omni
+9. Framework Karnel
 10. Status dos agentes de IA
 11. Configuração do shell
 12. Compatibilidade Android
@@ -191,35 +191,35 @@ omni doctor
 16. Conectividade de rede
 17. Servidor OpenSSH
 18. Saúde do disco
-19. Integridade dos dados Omni
+19. Integridade dos dados Karnel
 20. Geração de relatório
 
 Cada verificação pode ser corrigida automaticamente com auto-fix.
 
 ---
 
-## 🧠 omni brain — Segundo Cérebro
+## 🧠 karnel brain — Segundo Cérebro
 
 Sistema de memória integrado com busca semântica por IA e visualização em grafo.
 
 ```bash
-omni brain save "minha ideia"       # Salva um pensamento
-omni brain search "postgres"       # Busca por similaridade semântica
-omni brain graph                   # Visualiza conexões entre ideias
-omni brain sync                    # Sincroniza com GitHub privado
+karnel brain save "minha ideia"       # Salva um pensamento
+karnel brain search "postgres"       # Busca por similaridade semântica
+karnel brain graph                   # Visualiza conexões entre ideias
+karnel brain sync                    # Sincroniza com GitHub privado
 ```
 
 ---
 
-## 🎤 omni voice
+## 🎤 karnel voice
 
 Capture áudio pelo microfone, revise no editor, copie para a área de transferência e dispare qualquer agente de IA com o prompt transcrito.
 
 ```bash
-omni voice opencode                # Grava → edita → opencode run
-omni voice text                    # Grava → edita → imprime no terminal
-omni voice claude-code --lang pt-BR # Fala em português → claude -p
-omni voice "!"                     # Atalho para "text"
+karnel voice opencode                # Grava → edita → opencode run
+karnel voice text                    # Grava → edita → imprime no terminal
+karnel voice claude-code --lang pt-BR # Fala em português → claude -p
+karnel voice "!"                     # Atalho para "text"
 ```
 
 ### Agentes Suportados (15)
@@ -264,31 +264,31 @@ Microfone → termux-speech-to-text → editor (edição) → clipboard → AI a
 ### Requisitos
 
 - Termux:API: `pkg install termux-api`
-- App Termux:API: https://omni-catalyst.vercel.app/termux/api
-- Editor: `omni install editor`
+- App Termux:API: https://karnel-catalyst.vercel.app/termux/api
+- Editor: `karnel install editor`
 
 ---
 
-## 🗄️ omni pg — PostgreSQL
+## 🗄️ karnel pg — PostgreSQL
 
 Gerencie bancos PostgreSQL com comandos simples:
 
 ```bash
-omni pg init && omni pg start      # Inicializa e sobe o servidor
-omni pg create meuapp              # Cria um banco
-omni pg shell                      # Abre o console psql
+karnel pg init && karnel pg start      # Inicializa e sobe o servidor
+karnel pg create meuapp              # Cria um banco
+karnel pg shell                      # Abre o console psql
 ```
 
 ---
 
-## 🚀 omni init — Templates de Projetos
+## 🚀 karnel init — Templates de Projetos
 
 Crie projetos pré-configurados em segundos:
 
 ```bash
-cd my-app && omni init next         # Next.js + TypeScript + Tailwind
-cd my-api && omni init express      # Express + TypeORM
-cd backend && omni init nest        # NestJS + autenticação
+cd my-app && karnel init next         # Next.js + TypeScript + Tailwind
+cd my-api && karnel init express      # Express + TypeORM
+cd backend && karnel init nest        # NestJS + autenticação
 ```
 
 | Template | Descrição |
@@ -303,43 +303,43 @@ cd backend && omni init nest        # NestJS + autenticação
 
 ---
 
-## 🔧 omni env
+## 🔧 karnel env
 
 Gerencie variáveis de ambiente com segurança:
 
 ```bash
-omni env set OPENAI_API_KEY        # Adiciona chave (input oculto)
-omni env list                      # Lista variáveis
-omni env ls                        # Lista variáveis
+karnel env set OPENAI_API_KEY        # Adiciona chave (input oculto)
+karnel env list                      # Lista variáveis
+karnel env ls                        # Lista variáveis
 ```
 
 ---
 
-## 🚢 omni deploy
+## 🚢 karnel deploy
 
 Publique seus projetos diretamente do terminal:
 
 ```bash
-omni deploy vercel                  # Deploy para Vercel
-omni deploy railway                 # Deploy para Railway
-omni deploy netlify                 # Deploy para Netlify
+karnel deploy vercel                  # Deploy para Vercel
+karnel deploy railway                 # Deploy para Railway
+karnel deploy netlify                 # Deploy para Netlify
 ```
 
 Os CLIs das plataformas são instalados automaticamente e você faz deploy sem sair do Termux.
 
 ---
 
-## 📖 omni open
+## 📖 karnel open
 
 Abra a documentação de qualquer módulo ou ferramenta no navegador:
 
 ```bash
-omni open ai                        # Abre documentação do módulo AI
-omni open db                        # Abre documentação do módulo DB
-omni open ai --opencode             # Abre docs do OpenCode no site
+karnel open ai                        # Abre documentação do módulo AI
+karnel open db                        # Abre documentação do módulo DB
+karnel open ai --opencode             # Abre docs do OpenCode no site
 ```
 
-A documentação é carregada do site oficial em https://omni-catalyst.vercel.app.
+A documentação é carregada do site oficial em https://karnel-catalyst.vercel.app.
 
 ---
 
@@ -347,28 +347,28 @@ A documentação é carregada do site oficial em https://omni-catalyst.vercel.ap
 
 ```bash
 # Instalar banco de dados
-omni install db --postgresql --sqlite
+karnel install db --postgresql --sqlite
 
 # Instalar agentes de IA específicos
-omni install ai --opencode --ollama --claude-code
+karnel install ai --opencode --ollama --claude-code
 
 # Ver ferramentas disponíveis
-omni list ai
+karnel list ai
 
 # Ver documentação de uma ferramenta
-omni show ai --opencode
+karnel show ai --opencode
 
 # Atualizar tudo
-omni update omni
+karnel update karnel
 
 # Reinstalar um módulo
-omni reinstall shell
+karnel reinstall shell
 
 # Diagnóstico completo
-omni doctor
+karnel doctor
 
 # Deploy direto
-omni deploy vercel
+karnel deploy vercel
 ```
 
 ---
@@ -376,12 +376,12 @@ omni deploy vercel
 ## 🏗️ Estrutura do Projeto
 
 ```
-omni/
-├── omni/
-│   ├── bin/           # Binário (omni)
+karnel/
+├── karnel/
+│   ├── bin/           # Binário (karnel)
 │   ├── cli/
 │   │   ├── commands/  # Comandos CLI (install, list, show, etc.)
-│   │   └── omni.sh    # CLI principal (com TUI)
+│   │   └── karnel.sh    # CLI principal (com TUI)
 │   ├── modules/       # Orquestradores de módulos
 │   ├── tools/         # Instaladores de ferramentas
 │   │   ├── ai/        # 30 agentes de IA
@@ -407,16 +407,16 @@ omni/
 ### Variáveis de Ambiente
 
 ```bash
-export OMNI_DEBUG=1      # Logs de debug
+export KARNEL_DEBUG=1      # Logs de debug
 ```
 
 ### Diretórios
 
 | Diretório | Descrição |
 |-----------|-----------|
-| `~/.local/share/omni-data/` | Dados persistentes das ferramentas |
-| `~/.cache/omni/` | Logs e cache |
-| `~/.config/omni/` | Configuração do usuário |
+| `~/.local/share/karnel-data/` | Dados persistentes das ferramentas |
+| `~/.cache/karnel/` | Logs e cache |
+| `~/.config/karnel/` | Configuração do usuário |
 
 ---
 
@@ -425,14 +425,14 @@ export OMNI_DEBUG=1      # Logs de debug
 O framework verifica atualizações a cada 24 horas em background.
 
 ```bash
-omni update omni     # Atualiza o framework
+karnel update karnel     # Atualiza o framework
 ```
 
 ---
 
 ## ⭐ Apoie o Projeto
 
-Se o Omni Catalyst foi útil pra você, considere apoiar via Pix ou dar uma estrela no GitHub — isso ajuda outros desenvolvedores a descobrirem o projeto.
+Se o Karnel Catalyst foi útil pra você, considere apoiar via Pix ou dar uma estrela no GitHub — isso ajuda outros desenvolvedores a descobrirem o projeto.
 
 **Pix:** `037f07bd-a326-42b6-a5a3-f29b36e703db`
 
@@ -445,10 +445,10 @@ MIT © israel marques
 ---
 
 <p align="center">
-  <a href="https://omni-catalyst.vercel.app">
+  <a href="https://karnel-catalyst.vercel.app">
     <img src="https://img.shields.io/badge/%F0%9F%8C%90%20Documenta%C3%A7%C3%A3o%20Completa-0078D4?style=for-the-badge" alt="Documentação">
   </a>
-  <a href="https://github.com/israel676767/omni-site">
+  <a href="https://github.com/israel676767/karnel-site">
     <img src="https://img.shields.io/badge/%F0%9F%93%B1%20Site%20Repo-0078D4?style=for-the-badge" alt="Site Repo">
   </a>
 </p>
