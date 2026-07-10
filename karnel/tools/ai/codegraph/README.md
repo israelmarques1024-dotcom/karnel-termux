@@ -4,7 +4,7 @@ Analyzes your codebase structure and dependencies to improve navigation
 
 **Package:** codegraph  
 **Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel  
+**Repository:** https://github.com/israel676767/karnel-termux  
 **Official:** https://github.com/colbymchenry/codegraph  
 **Type:** Code analysis tool (Binary)  
 **License:** MIT

@@ -4,7 +4,7 @@ Additional keyboard rows for Termux with navigation keys
 
 **Package:** karnel-termux (extra-keys config)  
 **Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel  
+**Repository:** https://github.com/israel676767/karnel-termux  
 **Type:** Termux UI customization  
 **License:** MIT
 

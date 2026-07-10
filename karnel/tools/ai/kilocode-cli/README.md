@@ -4,7 +4,7 @@ The open source coding agent for building with AI in VS Code, JetBrains, or the 
 
 **Package:** kilocode-cli  
 **Author:** israel marques  
-**Repository:** https://github.com/israel676767/karnel  
+**Repository:** https://github.com/israel676767/karnel-termux  
 **Official:** https://github.com/Kilo-Org/kilocode  
 **Type:** AI coding agent (Binary + glibc bootstrapper)  
 **License:** MIT

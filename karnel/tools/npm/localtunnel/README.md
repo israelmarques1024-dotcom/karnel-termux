@@ -4,7 +4,7 @@ Expose localhost to the internet securely
 
 **Package:** localtunnel  
 **Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel  
+**Repository:** https://github.com/israel676767/karnel-termux  
 **Official:** https://github.com/localtunnel/localtunnel  
 **Type:** Node.js global module (npm)  
 **License:** MIT

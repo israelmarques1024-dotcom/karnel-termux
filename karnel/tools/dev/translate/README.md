@@ -4,7 +4,7 @@ Command-line translator powered by Google Translate
 
 **Package:** translate-shell  
 **Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel  
+**Repository:** https://github.com/israel676767/karnel-termux  
 **Official:** https://github.com/soimort/translate-shell  
 **Type:** Utility tool (pkg)  
 **License:** MIT

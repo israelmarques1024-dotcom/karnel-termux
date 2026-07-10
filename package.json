@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/israel676767/karnel.git"
+    "url": "git+https://github.com/israel676767/karnel-termux.git"
   },
   "keywords": [
     "termux",
@@ -33,7 +33,7 @@
   "author": "israel marques",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/israel676767/karnel/issues"
+    "url": "https://github.com/israel676767/karnel-termux/issues"
   },
   "homepage": "https://kerneltermux.vercel.app",
   "os": [

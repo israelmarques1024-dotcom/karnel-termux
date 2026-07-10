@@ -4,7 +4,7 @@ Command-line coding assistant powered by Mistral's models
 
 **Package:** mistral-vibe  
 **Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel  
+**Repository:** https://github.com/israel676767/karnel-termux  
 **Official:** https://github.com/mistralai/mistral-vibe  
 **Type:** AI coding assistant (pip package)  
 **License:** MIT

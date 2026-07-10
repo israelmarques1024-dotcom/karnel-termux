@@ -3,7 +3,7 @@ The self-improving AI agent built by Nous Research
 
 **Package:** hermes-agent
 **Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel  
+**Repository:** https://github.com/israel676767/karnel-termux  
 **Official:** https://github.com/nousresearch/hermes-agent  
 **Type:** The agent that grows with you
 **License:** MIT

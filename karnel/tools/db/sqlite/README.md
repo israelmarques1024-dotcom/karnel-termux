@@ -4,7 +4,7 @@ Self-contained, serverless, zero-configuration SQL database engine
 
 **Package:** sqlite  
 **Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel  
+**Repository:** https://github.com/israel676767/karnel-termux  
 **Official:** https://www.sqlite.org  
 **Type:** Database (pkg)  
 **License:** Public Domain

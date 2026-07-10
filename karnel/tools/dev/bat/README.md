@@ -4,7 +4,7 @@ Modern cat replacement with syntax highlighting
 
 **Package:** bat  
 **Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel  
+**Repository:** https://github.com/israel676767/karnel-termux  
 **Official:** https://github.com/sharkdp/bat  
 **Type:** Development tool (pkg)  
 **License:** Apache 2.0 / MIT

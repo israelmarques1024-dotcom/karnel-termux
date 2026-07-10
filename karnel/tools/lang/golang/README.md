@@ -4,7 +4,7 @@ Statically typed, compiled programming language by Google
 
 **Package:** golang  
 **Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel  
+**Repository:** https://github.com/israel676767/karnel-termux  
 **Official:** https://go.dev  
 **Type:** Language (pkg)  
 **License:** BSD 3-Clause

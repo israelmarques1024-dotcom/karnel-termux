@@ -4,7 +4,7 @@ Community-developed fork of MySQL relational database
 
 **Package:** mariadb  
 **Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel  
+**Repository:** https://github.com/israel676767/karnel-termux  
 **Official:** https://mariadb.org  
 **Type:** Database (pkg)  
 **License:** GPL-2.0

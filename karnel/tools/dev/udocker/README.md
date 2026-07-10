@@ -4,7 +4,7 @@ Run Docker containers without root privileges
 
 **Package:** udocker  
 **Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel  
+**Repository:** https://github.com/israel676767/karnel-termux  
 **Official:** https://github.com/indigo-dc/udocker  
 **Type:** Container tool (pkg)  
 **License:** Apache 2.0

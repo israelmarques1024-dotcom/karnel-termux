@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/israel676767/karnel">
+  <a href="https://github.com/israel676767/karnel-termux">
     <img src="https://img.shields.io/badge/version-1.0.0-0078D4?style=for-the-badge&logo=appveyor" alt="Version">
   </a>
   <a href="https://www.npmjs.com/package/karnel-termux">
@@ -16,7 +16,7 @@
   <a href="https://www.npmjs.com/package/karnel-termux">
     <img src="https://img.shields.io/npm/dt/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm downloads">
   </a>
-  <a href="https://github.com/israel676767/karnel/blob/main/LICENSE">
+  <a href="https://github.com/israel676767/karnel-termux/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-0078D4?style=for-the-badge&logo=bookstack" alt="License">
   </a>
   <a href="https://termux.dev/">
@@ -54,7 +54,7 @@ Criado por **israel marques** (tenho 12 anos).
 ### Via curl (recomendado)
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/israel676767/karnel/main/install.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/israel676767/karnel-termux/main/install.sh)"
 ```
 
 ### Via npm
@@ -448,7 +448,7 @@ MIT © israel marques
   <a href="https://kerneltermux.vercel.app">
     <img src="https://img.shields.io/badge/%F0%9F%8C%90%20Documenta%C3%A7%C3%A3o%20Completa-0078D4?style=for-the-badge" alt="Documentação">
   </a>
-  <a href="https://github.com/israel676767/karnel-site">
+  <a href="https://github.com/israel676767/karnel-termux-site">
     <img src="https://img.shields.io/badge/%F0%9F%93%B1%20Site%20Repo-0078D4?style=for-the-badge" alt="Site Repo">
   </a>
 </p>

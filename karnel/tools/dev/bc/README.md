@@ -4,7 +4,7 @@ Arbitrary precision calculator language
 
 **Package:** bc  
 **Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel  
+**Repository:** https://github.com/israel676767/karnel-termux  
 **Official:** https://www.gnu.org/software/bc  
 **Type:** Utility tool (pkg)  
 **License:** GPL-3.0

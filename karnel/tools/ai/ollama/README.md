@@ -4,7 +4,7 @@ Run open-source LLMs locally on Termux
 
 **Package:** ollama  
 **Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel  
+**Repository:** https://github.com/israel676767/karnel-termux  
 **Official:** https://ollama.com  
 **Type:** Local LLM runtime (pkg)  
 **License:** MIT

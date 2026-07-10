@@ -4,7 +4,7 @@ Popular general-purpose scripting language for web development
 
 **Package:** php  
 **Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel  
+**Repository:** https://github.com/israel676767/karnel-termux  
 **Official:** https://www.php.net  
 **Type:** Language (pkg)  
 **License:** PHP License 3.01

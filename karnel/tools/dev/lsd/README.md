@@ -4,7 +4,7 @@ Modern ls replacement with icons and colors
 
 **Package:** lsd  
 **Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel  
+**Repository:** https://github.com/israel676767/karnel-termux  
 **Official:** https://github.com/lsd-rs/lsd  
 **Type:** Development tool (pkg)  
 **License:** Apache 2.0

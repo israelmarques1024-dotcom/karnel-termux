@@ -4,7 +4,7 @@ Personal AI Assistant
 
 **Package:** openclaw  
 **Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel  
+**Repository:** https://github.com/israel676767/karnel-termux  
 **Official:** https://github.com/openclaw/openclaw  
 **Type:** AI assistant aggregator (npm global package)  
 **License:** MIT

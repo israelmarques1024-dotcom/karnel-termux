@@ -4,7 +4,7 @@ High-level, general-purpose programming language
 
 **Package:** python  
 **Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel  
+**Repository:** https://github.com/israel676767/karnel-termux  
 **Official:** https://www.python.org  
 **Type:** Language (pkg)  
 **License:** Python Software Foundation License

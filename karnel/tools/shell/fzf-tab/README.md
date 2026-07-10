@@ -4,7 +4,7 @@ Fuzzy completion with fzf for ZSH
 
 **Package:** fzf-tab  
 **Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel  
+**Repository:** https://github.com/israel676767/karnel-termux  
 **Official:** https://github.com/Aloxaf/fzf-tab  
 **Type:** ZSH plugin (git clone)  
 **License:** MIT

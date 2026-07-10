@@ -4,7 +4,7 @@ Open source Claude Code alternative
 
 **Package:** @gitlawb/openclaude  
 **Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel  
+**Repository:** https://github.com/israel676767/karnel-termux  
 **Official:** https://github.com/gitlawb/openclaude  
 **Type:** AI client (npm global package)  
 **License:** MIT

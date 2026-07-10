@@ -4,7 +4,7 @@ Persistent memory system for AI coding agents
 
 **Package:** engram  
 **Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel  
+**Repository:** https://github.com/israel676767/karnel-termux  
 **Official:** https://github.com/Gentleman-Programming/engram  
 **Type:** AI memory system (Go binary)  
 **License:** MIT

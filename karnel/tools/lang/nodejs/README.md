@@ -4,7 +4,7 @@ JavaScript runtime environment (Long Term Support version)
 
 **Package:** nodejs-lts  
 **Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel  
+**Repository:** https://github.com/israel676767/karnel-termux  
 **Official:** https://nodejs.org  
 **Type:** Language runtime (pkg)  
 **License:** MIT
