@@ -15,6 +15,10 @@ install_openspec() {
   npm install -g @fission-ai/openspec@latest 2>/dev/null
   local rc=$?
 
+  local _t
+  _t=$(readlink -f "$PREFIX/bin/openspec" 2>/dev/null)
+  [ -f "$_t" ] && sed -i '1s|^#!/usr/bin/env node|#!/data/data/com.termux/files/usr/bin/env node|' "$_t"
+
   if [[ $rc -eq 0 ]] && command -v openspec &>/dev/null; then
     log_success "openspec installed successfully"
     log_info "Run: openspec init to create /openspec/ directory"
@@ -44,6 +48,9 @@ update_openspec() {
 
   log_info "Updating openspec..."
   npm update -g @fission-ai/openspec 2>/dev/null
+  local _t
+  _t=$(readlink -f "$PREFIX/bin/openspec" 2>/dev/null)
+  [ -f "$_t" ] && sed -i '1s|^#!/usr/bin/env node|#!/data/data/com.termux/files/usr/bin/env node|' "$_t"
   return $?
 }
 

@@ -15,6 +15,10 @@ install_ctx7() {
   npm install -g ctx7 2>/dev/null
   local rc=$?
 
+  local _t
+  _t=$(readlink -f "$PREFIX/bin/ctx7" 2>/dev/null)
+  [ -f "$_t" ] && sed -i '1s|^#!/usr/bin/env node|#!/data/data/com.termux/files/usr/bin/env node|' "$_t"
+
   if [[ $rc -eq 0 ]] && command -v ctx7 &>/dev/null; then
     log_success "ctx7 installed successfully"
     log_info "Use as MCP server: ctx7 --help"
@@ -44,6 +48,9 @@ update_ctx7() {
 
   log_info "Updating ctx7..."
   npm update -g ctx7 2>/dev/null
+  local _t
+  _t=$(readlink -f "$PREFIX/bin/ctx7" 2>/dev/null)
+  [ -f "$_t" ] && sed -i '1s|^#!/usr/bin/env node|#!/data/data/com.termux/files/usr/bin/env node|' "$_t"
   return $?
 }
 
