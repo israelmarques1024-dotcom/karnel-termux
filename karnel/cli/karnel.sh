@@ -59,6 +59,7 @@ karnel_help() {
   echo
   printf "    ${D_CYAN}%-12s${NC} %s\n" "--version" "Show current version"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "brain" "Second brain — save and search memories"
+  printf "    ${D_CYAN}%-12s${NC} %s\n" "cleanup" "Clean caches, logs, and temp files"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "env" "Manage environment variables"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "install" "Install modules and packages"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "show" "Show tool documentation"
@@ -202,6 +203,7 @@ _tui_main_menu() {
       "voice" "Speech-to-Agent" \
       "ia" "AI Agent Manager" \
       "doctor" "Run Diagnostics" \
+      "cleanup" "Clean caches and temp files" \
       "update" "Update Karnel" \
       "help" "Show Help Documentation" \
       "exit" "Exit")
@@ -234,6 +236,12 @@ _tui_main_menu() {
       doctor)
         clear
         karnel_main "doctor"
+        echo
+        read -p "Press Enter to return to menu..." temp
+        ;;
+      cleanup)
+        clear
+        karnel_main "cleanup"
         echo
         read -p "Press Enter to return to menu..." temp
         ;;

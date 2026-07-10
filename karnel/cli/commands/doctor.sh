@@ -208,7 +208,7 @@ doctor_main() {
 
       # Check for npm cache bloat
       local npm_cache_size
-      npm_cache_size=$(du -sh "$(npm config get cache 2>/dev/null)" 2>/dev/null | awk '{print $1}')
+      npm_cache_size=$(timeout 15 du -sh "$(npm config get cache 2>/dev/null)" 2>/dev/null | awk '{print $1}')
       if [[ -n "$npm_cache_size" ]]; then
         log_info "NPM cache size: $npm_cache_size"
       fi
@@ -529,9 +529,7 @@ doctor_main() {
 
   # Check for broken symlinks in PREFIX/bin
   local broken_symlinks=0
-  for f in "$PREFIX/bin/"*; do
-    [[ -L "$f" ]] && [[ ! -e "$f" ]] && ((broken_symlinks++))
-  done
+  broken_symlinks=$(timeout 10 find "$PREFIX/bin" -type l ! -exec test -e {} \; -print 2>/dev/null | wc -l)
   if (( broken_symlinks > 0 )); then
     log_warn "$broken_symlinks broken symlink(s) in $PREFIX/bin"
     ((warnings++))
