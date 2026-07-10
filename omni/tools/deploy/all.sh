@@ -2,6 +2,8 @@
 
 import "@/utils/log"
 
+LOG_FILE="$OMNI_CACHE/install_deploy.log"
+
 DEPLOY_TOOLS=("vercel" "railway" "netlify")
 
 for _tool in "${DEPLOY_TOOLS[@]}"; do
@@ -12,6 +14,7 @@ unset _tool
 _batch_deploy() {
   local action="$1"
   local action_past="$2"
+  local count_var="${3:-DEPLOY_COUNT}"
   local count=0
   local failed=0
   local total=${#DEPLOY_TOOLS[@]}
@@ -30,6 +33,7 @@ _batch_deploy() {
   done
 
   progress_done "$total"
+  eval "$count_var=$count"
   return $failed
 }
 

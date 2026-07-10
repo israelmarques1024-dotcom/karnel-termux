@@ -128,9 +128,13 @@ EOF
 	# Actualizar package.json para usar --webpack
 	if [[ -f "package.json" ]]; then
 		log_info "Updating package.json scripts..."
-		local temp=$(mktemp)
-		jq '.scripts.dev = "next dev --webpack" | .scripts.build = "next build --webpack" | .scripts.start = "next start"' package.json > "$temp" && mv "$temp" package.json
-		log_success "Added --webpack flag to dev and build scripts"
+		if ! command -v jq &>/dev/null; then
+			log_warn "jq not found — skipping package.json update"
+		else
+			local temp=$(mktemp)
+			jq '.scripts.dev = "next dev --webpack" | .scripts.build = "next build --webpack" | .scripts.start = "next start"' package.json > "$temp" && mv "$temp" package.json
+			log_success "Added --webpack flag to dev and build scripts"
+		fi
 	fi
 
 	[[ -f "src/app/layout.tsx" ]] && cat >src/app/layout.tsx <<'EOF'
@@ -524,6 +528,9 @@ EOF
 	# Agregar scripts al package.json
 	if [[ -f "package.json" ]]; then
 		log_info "Adding scripts to package.json..."
+		if ! command -v jq &>/dev/null; then
+			log_warn "jq not found — skipping package.json update"
+		else
 		local temp=$(mktemp)
 		jq '.scripts += {
       "dev": "ts-node-dev --require tsconfig-paths/register --env-file=.env --respawn src/index.ts",
@@ -537,6 +544,7 @@ EOF
       "mg:show": "npm run typeorm -- migration:show -d src/database/data-source.ts"
     }' package.json > "$temp" && mv "$temp" package.json
 		log_success "Added scripts to package.json"
+		fi
 	fi
 }
 

@@ -438,14 +438,21 @@ pg_main() {
 _run_backup_cmd() {
 	local db_name="$1"
 	local file_path="$2"
-	pg_dump -d "$db_name" -F c -b 2>/dev/null | gzip > "$file_path"
-	return ${PIPESTATUS[0]}
+	local _bs_ret=0
+	set -o pipefail
+	pg_dump -d "$db_name" -F c -b 2>/dev/null | gzip > "$file_path" || _bs_ret=$?
+	set +o pipefail
+	return $_bs_ret
 }
 
 _run_restore_cmd() {
 	local db_name="$1"
 	local file_path="$2"
-	gunzip -c "$file_path" | pg_restore -d "$db_name" -c 2>/dev/null || gunzip -c "$file_path" | pg_restore -d "$db_name" 2>/dev/null
+	local _rs_ret=0
+	set -o pipefail
+	gunzip -c "$file_path" | pg_restore -d "$db_name" -c 2>/dev/null || _rs_ret=$?
+	set +o pipefail
+	return $_rs_ret
 }
 
 _pg_cleanup_old_backups() {

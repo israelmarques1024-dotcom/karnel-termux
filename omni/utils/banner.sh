@@ -470,13 +470,15 @@ _omni_banner_unblock_input() {
 
 _omni_banner_block_input
 echo
-_render
+local _banner_output
+_banner_output=$(_render 2>/dev/null) || true
+echo "$_banner_output"
 _omni_banner_unblock_input
 
 # Cache banner for clear() override
 _omni_banner_cache="${XDG_CACHE_HOME:-$HOME/.cache}/omni/banner_cache"
 mkdir -p "$(dirname "$_omni_banner_cache")" 2>/dev/null
-[[ -t 1 ]] && _render > "$_omni_banner_cache" 2>/dev/null
+[[ -t 1 ]] && echo "$_banner_output" > "$_omni_banner_cache" 2>/dev/null
 
 log_tip() { echo " ${TP[3]}●${NC} ${GRAY}Tip${NC} $*"; }
 

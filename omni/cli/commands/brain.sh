@@ -20,7 +20,7 @@ _brain_slug() {
 	local slug
 	slug=$(echo "$title" \
 		| tr '[:upper:]' '[:lower:]' \
-		| sed -E 's/[^a-z0-9]+/-/g' \
+		| sed -E 's/ç/c/g; s/ã|â|á|à/a/g; s/é|ê|è/e/g; s/í|ì/i/g; s/ó|ô|õ|ò/o/g; s/ú|ù/u/g; s/[^a-z0-9]+/-/g' \
 		| sed -E 's/^-+|-+$//g' \
 		| cut -c1-60)
 	echo "$slug"

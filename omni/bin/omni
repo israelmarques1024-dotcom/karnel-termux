@@ -12,7 +12,10 @@ done
 BIN_DIR="$(cd -P "$(dirname "$SOURCE")" >/dev/null 2>&1 && pwd)"
 
 # root del proyecto
-OMNI_PATH="$(cd "$BIN_DIR/.." && pwd)"
+OMNI_PATH="$(cd "$BIN_DIR/.." 2>/dev/null && pwd)" || {
+  echo "Error: Could not determine OMNI_PATH from $BIN_DIR/.." >&2
+  exit 1
+}
 
 # cargar bootstrap
 source "$OMNI_PATH/utils/bootstrap.sh"

@@ -36,7 +36,7 @@ mkdir -p \
 # -------------------------
 # TUI Colors - Ruby & Obsidian
 # -------------------------
-export DIALOGRC="$OMNI_UTILS/dialogrc"
+[[ -f "$OMNI_UTILS/dialogrc" ]] && export DIALOGRC="$OMNI_UTILS/dialogrc"
 export NEWT_COLORS='
 root=,black
 window=,black

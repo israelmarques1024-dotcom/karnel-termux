@@ -5,9 +5,9 @@
   "bin": {
     "omni": "omni/bin/omni"
   },
-  "main": "omni/bin/omni",
   "files": [
     "omni/",
+    "scripts/",
     "install.sh",
     "README.md",
     "LICENSE"

@@ -492,7 +492,7 @@ doctor_main() {
 
   # Check for discontinued tools still referenced in active installers
   local -a removed_tools=()
-  for tool_dir in "$OMNI_PATH/omni/tools/ai/"*/; do
+  for tool_dir in "$OMNI_PATH/tools/ai/"*/; do
     local tool_name
     tool_name=$(basename "${tool_dir%/}")
     if [[ ! -f "$tool_dir/install.sh" && ! -f "$tool_dir/all.sh" ]]; then

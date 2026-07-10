@@ -5,19 +5,19 @@ import "@/utils/colors"
 # ===== LOG FUNCTIONS =====
 
 log_info() {
-	echo -e "    ${CYAN}➜${D_CYAN} $*"${D_NC}
+	echo -e "    ${CYAN}➜${D_CYAN} $*${D_NC}"
 }
 
 log_success() {
-	echo -e "    ${GREEN}✔${D_GREEN} $*"${D_NC}
+	echo -e "    ${GREEN}✔${D_GREEN} $*${D_NC}"
 }
 
 log_warn() {
-	echo -e "    ${YELLOW}⚠${D_YELLOW} $*"${D_NC}
+	echo -e "    ${YELLOW}⚠${D_YELLOW} $*${D_NC}"
 }
 
 log_error() {
-	echo -e "    ${RED}✖${D_RED} $*"${D_NC} >&2
+	echo -e "    ${RED}✖${D_RED} $*${D_NC}" >&2
 }
 
 log_debug() {
