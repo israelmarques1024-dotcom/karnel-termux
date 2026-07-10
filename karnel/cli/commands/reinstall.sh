@@ -189,7 +189,7 @@ _reinstall_specific_tools() {
         reinstall_cline
         case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
-      karnel-route)
+      omni-route)
         reinstall_karnel_route
         case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;

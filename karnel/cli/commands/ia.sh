@@ -23,7 +23,7 @@ ia_help() {
 	echo
 	printf "    ${D_CYAN}karnel ia sessions${NC}         # Show all AI sessions\n"
 	printf "    ${D_CYAN}karnel ia sessions --all${NC}   # Include agent names\n"
-	printf "    ${D_CYAN}karnel ia install karnel-route${NC}  # Install karnelRoute\n"
+	printf "    ${D_CYAN}karnel ia install omni-route${NC}  # Install omniRoute\n"
 	printf "    ${D_CYAN}karnel ia routes${NC}             # Show AI CLI routes\n"
 	printf "    ${D_CYAN}karnel list ai${NC}               # List installed AI tools\n"
 	echo
@@ -421,7 +421,7 @@ ia_routes() {
 	local -a routes=()
 
 	# Collect all available AI CLIs (em sincronia com AI_TOOLS_REGISTRY em tools/ai/all.sh)
-	for cmd in qwen gemini claude vibe openclaude openclaw ollama codex opencode mimo engram codegraph pi agy mmx gentle-ai gga hermes kimi command-code freebuff kilocode kiro cline crush odysseus kimchi karnel-route ctx7 openspec; do
+	for cmd in qwen gemini claude vibe openclaude openclaw ollama codex opencode mimo engram codegraph pi agy mmx gentle-ai gga hermes kimi command-code freebuff kilocode kiro cline crush odysseus kimchi omni-route ctx7 openspec; do
 		if command -v "$cmd" &>/dev/null; then
 			local path
 			path=$(command -v "$cmd")

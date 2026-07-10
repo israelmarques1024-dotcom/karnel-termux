@@ -55,7 +55,7 @@ AI_TOOLS_REGISTRY=(
   "cline:Cline CLI:cline"
   "odysseus:Odysseus:odysseus"
   "kimchi-code:Kimchi CLI:kimchi"
-  "karnel-route:karnelRoute:karnel-route"
+  "omni-route:omniRoute:omni-route"
   "ctx7:Context7 Documentation Provider:ctx7"
   "openspec:OpenSpec SDD Framework:openspec"
 )

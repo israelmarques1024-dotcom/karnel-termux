@@ -487,7 +487,7 @@ _tui_install_checklist() {
         "kiro" "Kiro CLI" OFF
         "cline" "Cline CLI" OFF
         "kimchi-code" "Kimchi CLI" OFF
-        "karnel-route" "karnelRoute" OFF
+        "omni-route" "omniRoute" OFF
         "ctx7" "Context7 Docs" OFF
         "openspec" "OpenSpec SDD" OFF
       )

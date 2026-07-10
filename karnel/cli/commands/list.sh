@@ -163,7 +163,7 @@ _list_ai() {
   table_row "Cline CLI" "--cline" "cline" "$(_check_cmd "cline")"
   table_row "Odysseus" "--odysseus" "odysseus" "$(_check_cmd "odysseus")"
   table_row "Kimchi CLI" "--kimchi-code" "kimchi" "$(_check_cmd "kimchi")"
-  table_row "karnelRoute" "--karnel-route" "karnel-route" "$(_check_cmd "karnel-route")"
+  table_row "omniRoute" "--omni-route" "omni-route" "$(_check_cmd "omni-route")"
   table_row "Context7 Docs" "--ctx7" "ctx7" "$(_check_cmd "ctx7")"
   table_row "OpenSpec SDD" "--openspec" "openspec" "$(_check_cmd "openspec")"
   table_end

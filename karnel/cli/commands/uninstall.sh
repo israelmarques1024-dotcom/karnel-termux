@@ -195,7 +195,7 @@ _uninstall_specific_tools() {
         uninstall_cline
         case $? in 0|2) ((uninstalled_count++));; 1) ((failed_count++));; esac
         ;;
-      karnel-route)
+      omni-route)
         uninstall_karnel_route
         case $? in 0|2) ((uninstalled_count++));; 1) ((failed_count++));; esac
         ;;

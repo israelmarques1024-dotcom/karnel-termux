@@ -56,10 +56,10 @@ status_main() {
     fi
   fi
 
-  # karnel-route web
-  if pgrep -f "karnel-route-web" &>/dev/null; then
-    log_success "karnel-route: RUNNING"
-    services+=("karnel-route")
+  # omni-route web
+  if pgrep -f "omni-route-web" &>/dev/null; then
+    log_success "omni-route: RUNNING"
+    services+=("omni-route")
   fi
 
   # Internet

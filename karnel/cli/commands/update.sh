@@ -197,7 +197,7 @@ _update_specific_tools() {
         update_cline
         case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
-      karnel-route)
+      omni-route)
         update_karnel_route
         case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
