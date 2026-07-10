@@ -69,7 +69,11 @@ karnel_help() {
   printf "    ${D_CYAN}%-12s${NC} %s\n" "open" "Open documentation in browser"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "list" "List available tools in modules"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "pg" "PostgreSQL database manager"
+  printf "    ${D_CYAN}%-12s${NC} %s\n" "status" "Quick system overview"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "doctor" "Diagnose and fix environment"
+  printf "    ${D_CYAN}%-12s${NC} %s\n" "doctor --quick" "Quick diagnostics (skip slow checks)"
+  printf "    ${D_CYAN}%-12s${NC} %s\n" "cleanup" "Clean caches, logs, and temp files"
+  printf "    ${D_CYAN}%-12s${NC} %s\n" "upgrade" "Upgrade Karnel framework"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "init" "Configure existing projects"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "start" "Start services (editor, etc.)"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "voice" "Speech-to-agent via microphone"
@@ -204,6 +208,8 @@ _tui_main_menu() {
       "ia" "AI Agent Manager" \
       "doctor" "Run Diagnostics" \
       "cleanup" "Clean caches and temp files" \
+      "status" "Quick System Overview" \
+      "upgrade" "Upgrade Karnel Framework" \
       "update" "Update Karnel" \
       "help" "Show Help Documentation" \
       "exit" "Exit")
@@ -242,6 +248,18 @@ _tui_main_menu() {
       cleanup)
         clear
         karnel_main "cleanup"
+        echo
+        read -p "Press Enter to return to menu..." temp
+        ;;
+      status)
+        clear
+        karnel_main "status"
+        echo
+        read -p "Press Enter to return to menu..." temp
+        ;;
+      upgrade)
+        clear
+        karnel_main "upgrade"
         echo
         read -p "Press Enter to return to menu..." temp
         ;;

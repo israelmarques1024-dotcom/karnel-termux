@@ -4,9 +4,17 @@ import "@/utils/log"
 import "@/utils/colors"
 
 doctor_main() {
+  local QUICK_MODE=false
+  for arg in "$@"; do
+    [[ "$arg" == "--quick" || "$arg" == "-q" ]] && QUICK_MODE=true
+  done
+
   echo
   box "◈ KARNEL DOCTOR ◈"
   echo
+  if $QUICK_MODE; then
+    log_info "Quick mode — skipping slow checks"
+  fi
   log_info "Diagnosing your Termux and Karnel environment..."
   echo
 
@@ -175,6 +183,12 @@ doctor_main() {
       log_success "APT sources configured ($source_lines entries)"
     fi
   fi
+
+  if $QUICK_MODE; then
+    echo
+    log_info "Quick mode: skipping Node.js, Python, PostgreSQL, AI tools, binary health, I/O, and network checks"
+    echo
+  else
 
   # ===== 6. NODE.JS / NPM =====
   echo
@@ -451,6 +465,7 @@ doctor_main() {
       fix_callbacks+=("_fix_banner")
     fi
   fi
+  fi  # end QUICK_MODE skip
 
   # ===== 10. AI TOOLS STATUS =====
   echo

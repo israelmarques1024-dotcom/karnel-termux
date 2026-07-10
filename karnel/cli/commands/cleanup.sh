@@ -61,10 +61,6 @@ cleanup_main() {
   rm -f "$KARNEL_CACHE/.last_tip_index" 2>/dev/null
 
   echo
-  if (( total_freed > 0 )); then
-    log_success "Cleanup completed! Freed space from $total_freed area(s)."
-  else
-    log_info "Cleanup completed. Everything is already clean."
-  fi
+  log_success "Cleanup completed!"
   echo
 }
