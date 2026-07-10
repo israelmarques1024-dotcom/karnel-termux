@@ -18,8 +18,13 @@ install_voice() {
   loading "Installing Termux:API" _install_voice_deps
   log_success "Voice dependencies installed"
 
-  _install_voice_shell
-  log_success "Voice support installed successfully"
+  local rc=0
+  _install_voice_shell || rc=$?
+  if [ "$rc" -eq 0 ]; then
+    log_success "Voice support installed successfully"
+  else
+    log_warn "$rc voice component(s) failed to install"
+  fi
   separator
   echo
   list_item "Termux:API (speech-to-text, clipboard)"
@@ -36,6 +41,7 @@ _install_voice_deps() {
 _install_voice_shell() {
   import "@/tools/voice/all"
   install_all_voice_components
+  return $?
 }
 
 uninstall_voice() {
@@ -46,13 +52,19 @@ uninstall_voice() {
 
   log_info "Removing voice components..."
 
-  _uninstall_voice_wrapper
-  log_success "Voice support uninstalled"
+  local rc=0
+  _uninstall_voice_wrapper || rc=$?
+  if [ "$rc" -eq 0 ]; then
+    log_success "Voice support uninstalled"
+  else
+    log_warn "$rc voice component(s) failed to uninstall"
+  fi
 }
 
 _uninstall_voice_wrapper() {
   import "@/tools/voice/all"
   uninstall_all_voice_components
+  return $?
 }
 
 update_voice() {
@@ -62,13 +74,19 @@ update_voice() {
   echo
 
   log_info "Updating voice configuration..."
-  _update_voice_wrapper
-  log_success "Voice support updated"
+  local rc=0
+  _update_voice_wrapper || rc=$?
+  if [ "$rc" -eq 0 ]; then
+    log_success "Voice support updated"
+  else
+    log_warn "$rc voice component(s) failed to update"
+  fi
 }
 
 _update_voice_wrapper() {
   import "@/tools/voice/all"
   update_all_voice_components
+  return $?
 }
 
 reinstall_voice() {
@@ -79,8 +97,13 @@ reinstall_voice() {
 
   log_info "Reinstalling voice dependencies..."
 
-  _reinstall_voice_wrapper
-  log_success "Voice support reinstalled successfully"
+  local rc=0
+  _reinstall_voice_wrapper || rc=$?
+  if [ "$rc" -eq 0 ]; then
+    log_success "Voice support reinstalled successfully"
+  else
+    log_warn "$rc voice component(s) failed to reinstall"
+  fi
   separator
   echo
   list_item "Termux:API (speech-to-text, clipboard)"
@@ -91,4 +114,5 @@ reinstall_voice() {
 _reinstall_voice_wrapper() {
   import "@/tools/voice/all"
   reinstall_all_voice_components
+  return $?
 }

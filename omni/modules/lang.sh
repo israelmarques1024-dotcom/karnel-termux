@@ -15,8 +15,13 @@ install_lang() {
 
 	mkdir -p "$(dirname "$LOG_FILE")"
 
-	_install_lang_wrapper
-	log_success "Language packages installed successfully"
+	local rc=0
+	_install_lang_wrapper || rc=$?
+	if [ "$rc" -eq 0 ]; then
+		log_success "Language packages installed successfully"
+	else
+		log_warn "$rc language package(s) failed to install"
+	fi
 	separator
 	echo
 	list_item "Node.js LTS"
@@ -32,6 +37,7 @@ install_lang() {
 _install_lang_wrapper() {
 	import "@/tools/lang/all"
 	install_all_lang_packages
+	return $?
 }
 
 uninstall_lang() {
@@ -46,13 +52,19 @@ uninstall_lang() {
 
 	log_info "Uninstalling language packages..."
 
-	_uninstall_lang_wrapper
-	log_success "Language packages uninstalled"
+	local rc=0
+	_uninstall_lang_wrapper || rc=$?
+	if [ "$rc" -eq 0 ]; then
+		log_success "Language packages uninstalled"
+	else
+		log_warn "$rc language package(s) failed to uninstall"
+	fi
 }
 
 _uninstall_lang_wrapper() {
 	import "@/tools/lang/all"
 	uninstall_all_lang_packages
+	return $?
 }
 
 update_lang() {
@@ -63,13 +75,19 @@ update_lang() {
 
 	log_info "Updating language packages..."
 
-	_update_lang_wrapper
-	log_success "Language packages updated"
+	local rc=0
+	_update_lang_wrapper || rc=$?
+	if [ "$rc" -eq 0 ]; then
+		log_success "Language packages updated"
+	else
+		log_warn "$rc language package(s) failed to update"
+	fi
 }
 
 _update_lang_wrapper() {
   import "@/tools/lang/all"
   update_all_lang_packages
+  return $?
 }
 
 reinstall_lang() {
@@ -80,8 +98,13 @@ reinstall_lang() {
 
   log_info "Reinstalling language packages..."
 
-  _reinstall_lang_wrapper
-  log_success "Language packages reinstalled successfully"
+  local rc=0
+  _reinstall_lang_wrapper || rc=$?
+  if [ "$rc" -eq 0 ]; then
+		log_success "Language packages reinstalled successfully"
+  else
+		log_warn "$rc language package(s) failed to reinstall"
+  fi
   separator
   echo
   list_item "Node.js LTS"
@@ -97,4 +120,5 @@ reinstall_lang() {
 _reinstall_lang_wrapper() {
   import "@/tools/lang/all"
   reinstall_all_lang_packages
+  return $?
 }

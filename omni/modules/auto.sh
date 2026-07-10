@@ -15,8 +15,13 @@ install_auto() {
 	echo
 	mkdir -p "$(dirname "$LOG_FILE")"
 
-	_install_auto_wrapper
-	log_success "Automation Tools installed successfully"
+	local rc=0
+	_install_auto_wrapper || rc=$?
+	if [ "$rc" -eq 0 ]; then
+		log_success "Automation Tools installed successfully"
+	else
+		log_warn "$rc automation tool(s) failed to install"
+	fi
 	separator
 	echo
 	list_item "n8n"
@@ -26,6 +31,7 @@ install_auto() {
 _install_auto_wrapper() {
 	import "@/tools/auto/all"
 	install_all_auto_tools
+	return $?
 }
 
 uninstall_auto() {
@@ -40,13 +46,19 @@ uninstall_auto() {
 
 	log_info "Uninstalling Automation Tools..."
 
-	_uninstall_auto_wrapper
-	log_success "Automation Tools uninstalled"
+	local rc=0
+	_uninstall_auto_wrapper || rc=$?
+	if [ "$rc" -eq 0 ]; then
+		log_success "Automation Tools uninstalled"
+	else
+		log_warn "$rc automation tool(s) failed to uninstall"
+	fi
 }
 
 _uninstall_auto_wrapper() {
 	import "@/tools/auto/all"
 	uninstall_all_auto_tools
+	return $?
 }
 
 update_auto() {
@@ -57,13 +69,19 @@ update_auto() {
 
 	log_info "Updating Automation Tools..."
 
-	_update_auto_wrapper
-	log_success "Automation Tools updated"
+	local rc=0
+	_update_auto_wrapper || rc=$?
+	if [ "$rc" -eq 0 ]; then
+		log_success "Automation Tools updated"
+	else
+		log_warn "$rc automation tool(s) failed to update"
+	fi
 }
 
 _update_auto_wrapper() {
   import "@/tools/auto/all"
   update_all_auto_tools
+  return $?
 }
 
 reinstall_auto() {
@@ -76,8 +94,13 @@ reinstall_auto() {
   echo
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  _reinstall_auto_wrapper
-  log_success "Automation Tools reinstalled successfully"
+  local rc=0
+  _reinstall_auto_wrapper || rc=$?
+  if [ "$rc" -eq 0 ]; then
+		log_success "Automation Tools reinstalled successfully"
+  else
+		log_warn "$rc automation tool(s) failed to reinstall"
+  fi
   separator
   echo
   list_item "n8n"
@@ -87,4 +110,5 @@ reinstall_auto() {
 _reinstall_auto_wrapper() {
   import "@/tools/auto/all"
   reinstall_all_auto_tools
+  return $?
 }

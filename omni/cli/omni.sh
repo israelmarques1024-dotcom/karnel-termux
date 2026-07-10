@@ -25,6 +25,16 @@ omni_main() {
     return
   fi
 
+  # reject any command name that is not a plain identifier (path-traversal guard)
+  if [[ "$cmd" != */* && "$cmd" != *".."* && "$cmd" != .* && "$cmd" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+    :
+  else
+    log_error "Command not found: $cmd"
+    echo
+    omni_help
+    exit 1
+  fi
+
   local command_file="$OMNI_PATH/cli/commands/$cmd.sh"
 
   # verificar si existe el comando

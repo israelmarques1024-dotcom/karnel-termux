@@ -15,8 +15,13 @@ install_dev() {
 
 	mkdir -p "$(dirname "$LOG_FILE")"
 
-	_install_dev_wrapper
-	log_success "Tools installed successfully"
+	local rc=0
+	_install_dev_wrapper || rc=$?
+	if [ "$rc" -eq 0 ]; then
+		log_success "Tools installed successfully"
+	else
+		log_warn "$rc tool(s) failed to install"
+	fi
 	separator
 	echo
 	list_item "GitHub CLI"
@@ -44,6 +49,7 @@ install_dev() {
 _install_dev_wrapper() {
 	import "@/tools/dev/all"
 	install_all_dev
+	return $?
 }
 
 uninstall_dev() {
@@ -58,13 +64,19 @@ uninstall_dev() {
 
 	log_info "Uninstalling development tools..."
 
-	_uninstall_dev_wrapper
-	log_success "Tools uninstalled"
+	local rc=0
+	_uninstall_dev_wrapper || rc=$?
+	if [ "$rc" -eq 0 ]; then
+		log_success "Tools uninstalled"
+	else
+		log_warn "$rc tool(s) failed to uninstall"
+	fi
 }
 
 _uninstall_dev_wrapper() {
 	import "@/tools/dev/all"
 	uninstall_all_dev
+	return $?
 }
 
 update_dev() {
@@ -75,13 +87,19 @@ update_dev() {
 
 	log_info "Updating development tools..."
 
-	_update_dev_wrapper
-	log_success "Tools updated"
+	local rc=0
+	_update_dev_wrapper || rc=$?
+	if [ "$rc" -eq 0 ]; then
+		log_success "Tools updated"
+	else
+		log_warn "$rc tool(s) failed to update"
+	fi
 }
 
 _update_dev_wrapper() {
   import "@/tools/dev/all"
   update_all_dev
+  return $?
 }
 
 reinstall_dev() {
@@ -92,8 +110,13 @@ reinstall_dev() {
 
   log_info "Reinstalling development tools..."
 
-  _reinstall_dev_wrapper
-  log_success "Tools reinstalled successfully"
+  local rc=0
+  _reinstall_dev_wrapper || rc=$?
+  if [ "$rc" -eq 0 ]; then
+		log_success "Tools reinstalled successfully"
+  else
+		log_warn "$rc tool(s) failed to reinstall"
+  fi
   separator
   echo
   list_item "GitHub CLI"
@@ -121,4 +144,5 @@ reinstall_dev() {
 _reinstall_dev_wrapper() {
   import "@/tools/dev/all"
   reinstall_all_dev
+  return $?
 }

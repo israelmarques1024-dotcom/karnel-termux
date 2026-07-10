@@ -46,7 +46,8 @@ _cline_install_global_impl() {
   # Step 2: Download linux-arm64 binary (glibc binary, roda via glibc-runner)
   local version
   version=$(npm view cline version 2>/dev/null || echo "3.0.38")
-  local tarball="/tmp/cline-linux-arm64.tgz"
+  local tarball
+  tarball=$(mktemp "$OMNI_DATA/cline-XXXXXX.tgz")
   if ! curl -fsSL \
     "https://registry.npmjs.org/@cline/cli-linux-arm64/-/cli-linux-arm64-${version}.tgz" \
     -o "$tarball" &>>"$LOG_FILE"; then

@@ -15,8 +15,13 @@ install_editor() {
 
 	mkdir -p "$(dirname "$LOG_FILE")"
 
-	_install_editor_wrapper
-	log_success "Code editor installed successfully"
+	local rc=0
+	_install_editor_wrapper || rc=$?
+	if [ "$rc" -eq 0 ]; then
+		log_success "Code editor installed successfully"
+	else
+		log_warn "$rc editor component(s) failed to install"
+	fi
 	separator
 	echo
 	list_item "code-server (VS Code in browser)"
@@ -37,8 +42,13 @@ uninstall_editor() {
 
 	log_info "Uninstalling code-server..."
 
-	_uninstall_editor_wrapper
-	log_success "Code editor uninstalled"
+	local rc=0
+	_uninstall_editor_wrapper || rc=$?
+	if [ "$rc" -eq 0 ]; then
+		log_success "Code editor uninstalled"
+	else
+		log_warn "$rc editor component(s) failed to uninstall"
+	fi
 }
 
 update_editor() {
@@ -49,8 +59,13 @@ update_editor() {
 
 	log_info "Updating code-server..."
 
-	_update_editor_wrapper
-	log_success "Code editor updated"
+	local rc=0
+	_update_editor_wrapper || rc=$?
+	if [ "$rc" -eq 0 ]; then
+		log_success "Code editor updated"
+	else
+		log_warn "$rc editor component(s) failed to update"
+	fi
 }
 
 reinstall_editor() {
@@ -61,8 +76,13 @@ reinstall_editor() {
 
   log_info "Reinstalling code-server..."
 
-  _reinstall_editor_wrapper
-  log_success "Code editor reinstalled successfully"
+  local rc=0
+  _reinstall_editor_wrapper || rc=$?
+  if [ "$rc" -eq 0 ]; then
+		log_success "Code editor reinstalled successfully"
+  else
+		log_warn "$rc editor component(s) failed to reinstall"
+  fi
   separator
   echo
   list_item "code-server (VS Code in browser)"
@@ -73,19 +93,23 @@ reinstall_editor() {
 _install_editor_wrapper() {
 	import "@/tools/editor/all"
 	install_all_editor_components
+	return $?
 }
 
 _uninstall_editor_wrapper() {
 	import "@/tools/editor/all"
 	uninstall_all_editor_components
+	return $?
 }
 
 _update_editor_wrapper() {
   import "@/tools/editor/all"
   update_all_editor_components
+  return $?
 }
 
 _reinstall_editor_wrapper() {
   import "@/tools/editor/all"
   reinstall_all_editor_components
+  return $?
 }

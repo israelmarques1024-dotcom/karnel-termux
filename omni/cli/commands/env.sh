@@ -83,7 +83,7 @@ env_set() {
 		echo
 	fi
 
-	echo "export $key=$value" >>"$rc_file"
+	printf 'export %s=%q\n' "$key" "$value" >>"$rc_file"
 
 	echo
 	log_success "Variable ${D_CYAN}${key}${D_GREEN} set in ${D_NC}$(basename "$rc_file")"
@@ -182,6 +182,13 @@ env_ls() {
 		line="${line#export }"
 		local k="${line%%=*}"
 		local v="${line#*=}"
+		local k_upper
+		k_upper=$(printf '%s' "$k" | tr '[:lower:]' '[:upper:]')
+		if [[ "$k_upper" == *SECRET* || "$k_upper" == *TOKEN* || "$k_upper" == *PASSWORD* || "$k_upper" == *API* || "$k_upper" == *KEY* || "$k_upper" == *CREDENTIAL* ]]; then
+			if [[ -n "$v" ]]; then
+				v="${v:0:2}${D_DIM}•••••••${NC}"
+			fi
+		fi
 		printf "    ${D_GREEN}%-28s${NC} ${GRAY}=${NC} ${D_DIM}%s${NC}\n" "$k" "$v"
 		((count++))
 	done < <(grep "^export " "$rc_file" 2>/dev/null || true)

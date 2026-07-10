@@ -148,7 +148,8 @@ install_shell() {
 	install_oh_my_zsh
 	echo
 
-	_install_shell_plugins_wrapper
+	local rc=0
+	_install_shell_plugins_wrapper || rc=$?
 	log_success "ZSH plugins installed"
 	echo
 
@@ -162,7 +163,11 @@ install_shell() {
 	echo
 
 	separator
-	log_success "ZSH shell environment setup completed"
+	if [ "$rc" -eq 0 ]; then
+		log_success "ZSH shell environment setup completed"
+	else
+		log_warn "$rc ZSH plugin(s) failed to install"
+	fi
 	separator
 	echo
 	log_warn "Please restart Termux or run: exec zsh"
@@ -172,6 +177,7 @@ install_shell() {
 _install_shell_plugins_wrapper() {
 	import "@/tools/shell/all"
 	install_all_shell_plugins
+	local plugin_rc=$?
 
 	if [[ -d "$ZSH_PLUGINS_DIR/powerlevel10k" ]]; then
 		add_to_zshrc 'source ~/.zsh-plugins/powerlevel10k/powerlevel10k.zsh-theme'
@@ -207,6 +213,8 @@ _install_shell_plugins_wrapper() {
 	if [[ -d "$ZSH_PLUGINS_DIR/zsh-better-npm-completion" ]]; then
 		add_to_zshrc 'source ~/.zsh-plugins/zsh-better-npm-completion/zsh-better-npm-completion.plugin.zsh'
 	fi
+
+	return $plugin_rc
 }
 
 uninstall_oh_my_zsh() {
@@ -237,12 +245,17 @@ uninstall_shell() {
 
 	mkdir -p "$(dirname "$LOG_FILE")"
 
-	_uninstall_shell_plugins_wrapper
+	local rc=0
+	_uninstall_shell_plugins_wrapper || rc=$?
 	loading "Removing Oh My Zsh" uninstall_oh_my_zsh
 
 	echo
 	separator
-	log_success "ZSH shell environment uninstalled"
+	if [ "$rc" -eq 0 ]; then
+		log_success "ZSH shell environment uninstalled"
+	else
+		log_warn "$rc ZSH plugin(s) failed to uninstall"
+	fi
 	separator
 	echo
 }
@@ -250,6 +263,7 @@ uninstall_shell() {
 _uninstall_shell_plugins_wrapper() {
 	import "@/tools/shell/all"
 	uninstall_all_shell_plugins
+	return $?
 }
 
 update_shell() {
@@ -260,8 +274,13 @@ update_shell() {
 
 	mkdir -p "$(dirname "$LOG_FILE")"
 
-	_update_shell_plugins_wrapper
-	log_success "ZSH shell environment updated"
+	local rc=0
+	_update_shell_plugins_wrapper || rc=$?
+	if [ "$rc" -eq 0 ]; then
+		log_success "ZSH shell environment updated"
+	else
+		log_warn "$rc ZSH plugin(s) failed to update"
+	fi
 
 	setup_shell_env
 	echo
@@ -275,6 +294,7 @@ update_shell() {
 _update_shell_plugins_wrapper() {
   import "@/tools/shell/all"
   update_all_shell_plugins
+  return $?
 }
 
 reinstall_shell() {
@@ -285,7 +305,8 @@ reinstall_shell() {
 
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  _reinstall_shell_plugins_wrapper
+  local rc=0
+  _reinstall_shell_plugins_wrapper || rc=$?
   log_success "ZSH plugins reinstalled"
   echo
 
@@ -299,7 +320,11 @@ reinstall_shell() {
   echo
 
   separator
-  log_success "ZSH shell environment reinstallation completed"
+  if [ "$rc" -eq 0 ]; then
+		log_success "ZSH shell environment reinstallation completed"
+  else
+		log_warn "$rc ZSH plugin(s) failed to reinstall"
+  fi
   separator
   echo
   log_warn "Please restart Termux or run: exec zsh"
@@ -309,4 +334,5 @@ reinstall_shell() {
 _reinstall_shell_plugins_wrapper() {
   import "@/tools/shell/all"
   reinstall_all_shell_plugins
+  return $?
 }

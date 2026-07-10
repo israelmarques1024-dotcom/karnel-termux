@@ -26,16 +26,18 @@ install_code_server() {
   if [[ $rc -eq 0 ]] && command -v code-server &>/dev/null; then
     # Configure code-server with password
     mkdir -p "$HOME/.config/code-server"
+    chmod 700 "$HOME/.config/code-server"
     cat > "$HOME/.config/code-server/config.yaml" << CONF
-bind-addr: 0.0.0.0:8080
+bind-addr: 127.0.0.1:8080
 auth: password
 password: ${CODE_SERVER_PASSWORD}
 cert: false
 CONF
+    chmod 600 "$HOME/.config/code-server/config.yaml"
     log_success "code-server installed successfully"
-    log_info "Password: ${CODE_SERVER_PASSWORD}"
     log_info "Run: code-server"
     log_info "Then open http://localhost:8080 in your browser"
+    log_info "The generated password is stored in ~/.config/code-server/config.yaml (chmod 600)"
     return 0
   else
     log_error "code-server installation failed"

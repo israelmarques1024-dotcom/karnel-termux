@@ -20,9 +20,14 @@ setup_ui() {
 		log_info "Created Termux directory: $TERMUX_DIR"
 	fi
 
-	_setup_ui_wrapper
+	local rc=0
+	_setup_ui_wrapper || rc=$?
 	separator
-	log_success "Termux UI configuration completed"
+	if [ "$rc" -eq 0 ]; then
+		log_success "Termux UI configuration completed"
+	else
+		log_warn "$rc UI component(s) failed to configure"
+	fi
 	separator
 	echo
 	list_item "Cursor: Green (#00FF00)"
@@ -37,6 +42,7 @@ setup_ui() {
 _setup_ui_wrapper() {
 	import "@/tools/ui/all"
 	install_all_ui_components
+	return $?
 }
 
 uninstall_ui() {
@@ -51,10 +57,15 @@ uninstall_ui() {
 
 	mkdir -p "$(dirname "$LOG_FILE")"
 
-	_uninstall_ui_wrapper
+	local rc=0
+	_uninstall_ui_wrapper || rc=$?
 	echo
 	separator
-	log_success "Termux UI configuration uninstalled"
+	if [ "$rc" -eq 0 ]; then
+		log_success "Termux UI configuration uninstalled"
+	else
+		log_warn "$rc UI component(s) failed to uninstall"
+	fi
 	separator
 	echo
 	log_warn "Please restart Termux to apply changes"
@@ -64,6 +75,7 @@ uninstall_ui() {
 _uninstall_ui_wrapper() {
 	import "@/tools/ui/all"
 	uninstall_all_ui_components
+	return $?
 }
 
 update_ui() {
@@ -74,10 +86,15 @@ update_ui() {
 
 	mkdir -p "$(dirname "$LOG_FILE")"
 
-	_update_ui_wrapper
+	local rc=0
+	_update_ui_wrapper || rc=$?
 	echo
 	separator
-	log_success "Termux UI configuration updated"
+	if [ "$rc" -eq 0 ]; then
+		log_success "Termux UI configuration updated"
+	else
+		log_warn "$rc UI component(s) failed to update"
+	fi
 	separator
 	echo
 }
@@ -85,6 +102,7 @@ update_ui() {
 _update_ui_wrapper() {
   import "@/tools/ui/all"
   update_all_ui_components
+  return $?
 }
 
 reinstall_ui() {
@@ -95,9 +113,14 @@ reinstall_ui() {
 
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  _reinstall_ui_wrapper
+  local rc=0
+  _reinstall_ui_wrapper || rc=$?
   separator
-  log_success "Termux UI configuration reinstalled"
+  if [ "$rc" -eq 0 ]; then
+		log_success "Termux UI configuration reinstalled"
+  else
+		log_warn "$rc UI component(s) failed to reinstall"
+  fi
   separator
   echo
   list_item "Cursor: Green (#00FF00)"
@@ -112,4 +135,5 @@ reinstall_ui() {
 _reinstall_ui_wrapper() {
   import "@/tools/ui/all"
   reinstall_all_ui_components
+  return $?
 }

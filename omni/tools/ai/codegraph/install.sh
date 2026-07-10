@@ -39,23 +39,34 @@ _download_codegraph() {
 
 _download_codegraph_impl() {
 	LATEST_VERSION=$(curl -sI https://github.com/colbymchenry/codegraph/releases/latest | grep -i location | sed -E 's#.*/tag/([^[:space:]]+).*#\1#')
+	LATEST_VERSION="${LATEST_VERSION#v}"
 
 	if [ -z "$LATEST_VERSION" ]; then
 		log_error "Failed to fetch latest CodeGraph version"
 		return 1
 	fi
 
-	if ! curl -L https://github.com/colbymchenry/codegraph/releases/download/${LATEST_VERSION}/codegraph-linux-arm64.tar.gz -o $PREFIX/tmp/codegraph-linux-arm64.tar.gz &>>"$LOG_FILE"; then
+	if ! [[ "$LATEST_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+		log_error "Invalid CodeGraph version from release server: $LATEST_VERSION"
+		return 1
+	fi
+
+	local tarball
+	tarball=$(mktemp "$OMNI_DATA/codegraph-XXXXXX.tar.gz")
+
+	if ! curl -L "https://github.com/colbymchenry/codegraph/releases/download/v${LATEST_VERSION}/codegraph-linux-arm64.tar.gz" -o "$tarball" &>>"$LOG_FILE"; then
 		log_error "Failed to download CodeGraph"
+		rm -f "$tarball"
 		return 1
 	fi
 
-	if ! tar -xzf $PREFIX/tmp/codegraph-linux-arm64.tar.gz -C "$OMNI_DATA" &>>"$LOG_FILE"; then
+	if ! tar -xzf "$tarball" -C "$OMNI_DATA" &>>"$LOG_FILE"; then
 		log_error "Failed to extract CodeGraph"
+		rm -f "$tarball"
 		return 1
 	fi
 
-	rm -f $PREFIX/tmp/codegraph-linux-arm64.tar.gz
+	rm -f "$tarball"
 
 	return 0
 }

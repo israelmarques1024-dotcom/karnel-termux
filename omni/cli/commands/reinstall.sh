@@ -131,75 +131,75 @@ _reinstall_specific_tools() {
       case "$tool" in
       qwen-code)
         reinstall_qwen_code
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       gemini-cli)
         reinstall_gemini_cli
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       claude-code)
         reinstall_claude_code
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       mistral-vibe)
         reinstall_mistral_vibe
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       openclaude)
         reinstall_openclaude
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       openclaw)
         reinstall_openclaw
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       ollama)
         reinstall_ollama
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       codex)
         reinstall_codex
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       opencode)
         reinstall_opencode
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       kilocode-cli)
         reinstall_kilocode_cli
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       kiro)
         reinstall_kiro
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       crush)
         reinstall_crush
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       odysseus)
         reinstall_odysseus
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       kimchi-code)
         reinstall_kimchi_code
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       cline)
         reinstall_cline
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       omni-route)
         reinstall_omni_route
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       ctx7)
         reinstall_ctx7
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       openspec)
         reinstall_openspec
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       *)
         log_warn "Unknown AI tool: --$tool"
@@ -225,19 +225,19 @@ _reinstall_specific_tools() {
       case "$tool" in
       postgresql)
         reinstall_postgresql
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       mariadb)
         reinstall_mariadb
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       sqlite)
         reinstall_sqlite
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       mongodb)
         reinstall_mongodb
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       *)
         log_warn "Unknown database: --$tool"
@@ -263,79 +263,79 @@ _reinstall_specific_tools() {
       case "$tool" in
       gh)
         reinstall_gh
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       wget)
         reinstall_wget
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       curl)
         reinstall_curl
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       lsd)
         reinstall_lsd
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       bat)
         reinstall_bat
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       proot)
         reinstall_proot
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       ncurses)
         reinstall_ncurses
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       tmate)
         reinstall_tmate
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       cloudflared)
         reinstall_cloudflared
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       translate)
         reinstall_translate
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       html2text)
         reinstall_html2text
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       jq)
         reinstall_jq
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       bc)
         reinstall_bc
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       tree)
         reinstall_tree
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       fzf)
         reinstall_fzf
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       imagemagick)
         reinstall_imagemagick
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       shfmt)
         reinstall_shfmt
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       make)
         reinstall_make
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       udocker)
         reinstall_udocker
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       *)
         log_warn "Unknown tool: --$tool"
@@ -361,47 +361,47 @@ _reinstall_specific_tools() {
       case "$tool" in
       typescript)
         reinstall_typescript
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       nestjs)
         reinstall_nestjs
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       prettier)
         reinstall_prettier
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       live-server)
         reinstall_live_server
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       localtunnel)
         reinstall_localtunnel
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       vercel)
         reinstall_vercel
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       markserv)
         reinstall_markserv
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       psqlformat)
         reinstall_psqlformat
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       ncu)
         reinstall_ncu
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       ngrok)
         reinstall_ngrok
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       turbopack)
         reinstall_turbopack
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       *)
         log_warn "Unknown node module: --$tool"
@@ -427,31 +427,31 @@ _reinstall_specific_tools() {
       case "$tool" in
       nodejs)
         reinstall_nodejs
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       python)
         reinstall_python
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       perl)
         reinstall_perl
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       php)
         reinstall_php
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       rust)
         reinstall_rust
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       clang)
         reinstall_clang
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       golang)
         reinstall_golang
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       *)
         log_warn "Unknown language: --$tool"
@@ -477,43 +477,43 @@ _reinstall_specific_tools() {
       case "$tool" in
       powerlevel10k)
         reinstall_powerlevel10k
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       zsh-defer)
         reinstall_zsh_defer
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       zsh-autosuggestions)
         reinstall_zsh_autosuggestions
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       zsh-syntax-highlighting)
         reinstall_zsh_syntax_highlighting
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       history-substring)
         reinstall_history_substring
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       zsh-completions)
         reinstall_zsh_completions
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       fzf-tab)
         reinstall_fzf_tab
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       you-should-use)
         reinstall_you_should_use
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       zsh-autopair)
         reinstall_zsh_autopair
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       better-npm)
         reinstall_better_npm
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       *)
         log_warn "Unknown plugin: --$tool"
@@ -539,7 +539,7 @@ _reinstall_specific_tools() {
       case "$tool" in
       code-server)
         reinstall_code_server
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       *)
         log_warn "Unknown editor component: --$tool"
@@ -565,19 +565,19 @@ _reinstall_specific_tools() {
       case "$tool" in
       font)
         reinstall_font
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       extra-keys)
         reinstall_extra_keys
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       cursor)
         reinstall_cursor
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       banner)
         reinstall_banner
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       *)
         log_warn "Unknown UI component: --$tool"
@@ -603,7 +603,7 @@ _reinstall_specific_tools() {
       case "$tool" in
       n8n)
         reinstall_n8n
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       *)
         log_warn "Unknown automation tool: --$tool"
@@ -629,15 +629,15 @@ _reinstall_specific_tools() {
       case "$tool" in
       vercel)
         reinstall_vercel
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       railway)
         reinstall_railway
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       netlify)
         reinstall_netlify
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        case $? in 0|2) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       *)
         log_warn "Unknown deploy tool: --$tool"

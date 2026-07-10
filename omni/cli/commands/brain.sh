@@ -328,6 +328,7 @@ brain_save() {
 	if [[ -z "$category" ]]; then
 		category="general"
 	fi
+	category=$(_brain_slug "$category")
 
 	# ── Tags ──
 	read_input "Tags (comma separated)" tags_input

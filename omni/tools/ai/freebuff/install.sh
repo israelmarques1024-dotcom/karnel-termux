@@ -161,10 +161,11 @@ _install_freebuff_proot_impl() {
     export TMPDIR=/tmp
     export HOME=/root
     LATEST=$(curl -fsSL https://api.github.com/repos/CodebuffAI/codebuff-community/releases/latest | grep '"'"'tag_name'"'"' | sed -E '"'"'s/.*"freebuff-v([^"]+)".*/\1/'"'"')
-    curl -fsSL "https://codebuff.com/api/releases/download/${LATEST}/freebuff-linux-arm64.tar.gz" -o /tmp/freebuff.tar.gz
+    TARBALL=$(mktemp /tmp/freebuff.XXXXXX.tar.gz)
+    curl -fsSL "https://codebuff.com/api/releases/download/${LATEST}/freebuff-linux-arm64.tar.gz" -o "$TARBALL"
     mkdir -p /root/.freebuff
-    tar -zxf /tmp/freebuff.tar.gz -C /root/.freebuff
-    rm -f /tmp/freebuff.tar.gz
+    tar -zxf "$TARBALL" -C /root/.freebuff
+    rm -f "$TARBALL"
     chmod +x /root/.freebuff/freebuff
   ' &>>"$LOG_FILE"
 
@@ -275,10 +276,11 @@ update_freebuff() {
     export TMPDIR=/tmp
     export HOME=/root
     LATEST=$(curl -fsSL https://api.github.com/repos/CodebuffAI/codebuff-community/releases/latest | grep '"'"'tag_name'"'"' | sed -E '"'"'s/.*"freebuff-v([^"]+)".*/\1/'"'"')
-    curl -fsSL "https://codebuff.com/api/releases/download/${LATEST}/freebuff-linux-arm64.tar.gz" -o /tmp/freebuff.tar.gz
+    TARBALL=$(mktemp /tmp/freebuff.XXXXXX.tar.gz)
+    curl -fsSL "https://codebuff.com/api/releases/download/${LATEST}/freebuff-linux-arm64.tar.gz" -o "$TARBALL"
     mkdir -p /root/.freebuff
-    tar -zxf /tmp/freebuff.tar.gz -C /root/.freebuff
-    rm -f /tmp/freebuff.tar.gz
+    tar -zxf "$TARBALL" -C /root/.freebuff
+    rm -f "$TARBALL"
     chmod +x /root/.freebuff/freebuff
   ' &>>"$LOG_FILE"
 

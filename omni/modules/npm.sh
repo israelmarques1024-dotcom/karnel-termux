@@ -15,8 +15,9 @@ install_npm() {
 
 	mkdir -p "$(dirname "$LOG_FILE")"
 
-	_install_npm_wrapper
-	log_success "Node.js global modules installed"
+	local install_rc=0
+	_install_npm_wrapper || install_rc=$?
+
 	echo
 	list_item "TypeScript"
 	list_item "NestJS CLI"
@@ -30,7 +31,11 @@ install_npm() {
 	list_item "Ngrok"
 	echo
 	separator
-	log_success "Node.js modules installation completed"
+	if [ "$install_rc" -eq 0 ]; then
+		log_success "Node.js modules installation completed"
+	else
+		log_warn "$install_rc Node.js module(s) failed to install"
+	fi
 	separator
 	echo
 }
@@ -38,6 +43,7 @@ install_npm() {
 _install_npm_wrapper() {
 	import "@/tools/npm/all"
 	install_all_npm_packages
+	return $?
 }
 
 uninstall_npm() {
@@ -52,11 +58,16 @@ uninstall_npm() {
 
 	log_info "Uninstalling Node.js global modules..."
 
-	_uninstall_npm_wrapper
-	log_success "Node.js global modules uninstalled"
+	local rc=0
+	_uninstall_npm_wrapper || rc=$?
+
 	echo
 	separator
-	log_success "Node.js modules uninstallation completed"
+	if [ "$rc" -eq 0 ]; then
+		log_success "Node.js modules uninstallation completed"
+	else
+		log_warn "$rc Node.js module(s) failed to uninstall"
+	fi
 	separator
 	echo
 }
@@ -64,6 +75,7 @@ uninstall_npm() {
 _uninstall_npm_wrapper() {
 	import "@/tools/npm/all"
 	uninstall_all_npm_packages
+	return $?
 }
 
 update_npm() {
@@ -74,11 +86,16 @@ update_npm() {
 
 	log_info "Updating Node.js global modules..."
 
-	_update_npm_wrapper
-	log_success "Node.js global modules updated"
+	local rc=0
+	_update_npm_wrapper || rc=$?
+
 	echo
 	separator
-	log_success "Node.js modules update completed"
+	if [ "$rc" -eq 0 ]; then
+		log_success "Node.js modules update completed"
+	else
+		log_warn "$rc Node.js module(s) failed to update"
+	fi
 	separator
 	echo
 }
@@ -86,6 +103,7 @@ update_npm() {
 _update_npm_wrapper() {
   import "@/tools/npm/all"
   update_all_npm_packages
+  return $?
 }
 
 reinstall_npm() {
@@ -96,8 +114,9 @@ reinstall_npm() {
 
   log_info "Reinstalling Node.js global modules..."
 
-  _reinstall_npm_wrapper
-  log_success "Node.js global modules reinstalled"
+  local rc=0
+  _reinstall_npm_wrapper || rc=$?
+
   echo
   list_item "TypeScript"
   list_item "NestJS CLI"
@@ -111,7 +130,11 @@ reinstall_npm() {
   list_item "Ngrok"
   echo
   separator
-  log_success "Node.js modules reinstallation completed"
+  if [ "$rc" -eq 0 ]; then
+		log_success "Node.js modules reinstallation completed"
+  else
+		log_warn "$rc Node.js module(s) failed to reinstall"
+  fi
   separator
   echo
 }
@@ -119,4 +142,5 @@ reinstall_npm() {
 _reinstall_npm_wrapper() {
   import "@/tools/npm/all"
   reinstall_all_npm_packages
+  return $?
 }

@@ -9,7 +9,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 
 const isTermux = () => {
   return (
@@ -22,7 +22,7 @@ const isTermux = () => {
 const isAlreadyInstalled = () => {
   try {
     const symlink = process.env.PREFIX + '/bin/omni';
-    const target = execSync('readlink -f "' + symlink + '"', { encoding: 'utf8' }).trim();
+    const target = execFileSync('readlink', ['-f', symlink], { encoding: 'utf8' }).trim();
     const ourTarget = path.resolve(__dirname, '..', 'omni/bin/omni');
     return target === ourTarget;
   } catch {
