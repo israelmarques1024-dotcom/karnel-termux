@@ -11,7 +11,7 @@ Anthropic's CLI tool with Claude AI
 
 ## Description
 
-Claude Code is Anthropic's AI-powered coding assistant that runs directly in your terminal. It leverages Claude's advanced language models to help with code generation, debugging, refactoring, and answering technical questions. Karnel Catalyst provides two installation methods: native with glibc support for best performance, or via proot-distro Ubuntu container.
+Claude Code is Anthropic's AI-powered coding assistant that runs directly in your terminal. It leverages Claude's advanced language models to help with code generation, debugging, refactoring, and answering technical questions. Karnel Termux provides two installation methods: native with glibc support for best performance, or via proot-distro Ubuntu container.
 
 ## Dependencies
 

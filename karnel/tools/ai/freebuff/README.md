@@ -12,7 +12,7 @@ A 100% free coding agent, right from your terminal
 
 ## Description
 
-Freebuff is the free coding agent: a free CLI coding agent and Freebuff Web, the free way to build full-stack apps. No subscription, no setup, no lock-in. Karnel Catalyst offers two installation methods: native with glibc support for best performance, or via proot-distro Ubuntu container for maximum compatibility.
+Freebuff is the free coding agent: a free CLI coding agent and Freebuff Web, the free way to build full-stack apps. No subscription, no setup, no lock-in. Karnel Termux offers two installation methods: native with glibc support for best performance, or via proot-distro Ubuntu container for maximum compatibility.
 
 ## Dependencies
 

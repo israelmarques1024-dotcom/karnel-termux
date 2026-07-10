@@ -168,7 +168,7 @@ KARNEL_W=8
 KARNEL_COLORS=("${TP[1]}" "${TP[5]}" "${TP[9]}" "${TP[13]}")
 
 # ================================================================
-# CATALYST letters design (5 wide x 5 tall)
+# TERMUX letters design (5 wide x 5 tall)
 # ================================================================
 C_A=(
 "╭──╮"
@@ -214,7 +214,7 @@ C_C=(
 "╰──╯"
 )
 
-# Map CATALYST letters
+# Map TERMUX letters
 CAT_MAP=(C_C C_A C_T C_A C_L C_Y C_S C_T)
 CAT_W=5
 CAT_H=5
@@ -240,7 +240,7 @@ for row in "${DECOR_L[@]}"; do
 done
 
 # ================================================================
-# CATALYST side circuit decorations
+# TERMUX side circuit decorations
 # ================================================================
 CAT_DECOR_L=(
 "╭─╮ "
@@ -330,7 +330,7 @@ _render() {
     echo "${pad_l}${TP[0]}│${NC}$(_center "$content" "$W")${TP[15]}│${NC}${pad_r}"
   done
 
-  # ---- CATALYST (5 rows) ----
+  # ---- TERMUX (5 rows) ----
   local total_cat_w=$(( CAT_W * 8 + 7 ))
   for (( cat_row = 0; cat_row < CAT_H; cat_row++ )); do
     local cat_line=""

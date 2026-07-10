@@ -11,7 +11,7 @@ Advanced open-source relational database
 
 ## Description
 
-PostgreSQL is a powerful, open-source object-relational database system with over 30 years of active development. It has a strong reputation for reliability, feature robustness, and performance. Karnel Catalyst includes a dedicated manager (`karnel pg`) for starting, stopping, and managing PostgreSQL instances.
+PostgreSQL is a powerful, open-source object-relational database system with over 30 years of active development. It has a strong reputation for reliability, feature robustness, and performance. Karnel Termux includes a dedicated manager (`karnel pg`) for starting, stopping, and managing PostgreSQL instances.
 
 ## Dependencies
 

@@ -38,5 +38,5 @@ karnel update dev --ncurses
 ## Notes
 
 - Commands: `tput`, `clear`, `reset`, `toe`
-- Used by Karnel Catalyst for UI components and progress bars
+- Used by Karnel Termux for UI components and progress bars
 

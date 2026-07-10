@@ -2,7 +2,7 @@
 
 Additional keyboard rows for Termux with navigation keys
 
-**Package:** karnel-catalyst (extra-keys config)  
+**Package:** karnel-termux (extra-keys config)  
 **Author:** israel676767  
 **Repository:** https://github.com/israel676767/karnel  
 **Type:** Termux UI customization  

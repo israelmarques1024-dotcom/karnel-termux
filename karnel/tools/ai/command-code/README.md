@@ -15,7 +15,7 @@ The first frontier coding agent that both builds software and continuously learn
 
 ## Why Local Install?
 
-On Termux, the global `npm install -g command-code` creates a binary named `cmd` which conflicts with the existing Termux `cmd` binary. Karnel Catalyst solves this by:
+On Termux, the global `npm install -g command-code` creates a binary named `cmd` which conflicts with the existing Termux `cmd` binary. Karnel Termux solves this by:
 
 1. Installing `command-code` locally in `~/.local/share/karnel-data/command-code/`
 2. Creating a wrapper script at `$PREFIX/bin/command-code`

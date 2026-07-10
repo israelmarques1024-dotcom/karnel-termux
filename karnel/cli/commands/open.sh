@@ -3,7 +3,7 @@
 import "@/utils/log"
 import "@/utils/colors"
 
-OPEN_BASE_URL="https://karnel-catalyst.vercel.app"
+OPEN_BASE_URL="https://kerneltermux.vercel.app"
 
 open_main() {
 	if [[ $# -eq 0 ]]; then

@@ -11,7 +11,7 @@ Open-source agent that helps you write code in your terminal
 
 ## Description
 
-OpenCode is an AI-powered coding agent developed by anomalyco that operates directly in your terminal. It provides intelligent code completion, refactoring suggestions, and natural language code generation. Karnel Catalyst offers two installation methods: native with glibc support for best performance, or via proot-distro Ubuntu container for maximum compatibility.
+OpenCode is an AI-powered coding agent developed by anomalyco that operates directly in your terminal. It provides intelligent code completion, refactoring suggestions, and natural language code generation. Karnel Termux offers two installation methods: native with glibc support for best performance, or via proot-distro Ubuntu container for maximum compatibility.
 
 ## Dependencies
 

@@ -2,7 +2,7 @@
 
 Patched font with Nerd Font icons for Termux
 
-**Package:** karnel-catalyst-assets (font)  
+**Package:** karnel-termux-assets (font)  
 **Author:** israel676767  
 **Repository:** https://github.com/israel676767/karnel  
 **Official:** https://github.com/ryanoasis/nerd-fonts  
@@ -39,5 +39,5 @@ karnel update ui --font
 
 - Installed to `~/.termux/font.ttf`
 - Restart Termux after installation to apply
-- Bundled with Karnel Catalyst assets
+- Bundled with Karnel Termux assets
 

@@ -38,7 +38,7 @@ karnel update dev --jq
 ## Notes
 
 - Command: `jq`
-- Used extensively by Karnel Catalyst for JSON parsing
+- Used extensively by Karnel Termux for JSON parsing
 - Supports complex queries and transformations
 - Customizable output formatting
 

@@ -2,7 +2,7 @@
 
 Customize Termux terminal cursor color
 
-**Package:** karnel-catalyst (cursor config)  
+**Package:** karnel-termux (cursor config)  
 **Author:** israel676767  
 **Repository:** https://github.com/israel676767/karnel  
 **Type:** Termux UI customization  

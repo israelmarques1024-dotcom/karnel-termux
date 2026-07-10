@@ -30,7 +30,7 @@ install_voice() {
   list_item "Termux:API (speech-to-text, clipboard)"
   list_item "Termux:API app (Android APK)"
   list_item "Voice CLI: ${D_CYAN}karnel voice [agent]${NC}"
-  list_item "Install Termux:API app from: ${D_CYAN}https://karnel-catalyst.vercel.app/termux/api${NC}"
+  list_item "Install Termux:API app from: ${D_CYAN}https://kerneltermux.vercel.app/termux/api${NC}"
   echo
 }
 

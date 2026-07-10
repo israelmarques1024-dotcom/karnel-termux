@@ -83,7 +83,7 @@ _cline_create_wrapper() {
 # Cline CLI — roda nativamente no Termux via glibc-runner
 # Usa o glibc do termux-user-repository (instalado via apt)
 # Sem proot, sem container, sem opencode.
-# Instalado pelo Karnel Catalyst (karnel install ai --cline)
+# Instalado pelo Karnel Termux (karnel install ai --cline)
 
 CLINE_BIN="/data/data/com.termux/files/usr/lib/node_modules/cline/bin/.cline"
 

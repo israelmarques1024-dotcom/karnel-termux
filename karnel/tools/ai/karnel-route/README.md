@@ -12,7 +12,7 @@
 
 ## Description
 
-karnelRoute is the Karnel Catalyst wrapper for the official `karnelroute` npm package — an AI Gateway that provides 236+ AI providers via a single endpoint, with auto-fallback to free providers and smart routing with compression (15-95% token savings).
+karnelRoute is the Karnel Termux wrapper for the official `karnelroute` npm package — an AI Gateway that provides 236+ AI providers via a single endpoint, with auto-fallback to free providers and smart routing with compression (15-95% token savings).
 
 ## Installation
 

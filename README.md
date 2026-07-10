@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://karnel-catalyst.vercel.app/karnel-logo-pixel.svg" alt="Karnel Catalyst Logo" width="600">
+  <img src="https://kerneltermux.vercel.app/karnel-logo-pixel.svg" alt="Karnel Termux Logo" width="600">
 </p>
 
 <p align="center">
@@ -10,11 +10,11 @@
   <a href="https://github.com/israel676767/karnel">
     <img src="https://img.shields.io/badge/version-1.0.0-0078D4?style=for-the-badge&logo=appveyor" alt="Version">
   </a>
-  <a href="https://www.npmjs.com/package/karnel-catalyst">
-    <img src="https://img.shields.io/npm/v/karnel-catalyst?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
+  <a href="https://www.npmjs.com/package/karnel-termux">
+    <img src="https://img.shields.io/npm/v/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
   </a>
-  <a href="https://www.npmjs.com/package/karnel-catalyst">
-    <img src="https://img.shields.io/npm/dt/karnel-catalyst?style=for-the-badge&logo=npm&color=cb3837" alt="npm downloads">
+  <a href="https://www.npmjs.com/package/karnel-termux">
+    <img src="https://img.shields.io/npm/dt/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm downloads">
   </a>
   <a href="https://github.com/israel676767/karnel/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-0078D4?style=for-the-badge&logo=bookstack" alt="License">
@@ -22,8 +22,8 @@
   <a href="https://termux.dev/">
     <img src="https://img.shields.io/badge/platform-Termux%20%7C%20Android-0078D4?style=for-the-badge&logo=android" alt="Platform">
   </a>
-  <a href="https://karnel-catalyst.vercel.app">
-    <img src="https://img.shields.io/badge/%F0%9F%8C%90%20Site-karnel--catalyst.vercel.app-0078D4?style=for-the-badge" alt="Website">
+  <a href="https://kerneltermux.vercel.app">
+    <img src="https://img.shields.io/badge/%F0%9F%8C%90%20Site-karnel--termux.vercel.app-0078D4?style=for-the-badge" alt="Website">
   </a>
 </p>
 
@@ -31,7 +31,7 @@
 
 ---
 
-**KARNEL CATALYST** é um ambiente de desenvolvimento modular que transforma o Termux em uma workstation completa. Com um único CLI (`karnel`), instale e gerencie:
+**KARNEL TERMUX** é um ambiente de desenvolvimento modular que transforma o Termux em uma workstation completa. Com um único CLI (`karnel`), instale e gerencie:
 
 Criado por **israel marques** (tenho 12 anos).
 
@@ -60,13 +60,13 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/israel676767/karnel/main
 ### Via npm
 
 ```bash
-npm install -g karnel-catalyst
+npm install -g karnel-termux
 ```
 
 ### Via pnpm
 
 ```bash
-pnpm add -g karnel-catalyst
+pnpm add -g karnel-termux
 ```
 
 Depois de instalar, execute:
@@ -264,7 +264,7 @@ Microfone → termux-speech-to-text → editor (edição) → clipboard → AI a
 ### Requisitos
 
 - Termux:API: `pkg install termux-api`
-- App Termux:API: https://karnel-catalyst.vercel.app/termux/api
+- App Termux:API: https://kerneltermux.vercel.app/termux/api
 - Editor: `karnel install editor`
 
 ---
@@ -339,7 +339,7 @@ karnel open db                        # Abre documentação do módulo DB
 karnel open ai --opencode             # Abre docs do OpenCode no site
 ```
 
-A documentação é carregada do site oficial em https://karnel-catalyst.vercel.app.
+A documentação é carregada do site oficial em https://kerneltermux.vercel.app.
 
 ---
 
@@ -432,7 +432,7 @@ karnel update karnel     # Atualiza o framework
 
 ## ⭐ Apoie o Projeto
 
-Se o Karnel Catalyst foi útil pra você, considere apoiar via Pix ou dar uma estrela no GitHub — isso ajuda outros desenvolvedores a descobrirem o projeto.
+Se o Karnel Termux foi útil pra você, considere apoiar via Pix ou dar uma estrela no GitHub — isso ajuda outros desenvolvedores a descobrirem o projeto.
 
 **Pix:** `037f07bd-a326-42b6-a5a3-f29b36e703db`
 
@@ -445,7 +445,7 @@ MIT © israel marques
 ---
 
 <p align="center">
-  <a href="https://karnel-catalyst.vercel.app">
+  <a href="https://kerneltermux.vercel.app">
     <img src="https://img.shields.io/badge/%F0%9F%8C%90%20Documenta%C3%A7%C3%A3o%20Completa-0078D4?style=for-the-badge" alt="Documentação">
   </a>
   <a href="https://github.com/israel676767/karnel-site">

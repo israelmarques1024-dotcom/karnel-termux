@@ -672,7 +672,7 @@ _update_specific_tools() {
 # Update Karnel
 update_karnel() {
   separator
-  box "◈ UPDATING KARNEL CATALYST ◈"
+  box "◈ UPDATING KARNEL TERMUX ◈"
   separator
   echo
 
@@ -693,11 +693,11 @@ update_karnel() {
     rm -f "$KARNEL_CACHE/new_version" "$KARNEL_CACHE/last_version_check"
   else
     log_info "Karnel was installed via npm — updating through npm..."
-    if npm install -g karnel-catalyst &>/dev/null; then
+    if npm install -g karnel-termux &>/dev/null; then
       log_success "Karnel updated to latest version via npm"
     else
       log_error "Failed to update Karnel via npm"
-      log_info "Try running: npm install -g karnel-catalyst"
+      log_info "Try running: npm install -g karnel-termux"
     fi
   fi
 

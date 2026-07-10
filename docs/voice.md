@@ -16,7 +16,7 @@ pkg install termux-api
 karnel install editor     # Neovim (opcional, mas recomendado)
 
 # 2. Instalar o app Termux:API no Android
-#    https://karnel-catalyst.vercel.app/termux/api
+#    https://kerneltermux.vercel.app/termux/api
 
 # 3. Verificar instalação
 karnel doctor
@@ -148,7 +148,7 @@ karnel voice '!' --raw
 
 Causas possíveis:
 - Microfone sem permissão: vá em Config. Android > Apps > Termux > Permissões > Microfone
-- App Termux:API não instalado: https://karnel-catalyst.vercel.app/termux/api
+- App Termux:API não instalado: https://kerneltermux.vercel.app/termux/api
 - Termux:API desatualizado: `pkg upgrade termux-api`
 
 ### "Termux:API is not installed"
@@ -198,4 +198,4 @@ Dependências externas:
 
 ## Licença
 
-MIT — parte do ecossistema Karnel Catalyst.
+MIT — parte do ecossistema Karnel Termux.

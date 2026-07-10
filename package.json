@@ -1,5 +1,5 @@
 {
-  "name": "karnel-catalyst",
+  "name": "karnel-termux",
   "version": "4.7.4",
   "description": "Modular Dev Environment for Termux — install languages, databases, AI agents, editors, and more with one command",
   "bin": {
@@ -35,7 +35,7 @@
   "bugs": {
     "url": "https://github.com/israel676767/karnel/issues"
   },
-  "homepage": "https://karnel-catalyst.vercel.app",
+  "homepage": "https://kerneltermux.vercel.app",
   "os": [
     "android"
   ]
