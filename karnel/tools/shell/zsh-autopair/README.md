@@ -3,8 +3,8 @@
 Auto-close and delete matching parentheses and quotes
 
 **Package:** zsh-autopair  
-**Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel-termux  
+**Author:** israel marques  
+**Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux  
 **Official:** https://github.com/hlissner/zsh-autopair  
 **Type:** ZSH plugin (git clone)  
 **License:** MIT

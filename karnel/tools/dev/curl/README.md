@@ -3,8 +3,8 @@
 Command-line tool for transferring data with URLs
 
 **Package:** curl  
-**Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel-termux  
+**Author:** israel marques  
+**Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux  
 **Official:** https://curl.se  
 **Type:** Development tool (pkg)  
 **License:** curl License (MIT-like)

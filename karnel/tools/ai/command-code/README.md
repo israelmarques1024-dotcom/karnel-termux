@@ -3,8 +3,8 @@
 The coding agent that learns your coding taste.
 
 **Package:** command-code  
-**Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel-termux  
+**Author:** israel marques  
+**Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux  
 **Official:** https://github.com/CommandCodeAI/command-code
 **Type:** AI coding assistant (npm local package with wrapper)  
 **License:** MIT

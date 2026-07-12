@@ -3,8 +3,8 @@
 Better npm completion for ZSH
 
 **Package:** zsh-better-npm-completion  
-**Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel-termux  
+**Author:** israel marques  
+**Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux  
 **Official:** https://github.com/lukechilds/zsh-better-npm-completion  
 **Type:** ZSH plugin (git clone)  
 **License:** MIT

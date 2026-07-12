@@ -3,8 +3,8 @@
 NoSQL document database for modern applications
 
 **Package:** mongodb  
-**Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel-termux  
+**Author:** israel marques  
+**Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux  
 **Official:** https://www.mongodb.com  
 **Type:** Database (pkg)  
 **License:** Server Side Public License (SSPL)

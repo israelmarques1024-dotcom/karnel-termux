@@ -141,22 +141,160 @@ if [[ -n "$TERMUX_FIGLET_TEXT" ]]; then
 fi
 
 # ================================================================
-# Render banner instantly
+# Metallic shine — passes over the big figlet letters only
 # ================================================================
-_animate_banner() {
+_metallic_apply() {
+  local _text="$1" _base_color="$2" _scan="${3:-}"
+  local _trimmed="${_text#"${_text%%[! ]*}"}"
+  _trimmed="${_trimmed%"${_trimmed##*[! ]}"}"
+  local _text_len=${#_trimmed}
+
+  if (( _text_len < 4 )); then
+    echo "${_base_color}${_text}${NC}"
+    return
+  fi
+
+  local _lead="${_text%%[! ]*}"
+  local _lead_len=${#_lead}
+  local _center
+  if [[ -n "$_scan" ]]; then
+    _center=$(( _lead_len + _scan ))
+  else
+    _center=$(( _lead_len + _text_len / 2 ))
+  fi
+  local _shine_r=$(( _text_len / 5 + 1 ))
+  local _trans_r=$(( _text_len / 3 + 1 ))
+
+  local _out="" _i _char
+  for (( _i = 0; _i < ${#_text}; _i++ )); do
+    _char="${_text:_i:1}"
+    if [[ "$_char" == " " ]]; then
+      _out+=" "
+    else
+      local _dist=$(( _i > _center ? _i - _center : _center - _i ))
+      if (( _dist < _shine_r )); then
+        _out+="${WHITE}${_char}"
+      elif (( _dist < _trans_r )); then
+        _out+="${M_SHINE}${_char}"
+      else
+        _out+="${_base_color}${_char}"
+      fi
+    fi
+  done
+  _out+="${NC}"
+  echo "$_out"
+}
+
+# ================================================================
+# Animate scan over figlet text only (no frame flash)
+# ================================================================
+_animate_figlet() {
   local cols="${COLUMNS:-$(tput cols 2>/dev/null || echo 80)}"
   local W=$(( cols > 72 ? 68 : cols - 6 ))
   (( W < 40 )) && W=40
+  local GAP_L=$(( (cols - W - 2) / 2 ))
+  (( GAP_L < 0 )) && GAP_L=0
+  local GAP_R=$(( cols - W - 2 - GAP_L ))
+  (( GAP_R < 0 )) && GAP_R=0
+  local pad_l; pad_l=$(printf '%*s' "$GAP_L" '')
+  local pad_r; pad_r=$(printf '%*s' "$GAP_R" '')
+  local l_border="${TP[0]}" r_border="${TP[15]}"
 
-  local _step _spin
-  for (( _step = -4; _step <= W + 4; _step += 6 )); do
-    printf '\033[2J\033[H'
-    _render "$_step" 2>/dev/null || true
-    for ((_spin=0; _spin<20000; _spin++)); do :; done
+  local num_fl=${#FIGLET_LINES[@]}
+  local num_tl=${#TERMUX_FIGLET_LINES[@]}
+  (( num_fl + num_tl == 0 )) && { _render 2>/dev/null || true; return; }
+
+  _render 2>/dev/null || true
+  local _bnr_h
+  _bnr_h=$(_render 2>/dev/null | wc -l) || true
+
+  local _fig_w=0 _fl
+  for _fl in "${FIGLET_LINES[@]}"; do
+    local _tl=${#_fl}
+    (( _tl > _fig_w )) && _fig_w=$_tl
   done
 
-  printf '\033[2J\033[H'
-  _render 2>/dev/null || true
+  local _step _spin _fi _ti _line _ci _colored
+  for (( _step = -8; _step <= _fig_w + 8; _step += 8 )); do
+    printf '\033[s'
+    printf '\033[%dA' "$(( _bnr_h - 3 ))"
+    for (( _fi = 0; _fi < num_fl; _fi++ )); do
+      _line="${FIGLET_LINES[$_fi]}"
+      _ci=$(( _fi * 16 / (num_fl > 1 ? num_fl : 1) ))
+      (( _ci > 15 )) && _ci=15
+      _colored=$(_metallic_apply "$_line" "${RK[$_ci]}" "$_step")
+      echo "${pad_l}${l_border}│${NC}$( _center "$_colored" "$W" )${r_border}│${NC}${pad_r}"
+    done
+    for (( _ti = 0; _ti < num_tl; _ti++ )); do
+      _line="${TERMUX_FIGLET_LINES[$_ti]}"
+      _ci=$(( _ti * 16 / (num_tl > 1 ? num_tl : 1) ))
+      (( _ci > 15 )) && _ci=15
+      _colored=$(_metallic_apply "$_line" "${RK[$_ci]}" "$_step")
+      echo "${pad_l}${l_border}│${NC}$( _center "$_colored" "$W" )${r_border}│${NC}${pad_r}"
+    done
+    printf '\033[u'
+    for ((_spin=0; _spin<4000; _spin++)); do :; done
+  done
+
+  printf '\033[s'
+  printf '\033[%dA' "$(( _bnr_h - 3 ))"
+  for (( _fi = 0; _fi < num_fl; _fi++ )); do
+    _line="${FIGLET_LINES[$_fi]}"
+    _ci=$(( _fi * 16 / (num_fl > 1 ? num_fl : 1) ))
+    (( _ci > 15 )) && _ci=15
+    _colored=$(_metallic_apply "$_line" "${RK[$_ci]}")
+    echo "${pad_l}${l_border}│${NC}$( _center "$_colored" "$W" )${r_border}│${NC}${pad_r}"
+  done
+  for (( _ti = 0; _ti < num_tl; _ti++ )); do
+    _line="${TERMUX_FIGLET_LINES[$_ti]}"
+    _ci=$(( _ti * 16 / (num_tl > 1 ? num_tl : 1) ))
+    (( _ci > 15 )) && _ci=15
+    _colored=$(_metallic_apply "$_line" "${RK[$_ci]}")
+    echo "${pad_l}${l_border}│${NC}$( _center "$_colored" "$W" )${r_border}│${NC}${pad_r}"
+  done
+  printf '\033[u'
+}
+
+# ================================================================
+# Frame line (top / bottom) — pure TP gradient, no shine
+# ================================================================
+_render_frame_line() {
+  local _which="$1"
+  local cols="${COLUMNS:-$(tput cols 2>/dev/null || echo 80)}"
+  local W=$(( cols > 72 ? 68 : cols - 6 ))
+  (( W < 40 )) && W=40
+  local GAP_L=$(( (cols - W - 2) / 2 ))
+  (( GAP_L < 0 )) && GAP_L=0
+  local GAP_R=$(( cols - W - 2 - GAP_L ))
+  (( GAP_R < 0 )) && GAP_R=0
+  local pad_l; pad_l=$(printf '%*s' "$GAP_L" '')
+  local pad_r; pad_r=$(printf '%*s' "$GAP_R" '')
+
+  local p1 p2 p3
+  p1=$(( W / 4 )); p2=$(( W / 2 )); p3=$(( 3 * W / 4 ))
+  local frame="" i m_color
+  for (( i = 0; i < W; i++ )); do
+    local c_idx=$(( i * 16 / W ))
+    (( c_idx > 15 )) && c_idx=15
+    m_color="${TP[$c_idx]}"
+    if (( i == 1 || i == W-2 )); then
+      frame+="${m_color}╌${NC}"
+    elif (( i == p1 || i == p2 || i == p3 )); then
+      if [[ "$_which" == "top" ]]; then
+        frame+="${m_color}┬${NC}"
+      else
+        frame+="${m_color}┴${NC}"
+      fi
+    else
+      frame+="${m_color}─${NC}"
+    fi
+  done
+
+  if [[ "$_which" == "top" ]]; then
+    echo "${pad_l}${WHITE}╭${NC}${frame}${WHITE}╮${NC}${pad_r}"
+  else
+    echo "${pad_l}${WHITE}╰${NC}${frame}${WHITE}╯${NC}${pad_r}"
+  fi
 }
 
 # ================================================================
@@ -179,7 +317,6 @@ _panel_value() {
 # Render
 # ================================================================
 _render() {
-  local _shine="${1:-}"
   local cols="${COLUMNS:-$(tput cols 2>/dev/null || echo 80)}"
   local W=$(( cols > 72 ? 68 : cols - 6 ))
   (( W < 40 )) && W=40
@@ -192,70 +329,34 @@ _render() {
   local pad_r; pad_r=$(printf '%*s' "$GAP_R" '')
   local sp_line; sp_line=$(printf '%*s' "$W" '')
 
-  # Border colors: original TP gradient normally, WHITE during scan
-  local l_border="${TP[0]}"
-  local r_border="${TP[15]}"
-  [[ -n "$_shine" ]] && l_border="${WHITE}" && r_border="${WHITE}"
+  local l_border="${TP[0]}" r_border="${TP[15]}"
 
-  # ---- Frame line: scan highlight passes through, or pure TP gradient ----
-  local p1=$(( W / 4 )) p2=$(( W / 2 )) p3=$(( 3 * W / 4 ))
-  local top_frame="" bot_frame="" i
-  for (( i = 0; i < W; i++ )); do
-    local c_idx=$(( i * 16 / W ))
-    (( c_idx > 15 )) && c_idx=15
-    local m_color
-    if [[ -n "$_shine" ]]; then
-      local dist=$(( i > _shine ? i - _shine : _shine - i ))
-      if (( dist < 2 )); then
-        m_color="${WHITE}"
-      elif (( dist < 5 )); then
-        m_color="${M_SHINE}"
-      else
-        m_color="${TP[$c_idx]}"
-      fi
-    else
-      m_color="${TP[$c_idx]}"
-    fi
-    if (( i == 1 || i == W-2 )); then
-      top_frame+="${m_color}╌${NC}"
-      bot_frame+="${m_color}╌${NC}"
-    elif (( i == p1 || i == p2 || i == p3 )); then
-      top_frame+="${m_color}┬${NC}"
-      bot_frame+="${m_color}┴${NC}"
-    else
-      top_frame+="${m_color}─${NC}"
-      bot_frame+="${m_color}─${NC}"
-    fi
-  done
-
-  # ---- Top frame ----
-  echo "${pad_l}${WHITE}╭${NC}${top_frame}${WHITE}╮${NC}${pad_r}"
+  _render_frame_line "top"
 
   # ---- Header row (vibrant) ----
   local hdr="${TP[1]}┄${NC}${TP[1]}┄${NC} ${M_SHINE}◈${NC} ${BOLD}${WHITE}KARNEL${NC} ${WHITE}✦${NC} ${BOLD}${WHITE}SYSTEMS${NC} ${M_SHINE}◈${NC} ${TP[1]}┄${NC}${TP[1]}┄${NC}"
   echo "${pad_l}${l_border}│${NC}$(_center "$hdr" "$W")${r_border}│${NC}${pad_r}"
 
-  # ---- Empty row ----
-  echo "${pad_l}${l_border}│${NC}${sp_line}${r_border}│${NC}${pad_r}"
-
-  # ---- KARNEL figlet: pure RK gradient (red → purple → blue → black) ----
+  # ---- KARNEL figlet: RK gradient + metallic shine ----
   local num_fl=${#FIGLET_LINES[@]}
-  local _fi _line _ci
+  local _fi _line _ci _colored
   for (( _fi = 0; _fi < num_fl; _fi++ )); do
     _line="${FIGLET_LINES[$_fi]}"
     _ci=$(( _fi * 16 / (num_fl > 1 ? num_fl : 1) ))
     (( _ci > 15 )) && _ci=15
-    echo "${pad_l}${l_border}│${NC}$( _center "${RK[$_ci]}${_line}${NC}" "$W" )${r_border}│${NC}${pad_r}"
+    _colored=$(_metallic_apply "$_line" "${RK[$_ci]}")
+    echo "${pad_l}${l_border}│${NC}$( _center "$_colored" "$W" )${r_border}│${NC}${pad_r}"
   done
 
-  # ---- TERMUX figlet: pure RK gradient ----
+  # ---- TERMUX figlet: RK gradient + metallic shine ----
   local num_tl=${#TERMUX_FIGLET_LINES[@]}
   local _ti
   for (( _ti = 0; _ti < num_tl; _ti++ )); do
     _line="${TERMUX_FIGLET_LINES[$_ti]}"
     _ci=$(( _ti * 16 / (num_tl > 1 ? num_tl : 1) ))
     (( _ci > 15 )) && _ci=15
-    echo "${pad_l}${l_border}│${NC}$( _center "${RK[$_ci]}${_line}${NC}" "$W" )${r_border}│${NC}${pad_r}"
+    _colored=$(_metallic_apply "$_line" "${RK[$_ci]}")
+    echo "${pad_l}${l_border}│${NC}$( _center "$_colored" "$W" )${r_border}│${NC}${pad_r}"
   done
 
   # ---- Tech bus divider ----
@@ -280,18 +381,12 @@ _render() {
   local div_line="${DIM}${dash_l}${NC}${TP[3]}◈${NC}${DIM}${dash_r}${NC}"
   echo "${pad_l}${l_border}│${NC}$(_center "$div_line" "$W")${r_border}│${NC}${pad_r}"
 
-  # ---- RUBY & OBSIDIAN ----
-  local gem_line="${M_SHINE}◈${NC} ${BOLD}${RUBY}RUBY${NC} ${WHITE}${BOLD}&${NC} ${BOLD}${OBSIDIAN}OBSIDIAN${NC} ${M_SHINE}◈${NC}"
+  # ---- Dev & mobile ----
+  local gem_line="${M_SHINE}◈${NC} ${BOLD}${RUBY}Dev${NC} ${WHITE}${BOLD}&${NC} ${BOLD}${OBSIDIAN}mobile${NC} ${M_SHINE}◈${NC}"
   echo "${pad_l}${l_border}│${NC}$(_center "$gem_line" "$W")${r_border}│${NC}${pad_r}"
 
   # ---- Version (bold green) ----
   echo "${pad_l}${l_border}│${NC}$(_center "${GREEN2}${BOLD}Karnel${NC} ${GREEN1}v${BANNER_VERSION}${NC}" "$W")${r_border}│${NC}${pad_r}"
-
-  # ---- Author ----
-  echo "${pad_l}${l_border}│${NC}$(_center "${DIM}by${NC} ${BOLD}${WHITE}israel${NC} ${WHITE}marques${NC}" "$W")${r_border}│${NC}${pad_r}"
-
-  # ---- Empty row ----
-  echo "${pad_l}${l_border}│${NC}${sp_line}${r_border}│${NC}${pad_r}"
 
   # ---- Info panel ----
   local PW=$(( W - 4 ))
@@ -335,60 +430,15 @@ _render() {
   # Panel bottom
   echo "${pad_l}${l_border}│${NC} ${M_SHINE}╰${NC}${phline}${M_SHINE}╯${NC} ${r_border}│${NC}${pad_r}"
 
-  # ---- Empty row ----
-  echo "${pad_l}${l_border}│${NC}${sp_line}${r_border}│${NC}${pad_r}"
-
-  # ---- Decorative dot line ----
-  local dot_line="" j
-  for (( j = 0; j < W; j++ )); do
-    if (( j == W/2 )); then
-      dot_line+="${M_SHINE}◈${NC}"
-    elif (( j % 4 == 0 )); then
-      dot_line+="${DIM}·${NC}"
-    elif (( j % 3 == 1 )); then
-      dot_line+="${TP[$(( j * 4 / W > 15 ? 15 : j * 4 / W ))]}┄${NC}"
-    else
-      dot_line+="${DIM}─${NC}"
-    fi
-  done
-  echo "${pad_l}${l_border}│${NC}${dot_line}${r_border}│${NC}${pad_r}"
-
-  # ---- Bottom card frame ----
-  echo "${pad_l}${l_border}│${NC}${DIM}╭${NC}$(printf '%*s' $((W-2)) '')${DIM}╮${NC}${r_border}│${NC}${pad_r}"
-
-  # ---- Run karnel line ----
-  local run_content="${M_SHINE}▶${NC} ${GREEN1}${BOLD}Run${NC} ${BOLD}${WHITE}karnel${NC} ${GREEN1}to get started${NC} ${M_SHINE}◀${NC}"
-  echo "${pad_l}${l_border}│${NC}${DIM}╰${NC}$(_center "$run_content" $((W-2)))${DIM}╯${NC}${r_border}│${NC}${pad_r}"
-
-  # ---- Bottom frame ----
-  echo "${pad_l}${WHITE}╰${NC}${bot_frame}${WHITE}╯${NC}${pad_r}"
+  _render_frame_line "bot"
 }
 
-# Block user input while banner renders
-_karnel_banner_block_input() {
-  if [[ -t 0 ]] && [[ -t 1 ]]; then
-    _KARNEL_SAVED_STTY=$(stty -g 2>/dev/null)
-    stty -echo -icanon min 0 time 0 2>/dev/null
-    local _drain _max=100
-    while (( _max-- > 0 )) && IFS= read -rsn1 -t 0.01 _drain 2>/dev/null; do :; done
-  fi
-}
-
-_karnel_banner_unblock_input() {
-  if [[ -n "${_KARNEL_SAVED_STTY:-}" ]]; then
-    stty "$_KARNEL_SAVED_STTY" 2>/dev/null
-    unset _KARNEL_SAVED_STTY
-  fi
-}
-
-_karnel_banner_block_input
 echo
 if [[ -t 1 ]]; then
-  _animate_banner
+  _animate_figlet
 else
   _render 2>/dev/null || true
 fi
-_karnel_banner_unblock_input
 
 # Cache banner for clear() override
 _banner_output=$(_render 2>/dev/null) || true

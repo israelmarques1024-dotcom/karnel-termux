@@ -3,8 +3,8 @@
 Kimi Code CLI — The Starting Point for Next-Gen Agents
 
 **Package:** @moonshot-ai/kimi-code
-**Author:** israel676767
-**Repository:** https://github.com/israel676767/karnel-termux
+**Author:** israel marques
+**Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux
 **Official:** https://github.com/MoonshotAI/kimi-code 
 **Type:** AI CLI tool (npm global package)
 **License:** MIT

@@ -3,8 +3,8 @@
 Cloudflare Tunnel client for secure connections
 
 **Package:** cloudflared  
-**Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel-termux  
+**Author:** israel marques  
+**Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux  
 **Official:** https://developers.cloudflare.com/cloudflare-one/connections/connect-networks  
 **Type:** Networking tool (pkg)  
 **License:** Apache 2.0 / Cloudflare License

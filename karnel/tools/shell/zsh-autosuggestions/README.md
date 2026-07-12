@@ -3,8 +3,8 @@
 Fish-like autosuggestions for ZSH
 
 **Package:** zsh-autosuggestions  
-**Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel-termux  
+**Author:** israel marques  
+**Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux  
 **Official:** https://github.com/zsh-users/zsh-autosuggestions  
 **Type:** ZSH plugin (git clone)  
 **License:** MIT

@@ -3,8 +3,8 @@
 Minimal terminal coding harness — adapt Pi to your workflows
 
 **Package:** @earendil-works/pi-coding-agent  
-**Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel-termux  
+**Author:** israel marques  
+**Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux  
 **Official:** https://github.com/earendil-works/pi  
 **Type:** AI coding agent (npm global package)  
 **License:** MIT

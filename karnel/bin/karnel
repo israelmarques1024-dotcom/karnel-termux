@@ -42,7 +42,7 @@ check_for_updates() {
   echo "$current_time" > "$version_file"
 
   (
-    local remote_version=$(curl -fsSL "https://raw.githubusercontent.com/israel676767/karnel-termux/main/karnel/utils/env.sh" 2>/dev/null | grep "KARNEL_VERSION=" | cut -d'"' -f2)
+    local remote_version=$(curl -fsSL "https://raw.githubusercontent.com/israelmarques1024-dotcom/karnel-termux/main/karnel/utils/env.sh" 2>/dev/null | grep "KARNEL_VERSION=" | cut -d'"' -f2)
     local local_version="$KARNEL_VERSION"
     if [[ -n "$remote_version" ]] && [[ "$remote_version" != "$local_version" ]]; then
       echo "$remote_version" > "$KARNEL_CACHE/new_version"

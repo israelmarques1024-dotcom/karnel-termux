@@ -3,8 +3,8 @@
 Instant terminal sharing for pair programming
 
 **Package:** tmate  
-**Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel-termux  
+**Author:** israel marques  
+**Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux  
 **Official:** https://tmate.io  
 **Type:** Development tool (pkg)  
 **License:** Apache 2.0 / BSD 2-Clause

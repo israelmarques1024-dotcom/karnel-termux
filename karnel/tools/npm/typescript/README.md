@@ -3,8 +3,8 @@
 Typed superset of JavaScript that compiles to plain JavaScript
 
 **Package:** typescript  
-**Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel-termux  
+**Author:** israel marques  
+**Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux  
 **Official:** https://www.typescriptlang.org  
 **Type:** Node.js global module (npm)  
 **License:** Apache 2.0

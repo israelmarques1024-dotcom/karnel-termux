@@ -3,8 +3,8 @@
 Additional keyboard rows for Termux with navigation keys
 
 **Package:** karnel-termux (extra-keys config)  
-**Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel-termux  
+**Author:** israel marques  
+**Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux  
 **Type:** Termux UI customization  
 **License:** MIT
 

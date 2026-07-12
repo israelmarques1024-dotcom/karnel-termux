@@ -3,8 +3,8 @@
 Chroot alternative for user-space sandboxing
 
 **Package:** proot  
-**Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel-termux  
+**Author:** israel marques  
+**Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux  
 **Official:** https://proot-me.github.io  
 **Type:** System tool (pkg)  
 **License:** GPL-2.0

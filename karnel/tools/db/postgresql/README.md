@@ -3,8 +3,8 @@
 Advanced open-source relational database
 
 **Package:** postgresql  
-**Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel-termux  
+**Author:** israel marques  
+**Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux  
 **Official:** https://www.postgresql.org  
 **Type:** Database (pkg)  
 **License:** PostgreSQL License

@@ -3,8 +3,8 @@
 Build automation tool for managing compilation and dependencies
 
 **Package:** make  
-**Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel-termux  
+**Author:** israel marques  
+**Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux  
 **Official:** https://www.gnu.org/software/make  
 **Type:** Development tool (pkg)  
 **License:** GPL-3.0

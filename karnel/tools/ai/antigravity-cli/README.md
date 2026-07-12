@@ -3,8 +3,8 @@
 Lightweight, terminal-first surface for Antigravity agents
 
 **Package:** antigravity-cli  
-**Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel-termux  
+**Author:** israel marques  
+**Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux  
 **Official:** https://antigravity.google  
 **Type:** AI workflow assistant (Binary + glibc bootstrapper)  
 **License:** MIT

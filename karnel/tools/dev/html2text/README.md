@@ -3,8 +3,8 @@
 Convert HTML documents to plain text
 
 **Package:** html2text  
-**Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel-termux  
+**Author:** israel marques  
+**Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux  
 **Official:** https://github.com/grobian/html2text  
 **Type:** Utility tool (pkg)  
 **License:** GPL-2.0

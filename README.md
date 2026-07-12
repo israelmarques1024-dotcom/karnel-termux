@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://kerneltermux.vercel.app/karnel-logo-pixel.svg" alt="Karnel Termux Logo" width="600">
+  <img src="https://raw.githubusercontent.com/israelmarques1024-dotcom/karnel-termux/main/assets/images/logo.svg" alt="Karnel Termux Logo" width="600">
 </p>
 
 <p align="center">

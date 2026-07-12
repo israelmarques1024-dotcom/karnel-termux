@@ -3,8 +3,8 @@
 Official GitHub command-line tool for managing repositories, PRs, and issues
 
 **Package:** gh  
-**Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel-termux  
+**Author:** israel marques  
+**Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux  
 **Official:** https://cli.github.com  
 **Type:** Development tool (pkg)  
 **License:** MIT

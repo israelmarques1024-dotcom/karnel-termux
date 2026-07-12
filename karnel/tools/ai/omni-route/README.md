@@ -3,8 +3,8 @@
 **AI Gateway CLI** — 236+ AI providers via a single endpoint.
 
 **Package:** karnel-route  
-**Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel-termux  
+**Author:** israel marques  
+**Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux  
 **Official:** https://karnelroute.online  
 **npm:** https://www.npmjs.com/package/karnelroute  
 **Type:** AI Gateway (npm package with smart wrapper)  

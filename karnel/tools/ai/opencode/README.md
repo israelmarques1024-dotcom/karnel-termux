@@ -3,8 +3,8 @@
 Open-source agent that helps you write code in your terminal
 
 **Package:** opencode  
-**Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel-termux  
+**Author:** israel marques  
+**Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux  
 **Official:** https://github.com/anomalyco/opencode  
 **Type:** AI coding agent (Binary + glibc bootstrapper)  
 **License:** MIT

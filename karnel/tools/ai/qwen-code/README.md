@@ -3,8 +3,8 @@
 Alibaba's AI coding assistant
 
 **Package:** @qwen-code/qwen-code  
-**Author:** israel676767  
-**Repository:** https://github.com/israel676767/karnel-termux  
+**Author:** israel marques  
+**Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux  
 **Official:** https://github.com/QwenLM/qwen-code  
 **Type:** AI coding assistant (npm global package)  
 **License:** MIT
