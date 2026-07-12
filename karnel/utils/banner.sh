@@ -186,9 +186,9 @@ _metallic_apply() {
 }
 
 # ================================================================
-# Infinite metallic loop (runs in background, non-blocking)
+# Fast single-pass metallic scan (foreground, ~50ms)
 # ================================================================
-_animate_figlet_loop() {
+_animate_figlet_fast() {
   local cols="${COLUMNS:-$(tput cols 2>/dev/null || echo 80)}"
   local W=$(( cols > 72 ? 68 : cols - 6 ))
   (( W < 40 )) && W=40
@@ -212,8 +212,8 @@ _animate_figlet_loop() {
     (( tl > fig_w )) && fig_w=$tl
   done
 
-  local _step=-8 _fi _ti _line _ci _colored
-  while true; do
+  local _step _fi _ti _line _ci _colored
+  for (( _step = -8; _step <= fig_w + 16; _step += 16 )); do
     printf '\033[s'
     printf '\033[%dA' "$up_lines"
     for (( _fi = 0; _fi < num_fl; _fi++ )); do
@@ -231,10 +231,26 @@ _animate_figlet_loop() {
       echo "${pad_l}${l_border}│${NC}$( _center "$_colored" "$W" )${r_border}│${NC}${pad_r}"
     done
     printf '\033[u'
-    _step=$(( _step + 8 ))
-    (( _step > fig_w + 8 )) && _step=-8
-    sleep 0.02 2>/dev/null || true
   done
+
+  # Final frame: metallic centered at rest
+  printf '\033[s'
+  printf '\033[%dA' "$up_lines"
+  for (( _fi = 0; _fi < num_fl; _fi++ )); do
+    _line="${FIGLET_LINES[$_fi]}"
+    _ci=$(( _fi * 16 / (num_fl > 1 ? num_fl : 1) ))
+    (( _ci > 15 )) && _ci=15
+    _colored=$(_metallic_apply "$_line" "${RK[$_ci]}")
+    echo "${pad_l}${l_border}│${NC}$( _center "$_colored" "$W" )${r_border}│${NC}${pad_r}"
+  done
+  for (( _ti = 0; _ti < num_tl; _ti++ )); do
+    _line="${TERMUX_FIGLET_LINES[$_ti]}"
+    _ci=$(( _ti * 16 / (num_tl > 1 ? num_tl : 1) ))
+    (( _ci > 15 )) && _ci=15
+    _colored=$(_metallic_apply "$_line" "${RK[$_ci]}")
+    echo "${pad_l}${l_border}│${NC}$( _center "$_colored" "$W" )${r_border}│${NC}${pad_r}"
+  done
+  printf '\033[u'
 }
 
 # ================================================================
@@ -443,12 +459,7 @@ _render() {
 echo
 if [[ -t 1 ]]; then
   _render 2>/dev/null || true
-  _karnel_banner_pid="${XDG_CACHE_HOME:-$HOME/.cache}/karnel/banner_anim.pid"
-  mkdir -p "$(dirname "$_karnel_banner_pid")" 2>/dev/null
-  [[ -f "$_karnel_banner_pid" ]] && kill "$(cat "$_karnel_banner_pid")" 2>/dev/null || true
-  _animate_figlet_loop &
-  echo $! > "$_karnel_banner_pid"
-  disown 2>/dev/null
+  _animate_figlet_fast 2>/dev/null || true
 else
   _render 2>/dev/null || true
 fi
