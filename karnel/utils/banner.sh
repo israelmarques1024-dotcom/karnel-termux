@@ -186,9 +186,9 @@ _metallic_apply() {
 }
 
 # ================================================================
-# Animate scan over figlet text only (no frame flash)
+# Infinite metallic loop (runs in background, non-blocking)
 # ================================================================
-_animate_figlet() {
+_animate_figlet_loop() {
   local cols="${COLUMNS:-$(tput cols 2>/dev/null || echo 80)}"
   local W=$(( cols > 72 ? 68 : cols - 6 ))
   (( W < 40 )) && W=40
@@ -196,28 +196,26 @@ _animate_figlet() {
   (( GAP_L < 0 )) && GAP_L=0
   local GAP_R=$(( cols - W - 2 - GAP_L ))
   (( GAP_R < 0 )) && GAP_R=0
-  local pad_l; pad_l=$(printf '%*s' "$GAP_L" '')
-  local pad_r; pad_r=$(printf '%*s' "$GAP_R" '')
+  local pad_l=$(printf '%*s' "$GAP_L" '')
+  local pad_r=$(printf '%*s' "$GAP_R" '')
   local l_border="${TP[0]}" r_border="${TP[15]}"
 
   local num_fl=${#FIGLET_LINES[@]}
   local num_tl=${#TERMUX_FIGLET_LINES[@]}
-  (( num_fl + num_tl == 0 )) && { _render 2>/dev/null || true; return; }
+  (( num_fl + num_tl == 0 )) && return
 
-  _render 2>/dev/null || true
-  local _bnr_h
-  _bnr_h=$(_render 2>/dev/null | wc -l) || true
-
-  local _fig_w=0 _fl
+  local bnr_h=$(( 18 + num_fl + num_tl ))
+  local up_lines=$(( bnr_h - 3 ))
+  local fig_w=0 _fl
   for _fl in "${FIGLET_LINES[@]}"; do
-    local _tl=${#_fl}
-    (( _tl > _fig_w )) && _fig_w=$_tl
+    local tl=${#_fl}
+    (( tl > fig_w )) && fig_w=$tl
   done
 
-  local _step _spin _fi _ti _line _ci _colored
-  for (( _step = -8; _step <= _fig_w + 8; _step += 8 )); do
+  local _step=-8 _fi _ti _line _ci _colored
+  while true; do
     printf '\033[s'
-    printf '\033[%dA' "$(( _bnr_h - 3 ))"
+    printf '\033[%dA' "$up_lines"
     for (( _fi = 0; _fi < num_fl; _fi++ )); do
       _line="${FIGLET_LINES[$_fi]}"
       _ci=$(( _fi * 16 / (num_fl > 1 ? num_fl : 1) ))
@@ -233,26 +231,10 @@ _animate_figlet() {
       echo "${pad_l}${l_border}│${NC}$( _center "$_colored" "$W" )${r_border}│${NC}${pad_r}"
     done
     printf '\033[u'
-    for ((_spin=0; _spin<4000; _spin++)); do :; done
+    _step=$(( _step + 8 ))
+    (( _step > fig_w + 8 )) && _step=-8
+    sleep 0.02 2>/dev/null || true
   done
-
-  printf '\033[s'
-  printf '\033[%dA' "$(( _bnr_h - 3 ))"
-  for (( _fi = 0; _fi < num_fl; _fi++ )); do
-    _line="${FIGLET_LINES[$_fi]}"
-    _ci=$(( _fi * 16 / (num_fl > 1 ? num_fl : 1) ))
-    (( _ci > 15 )) && _ci=15
-    _colored=$(_metallic_apply "$_line" "${RK[$_ci]}")
-    echo "${pad_l}${l_border}│${NC}$( _center "$_colored" "$W" )${r_border}│${NC}${pad_r}"
-  done
-  for (( _ti = 0; _ti < num_tl; _ti++ )); do
-    _line="${TERMUX_FIGLET_LINES[$_ti]}"
-    _ci=$(( _ti * 16 / (num_tl > 1 ? num_tl : 1) ))
-    (( _ci > 15 )) && _ci=15
-    _colored=$(_metallic_apply "$_line" "${RK[$_ci]}")
-    echo "${pad_l}${l_border}│${NC}$( _center "$_colored" "$W" )${r_border}│${NC}${pad_r}"
-  done
-  printf '\033[u'
 }
 
 # ================================================================
@@ -340,26 +322,24 @@ _render() {
   # ---- Empty row ----
   echo "${pad_l}${l_border}│${NC}${sp_line}${r_border}│${NC}${pad_r}"
 
-  # ---- KARNEL figlet: RK gradient + metallic shine ----
+  # ---- KARNEL figlet: plain RK gradient (no metallic) ----
   local num_fl=${#FIGLET_LINES[@]}
-  local _fi _line _ci _colored
+  local _fi _line _ci
   for (( _fi = 0; _fi < num_fl; _fi++ )); do
     _line="${FIGLET_LINES[$_fi]}"
     _ci=$(( _fi * 16 / (num_fl > 1 ? num_fl : 1) ))
     (( _ci > 15 )) && _ci=15
-    _colored=$(_metallic_apply "$_line" "${RK[$_ci]}")
-    echo "${pad_l}${l_border}│${NC}$( _center "$_colored" "$W" )${r_border}│${NC}${pad_r}"
+    echo "${pad_l}${l_border}│${NC}$( _center "${RK[$_ci]}${_line}${NC}" "$W" )${r_border}│${NC}${pad_r}"
   done
 
-  # ---- TERMUX figlet: RK gradient + metallic shine ----
+  # ---- TERMUX figlet: plain RK gradient (no metallic) ----
   local num_tl=${#TERMUX_FIGLET_LINES[@]}
   local _ti
   for (( _ti = 0; _ti < num_tl; _ti++ )); do
     _line="${TERMUX_FIGLET_LINES[$_ti]}"
     _ci=$(( _ti * 16 / (num_tl > 1 ? num_tl : 1) ))
     (( _ci > 15 )) && _ci=15
-    _colored=$(_metallic_apply "$_line" "${RK[$_ci]}")
-    echo "${pad_l}${l_border}│${NC}$( _center "$_colored" "$W" )${r_border}│${NC}${pad_r}"
+    echo "${pad_l}${l_border}│${NC}$( _center "${RK[$_ci]}${_line}${NC}" "$W" )${r_border}│${NC}${pad_r}"
   done
 
   # ---- Tech bus divider ----
@@ -462,7 +442,13 @@ _render() {
 
 echo
 if [[ -t 1 ]]; then
-  _animate_figlet
+  _render 2>/dev/null || true
+  _karnel_banner_pid="${XDG_CACHE_HOME:-$HOME/.cache}/karnel/banner_anim.pid"
+  mkdir -p "$(dirname "$_karnel_banner_pid")" 2>/dev/null
+  [[ -f "$_karnel_banner_pid" ]] && kill "$(cat "$_karnel_banner_pid")" 2>/dev/null || true
+  _animate_figlet_loop &
+  echo $! > "$_karnel_banner_pid"
+  disown 2>/dev/null
 else
   _render 2>/dev/null || true
 fi
