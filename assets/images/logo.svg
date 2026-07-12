@@ -104,14 +104,9 @@
     font-family="'Trebuchet MS', 'Arial Narrow', Arial, sans-serif"
     font-size="58" font-weight="900" letter-spacing="5"
     fill="url(#core-grad)"
-    filter="url(#text-shadow)">CORE</text>
+    filter="url(#text-shadow)">KARNEL</text>
 
-  <text x="362" y="70"
-    font-family="'Trebuchet MS', sans-serif"
-    font-size="34" font-weight="300"
-    fill="#8baabb" opacity="0.7"> – </text>
-
-  <text x="397" y="72"
+  <text x="415" y="72"
     font-family="'Trebuchet MS', 'Arial Narrow', Arial, sans-serif"
     font-size="58" font-weight="900" letter-spacing="5"
     fill="url(#termux-grad)">TERMUX</text>
