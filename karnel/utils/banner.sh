@@ -186,6 +186,54 @@ _metallic_apply() {
 }
 
 # ================================================================
+# Fast foreground metallic sweep (before prompt, no typing conflict)
+# ================================================================
+_animate_sweep() {
+  local cols="${COLUMNS:-$(tput cols 2>/dev/null || echo 80)}"
+  local W=$(( cols > 72 ? 68 : cols - 6 ))
+  (( W < 40 )) && W=40
+  local GAP_L=$(( (cols - W - 2) / 2 ))
+  (( GAP_L < 0 )) && GAP_L=0
+  local GAP_R=$(( cols - W - 2 - GAP_L ))
+  (( GAP_R < 0 )) && GAP_R=0
+  local pad_l=$(printf '%*s' "$GAP_L" '')
+  local pad_r=$(printf '%*s' "$GAP_R" '')
+  local l_border="${TP[0]}" r_border="${TP[15]}"
+
+  local num_fl=${#FIGLET_LINES[@]}
+  local num_tl=${#TERMUX_FIGLET_LINES[@]}
+  (( num_fl + num_tl == 0 )) && return
+
+  local fig_w=0 _fl
+  for _fl in "${FIGLET_LINES[@]}"; do
+    local tl=${#_fl}
+    (( tl > fig_w )) && fig_w=$tl
+  done
+
+  local bnr_h=$(( 18 + num_fl + num_tl ))
+  local up=$(( bnr_h - 3 ))
+  local _step _fi _ti _line _ci _colored
+  for (( _step = -8; _step <= fig_w + 8; _step += 12 )); do
+    printf '\033[s\033[%dA' "$up"
+    for (( _fi = 0; _fi < num_fl; _fi++ )); do
+      _line="${FIGLET_LINES[$_fi]}"
+      _ci=$(( _fi * 16 / (num_fl > 1 ? num_fl : 1) ))
+      (( _ci > 15 )) && _ci=15
+      _colored=$(_metallic_apply "$_line" "${RK[$_ci]}" "$_step")
+      echo "${pad_l}${l_border}│${NC}$( _center "$_colored" "$W" )${r_border}│${NC}${pad_r}"
+    done
+    for (( _ti = 0; _ti < num_tl; _ti++ )); do
+      _line="${TERMUX_FIGLET_LINES[$_ti]}"
+      _ci=$(( _ti * 16 / (num_tl > 1 ? num_tl : 1) ))
+      (( _ci > 15 )) && _ci=15
+      _colored=$(_metallic_apply "$_line" "${RK[$_ci]}" "$_step")
+      echo "${pad_l}${l_border}│${NC}$( _center "$_colored" "$W" )${r_border}│${NC}${pad_r}"
+    done
+    printf '\033[u'
+  done
+}
+
+# ================================================================
 # Frame line (top / bottom) — pure TP gradient, no shine
 # ================================================================
 _render_frame_line() {
@@ -393,6 +441,7 @@ _render() {
 echo
 if [[ -t 1 ]]; then
   _render 2>/dev/null || true
+  _animate_sweep 2>/dev/null || true
 else
   _render 2>/dev/null || true
 fi
