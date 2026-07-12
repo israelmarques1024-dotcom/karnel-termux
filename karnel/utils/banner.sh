@@ -204,18 +204,17 @@ _animate_figlet_fast() {
   local num_tl=${#TERMUX_FIGLET_LINES[@]}
   (( num_fl + num_tl == 0 )) && return
 
-  local bnr_h=$(( 18 + num_fl + num_tl ))
-  local up_lines=$(( bnr_h - 3 ))
   local fig_w=0 _fl
   for _fl in "${FIGLET_LINES[@]}"; do
     local tl=${#_fl}
     (( tl > fig_w )) && fig_w=$tl
   done
 
+  local bnr_h=$(( 18 + num_fl + num_tl ))
+  local up=$(( bnr_h - 3 ))
   local _step _fi _ti _line _ci _colored
   for (( _step = -8; _step <= fig_w + 16; _step += 16 )); do
-    printf '\033[s'
-    printf '\033[%dA' "$up_lines"
+    printf '\033[s\033[%dA' "$up"
     for (( _fi = 0; _fi < num_fl; _fi++ )); do
       _line="${FIGLET_LINES[$_fi]}"
       _ci=$(( _fi * 16 / (num_fl > 1 ? num_fl : 1) ))
@@ -232,25 +231,111 @@ _animate_figlet_fast() {
     done
     printf '\033[u'
   done
+}
 
-  # Final frame: metallic centered at rest
-  printf '\033[s'
-  printf '\033[%dA' "$up_lines"
-  for (( _fi = 0; _fi < num_fl; _fi++ )); do
-    _line="${FIGLET_LINES[$_fi]}"
-    _ci=$(( _fi * 16 / (num_fl > 1 ? num_fl : 1) ))
-    (( _ci > 15 )) && _ci=15
-    _colored=$(_metallic_apply "$_line" "${RK[$_ci]}")
-    echo "${pad_l}${l_border}│${NC}$( _center "$_colored" "$W" )${r_border}│${NC}${pad_r}"
+# ================================================================
+# Isolated infinite daemon — uses scroll region + absolute CUP
+# ================================================================
+_karnel_banner_launch_daemon() {
+  local num_fl=${#FIGLET_LINES[@]}
+  local num_tl=${#TERMUX_FIGLET_LINES[@]}
+  (( num_fl + num_tl == 0 )) && return
+
+  local fig_w=0 _fl
+  for _fl in "${FIGLET_LINES[@]}"; do
+    local tl=${#_fl}
+    (( tl > fig_w )) && fig_w=$tl
   done
-  for (( _ti = 0; _ti < num_tl; _ti++ )); do
-    _line="${TERMUX_FIGLET_LINES[$_ti]}"
-    _ci=$(( _ti * 16 / (num_tl > 1 ? num_tl : 1) ))
-    (( _ci > 15 )) && _ci=15
-    _colored=$(_metallic_apply "$_line" "${RK[$_ci]}")
-    echo "${pad_l}${l_border}│${NC}$( _center "$_colored" "$W" )${r_border}│${NC}${pad_r}"
+  local bnr_h=$(( 18 + num_fl + num_tl ))
+  local frow=$(( 3 + 1 )) # first figlet row (1-based)
+
+  local df="${XDG_CACHE_HOME:-$HOME/.cache}/karnel/banner-daemon.sh"
+  local pf="${XDG_CACHE_HOME:-$HOME/.cache}/karnel/banner-daemon.pid"
+  mkdir -p "$(dirname "$df")" 2>/dev/null
+
+  # Kill old
+  [[ -f "$pf" ]] && kill "$(cat "$pf")" 2>/dev/null || true
+
+  # Serialize figlet lines with printf %q
+  local fl_lines tl_lines
+  fl_lines=$(printf '%q\n' "${FIGLET_LINES[@]}")
+  tl_lines=$(printf '%q\n' "${TERMUX_FIGLET_LINES[@]}")
+
+  # Serialize color arrays
+  local rk_ser tp_ser
+  rk_ser=$(for c in "${RK[@]}"; do printf '%q ' "$c"; done)
+  tp_ser=$(for c in "${TP[@]}"; do printf '%q ' "$c"; done)
+
+  {
+    printf '#!/usr/bin/env bash\n'
+    printf 'ESCAPE='\''\\033'\''\n'
+    # Only colors we actually need in the daemon
+    printf 'NC="${ESCAPE}[0m"\n'
+    printf 'WHITE="${ESCAPE}[38;2;255;255;255m"\n'
+    printf 'M_SHINE="${ESCAPE}[38;2;255;215;0m"\n'
+    # Compute everything else from scratch
+    printf "NF=%d NT=%d FW=%d BH=%d FROW=%d\n" "$num_fl" "$num_tl" "$fig_w" "$bnr_h" "$frow"
+    # Embed arrays
+    printf 'RK=('; printf '%s ' $rk_ser; printf ')\n'
+    printf 'TP=('; printf '%s ' $tp_ser; printf ')\n'
+    # Embed figlet
+    printf 'FL=('
+    while IFS= read -r line; do printf '%s ' "$line"; done <<< "$fl_lines"
+    printf ')\n'
+    printf 'TL=('
+    while IFS= read -r line; do printf '%s ' "$line"; done <<< "$tl_lines"
+    printf ')\n'
+    # Compact metallic function
+    printf '%s' '
+tc() { printf "${ESCAPE}[38;2;%d;%d;%dm" "$1" "$2" "$3"; }
+_ansi_len() { printf "%s" "$1" | sed "s/\x1b\[[0-9;]*m//g" | wc -m | tr -d " "; }
+_center() { local t="$1" w="$2" v; v=$(_ansi_len "$t"); local l=$((w-v)); printf "%*s%s%*s" $((l/2)) "" "$t" $((l-l/2)) ""; }
+_metallic_apply() {
+  local t="$1" b="$2" s="${3:-}" trm="${t#"${t%%[! ]*}"}"; trm="${trm%"${trm##*[!]}"}"
+  local len=${#trm} lead="${t%%[! ]*}" ll=${#lead} ctr sl=$(( len / 5 + 1 )) tl=$(( len / 3 + 1 ))
+  [[ -n "$s" ]] && ctr=$(( ll + s )) || ctr=$(( ll + len / 2 ))
+  local out="" i ch
+  for (( i=0; i<${#t}; i++ )); do
+    ch="${t:i:1}"; [[ "$ch" == " " ]] && { out+=" "; continue; }
+    local d=$(( i > ctr ? i - ctr : ctr - i ))
+    if (( d < sl )); then out+="${WHITE}${ch}"; elif (( d < tl )); then out+="${M_SHINE}${ch}"; else out+="${b}${ch}"; fi
   done
-  printf '\033[u'
+  printf "%s%s" "$out" "$NC"
+}
+# Scroll region: fix banner at top
+tput csr "$BH" "$(( $(tput lines 2>/dev/null || echo 40) - 1 ))"
+trap "tput csr 0 \$(( \$(tput lines 2>/dev/null || echo 40) - 1 )); exit" EXIT TERM INT
+trap "tput csr \$BH \$(( \$(tput lines 2>/dev/null || echo 40) - 1 ))" WINCH 2>/dev/null || true
+step=-8
+while true; do
+  kill -0 "$PPID" 2>/dev/null || exit 0
+  printf "\033[s"
+  for (( i=0; i<NF; i++ )); do
+    local ci=$(( i * 16 / (NF>1?NF:1) )); ((ci>15)) && ci=15
+    local c
+    cols="$(tput cols 2>/dev/null || echo 80)"; W=$(( cols>72?68:cols-6 )); ((W<40)) && W=40
+    GL=$(( (cols-W-2)/2 )); ((GL<0)) && GL=0; GR=$(( cols-W-2-GL )); ((GR<0)) && GR=0
+    printf "\033[%d;1H%*s%s│${NC}" "$((FROW+i))" "$GL" "" "${TP[0]}"
+    _center "$(_metallic_apply "${FL[$i]}" "${RK[$ci]}" "$step")" "$W"
+    printf "%s│${NC}%*s" "${TP[15]}" "$GR" ""
+  done
+  for (( i=0; i<NT; i++ )); do
+    local ci=$(( i * 16 / (NT>1?NT:1) )); ((ci>15)) && ci=15
+    cols="$(tput cols 2>/dev/null || echo 80)"; W=$(( cols>72?68:cols-6 )); ((W<40)) && W=40
+    GL=$(( (cols-W-2)/2 )); ((GL<0)) && GL=0; GR=$(( cols-W-2-GL )); ((GR<0)) && GR=0
+    printf "\033[%d;1H%*s%s│${NC}" "$((FROW+NF+i))" "$GL" "" "${TP[0]}"
+    _center "$(_metallic_apply "${TL[$i]}" "${RK[$ci]}" "$step")" "$W"
+    printf "%s│${NC}%*s" "${TP[15]}" "$GR" ""
+  done
+  printf "\033[u"
+  step=$(( step + 8 )); (( step > FW + 8 )) && step=-8
+  sleep 0.04 2>/dev/null || true
+done
+'
+  } > "$df"
+  chmod +x "$df"
+  bash "$df" & disown 2>/dev/null
+  echo $! > "$pf"
 }
 
 # ================================================================
@@ -460,6 +545,7 @@ echo
 if [[ -t 1 ]]; then
   _render 2>/dev/null || true
   _animate_figlet_fast 2>/dev/null || true
+  _karnel_banner_launch_daemon 2>/dev/null || true
 else
   _render 2>/dev/null || true
 fi
