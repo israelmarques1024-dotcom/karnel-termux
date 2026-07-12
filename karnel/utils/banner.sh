@@ -337,6 +337,9 @@ _render() {
   local hdr="${TP[1]}┄${NC}${TP[1]}┄${NC} ${M_SHINE}◈${NC} ${BOLD}${WHITE}KARNEL${NC} ${WHITE}✦${NC} ${BOLD}${WHITE}SYSTEMS${NC} ${M_SHINE}◈${NC} ${TP[1]}┄${NC}${TP[1]}┄${NC}"
   echo "${pad_l}${l_border}│${NC}$(_center "$hdr" "$W")${r_border}│${NC}${pad_r}"
 
+  # ---- Empty row ----
+  echo "${pad_l}${l_border}│${NC}${sp_line}${r_border}│${NC}${pad_r}"
+
   # ---- KARNEL figlet: RK gradient + metallic shine ----
   local num_fl=${#FIGLET_LINES[@]}
   local _fi _line _ci _colored
@@ -388,6 +391,12 @@ _render() {
   # ---- Version (bold green) ----
   echo "${pad_l}${l_border}│${NC}$(_center "${GREEN2}${BOLD}Karnel${NC} ${GREEN1}v${BANNER_VERSION}${NC}" "$W")${r_border}│${NC}${pad_r}"
 
+  # ---- Author ----
+  echo "${pad_l}${l_border}│${NC}$(_center "${DIM}by${NC} ${BOLD}${WHITE}israel${NC} ${WHITE}marques${NC}" "$W")${r_border}│${NC}${pad_r}"
+
+  # ---- Empty row ----
+  echo "${pad_l}${l_border}│${NC}${sp_line}${r_border}│${NC}${pad_r}"
+
   # ---- Info panel ----
   local PW=$(( W - 4 ))
   (( PW < 20 )) && PW=20
@@ -429,6 +438,24 @@ _render() {
 
   # Panel bottom
   echo "${pad_l}${l_border}│${NC} ${M_SHINE}╰${NC}${phline}${M_SHINE}╯${NC} ${r_border}│${NC}${pad_r}"
+
+  # ---- Empty row ----
+  echo "${pad_l}${l_border}│${NC}${sp_line}${r_border}│${NC}${pad_r}"
+
+  # ---- Decorative dot line ----
+  local dot_line="" j
+  for (( j = 0; j < W; j++ )); do
+    if (( j == W/2 )); then
+      dot_line+="${M_SHINE}◈${NC}"
+    elif (( j % 4 == 0 )); then
+      dot_line+="${DIM}·${NC}"
+    elif (( j % 3 == 1 )); then
+      dot_line+="${TP[$(( j * 4 / W > 15 ? 15 : j * 4 / W ))]}┄${NC}"
+    else
+      dot_line+="${DIM}─${NC}"
+    fi
+  done
+  echo "${pad_l}${l_border}│${NC}${dot_line}${r_border}│${NC}${pad_r}"
 
   _render_frame_line "bot"
 }
