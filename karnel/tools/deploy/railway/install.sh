@@ -20,11 +20,8 @@ _install_railway_manual_impl() {
     return 1
   fi
 
-  # Remove 'v' prefix for URL
   local version="${latest_version#v}"
 
-  # Railway does NOT provide aarch64-linux-android binary
-  # Try Linux aarch64 as fallback (may work with Termux glibc patcher)
   local tarball_url="https://github.com/railwayapp/cli/releases/download/${latest_version}/railway-${version}-aarch64-linux.tar.gz"
   local binary_name="railway"
 
@@ -41,7 +38,6 @@ _install_railway_manual_impl() {
   }
   rm -f "$RAILWAY_DATA_DIR/railway.tar.gz"
 
-  # Find the binary
   local found_bin
   found_bin=$(find "$RAILWAY_DATA_DIR" -name "railway" -type f 2>/dev/null | head -1)
   if [ -z "$found_bin" ]; then
@@ -64,7 +60,6 @@ install_railway() {
 
   mkdir -p "$(dirname "$LOG_FILE")" "$RAILWAY_DATA_DIR"
 
-  # Try npm first, then manual ARM download
   if npm install -g @railway/cli --legacy-peer-deps &>>"$LOG_FILE"; then
     command -v termux-fix-shebang &>/dev/null && termux-fix-shebang "$(command -v railway 2>/dev/null)" &>/dev/null
     log_success "Railway CLI installed via npm"

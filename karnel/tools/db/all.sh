@@ -9,6 +9,7 @@ DB_TOOLS=(
   "mariadb"
   "sqlite"
   "mongodb"
+  "redis"
 )
 
 for _tool in "${DB_TOOLS[@]}"; do

@@ -13,6 +13,8 @@ TOOLS_PACKAGES=(
   "proot"
   "ncurses"
   "tmate"
+  "openssh"
+  "tmux"
   "cloudflared"
   "translate"
   "html2text"

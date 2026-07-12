@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/data/data/com.termux/files/usr/bin/bash
 
 import "@/utils/log"
 import "@/utils/colors"
@@ -14,17 +14,16 @@ update_main() {
     echo
     log_info "Available targets:"
     echo
-    list_item "karnel       - Update only Karnel framework"
+    list_item "karnel     - Update only Karnel-Termux framework"
     list_item "lang       - Update language packages (pkg upgrade)"
     list_item "db         - Update databases"
     list_item "ai         - Update AI tools (npm/pip/pkg)"
-    list_item "editor     - Update code-server"
+    list_item "editor     - Update Neovim configuration"
     list_item "dev        - Update development tools"
     list_item "npm        - Update Node.js global modules"
     list_item "shell      - Update ZSH plugins"
     list_item "ui         - Update Termux UI"
     list_item "auto       - Update Automation Tools"
-    list_item "deploy     - Update Deploy CLIs (Vercel, Railway, Netlify)"
     echo
     log_info "Update specific tools with flags:"
     echo
@@ -69,7 +68,7 @@ _update_full_module() {
   local target="$1"
 
   case "$target" in
-  karnel)
+  core|karnel)
     update_karnel
     ;;
   lang)
@@ -108,14 +107,6 @@ _update_full_module() {
     import "@/modules/auto"
     update_auto
     ;;
-  deploy)
-    import "@/modules/deploy"
-    update_deploy
-    ;;
-  voice)
-    import "@/modules/voice"
-    update_voice
-    ;;
   *)
     log_warn "Unknown update target: $target"
     echo "Run 'karnel update' to see available targets"
@@ -139,75 +130,103 @@ _update_specific_tools() {
       case "$tool" in
       qwen-code)
         update_qwen_code
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       gemini-cli)
         update_gemini_cli
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       claude-code)
         update_claude_code
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       mistral-vibe)
         update_mistral_vibe
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       openclaude)
         update_openclaude
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       openclaw)
         update_openclaw
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       ollama)
         update_ollama
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       codex)
         update_codex
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       opencode)
         update_opencode
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       kilocode-cli)
         update_kilocode_cli
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
-      kiro)
-        update_kiro
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+      kimchi)
+        update_kimchi
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
-      crush)
-        update_crush
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+      mimocode)
+        update_mimocode
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
-      odysseus)
-        update_odysseus
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+      engram)
+        update_engram
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
-      kimchi-code)
-        update_kimchi_code
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+      codegraph)
+        update_codegraph
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
-      cline)
-        update_cline
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+      pi)
+        update_pi
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
-      omni-route)
-        update_karnel_route
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+      antigravity-cli)
+        update_antigravity_cli
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
+        ;;
+      minimax-cli)
+        update_minimax_cli
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
+        ;;
+      gentle-ai)
+        update_gentle_ai
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
+        ;;
+      gga)
+        update_gga
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
+        ;;
+      hermes-agent)
+        update_hermes_agent
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
+        ;;
+      kimi-code)
+        update_kimi_code
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
+        ;;
+      command-code)
+        update_command_code
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
+        ;;
+      freebuff)
+        update_freebuff
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       ctx7)
         update_ctx7
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       openspec)
         update_openspec
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       *)
         log_warn "Unknown AI tool: --$tool"
@@ -233,19 +252,23 @@ _update_specific_tools() {
       case "$tool" in
       postgresql)
         update_postgresql
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       mariadb)
         update_mariadb
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       sqlite)
         update_sqlite
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       mongodb)
         update_mongodb
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
+        ;;
+      redis)
+        update_redis
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       *)
         log_warn "Unknown database: --$tool"
@@ -271,79 +294,87 @@ _update_specific_tools() {
       case "$tool" in
       gh)
         update_gh
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       wget)
         update_wget
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       curl)
         update_curl
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       lsd)
         update_lsd
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       bat)
         update_bat
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       proot)
         update_proot
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       ncurses)
         update_ncurses
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       tmate)
         update_tmate
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
+        ;;
+      tmux)
+        update_tmux
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
+        ;;
+      openssh)
+        update_openssh
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       cloudflared)
         update_cloudflared
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       translate)
         update_translate
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       html2text)
         update_html2text
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       jq)
         update_jq
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       bc)
         update_bc
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       tree)
         update_tree
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       fzf)
         update_fzf
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       imagemagick)
         update_imagemagick
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       shfmt)
         update_shfmt
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       make)
         update_make
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       udocker)
         update_udocker
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       *)
         log_warn "Unknown tool: --$tool"
@@ -369,47 +400,47 @@ _update_specific_tools() {
       case "$tool" in
       typescript)
         update_typescript
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       nestjs)
         update_nestjs
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       prettier)
         update_prettier
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       live-server)
         update_live_server
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       localtunnel)
         update_localtunnel
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       vercel)
         update_vercel
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       markserv)
         update_markserv
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       psqlformat)
         update_psqlformat
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       ncu)
         update_ncu
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       ngrok)
         update_ngrok
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       turbopack)
         update_turbopack
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       *)
         log_warn "Unknown node module: --$tool"
@@ -434,32 +465,32 @@ _update_specific_tools() {
     for tool in "${tools[@]}"; do
       case "$tool" in
       nodejs)
-        update_nodejs
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        update_npmjs
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       python)
         update_python
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       perl)
         update_perl
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       php)
         update_php
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       rust)
         update_rust
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       clang)
         update_clang
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       golang)
         update_golang
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       *)
         log_warn "Unknown language: --$tool"
@@ -485,43 +516,43 @@ _update_specific_tools() {
       case "$tool" in
       powerlevel10k)
         update_powerlevel10k
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       zsh-defer)
         update_zsh_defer
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       zsh-autosuggestions)
         update_zsh_autosuggestions
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       zsh-syntax-highlighting)
         update_zsh_syntax_highlighting
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       history-substring)
         update_history_substring
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       zsh-completions)
         update_zsh_completions
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       fzf-tab)
         update_fzf_tab
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       you-should-use)
         update_you_should_use
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       zsh-autopair)
         update_zsh_autopair
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       better-npm)
         update_better_npm
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       *)
         log_warn "Unknown plugin: --$tool"
@@ -545,9 +576,13 @@ _update_specific_tools() {
 
     for tool in "${tools[@]}"; do
       case "$tool" in
-      code-server)
-        update_code_server
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+      neovim)
+        update_neovim
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
+        ;;
+      nvchad)
+        update_nvchad
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       *)
         log_warn "Unknown editor component: --$tool"
@@ -573,19 +608,19 @@ _update_specific_tools() {
       case "$tool" in
       font)
         update_font
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       extra-keys)
         update_extra_keys
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       cursor)
         update_cursor
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       banner)
         update_banner
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       *)
         log_warn "Unknown UI component: --$tool"
@@ -611,7 +646,7 @@ _update_specific_tools() {
       case "$tool" in
       n8n)
         update_n8n
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
         ;;
       *)
         log_warn "Unknown automation tool: --$tool"
@@ -628,40 +663,6 @@ _update_specific_tools() {
     fi
     echo
     ;;
-  deploy)
-    import "@/tools/deploy/all"
-    local updated_count=0
-    local failed_count=0
-
-    for tool in "${tools[@]}"; do
-      case "$tool" in
-      vercel)
-        update_vercel
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
-        ;;
-      railway)
-        update_railway
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
-        ;;
-      netlify)
-        update_netlify
-        case $? in 0|2) ((updated_count++));; 1) ((failed_count++));; esac
-        ;;
-      *)
-        log_warn "Unknown deploy tool: --$tool"
-        ;;
-      esac
-    done
-
-    echo
-    if [[ $updated_count -gt 0 ]]; then
-      log_success "$updated_count deploy CLI(s) updated"
-    fi
-    if [[ $failed_count -gt 0 ]]; then
-      log_warn "$failed_count CLI(s) failed to update"
-    fi
-    echo
-    ;;
   *)
     log_warn "Unknown update target: $module"
     echo "Run 'karnel update' to see available targets"
@@ -669,36 +670,32 @@ _update_specific_tools() {
   esac
 }
 
-# Update Karnel
+# Actualizar Karnel-Termux
 update_karnel() {
   separator
-  box "◈ UPDATING KARNEL TERMUX ◈"
+  box "◈ UPDATING KARNEL-TERMUX ◈"
   separator
   echo
 
   if [[ -d "$KARNEL_PATH/../.git" ]]; then
-    loading "Updating Karnel" _update_karnel_repo
+    loading "Updating Karnel-Termux" _update_karnel_repo
     local rc=$?
 
     echo
     if [[ $rc -eq 0 ]]; then
-      log_success "Karnel updated"
+      log_success "Karnel-Termux updated"
     elif [[ $rc -eq 2 ]]; then
-      log_success "Karnel is already up to date"
+      log_success "Karnel-Termux is already up to date"
     else
-      log_error "Failed to update Karnel"
+      log_error "Failed to update Karnel-Termux"
       log_info "Check your internet connection or run git pull manually"
     fi
 
     rm -f "$KARNEL_CACHE/new_version" "$KARNEL_CACHE/last_version_check"
   else
-    log_info "Karnel was installed via npm — updating through npm..."
-    if npm install -g karnel-termux &>/dev/null; then
-      log_success "Karnel updated to latest version via npm"
-    else
-      log_error "Failed to update Karnel via npm"
-      log_info "Try running: npm install -g karnel-termux"
-    fi
+    log_warn "Not a git repository, cannot update"
+    log_info "If you installed via curl, reinstall with:"
+    echo "  curl -fsSL https://raw.githubusercontent.com/israelmarques1024-dotcom/karnel-termux/main/install.sh | bash"
   fi
 
   echo

@@ -74,6 +74,28 @@ separator_section() {
 	echo -e "${GRAY}${line// /─} ${D_CYAN}${title}${GRAY} ${line// /─}${NC}"
 }
 
+box_large() {
+  local text="$1"
+  local len=${#text}
+  local line=$(printf "%$((len + 4))s")
+
+  echo -e "${GRAY}╔${line// /═}╗${NC}"
+  echo -e "${GRAY}║${D_CYAN}  $text  ${GRAY}║${NC}"
+  echo -e "${GRAY}╚${line// /═}╝${NC}"
+}
+
+box_with_subtitle() {
+  local title="$1"
+  local subtitle="$2"
+  local max_len=$(( ${#title} > ${#subtitle} ? ${#title} : ${#subtitle} ))
+  local line=$(printf "%$((max_len + 2))s")
+
+  echo -e "${GRAY}╭${line// /─}╮${NC}"
+  echo -e "${GRAY}│${D_CYAN} $title${GRAY}$(printf "%$((max_len - ${#title}))s") │${NC}"
+  echo -e "${GRAY}│${D_PURPLE} $subtitle${GRAY}$(printf "%$((max_len - ${#subtitle}))s") │${NC}"
+  echo -e "${GRAY}╰${line// /─}╯${NC}"
+}
+
 # ===== CENTER TEXT =====
 
 center_text() {
@@ -491,7 +513,55 @@ step_success() {
 }
 
 step_error() {
-	local step="$1"
-	local message="$2"
-	echo -e "    ${RED}[$step]${D_RED} $message ✖${NC}" >&2
+  local step="$1"
+  local message="$2"
+  echo -e "    ${RED}[$step]${D_RED} $message ✖${NC}" >&2
+}
+
+# ===== STATUS ICONS =====
+
+icon_success() {
+  echo -e "${GREEN}✓${NC}"
+}
+
+icon_error() {
+  echo -e "${RED}✗${NC}"
+}
+
+icon_warning() {
+  echo -e "${YELLOW}⚠${NC}"
+}
+
+icon_info() {
+  echo -e "${CYAN}ℹ${NC}"
+}
+
+icon_arrow() {
+  echo -e "${D_CYAN}→${NC}"
+}
+
+# ===== BADGE FUNCTIONS =====
+
+badge() {
+  local text="$1"
+  local color="${2:-D_CYAN}"
+  echo -e "${!color}[ $text ]${NC}"
+}
+
+badge_new() {
+  echo -e "${D_GREEN}[ NEW ]${NC}"
+}
+
+badge_beta() {
+  echo -e "${D_YELLOW}[ BETA ]${NC}"
+}
+
+badge_deprecated() {
+  echo -e "${D_RED}[ DEPRECATED ]${NC}"
+}
+
+# ===== TIP FUNCTION =====
+
+log_tip() {
+  echo -e "    ${D_CYAN}●${NC} $*"
 }

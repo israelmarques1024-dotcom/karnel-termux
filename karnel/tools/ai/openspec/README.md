@@ -31,4 +31,4 @@ openspec spec generate
 
 ---
 
-*Source: devcorex/core-termux, adapted for Karnel by israel marques*
+*Adapted for Karnel-Termux by israel marques*

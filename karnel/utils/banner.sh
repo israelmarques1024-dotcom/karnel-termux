@@ -9,11 +9,16 @@ BANNER_VERSION="$(grep "^KARNEL_VERSION=" "$BANNER_SCRIPT_DIR/env.sh" 2>/dev/nul
 [[ -z "$BANNER_VERSION" ]] && BANNER_VERSION="1.0.0"
 
 ESC=$(printf '\033')
-
-# TrueColor gradient: ciano -> azul -> roxo -> magenta -> rosa
+BOLD="${ESC}[1m"
+DIM="${ESC}[2m"
+NC="${ESC}[0m"
+# TrueColor helper (original gradient: red → purple → blue → black)
 tc() { printf '%s[38;2;%d;%d;%dm' "$ESC" "$1" "$2" "$3"; }
 
-# 16-step TrueColor palette
+WHITE=$(tc 255 255 255)
+GRAY="${ESC}[0;90m"
+
+# TP gradient: cyan → blue → purple → magenta (muted, original style)
 TP=()
 for i in $(seq 0 15); do
   if   (( i < 4 )); then
@@ -36,12 +41,6 @@ PURP="${TP[8]}"
 MAG="${TP[12]}"
 PINK=$(tc 255 80 140)
 RED=$(tc 220 50 50)
-WHITE="${ESC}[1;37m"
-GRAY="${ESC}[0;90m"
-DIM="${ESC}[2m"
-NC="${ESC}[0m"
-
-# Fixed colors for specific elements
 RUBY=$(tc 220 50 60)
 OBSIDIAN=$(tc 140 90 200)
 GREEN1=$(tc 80 220 80)
@@ -53,6 +52,32 @@ C05="${TP[5]}"
 C09="${TP[9]}"
 C11="${TP[11]}"
 C13="${TP[13]}"
+
+# RK gradient: red → purple → blue → black (original)
+RK=()
+for _i in $(seq 0 15); do
+  if (( _i < 6 )); then
+    _r=$(( 255 - _i * 10 ))
+    _g=$(( 40 + _i * 22 ))
+    _b=$(( 40 + _i * 28 ))
+  elif (( _i < 11 )); then
+    _r=$(( 195 - (_i-6) * 30 ))
+    _g=$(( 172 - (_i-6) * 28 ))
+    _b=$(( 208 - (_i-6) * 15 ))
+  else
+    _r=$(( 45 - (_i-11) * 8 ))
+    _g=$(( 32 - (_i-11) * 6 ))
+    _b=$(( 133 - (_i-11) * 26 ))
+  fi
+  (( _r < 0 )) && _r=0; (( _g < 0 )) && _g=0; (( _b < 0 )) && _b=0
+  RK+=("$(tc "$_r" "$_g" "$_b")")
+done
+unset _i _r _g _b
+
+# Metallic shine (pure gold → bright white gradient)
+M_SHINE=$(tc 255 215 0)
+M_GOLD=$(tc 255 200 50)
+M_SILVER=$(tc 220 220 255)
 
 _ansi_len() {
   printf '%s' "$1" | sed 's/\x1b\[[0-9;]*m//g' | wc -m | tr -d ' '
@@ -72,27 +97,6 @@ _center() {
 _repeat() {
   local ch="$1" n="$2" out="" _z
   for ((_z=0; _z<n; _z++)); do out+="$ch"; done
-  printf '%s' "$out"
-}
-
-_mirror() {
-  local s="$1" out="" i c
-  for (( i = ${#s} - 1; i >= 0; i-- )); do
-    c="${s:$i:1}"
-    case "$c" in
-      ┌) c=┐ ;; ┐) c=┌ ;;
-      └) c=┘ ;; ┘) c=└ ;;
-      ├) c=┤ ;; ┤) c=├ ;;
-      ┏) c=┓ ;; ┓) c=┏ ;;
-      ┗) c=┛ ;; ┛) c=┗ ;;
-      ┣) c=┫ ;; ┫) c=┣ ;;
-      ╭) c=╮ ;; ╮) c=╭ ;;
-      ╰) c=╯ ;; ╯) c=╰ ;;
-      ◤) c=◥ ;; ◥) c=◤ ;;
-      ◣) c=◢ ;; ◢) c=◣ ;;
-    esac
-    out+="$c"
-  done
   printf '%s' "$out"
 }
 
@@ -119,140 +123,41 @@ _ram_free() {
 }
 
 # ================================================================
-# KARNEL letters design (8 wide x 7 tall)
+# Figlet-generated text with red-black gradient
 # ================================================================
-O=(
-"╭────╮"
-"│ ╭╮ │"
-"│ ││ │"
-"│ ││ │"
-"│ ││ │"
-"│ ╰╯ │"
-"╰────╯"
-)
-
-M=(
-"╭╮  ╭╮"
-"││  ││"
-"│╲  ╱│"
-"│ ╲╱ │"
-"│ ╭╮ │"
-"│ ││ │"
-"╰╯  ╰╯"
-)
-
-N=(
-"╭────╮"
-"││   │"
-"││   │"
-"│╲   │"
-"│ ╲  │"
-"│  ╲││"
-"╰╯  ╰╯"
-)
-
-I=(
-"╭────╮"
-"│ │  │"
-"│ │  │"
-"│ │  │"
-"│ │  │"
-"│ │  │"
-"╰────╯"
-)
-
-KARNEL_LETTERS=(O M N I)
-KARNEL_W=8
-
-# KARNEL colors: gradient across letters
-KARNEL_COLORS=("${TP[1]}" "${TP[5]}" "${TP[9]}" "${TP[13]}")
+FIGLET_TEXT=""
+TERMUX_FIGLET_TEXT=""
+FIGLET_LINES=()
+TERMUX_FIGLET_LINES=()
+if command -v figlet &>/dev/null; then
+  FIGLET_TEXT=$(figlet -f big "KARNEL" 2>/dev/null || true)
+  TERMUX_FIGLET_TEXT=$(figlet -f big "TERMUX" 2>/dev/null || true)
+fi
+if [[ -n "$FIGLET_TEXT" ]]; then
+  while IFS= read -r _fl; do FIGLET_LINES+=("$_fl"); done <<< "$FIGLET_TEXT"
+fi
+if [[ -n "$TERMUX_FIGLET_TEXT" ]]; then
+  while IFS= read -r _tl; do TERMUX_FIGLET_LINES+=("$_tl"); done <<< "$TERMUX_FIGLET_TEXT"
+fi
 
 # ================================================================
-# TERMUX letters design (5 wide x 5 tall)
+# Render banner instantly
 # ================================================================
-C_A=(
-"╭──╮"
-"│╭╮│"
-"││││"
-"││││"
-"╰╯╰╯"
-)
-C_T=(
-"╭──╮"
-" ││ "
-" ││ "
-" ││ "
-" ╰╯ "
-)
-C_L=(
-"╭   "
-"│   "
-"│   "
-"│   "
-"╰──╮"
-)
-C_Y=(
-"╭──╮"
-" ╲╱ "
-" ││ "
-" ││ "
-" ╰╯ "
-)
-C_S=(
-"╭──╮"
-"│   "
-"╰──╮"
-"   │"
-"╰──╯"
-)
+_animate_banner() {
+  local cols="${COLUMNS:-$(tput cols 2>/dev/null || echo 80)}"
+  local W=$(( cols > 72 ? 68 : cols - 6 ))
+  (( W < 40 )) && W=40
 
-C_C=(
-"╭──╮"
-"│   "
-"│   "
-"│   "
-"╰──╯"
-)
+  local _step
+  for (( _step = -4; _step <= W + 4; _step += 4 )); do
+    printf '\033[2J\033[H'
+    _render "$_step" 2>/dev/null || true
+    sleep 0.01
+  done
 
-# Map TERMUX letters
-CAT_MAP=(C_C C_A C_T C_A C_L C_Y C_S C_T)
-CAT_W=5
-CAT_H=5
-CAT_COLORS=("${TP[0]}" "${TP[2]}" "${TP[4]}" "${TP[6]}" "${TP[8]}" "${TP[10]}" "${TP[12]}" "${TP[14]}")
-
-# ================================================================
-# Side circuit decorations
-# ================================================================
-SIDE_H=7
-SIDE_W=4
-DECOR_L=(
-$'╭──╮'
-$'│  ╰'
-$'╰╮  '
-$' │  '
-$' ╰──'
-$'╭╮  '
-$'╰╯  '
-)
-DECOR_R=()
-for row in "${DECOR_L[@]}"; do
-  DECOR_R+=("$(_mirror "$row")")
-done
-
-# ================================================================
-# TERMUX side circuit decorations
-# ================================================================
-CAT_DECOR_L=(
-"╭─╮ "
-"│╰╮ "
-"│ │ "
-"╰╮│ "
-" ╰╯ "
-)
-CAT_DECOR_R=()
-for row in "${CAT_DECOR_L[@]}"; do
-  CAT_DECOR_R+=("$(_mirror "$row")")
-done
+  printf '\033[2J\033[H'
+  _render 2>/dev/null || true
+}
 
 # ================================================================
 # Panel
@@ -274,6 +179,7 @@ _panel_value() {
 # Render
 # ================================================================
 _render() {
+  local _shine="${1:-}"
   local cols="${COLUMNS:-$(tput cols 2>/dev/null || echo 80)}"
   local W=$(( cols > 72 ? 68 : cols - 6 ))
   (( W < 40 )) && W=40
@@ -286,63 +192,70 @@ _render() {
   local pad_r; pad_r=$(printf '%*s' "$GAP_R" '')
   local sp_line; sp_line=$(printf '%*s' "$W" '')
 
-  # ---- Gradient frame line with tech connectors ----
+  # Border colors: original TP gradient normally, WHITE during scan
+  local l_border="${TP[0]}"
+  local r_border="${TP[15]}"
+  [[ -n "$_shine" ]] && l_border="${WHITE}" && r_border="${WHITE}"
+
+  # ---- Frame line: scan highlight passes through, or pure TP gradient ----
   local p1=$(( W / 4 )) p2=$(( W / 2 )) p3=$(( 3 * W / 4 ))
   local top_frame="" bot_frame="" i
   for (( i = 0; i < W; i++ )); do
     local c_idx=$(( i * 16 / W ))
     (( c_idx > 15 )) && c_idx=15
-    if (( i == 1 || i == W-2 )); then
-      top_frame+="${TP[$c_idx]}╌${NC}"
-      bot_frame+="${TP[$c_idx]}╌${NC}"
-    elif (( i == p1 || i == p2 || i == p3 )); then
-      top_frame+="${TP[$c_idx]}┬${NC}"
-      bot_frame+="${TP[$c_idx]}┴${NC}"
+    local m_color
+    if [[ -n "$_shine" ]]; then
+      local dist=$(( i > _shine ? i - _shine : _shine - i ))
+      if (( dist < 2 )); then
+        m_color="${WHITE}"
+      elif (( dist < 5 )); then
+        m_color="${M_SHINE}"
+      else
+        m_color="${TP[$c_idx]}"
+      fi
     else
-      top_frame+="${TP[$c_idx]}─${NC}"
-      bot_frame+="${TP[$c_idx]}─${NC}"
+      m_color="${TP[$c_idx]}"
+    fi
+    if (( i == 1 || i == W-2 )); then
+      top_frame+="${m_color}╌${NC}"
+      bot_frame+="${m_color}╌${NC}"
+    elif (( i == p1 || i == p2 || i == p3 )); then
+      top_frame+="${m_color}┬${NC}"
+      bot_frame+="${m_color}┴${NC}"
+    else
+      top_frame+="${m_color}─${NC}"
+      bot_frame+="${m_color}─${NC}"
     fi
   done
 
   # ---- Top frame ----
-  echo "${pad_l}${TP[0]}╭${NC}${top_frame}${TP[15]}╮${NC}${pad_r}"
+  echo "${pad_l}${WHITE}╭${NC}${top_frame}${WHITE}╮${NC}${pad_r}"
 
-  # ---- Header row ----
-  local hdr="${DIM}┄${NC}${DIM}┄${NC} ${TP[2]}◈${NC} ${WHITE}KARNEL${NC} ${GRAY}${DIM}✦${NC} ${WHITE}SYSTEMS${NC} ${TP[2]}◈${NC} ${DIM}┄${NC}${DIM}┄${NC}"
-  echo "${pad_l}${TP[0]}│${NC}$(_center "$hdr" "$W")${TP[15]}│${NC}${pad_r}"
+  # ---- Header row (vibrant) ----
+  local hdr="${TP[1]}┄${NC}${TP[1]}┄${NC} ${M_SHINE}◈${NC} ${BOLD}${WHITE}KARNEL${NC} ${WHITE}✦${NC} ${BOLD}${WHITE}SYSTEMS${NC} ${M_SHINE}◈${NC} ${TP[1]}┄${NC}${TP[1]}┄${NC}"
+  echo "${pad_l}${l_border}│${NC}$(_center "$hdr" "$W")${r_border}│${NC}${pad_r}"
 
   # ---- Empty row ----
-  echo "${pad_l}${TP[0]}│${NC}${sp_line}${TP[15]}│${NC}${pad_r}"
+  echo "${pad_l}${l_border}│${NC}${sp_line}${r_border}│${NC}${pad_r}"
 
-  # ---- KARNEL letters (7 rows) ----
-  local total_karnel_w=$(( KARNEL_W * 4 + 3 ))
-  for (( row_art = 0; row_art < 7; row_art++ )); do
-    local content=""
-    content+="${DIM}${DECOR_L[$row_art]}${NC} "
-    local l
-    for (( l = 0; l < 4; l++ )); do
-      local _arr="${KARNEL_LETTERS[$l]}" _val
-      eval "_val=\"\${${_arr}[$row_art]}\""
-      content+="${KARNEL_COLORS[$l]}${_val}${NC}"
-      (( l < 3 )) && content+=" "
-    done
-    content+=" ${DIM}${DECOR_R[$row_art]}${NC}"
-    echo "${pad_l}${TP[0]}│${NC}$(_center "$content" "$W")${TP[15]}│${NC}${pad_r}"
+  # ---- KARNEL figlet: pure RK gradient (red → purple → blue → black) ----
+  local num_fl=${#FIGLET_LINES[@]}
+  local _fi _line _ci
+  for (( _fi = 0; _fi < num_fl; _fi++ )); do
+    _line="${FIGLET_LINES[$_fi]}"
+    _ci=$(( _fi * 16 / (num_fl > 1 ? num_fl : 1) ))
+    (( _ci > 15 )) && _ci=15
+    echo "${pad_l}${l_border}│${NC}$( _center "${RK[$_ci]}${_line}${NC}" "$W" )${r_border}│${NC}${pad_r}"
   done
 
-  # ---- TERMUX (5 rows) ----
-  local total_cat_w=$(( CAT_W * 8 + 7 ))
-  for (( cat_row = 0; cat_row < CAT_H; cat_row++ )); do
-    local cat_line=""
-    cat_line+="${DIM}${CAT_DECOR_L[$cat_row]}${NC} "
-    for (( li = 0; li < 8; li++ )); do
-      local _carr="${CAT_MAP[$li]}" _cval
-      eval "_cval=\"\${${_carr}[$cat_row]}\""
-      cat_line+="${CAT_COLORS[$li]}${_cval}${NC}"
-      (( li < 7 )) && cat_line+=" "
-    done
-    cat_line+=" ${DIM}${CAT_DECOR_R[$cat_row]}${NC}"
-    echo "${pad_l}${TP[0]}│${NC}$(_center "$cat_line" "$W")${TP[15]}│${NC}${pad_r}"
+  # ---- TERMUX figlet: pure RK gradient ----
+  local num_tl=${#TERMUX_FIGLET_LINES[@]}
+  local _ti
+  for (( _ti = 0; _ti < num_tl; _ti++ )); do
+    _line="${TERMUX_FIGLET_LINES[$_ti]}"
+    _ci=$(( _ti * 16 / (num_tl > 1 ? num_tl : 1) ))
+    (( _ci > 15 )) && _ci=15
+    echo "${pad_l}${l_border}│${NC}$( _center "${RK[$_ci]}${_line}${NC}" "$W" )${r_border}│${NC}${pad_r}"
   done
 
   # ---- Tech bus divider ----
@@ -365,20 +278,20 @@ _render() {
     else dash_r+="─"; fi
   done
   local div_line="${DIM}${dash_l}${NC}${TP[3]}◈${NC}${DIM}${dash_r}${NC}"
-  echo "${pad_l}${TP[0]}│${NC}$(_center "$div_line" "$W")${TP[15]}│${NC}${pad_r}"
+  echo "${pad_l}${l_border}│${NC}$(_center "$div_line" "$W")${r_border}│${NC}${pad_r}"
 
   # ---- RUBY & OBSIDIAN ----
-  local gem_line="${TP[2]}◈${NC} ${RUBY}RUBY${NC} ${WHITE}&${NC} ${OBSIDIAN}OBSIDIAN${NC} ${TP[2]}◈${NC}"
-  echo "${pad_l}${TP[0]}│${NC}$(_center "$gem_line" "$W")${TP[15]}│${NC}${pad_r}"
+  local gem_line="${M_SHINE}◈${NC} ${BOLD}${RUBY}RUBY${NC} ${WHITE}${BOLD}&${NC} ${BOLD}${OBSIDIAN}OBSIDIAN${NC} ${M_SHINE}◈${NC}"
+  echo "${pad_l}${l_border}│${NC}$(_center "$gem_line" "$W")${r_border}│${NC}${pad_r}"
 
-  # ---- Version ----
-  echo "${pad_l}${TP[0]}│${NC}$(_center "${GREEN2}Karnel${NC} ${GREEN1}v${BANNER_VERSION}${NC}" "$W")${TP[15]}│${NC}${pad_r}"
+  # ---- Version (bold green) ----
+  echo "${pad_l}${l_border}│${NC}$(_center "${GREEN2}${BOLD}Karnel${NC} ${GREEN1}v${BANNER_VERSION}${NC}" "$W")${r_border}│${NC}${pad_r}"
 
   # ---- Author ----
-  echo "${pad_l}${TP[0]}│${NC}$(_center "${GRAY}by${NC} ${WHITE}israel${NC} ${GRAY}marques${NC}" "$W")${TP[15]}│${NC}${pad_r}"
+  echo "${pad_l}${l_border}│${NC}$(_center "${DIM}by${NC} ${BOLD}${WHITE}israel${NC} ${WHITE}marques${NC}" "$W")${r_border}│${NC}${pad_r}"
 
   # ---- Empty row ----
-  echo "${pad_l}${TP[0]}│${NC}${sp_line}${TP[15]}│${NC}${pad_r}"
+  echo "${pad_l}${l_border}│${NC}${sp_line}${r_border}│${NC}${pad_r}"
 
   # ---- Info panel ----
   local PW=$(( W - 4 ))
@@ -386,11 +299,11 @@ _render() {
   local phline; phline=$(_repeat '─' "$PW")
 
   # Panel top
-  echo "${pad_l}${TP[0]}│${NC} ${TP[3]}╭${NC}${phline}${TP[11]}╮${NC} ${TP[15]}│${NC}${pad_r}"
+  echo "${pad_l}${l_border}│${NC} ${M_SHINE}╭${NC}${phline}${M_SHINE}╮${NC} ${r_border}│${NC}${pad_r}"
 
   # Panel header
-  local ph=" ${TP[3]}◈${NC} ${WHITE}STATUS${NC} ${TP[3]}◈${NC} "
-  echo "${pad_l}${TP[0]}│${NC} ${TP[3]}│${NC}$(_center "$ph" "$PW")${TP[11]}│${NC} ${TP[15]}│${NC}${pad_r}"
+  local ph=" ${M_SHINE}◈${NC} ${BOLD}${WHITE}STATUS${NC} ${M_SHINE}◈${NC} "
+  echo "${pad_l}${l_border}│${NC} ${M_SHINE}│${NC}$(_center "$ph" "$PW")${M_SHINE}│${NC} ${r_border}│${NC}${pad_r}"
 
   # Panel separator
   local psep="" j
@@ -401,14 +314,14 @@ _render() {
     elif (( m == 2 )); then psep+="·"
     else psep+="─"; fi
   done
-  echo "${pad_l}${TP[0]}│${NC} ${TP[3]}│${NC}${DIM}${psep}${NC}${TP[11]}│${NC} ${TP[15]}│${NC}${pad_r}"
+  echo "${pad_l}${l_border}│${NC} ${TP[3]}│${NC}${DIM}${psep}${NC}${TP[11]}│${NC} ${r_border}│${NC}${pad_r}"
 
   # Panel data row
   local col_w=$(( (PW - 4) / 5 ))
   local col_line=""
   for (( i = 0; i < 5; i++ )); do
     local val; val=$(_panel_value $i)
-    local entry="${TP[$(( i * 3 + 1 ))]}${PANEL_ICONS[$i]}${NC} ${WHITE}${PANEL_HEADERS[$i]}${NC} ${GREEN1}${val}${NC}"
+    local entry="${TP[$(( i * 3 + 1 ))]}${PANEL_ICONS[$i]}${NC} ${BOLD}${WHITE}${PANEL_HEADERS[$i]}${NC} ${GREEN1}${val}${NC}"
     local ev; ev=$(_ansi_len "$entry")
     local epad=$(( (col_w - ev) / 2 ))
     local epad2=$(( col_w - ev - epad ))
@@ -417,38 +330,38 @@ _render() {
     col_line+="$(printf '%*s' "$epad" '')${entry}$(printf '%*s' "$epad2" '')"
     (( i < 4 )) && col_line+="${GRAY}│${NC}"
   done
-  echo "${pad_l}${TP[0]}│${NC} ${TP[3]}│${NC}${col_line}${TP[11]}│${NC} ${TP[15]}│${NC}${pad_r}"
+  echo "${pad_l}${l_border}│${NC} ${TP[3]}│${NC}${col_line}${TP[11]}│${NC} ${r_border}│${NC}${pad_r}"
 
   # Panel bottom
-  echo "${pad_l}${TP[0]}│${NC} ${TP[3]}╰${NC}${phline}${TP[11]}╯${NC} ${TP[15]}│${NC}${pad_r}"
+  echo "${pad_l}${l_border}│${NC} ${M_SHINE}╰${NC}${phline}${M_SHINE}╯${NC} ${r_border}│${NC}${pad_r}"
 
   # ---- Empty row ----
-  echo "${pad_l}${TP[0]}│${NC}${sp_line}${TP[15]}│${NC}${pad_r}"
+  echo "${pad_l}${l_border}│${NC}${sp_line}${r_border}│${NC}${pad_r}"
 
   # ---- Decorative dot line ----
   local dot_line="" j
   for (( j = 0; j < W; j++ )); do
     if (( j == W/2 )); then
-      dot_line+="${TP[3]}◈${NC}"
-    elif (( j % 5 == 0 )); then
+      dot_line+="${M_SHINE}◈${NC}"
+    elif (( j % 4 == 0 )); then
       dot_line+="${DIM}·${NC}"
     elif (( j % 3 == 1 )); then
-      dot_line+="${GRAY}${DIM}┄${NC}"
+      dot_line+="${TP[$(( j * 4 / W > 15 ? 15 : j * 4 / W ))]}┄${NC}"
     else
       dot_line+="${DIM}─${NC}"
     fi
   done
-  echo "${pad_l}${TP[0]}│${NC}${dot_line}${TP[15]}│${NC}${pad_r}"
+  echo "${pad_l}${l_border}│${NC}${dot_line}${r_border}│${NC}${pad_r}"
 
   # ---- Bottom card frame ----
-  echo "${pad_l}${TP[0]}│${NC}${DIM}╭${NC}$(printf '%*s' $((W-2)) '')${DIM}╮${NC}${TP[15]}│${NC}${pad_r}"
+  echo "${pad_l}${l_border}│${NC}${DIM}╭${NC}$(printf '%*s' $((W-2)) '')${DIM}╮${NC}${r_border}│${NC}${pad_r}"
 
   # ---- Run karnel line ----
-  local run_content="${CYAN}>${NC} ${GREEN1}Run${NC} ${WHITE}karnel${NC} ${GREEN1}to get started${NC} ${CYAN}_${NC}"
-  echo "${pad_l}${TP[0]}│${NC}${DIM}╰${NC}$(_center "$run_content" $((W-2)))${DIM}╯${NC}${TP[15]}│${NC}${pad_r}"
+  local run_content="${M_SHINE}▶${NC} ${GREEN1}${BOLD}Run${NC} ${BOLD}${WHITE}karnel${NC} ${GREEN1}to get started${NC} ${M_SHINE}◀${NC}"
+  echo "${pad_l}${l_border}│${NC}${DIM}╰${NC}$(_center "$run_content" $((W-2)))${DIM}╯${NC}${r_border}│${NC}${pad_r}"
 
   # ---- Bottom frame ----
-  echo "${pad_l}${TP[0]}╰${NC}${bot_frame}${TP[15]}╯${NC}${pad_r}"
+  echo "${pad_l}${WHITE}╰${NC}${bot_frame}${WHITE}╯${NC}${pad_r}"
 }
 
 # Block user input while banner renders
@@ -470,12 +383,15 @@ _karnel_banner_unblock_input() {
 
 _karnel_banner_block_input
 echo
-local _banner_output
-_banner_output=$(_render 2>/dev/null) || true
-echo "$_banner_output"
+if [[ -t 1 ]]; then
+  _animate_banner
+else
+  _render 2>/dev/null || true
+fi
 _karnel_banner_unblock_input
 
 # Cache banner for clear() override
+_banner_output=$(_render 2>/dev/null) || true
 _karnel_banner_cache="${XDG_CACHE_HOME:-$HOME/.cache}/karnel/banner_cache"
 mkdir -p "$(dirname "$_karnel_banner_cache")" 2>/dev/null
 [[ -t 1 ]] && echo "$_banner_output" > "$_karnel_banner_cache" 2>/dev/null

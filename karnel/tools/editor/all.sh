@@ -6,6 +6,8 @@ LOG_FILE="$KARNEL_CACHE/install_editor.log"
 
 EDITOR_COMPONENTS=(
   "code-server"
+  "neovim"
+  "nvchad"
 )
 
 for _tool in "${EDITOR_COMPONENTS[@]}"; do
