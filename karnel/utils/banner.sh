@@ -148,11 +148,11 @@ _animate_banner() {
   local W=$(( cols > 72 ? 68 : cols - 6 ))
   (( W < 40 )) && W=40
 
-  local _step
-  for (( _step = -4; _step <= W + 4; _step += 4 )); do
+  local _step _spin
+  for (( _step = -4; _step <= W + 4; _step += 6 )); do
     printf '\033[2J\033[H'
     _render "$_step" 2>/dev/null || true
-    sleep 0.01
+    for ((_spin=0; _spin<20000; _spin++)); do :; done
   done
 
   printf '\033[2J\033[H'
@@ -369,8 +369,8 @@ _karnel_banner_block_input() {
   if [[ -t 0 ]] && [[ -t 1 ]]; then
     _KARNEL_SAVED_STTY=$(stty -g 2>/dev/null)
     stty -echo -icanon min 0 time 0 2>/dev/null
-    # Drain any buffered input
-    while IFS= read -rsn1 -t 0.01 _drain 2>/dev/null; do :; done
+    local _drain _max=100
+    while (( _max-- > 0 )) && IFS= read -rsn1 -t 0.01 _drain 2>/dev/null; do :; done
   fi
 }
 
