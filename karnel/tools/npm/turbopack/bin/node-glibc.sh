@@ -1,4 +1,4 @@
-#!/data/data/com.termux/files/usr/bin/bash
+#!/usr/bin/env bash
 unset LD_LIBRARY_PATH
 unset LD_PRELOAD
 NODE_GLIBC="$HOME/.local/share/karnel-data/node-glibc/bin/node"

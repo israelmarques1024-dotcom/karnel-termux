@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -e
+trap '_cleanup_failed' ERR
 
 readonly P_BORDER='\e[38;5;33m'
 readonly P_PRIMARY='\e[38;5;39m'
@@ -62,6 +63,14 @@ log_fail() {
 
 log_info() {
 	echo -e "  ${P_BORDER}→${P_NC}  $1"
+}
+
+_cleanup_failed() {
+	echo -e "\n  ${P_FAIL}✖${P_NC}  Installation failed at step ${CURRENT_STEP}. Cleaning up..."
+	[[ -d "$KARNEL_REPO" ]] && rm -rf "$KARNEL_REPO"
+	[[ -L "$PREFIX/bin/karnel" ]] && rm -f "$PREFIX/bin/karnel"
+	echo -e "  ${P_DIM}Run install.sh again to retry${P_NC}"
+	exit 1
 }
 
 separator() {

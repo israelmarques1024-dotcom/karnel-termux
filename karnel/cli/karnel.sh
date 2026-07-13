@@ -59,6 +59,9 @@ karnel_help() {
   echo
   printf "    ${D_CYAN}%-12s${NC} %s\n" "--version" "Show current version"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "brain" "Second brain — save and search memories"
+  printf "    ${D_CYAN}%-12s${NC} %s\n" "backup" "Backup all Termux configs + tools"
+  printf "    ${D_CYAN}%-12s${NC} %s\n" "restore" "Restore from a backup"
+  printf "    ${D_CYAN}%-12s${NC} %s\n" "search" "Search tools and memories"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "cleanup" "Clean caches, logs, and temp files"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "env" "Manage environment variables"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "install" "Install modules and packages"
@@ -84,6 +87,8 @@ karnel_help() {
   list_item "Run: ${D_CYAN}karnel${NC} to see available commands"
   list_item "Run: ${D_CYAN}karnel open${NC} for official documentation"
   list_item "Run: ${D_CYAN}karnel install <module>${NC} to install modules"
+  list_item "Run: ${D_CYAN}karnel backup${NC} to save all configs"
+  list_item "Run: ${D_CYAN}karnel restore${NC} to restore"
   echo
   separator_section "Module Targets"
   echo

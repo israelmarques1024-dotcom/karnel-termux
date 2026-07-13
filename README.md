@@ -27,15 +27,13 @@
   </a>
 </p>
 
-
-
 ---
 
 **KARNEL TERMUX** é um ambiente de desenvolvimento modular que transforma o Termux em uma workstation completa. Com um único CLI (`karnel`), instale e gerencie:
 
 Criado por **israel marques** (tenho 12 anos).
 
-- **30 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama, Cline, omniRoute e mais
+- **30 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama, Cline, karnelRoute e mais
 - **7 linguagens** — Node.js, Python, Go, Rust, C/C++, PHP, Perl
 - **5 bancos de dados** — PostgreSQL, MariaDB, SQLite, MongoDB, Redis
 - **19 ferramentas dev** — gh, curl, fzf, bat, lsd, jq e muito mais
@@ -46,6 +44,9 @@ Criado por **israel marques** (tenho 12 anos).
 
 > [!IMPORTANT]
 > Projetado exclusivamente para **Termux no Android**. Não funciona em outras plataformas.
+
+> [!NOTE]
+> 💻 **Também disponível para Desktop:** [Karnel Desktop CLI](https://github.com/israelmarques1024-dotcom/karnel-termux-desktop-cli) — Gerenciador multiplataforma para Linux, macOS e Windows. Mesmo CLI, mesmos comandos, gerenciadores de pacote nativos.
 
 ---
 
@@ -88,13 +89,6 @@ karnel
 | `karnel update <modulo>` | Atualiza módulos ou o karnel |
 | `karnel uninstall <modulo>` | Remove módulos instalados |
 | `karnel reinstall <modulo>` | Reinstala módulos |
-| `karnel backup` | Backup completo do Termux (configs + pacotes + ferramentas) |
-| `karnel backup --cloud` | Backup + upload para Google Drive (via rclone) |
-| `karnel restore` | Restaura o backup mais recente |
-| `karnel restore <arquivo>` | Restaura um arquivo de backup específico |
-| `karnel restore --cloud` | Restaura do Google Drive |
-| `karnel show backup` | Mostra ajuda do backup |
-| `karnel show restore` | Mostra ajuda do restore |
 | `karnel doctor` | Diagnostica o ambiente (30+ verificações) |
 | `karnel brain` | Segundo cérebro — memórias e busca |
 | `karnel env` | Gerencia variáveis de ambiente |
@@ -163,7 +157,7 @@ karnel install ai --opencode --ollama           # Instala específicos
 | **Odysseus** | `--odysseus` | Assistente de código Odysseus |
 | **Kimchi CLI** | `--kimchi-code` | Agente de IA Kimchi |
 | **Cline CLI** | `--cline` | Agente de codificação autônomo (via proot-distro) |
-| **omniRoute** | `--omni-route` | AI Gateway com 236+ provedores |
+| **karnelRoute** | `--karnel-route` | AI Gateway com 236+ provedores |
 | **Context7** | `--ctx7` | Documentação para AI assistants |
 | **OpenSpec** | `--openspec` | Spec-Driven Development |
 
@@ -307,66 +301,6 @@ cd backend && karnel init nest        # NestJS + autenticação
 | `python` | FastAPI com SQLModel/SQLAlchemy |
 | `go` | Go com Gin ou Fiber |
 | `rust` | Rust com Axum ou Actix Web |
-
----
-
-## 💾 karnel backup / restore
-
-Salve e restaure **todo o seu Termux** com um comando.
-
-### Comandos
-
-| Comando | Descrição |
-|---------|-----------|
-| `karnel backup` | Backup local completo |
-| `karnel backup --cloud` | Backup + upload Google Drive |
-| `karnel restore` | Restaura o backup mais recente |
-| `karnel restore <arquivo>` | Restaura um arquivo específico |
-| `karnel restore --cloud` | Restaura do Google Drive |
-| `karnel show backup` | Mostra documentação do backup |
-| `karnel show restore` | Mostra documentação do restore |
-
-### Uso básico
-
-```bash
-karnel backup                    # Backup local (configs + pacotes + tools)
-karnel backup --cloud            # Backup + upload pro Google Drive
-karnel restore                   # Restaura o backup mais recente
-karnel restore --cloud           # Restaura do Google Drive
-karnel restore ~/backup.tar.gz   # Restaura um arquivo específico
-```
-
-### O backup inclui
-
-- **Pacotes** — Lista completa do dpkg
-- **Ferramentas** — Manifest das tools Karnel instaladas
-- **Shell** — .bashrc, .zshrc, .profile
-- **Termux** — Fontes, cores, propriedades
-- **SSH** — Chaves e configs
-- **Configs** — ~/.config completo
-- **APT** — Repositórios sources.list
-
-### Cloud (gratuito)
-
-Usa [rclone](https://rclone.org) — open-source, conecta Google Drive, Dropbox, OneDrive. Zero custo de servidor.
-
-```bash
-karnel backup --cloud             # Primeiro instala rclone, depois configura
-rclone config                     # Nomeie o remote como "karnel"
-karnel backup --cloud             # Agora sobe pro Google Drive
-```
-
-### Restore
-
-O restore extrai as configurações, restaura a lista de pacotes e reinstala automaticamente todas as ferramentas Karnel.
-
-```bash
-karnel restore                    # Restaura o backup mais recente
-karnel restore ~/backup.tar.gz   # Restaura um arquivo específico
-karnel restore --cloud           # Baixa do Google Drive e restaura
-```
-
-> O restore de pacotes (dpkg) pode levar alguns minutos. Após finalizar, reinicie o Termux ou execute `source ~/.zshrc`.
 
 ---
 
@@ -517,5 +451,8 @@ MIT © israel marques
   </a>
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux-site">
     <img src="https://img.shields.io/badge/%F0%9F%93%B1%20Site%20Repo-0078D4?style=for-the-badge" alt="Site Repo">
+  </a>
+  <a href="https://github.com/israelmarques1024-dotcom/karnel-termux-desktop-cli">
+    <img src="https://img.shields.io/badge/%F0%9F%92%BB%20Desktop%20CLI-0078D4?style=for-the-badge" alt="Desktop CLI">
   </a>
 </p>
