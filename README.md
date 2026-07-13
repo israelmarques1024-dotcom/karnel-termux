@@ -37,7 +37,7 @@ Criado por **israel marques** (tenho 12 anos).
 
 - **30 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama, Cline, karnelRoute e mais
 - **7 linguagens** — Node.js, Python, Go, Rust, C/C++, PHP, Perl
-- **4 bancos de dados** — PostgreSQL, MariaDB, SQLite, MongoDB
+- **5 bancos de dados** — PostgreSQL, MariaDB, SQLite, MongoDB, Redis
 - **19 ferramentas dev** — gh, curl, fzf, bat, lsd, jq e muito mais
 - **3 CLIs de deploy** — Vercel, Railway, Netlify
 - **Editor profissional** — code-server (VS Code no navegador)
@@ -105,7 +105,7 @@ karnel
 | Módulo | Descrição | Instalação |
 |--------|-----------|------------|
 | `lang` | Node.js, Python, Go, Rust, C/C++, PHP, Perl | `karnel install lang` |
-| `db` | PostgreSQL, MariaDB, SQLite, MongoDB | `karnel install db` |
+| `db` | PostgreSQL, MariaDB, SQLite, MongoDB, Redis | `karnel install db` |
 | `ai` | 30 agentes de IA para coding | `karnel install ai` |
 | `editor` | code-server (VS Code no navegador) | `karnel install editor` |
 | `dev` | gh, curl, fzf, bat, lsd, jq e mais | `karnel install dev` |
