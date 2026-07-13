@@ -23,7 +23,7 @@
     <img src="https://img.shields.io/badge/platform-Termux%20%7C%20Android-0078D4?style=for-the-badge&logo=android" alt="Platform">
   </a>
   <a href="https://kerneltermux.vercel.app">
-    <img src="https://img.shields.io/badge/%F0%9F%8C%90%20Site-karnel--termux.vercel.app-0078D4?style=for-the-badge" alt="Website">
+    <img src="https://img.shields.io/badge/%F0%9F%8C%90%20Site-kerneltermux.vercel.app-0078D4?style=for-the-badge" alt="Website">
   </a>
 </p>
 
