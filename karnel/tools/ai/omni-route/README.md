@@ -1,8 +1,8 @@
-# karnelRoute
+# omniRoute (karnelroute wrapper)
 
 **AI Gateway CLI** — 236+ AI providers via a single endpoint.
 
-**Package:** karnel-route  
+**Package:** omni-route (npm: karnelroute)  
 **Author:** israel marques  
 **Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux  
 **Official:** https://karnelroute.online  
@@ -12,24 +12,26 @@
 
 ## Description
 
-karnelRoute is the Karnel Termux wrapper for the official `karnelroute` npm package — an AI Gateway that provides 236+ AI providers via a single endpoint, with auto-fallback to free providers and smart routing with compression (15-95% token savings).
+omniRoute is the Karnel Termux wrapper for the official `karnelroute` npm package — an AI Gateway that provides 236+ AI providers via a single endpoint, with auto-fallback to free providers and smart routing with compression (15-95% token savings).
 
 ## Installation
 
 ```bash
-karnel install ai --karnel-route
+karnel install ai --omni-route
 ```
 
 ## Usage
 
 ```bash
-karnel-route                         # Start AI gateway on localhost:20128
-karnel-route serve --daemon           # Start as background daemon
-karnel-route serve --daemon --no-open # Daemon without browser
-karnel-route stop                     # Stop the server
-karnel-route --help                   # Show all commands
-karnel-route --version                # Show version
+omni-route                         # Start AI gateway on localhost:20128
+omni-route serve --daemon           # Start as background daemon
+omni-route serve --daemon --no-open # Daemon without browser
+omni-route stop                     # Stop the server
+omni-route --help                   # Show all commands
+omni-route --version                # Show version
 ```
+
+> Note: `karnel-route` and `karnelroute` also work as aliases.
 
 ## Dashboard
 
@@ -85,10 +87,10 @@ karnel-route serve --daemon
 
 | Command | Description |
 |---------|-------------|
-| `karnel-route` | Shortcut to karnelroute |
-| `karnel-route serve` | Start the server |
-| `karnel-route serve --daemon` | Run in background |
-| `karnel-route stop` | Stop the daemon |
+| `omni-route` | AI Gateway (alias: karnel-route) |
+| `omni-route serve` | Start the server |
+| `omni-route serve --daemon` | Run in background |
+| `omni-route stop` | Stop the daemon |
 
 ## Notes
 
@@ -108,4 +110,4 @@ karnel-route serve --daemon
 
 - `karnel ia routes` — List installed AI CLI tools
 - `karnel ia sessions` — View active AI sessions
-- `karnel install ai --karnel-route` — Install
+- `karnel install ai --omni-route` — Install

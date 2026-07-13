@@ -35,7 +35,7 @@
 
 Criado por **israel marques** (tenho 12 anos).
 
-- **30 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama, Cline, karnelRoute e mais
+- **30 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama, Cline, omniRoute e mais
 - **7 linguagens** — Node.js, Python, Go, Rust, C/C++, PHP, Perl
 - **5 bancos de dados** — PostgreSQL, MariaDB, SQLite, MongoDB, Redis
 - **19 ferramentas dev** — gh, curl, fzf, bat, lsd, jq e muito mais
@@ -163,7 +163,7 @@ karnel install ai --opencode --ollama           # Instala específicos
 | **Odysseus** | `--odysseus` | Assistente de código Odysseus |
 | **Kimchi CLI** | `--kimchi-code` | Agente de IA Kimchi |
 | **Cline CLI** | `--cline` | Agente de codificação autônomo (via proot-distro) |
-| **karnelRoute** | `--karnel-route` | AI Gateway com 236+ provedores |
+| **omniRoute** | `--omni-route` | AI Gateway com 236+ provedores |
 | **Context7** | `--ctx7` | Documentação para AI assistants |
 | **OpenSpec** | `--openspec` | Spec-Driven Development |
 

@@ -11,7 +11,7 @@ Karnel is a Termux environment manager. The project is at `~/karnel/` with code 
 - CLI commands: `karnel/cli/commands/` (install.sh, uninstall.sh, update.sh, reinstall.sh, list.sh, show.sh, open.sh, doctor.sh, brain.sh, env.sh, init.sh, pg.sh, voice.sh, ia.sh)
 - CLI commands: AI subcommands include `karnel ia sessions`, `karnel ia routes`, `karnel ia install`
 - AI listing: `karnel list ai` (not `karnel ia list`)
-- karnelRoute: `karnel install ai --karnel-route`; installs karnel-route wrapper; official AI gateway: https://karnelroute.online
+- omniRoute: `karnel install ai --omni-route`; installs omni-route wrapper (npm: karnelroute); official AI gateway: https://karnelroute.online
 - Utils: `karnel/utils/` (banner.sh, bootstrap.sh, colors.sh, env.sh, log.sh)
 
 <!-- CODEGRAPH_START -->
