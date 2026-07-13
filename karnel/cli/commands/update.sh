@@ -576,6 +576,10 @@ _update_specific_tools() {
 
     for tool in "${tools[@]}"; do
       case "$tool" in
+      code-server)
+        update_code_server
+        case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac
+        ;;
       neovim)
         update_neovim
         case $? in 0) ((updated_count++));; 1) ((failed_count++));; esac

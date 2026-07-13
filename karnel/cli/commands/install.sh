@@ -71,7 +71,7 @@ install_main() {
     list_item "lang       - Language packages (Node.js, Python, Perl, PHP, Rust, C, C++, Go)"
     list_item "db         - Databases (PostgreSQL, MariaDB, SQLite, MongoDB, Redis)"
     list_item "ai         - AI tools (OpenCode, Gentle AI, Claude Code, etc.)"
-    list_item "editor     - Code editor (code-server)"
+    list_item "editor     - Code editor (code-server, neovim, nvchad)"
     list_item "dev        - Development tools"
     list_item "npm        - Node.js global modules (npm packages)"
     list_item "shell      - ZSH + Oh My Zsh + plugins"
@@ -597,8 +597,15 @@ _install_specific_tools() {
     for tool in "${tools[@]}"; do
       case "$tool" in
       code-server)
-        import "@/tools/editor/code-server"
         install_code_server
+        case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
+      neovim)
+        install_neovim
+        case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
+      nvchad)
+        install_nvchad
         case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
         ;;
       *)

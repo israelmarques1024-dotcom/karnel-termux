@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux">
-    <img src="https://img.shields.io/badge/version-0.0.1-0078D4?style=for-the-badge&logo=appveyor" alt="Version">
+    <img src="https://img.shields.io/badge/version-0.0.4-0078D4?style=for-the-badge&logo=appveyor" alt="Version">
   </a>
   <a href="https://www.npmjs.com/package/karnel-termux">
     <img src="https://img.shields.io/npm/v/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm">

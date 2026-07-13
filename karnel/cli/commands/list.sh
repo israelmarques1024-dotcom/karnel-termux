@@ -185,6 +185,8 @@ _list_editor() {
 
   table_start "Component" "Install Flag" "Status"
   table_row "code-server" "--code-server" "$(_check_cmd "code-server")"
+  table_row "neovim" "--neovim" "$(_check_cmd "nvim")"
+  table_row "nvchad" "--nvchad" "$(_check_cmd "nvim")"
   table_end
 
   echo
