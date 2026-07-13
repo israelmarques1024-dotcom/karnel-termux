@@ -31,7 +31,7 @@
 
 **KARNEL TERMUX** é um ambiente de desenvolvimento modular que transforma o Termux em uma workstation completa. Com um único CLI (`karnel`), instale e gerencie:
 
-Criado por **israel marques** (tenho 12 anos).
+Criado por **israel marques** (12 anos).
 
 - **30 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama, Cline, karnelRoute e mais
 - **7 linguagens** — Node.js, Python, Go, Rust, C/C++, PHP, Perl
@@ -448,11 +448,5 @@ MIT © israel marques
 <p align="center">
   <a href="https://kerneltermux.vercel.app">
     <img src="https://img.shields.io/badge/%F0%9F%8C%90%20Documenta%C3%A7%C3%A3o%20Completa-0078D4?style=for-the-badge" alt="Documentação">
-  </a>
-  <a href="https://github.com/israelmarques1024-dotcom/karnel-termux-site">
-    <img src="https://img.shields.io/badge/%F0%9F%93%B1%20Site%20Repo-0078D4?style=for-the-badge" alt="Site Repo">
-  </a>
-  <a href="https://github.com/israelmarques1024-dotcom/karnel-termux-desktop-cli">
-    <img src="https://img.shields.io/badge/%F0%9F%92%BB%20Desktop%20CLI-0078D4?style=for-the-badge" alt="Desktop CLI">
   </a>
 </p>
