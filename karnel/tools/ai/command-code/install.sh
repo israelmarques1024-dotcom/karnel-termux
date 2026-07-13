@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 COMMAND_CODE_DATA_DIR="$HOME/.local/share/karnel-data/command-code"
@@ -107,18 +108,7 @@ _uninstall_command_code_impl() {
 }
 
 update_command_code() {
-  log_info "Updating Command Code..."
-  mkdir -p "$(dirname "$LOG_FILE")"
-
-  if [ ! -d "$COMMAND_CODE_DATA_DIR" ]; then
-    log_warn "Command Code is not installed"
-    return 1
-  fi
-
-  loading "Updating command-code package" _update_command_code_impl
-
-  log_success "Command Code updated"
-  return 0
+  _check_update_needed "Command Code" "$(_get_installed_npm_version command-code)" "$(_get_remote_npm_version command-code)" _update_command_code_impl
 }
 
 _update_command_code_impl() {

@@ -4,6 +4,8 @@
 # Bridges human intent and AI output with structured technical specs
 # Stores specs in /openspec/ directory to guide AI agents
 # Official: npm install -g @fission-ai/openspec@latest
+import "@/utils/log"
+import "@/utils/version"
 
 install_openspec() {
   if command -v openspec &>/dev/null; then
@@ -41,12 +43,10 @@ uninstall_openspec() {
 }
 
 update_openspec() {
-  if ! command -v openspec &>/dev/null; then
-    log_warn "openspec is not installed"
-    return 1
-  fi
+  _check_update_needed "openspec" "$(_get_installed_npm_version @fission-ai/openspec)" "$(_get_remote_npm_version @fission-ai/openspec)" _do_update_openspec
+}
 
-  log_info "Updating openspec..."
+_do_update_openspec() {
   npm update -g @fission-ai/openspec 2>/dev/null
   local _t
   _t=$(readlink -f "$PREFIX/bin/openspec" 2>/dev/null)

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 
@@ -86,13 +87,7 @@ _uninstall_openclaw_impl() {
 }
 
 update_openclaw() {
-  log_info "Updating OpenClaw..."
-  mkdir -p "$(dirname "$LOG_FILE")"
-
-  loading "Updating OpenClaw" _update_openclaw_impl
-
-  log_success "OpenClaw updated"
-  return 0
+  _check_update_needed "OpenClaw" "$(_get_installed_npm_version openclaw)" "$(_get_remote_npm_version openclaw)" _update_openclaw_impl
 }
 
 _update_openclaw_impl() {

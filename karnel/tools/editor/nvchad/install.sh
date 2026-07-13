@@ -96,7 +96,7 @@ _do_nvchad_update() {
 }
 
 update_nvchad() {
-  _update_nvchad
+  _check_update_needed "NvChad" "$(_get_installed_git_version "$NVCHAD_DIR")" "$(_get_remote_github_version DevCoreXOfficial/nvchad-termux)" _do_nvchad_update
 }
 
 reinstall_nvchad() {

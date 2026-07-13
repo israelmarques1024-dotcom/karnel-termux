@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_npm.log"
 
@@ -81,12 +82,7 @@ _update_vercel_npm_impl() {
 }
 
 update_vercel() {
-  log_info "Updating Vercel CLI..."
-  mkdir -p "$(dirname "$LOG_FILE")"
-
-  _update_vercel_npm || return 1
-  log_success "Vercel CLI updated"
-  return 0
+  _check_update_needed "Vercel CLI" "$(_get_installed_npm_version vercel)" "$(_get_remote_npm_version vercel)" _update_vercel_npm
 }
 
 reinstall_vercel() {

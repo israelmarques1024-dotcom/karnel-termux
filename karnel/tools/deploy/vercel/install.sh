@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 VERCEL_BIN="$PREFIX/lib/node_modules/vercel/dist/vc.js"
 
@@ -28,13 +29,16 @@ uninstall_vercel() {
 }
 
 update_vercel() {
-  log_info "Updating Vercel CLI..."
+  _check_update_needed "Vercel CLI" "$(_get_installed_npm_version vercel)" "$(_get_remote_npm_version vercel)" _do_update_vercel
+}
+
+_do_update_vercel() {
   npm update -g vercel &>/dev/null || {
     log_error "Failed to update Vercel CLI"
     return 1
   }
   command -v termux-fix-shebang &>/dev/null && termux-fix-shebang "$(command -v vercel)" &>/dev/null
-  log_success "Vercel CLI updated"
+  return 0
 }
 
 reinstall_vercel() {

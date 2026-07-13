@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_dev.log"
 
@@ -68,12 +69,7 @@ uninstall_cloudflared() {
 }
 
 update_cloudflared() {
-	log_info "Updating Cloudflared..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-
-	_update_cloudflared_pkg || return 1
-	log_success "Cloudflared updated"
-	return 0
+  _check_update_needed "Cloudflared" "$(_get_installed_pkg_version cloudflared)" "$(_get_remote_pkg_version cloudflared)" _update_cloudflared_pkg
 }
 
 reinstall_cloudflared() {

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_shell.log"
 ZSH_PLUGINS_DIR="$HOME/.zsh-plugins"
@@ -63,7 +64,7 @@ _update_zsh_syntax_highlighting_impl() {
 }
 
 update_zsh_syntax_highlighting() {
-  loading "Updating zsh-syntax-highlighting" _update_zsh_syntax_highlighting_impl
+  _check_update_needed "zsh-syntax-highlighting" "$(_get_installed_git_version "$ZSH_PLUGINS_DIR/zsh-syntax-highlighting")" "$(_get_remote_github_version zsh-users/zsh-syntax-highlighting)" _update_zsh_syntax_highlighting_impl
 }
 
 reinstall_zsh_syntax_highlighting() {

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 install_netlify() {
   if command -v netlify &>/dev/null; then
@@ -26,13 +27,16 @@ uninstall_netlify() {
 }
 
 update_netlify() {
-  log_info "Updating Netlify CLI..."
+  _check_update_needed "Netlify CLI" "$(_get_installed_npm_version netlify-cli)" "$(_get_remote_npm_version netlify-cli)" _do_update_netlify
+}
+
+_do_update_netlify() {
   npm update -g netlify-cli &>/dev/null || {
     log_error "Failed to update Netlify CLI"
     return 1
   }
   command -v termux-fix-shebang &>/dev/null && termux-fix-shebang "$(command -v netlify)" &>/dev/null
-  log_success "Netlify CLI updated"
+  return 0
 }
 
 reinstall_netlify() {

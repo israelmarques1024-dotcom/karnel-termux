@@ -2,6 +2,7 @@
 
 import "@/utils/log"
 import "@/utils/colors"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 FREEBUFF_DATA_DIR="$HOME/.local/share/karnel-data/freebuff"
@@ -261,9 +262,10 @@ uninstall_freebuff() {
 }
 
 update_freebuff() {
-  log_info "Updating Freebuff..."
-  mkdir -p "$(dirname "$LOG_FILE")"
+  _check_update_needed "Freebuff" "$(_get_installed_version freebuff)" "$(_get_remote_github_version CodebuffAI/codebuff-community)" _update_freebuff_impl
+}
 
+_update_freebuff_impl() {
   if [ -f "$FREEBUFF_DATA_DIR/freebuff" ]; then
     _install_freebuff_native
     return $?

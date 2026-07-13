@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_dev.log"
 
@@ -68,12 +69,7 @@ uninstall_bc() {
 }
 
 update_bc() {
-	log_info "Updating bc..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-
-	_update_bc_pkg || return 1
-	log_success "bc updated"
-	return 0
+  _check_update_needed "bc" "$(_get_installed_pkg_version bc)" "$(_get_remote_pkg_version bc)" _update_bc_pkg
 }
 
 reinstall_bc() {

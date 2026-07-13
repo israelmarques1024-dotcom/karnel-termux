@@ -1,6 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
 import "@/utils/log"
+import "@/utils/version"
 import "@/utils/colors"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
@@ -162,15 +163,7 @@ _uninstall_kilocode_cli_impl() {
 }
 
 update_kilocode_cli() {
-  mkdir -p "$(dirname "$LOG_FILE")"
-
-  if [ -f "$KILOCODE_DATA_DIR/kilo" ]; then
-    _install_kilocode_native
-    return $?
-  fi
-
-  log_warn "Kilo Code CLI not found for update"
-  return 1
+  _check_update_needed "Kilo Code CLI" "$(_get_installed_version kilocode)" "$(_get_remote_github_version Kilo-Org/kilocode)" _install_kilocode_native
 }
 
 reinstall_kilocode_cli() {

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 
@@ -85,13 +86,7 @@ _uninstall_gemini_cli_impl() {
 }
 
 update_gemini_cli() {
-  log_info "Updating Gemini CLI..."
-  mkdir -p "$(dirname "$LOG_FILE")"
-
-  loading "Updating Gemini CLI" _update_gemini_cli_impl
-
-  log_success "Gemini CLI updated"
-  return 0
+  _check_update_needed "Gemini CLI" "$(_get_installed_npm_version @google/gemini-cli)" "$(_get_remote_npm_version @google/gemini-cli)" _update_gemini_cli_impl
 }
 
 _update_gemini_cli_impl() {

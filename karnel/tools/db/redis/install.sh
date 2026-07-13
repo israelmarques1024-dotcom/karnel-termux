@@ -54,7 +54,6 @@ _do_redis_update() {
 }
 
 update_redis() {
-  mkdir -p "$(dirname "$LOG_FILE")"
   _check_update_needed "Redis" "$(_get_installed_pkg_version redis "Redis")" "$(_get_remote_pkg_version redis)" _update_redis_impl
 }
 

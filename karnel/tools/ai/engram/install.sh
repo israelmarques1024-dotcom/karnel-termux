@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 
@@ -100,13 +101,7 @@ _uninstall_engram_impl() {
 }
 
 update_engram() {
-  log_info "Updating Engram..."
-  mkdir -p "$(dirname "$LOG_FILE")"
-
-  loading "Updating Engram" _update_engram_impl
-
-  log_success "Engram updated"
-  return 0
+  _check_update_needed "Engram" "$(_get_installed_git_version "$KARNEL_DATA/engram")" "$(_get_remote_github_version Gentleman-Programming/engram)" _update_engram_impl
 }
 
 _update_engram_impl() {

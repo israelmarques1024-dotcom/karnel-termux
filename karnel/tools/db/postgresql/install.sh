@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_db.log"
 
@@ -55,8 +56,7 @@ _update_postgresql_impl() {
 }
 
 update_postgresql() {
-	log_info "Updating PostgreSQL..."
-	loading "Updating PostgreSQL" _update_postgresql_impl
+	_check_update_needed "PostgreSQL" "$(_get_installed_pkg_version postgresql)" "$(_get_remote_pkg_version postgresql)" _update_postgresql_impl
 }
 
 reinstall_postgresql() {

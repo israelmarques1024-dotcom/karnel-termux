@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 import "@/utils/colors"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
@@ -254,9 +255,10 @@ uninstall_opencode() {
 }
 
 update_opencode() {
-  log_info "Updating OpenCode..."
-  mkdir -p "$(dirname "$LOG_FILE")"
+  _check_update_needed "OpenCode" "$(_get_installed_version opencode)" "$(_get_remote_github_version anomalyco/opencode)" _do_update_opencode
+}
 
+_do_update_opencode() {
   if [ -f "$OPENCODE_DATA_DIR/opencode" ]; then
     _install_opencode_native
     return $?
@@ -265,11 +267,11 @@ update_opencode() {
   _opencode_proot_ubuntu /bin/bash -c 'rm -rf /root/.opencode' &>>"$LOG_FILE"
 
   _opencode_proot_ubuntu /bin/bash -c '
-		export SHELL=/bin/bash
-		export TMPDIR=/tmp
-		export HOME=/root
-		curl -fsSL https://opencode.ai/install | bash -s -- --no-modify-path
-	' &>>"$LOG_FILE"
+    export SHELL=/bin/bash
+    export TMPDIR=/tmp
+    export HOME=/root
+    curl -fsSL https://opencode.ai/install | bash -s -- --no-modify-path
+  ' &>>"$LOG_FILE"
 
   local ubuntu_root
   ubuntu_root="$(_opencode_detect_ubuntu_root)"
@@ -280,7 +282,6 @@ update_opencode() {
     return 1
   fi
 
-  log_success "OpenCode (proot-distro) updated"
   return 0
 }
 

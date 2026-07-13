@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 
@@ -85,13 +86,7 @@ _uninstall_qwen_code_impl() {
 }
 
 update_qwen_code() {
-  log_info "Updating Qwen Code..."
-  mkdir -p "$(dirname "$LOG_FILE")"
-
-  loading "Updating Qwen Code" _update_qwen_code_impl
-
-  log_success "Qwen Code updated successfully"
-  return 0
+  _check_update_needed "Qwen Code" "$(_get_installed_npm_version @qwen-code/qwen-code)" "$(_get_remote_npm_version @qwen-code/qwen-code)" _update_qwen_code_impl
 }
 
 _update_qwen_code_impl() {

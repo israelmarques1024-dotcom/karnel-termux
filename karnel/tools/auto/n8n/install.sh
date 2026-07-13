@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_auto.log"
 
@@ -92,8 +93,7 @@ _update_n8n_impl() {
 }
 
 update_n8n() {
-  log_info "Updating n8n..."
-  loading "Updating n8n" _update_n8n_impl
+  _check_update_needed "n8n" "$(_get_installed_npm_version n8n)" "$(_get_remote_npm_version n8n)" _update_n8n_impl
 }
 
 reinstall_n8n() {

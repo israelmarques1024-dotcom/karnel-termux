@@ -3,6 +3,7 @@
 # Kimchi CLI - Karnel installer
 # Usa o sistema de import padronizado do Karnel (bootstrap.sh)
 import "@/utils/log"
+import "@/utils/version"
 import "@/utils/colors"
 
 export KARNEL_CACHE="${KARNEL_CACHE:-$HOME/.cache/karnel}"
@@ -195,9 +196,10 @@ uninstall_kimchi_code() {
 }
 
 update_kimchi_code() {
-  log_info "Updating Kimchi CLI..."
-  mkdir -p "$(dirname "$LOG_FILE")"
+  _check_update_needed "Kimchi CLI" "$(_get_installed_version kimchi)" "$(_get_remote_github_version getkimchi/kimchi)" _do_update_kimchi_code
+}
 
+_do_update_kimchi_code() {
   rm -rf "$KIMCHI_DATA_DIR" 2>/dev/null
   mkdir -p "$KIMCHI_DATA_DIR"
 
@@ -211,7 +213,6 @@ update_kimchi_code() {
     return 1
   }
 
-  log_success "Kimchi CLI updated"
   return 0
 }
 

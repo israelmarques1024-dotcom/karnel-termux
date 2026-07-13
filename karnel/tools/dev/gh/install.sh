@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_dev.log"
 
@@ -68,12 +69,7 @@ uninstall_gh() {
 }
 
 update_gh() {
-	log_info "Updating GitHub CLI..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-
-	_update_gh_pkg || return 1
-	log_success "GitHub CLI updated"
-	return 0
+  _check_update_needed "GitHub CLI" "$(_get_installed_pkg_version gh)" "$(_get_remote_pkg_version gh)" _update_gh_pkg
 }
 
 reinstall_gh() {

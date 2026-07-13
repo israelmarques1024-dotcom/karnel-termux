@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_lang.log"
 
@@ -66,11 +67,7 @@ _update_golang_pkg_impl() {
 }
 
 update_golang() {
-	log_info "Updating Go (Golang)..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-	_update_golang_pkg || return 1
-	log_success "Go (golang) updated"
-	return 0
+	_check_update_needed "Go (Golang)" "$(_get_installed_pkg_version golang)" "$(_get_remote_pkg_version golang)" _update_golang_pkg
 }
 
 reinstall_golang() {

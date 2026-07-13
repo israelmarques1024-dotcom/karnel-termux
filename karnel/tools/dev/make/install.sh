@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_dev.log"
 
@@ -68,12 +69,7 @@ uninstall_make() {
 }
 
 update_make() {
-	log_info "Updating Make..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-
-	_update_make_pkg || return 1
-	log_success "Make updated"
-	return 0
+  _check_update_needed "Make" "$(_get_installed_pkg_version make)" "$(_get_remote_pkg_version make)" _update_make_pkg
 }
 
 reinstall_make() {

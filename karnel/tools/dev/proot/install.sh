@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_dev.log"
 
@@ -68,12 +69,7 @@ uninstall_proot() {
 }
 
 update_proot() {
-	log_info "Updating Proot..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-
-	_update_proot_pkg || return 1
-	log_success "Proot updated"
-	return 0
+  _check_update_needed "PRoot" "$(_get_installed_pkg_version proot)" "$(_get_remote_pkg_version proot)" _update_proot_pkg
 }
 
 reinstall_proot() {

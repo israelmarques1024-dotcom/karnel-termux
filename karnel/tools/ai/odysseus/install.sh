@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 import "@/utils/colors"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
@@ -181,12 +182,13 @@ uninstall_odysseus() {
 }
 
 update_odysseus() {
-  log_info "Updating Odysseus..."
-  mkdir -p "$(dirname "$LOG_FILE")"
+  _check_update_needed "Odysseus" "$(_get_installed_git_version "$KARNEL_DATA/odysseus")" "$(_get_remote_github_version pewdiepie-archdaemon/odysseus)" _do_update_odysseus
+}
 
+_do_update_odysseus() {
   _odysseus_proot_ubuntu /bin/bash -c '
     cd /root/odysseus && git pull
-  ' &>>"$LOG_FILE" && log_success "Odysseus updated" || {
+  ' &>>"$LOG_FILE" || {
     log_error "Failed to update Odysseus"
     return 1
   }

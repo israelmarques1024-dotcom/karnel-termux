@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_deploy.log"
 RAILWAY_DATA_DIR="$HOME/.local/share/karnel-data/railway"
@@ -90,16 +91,14 @@ uninstall_railway() {
 }
 
 update_railway() {
-  if ! command -v railway &>/dev/null; then
-    log_error "Railway CLI is not installed"
-    return 1
-  fi
-  log_info "Updating Railway CLI..."
+  _check_update_needed "Railway CLI" "$(_get_installed_npm_version @railway/cli)" "$(_get_remote_npm_version @railway/cli)" _do_update_railway
+}
+
+_do_update_railway() {
   npm update -g @railway/cli --legacy-peer-deps &>>"$LOG_FILE" || {
     log_warn "npm update failed"
     return 1
   }
-  log_success "Railway CLI updated"
   return 0
 }
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 import "@/utils/colors"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
@@ -250,25 +251,25 @@ uninstall_claude_code() {
 }
 
 update_claude_code() {
-  log_info "Updating Claude Code..."
-  mkdir -p "$(dirname "$LOG_FILE")"
+  _check_update_needed "Claude Code" "$(_get_installed_version claude)" "$(_get_remote_github_version anthropics/claude-code)" _do_update_claude_code
+}
 
+_do_update_claude_code() {
   if [ -f "$CLAUDE_DATA_DIR/claude" ]; then
     _install_claude_native
     return $?
   fi
 
   _claude_proot_ubuntu /bin/bash -c '
-		export HOME=/root
-		curl -fsSL https://claude.ai/install.sh | bash
-	' &>>"$LOG_FILE"
+    export HOME=/root
+    curl -fsSL https://claude.ai/install.sh | bash
+  ' &>>"$LOG_FILE"
 
   if ! _claude_proot_ubuntu test -x /root/.local/bin/claude &>>"$LOG_FILE"; then
     log_error "Claude Code binary not found after update"
     return 1
   fi
 
-  log_success "Claude Code (proot-distro) updated"
   return 0
 }
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 
@@ -128,16 +129,15 @@ _uninstall_codegraph_impl() {
 }
 
 update_codegraph() {
-	log_info "Updating CodeGraph..."
-	mkdir -p "$(dirname "$LOG_FILE")"
+  _check_update_needed "CodeGraph" "$(_get_installed_version codegraph)" "$(_get_remote_github_version colbymchenry/codegraph)" _do_update_codegraph
+}
 
-	loading "Removing old CodeGraph" _update_codegraph_remove_impl
-	_codegraph_dependencies || return 1
-	_download_codegraph || return 1
-	_write_codegraph_wrapper || return 1
-
-	log_success "CodeGraph updated"
-	return 0
+_do_update_codegraph() {
+  loading "Removing old CodeGraph" _update_codegraph_remove_impl
+  _codegraph_dependencies || return 1
+  _download_codegraph || return 1
+  _write_codegraph_wrapper || return 1
+  return 0
 }
 
 _update_codegraph_remove_impl() {

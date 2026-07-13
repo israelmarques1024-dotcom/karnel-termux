@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_npm.log"
 
@@ -81,12 +82,7 @@ _update_prettier_npm_impl() {
 }
 
 update_prettier() {
-  log_info "Updating Prettier..."
-  mkdir -p "$(dirname "$LOG_FILE")"
-
-  _update_prettier_npm || return 1
-  log_success "Prettier updated"
-  return 0
+  _check_update_needed "Prettier" "$(_get_installed_npm_version prettier)" "$(_get_remote_npm_version prettier)" _update_prettier_npm
 }
 
 reinstall_prettier() {

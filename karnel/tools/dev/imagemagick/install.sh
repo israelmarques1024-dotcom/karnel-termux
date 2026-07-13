@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_dev.log"
 
@@ -68,12 +69,7 @@ uninstall_imagemagick() {
 }
 
 update_imagemagick() {
-	log_info "Updating ImageMagick..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-
-	_update_imagemagick_pkg || return 1
-	log_success "ImageMagick updated"
-	return 0
+  _check_update_needed "ImageMagick" "$(_get_installed_pkg_version imagemagick)" "$(_get_remote_pkg_version imagemagick)" _update_imagemagick_pkg
 }
 
 reinstall_imagemagick() {

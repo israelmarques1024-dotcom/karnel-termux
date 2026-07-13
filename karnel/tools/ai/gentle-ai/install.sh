@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 import "@/utils/colors"
 
 : "${KARNEL_CACHE:=$HOME/.cache/karnel}"
@@ -234,16 +235,15 @@ uninstall_gentle_ai() {
 }
 
 update_gentle_ai() {
-  log_info "Updating gentle-ai..."
-  mkdir -p "$(dirname "$LOG_FILE")"
+  _check_update_needed "gentle-ai" "$(_get_installed_git_version "$GENTLE_AI_DATA_DIR")" "$(_get_remote_github_version Gentleman-Programming/gentle-ai)" _do_update_gentle_ai
+}
 
+_do_update_gentle_ai() {
   _clone_or_update_repo || return 1
   _gentle_ai_ensure_go || return 1
   _build_and_apply_patches || return 1
   _compile || return 1
   _install_binary || return 1
-
-  log_success "gentle-ai updated"
   return 0
 }
 

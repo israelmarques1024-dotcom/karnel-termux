@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_dev.log"
 
@@ -68,12 +69,7 @@ uninstall_bat() {
 }
 
 update_bat() {
-	log_info "Updating Bat..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-
-	_update_bat_pkg || return 1
-	log_success "Bat updated"
-	return 0
+  _check_update_needed "Bat" "$(_get_installed_pkg_version bat)" "$(_get_remote_pkg_version bat)" _update_bat_pkg
 }
 
 reinstall_bat() {

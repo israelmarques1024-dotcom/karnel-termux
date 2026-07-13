@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 
@@ -81,13 +82,7 @@ _uninstall_codex_impl() {
 }
 
 update_codex() {
-	log_info "Updating Codex CLI..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-
-	loading "Updating Codex CLI" _update_codex_impl
-
-	log_success "Codex CLI updated"
-	return 0
+  _check_update_needed "Codex CLI" "$(_get_installed_npm_version @mmmbuto/codex-cli-termux)" "$(_get_remote_npm_version @mmmbuto/codex-cli-termux)" _update_codex_impl
 }
 
 _update_codex_impl() {

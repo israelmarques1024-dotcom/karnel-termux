@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_lang.log"
 
@@ -66,11 +67,7 @@ _update_clang_pkg_impl() {
 }
 
 update_clang() {
-	log_info "Updating C/C++ (Clang)..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-	_update_clang_pkg || return 1
-	log_success "C/C++ (clang) updated"
-	return 0
+	_check_update_needed "C/C++ (Clang)" "$(_get_installed_pkg_version clang)" "$(_get_remote_pkg_version clang)" _update_clang_pkg
 }
 
 reinstall_clang() {

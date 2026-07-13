@@ -4,6 +4,8 @@
 # Provides version-specific library docs and code examples on-demand
 # Solves stale knowledge issues in AI tools like Claude Code, Cursor
 # Official: npm install -g ctx7
+import "@/utils/log"
+import "@/utils/version"
 
 install_ctx7() {
   if command -v ctx7 &>/dev/null; then
@@ -41,12 +43,10 @@ uninstall_ctx7() {
 }
 
 update_ctx7() {
-  if ! command -v ctx7 &>/dev/null; then
-    log_warn "ctx7 is not installed"
-    return 1
-  fi
+  _check_update_needed "ctx7" "$(_get_installed_npm_version ctx7)" "$(_get_remote_npm_version ctx7)" _do_update_ctx7
+}
 
-  log_info "Updating ctx7..."
+_do_update_ctx7() {
   npm update -g ctx7 2>/dev/null
   local _t
   _t=$(readlink -f "$PREFIX/bin/ctx7" 2>/dev/null)

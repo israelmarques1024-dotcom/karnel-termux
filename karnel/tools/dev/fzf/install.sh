@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_dev.log"
 
@@ -68,12 +69,7 @@ uninstall_fzf() {
 }
 
 update_fzf() {
-	log_info "Updating Fzf..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-
-	_update_fzf_pkg || return 1
-	log_success "Fzf updated"
-	return 0
+  _check_update_needed "FZF" "$(_get_installed_pkg_version fzf)" "$(_get_remote_pkg_version fzf)" _update_fzf_pkg
 }
 
 reinstall_fzf() {

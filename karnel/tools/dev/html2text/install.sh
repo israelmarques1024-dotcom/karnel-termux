@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_dev.log"
 
@@ -68,12 +69,7 @@ uninstall_html2text() {
 }
 
 update_html2text() {
-	log_info "Updating html2text..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-
-	_update_html2text_pkg || return 1
-	log_success "html2text updated"
-	return 0
+  _check_update_needed "html2text" "$(_get_installed_pkg_version html2text)" "$(_get_remote_pkg_version html2text)" _update_html2text_pkg
 }
 
 reinstall_html2text() {

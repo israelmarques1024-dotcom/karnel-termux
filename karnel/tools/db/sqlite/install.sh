@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_db.log"
 
@@ -55,8 +56,7 @@ _update_sqlite_impl() {
 }
 
 update_sqlite() {
-	log_info "Updating SQLite..."
-	loading "Updating SQLite" _update_sqlite_impl
+	_check_update_needed "SQLite" "$(_get_installed_pkg_version sqlite)" "$(_get_remote_pkg_version sqlite)" _update_sqlite_impl
 }
 
 reinstall_sqlite() {

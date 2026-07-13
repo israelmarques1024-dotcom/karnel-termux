@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 
@@ -84,13 +85,7 @@ _uninstall_openclaude_impl() {
 }
 
 update_openclaude() {
-  log_info "Updating OpenClaude..."
-  mkdir -p "$(dirname "$LOG_FILE")"
-
-  loading "Updating OpenClaude" _update_openclaude_impl
-
-  log_success "OpenClaude updated"
-  return 0
+  _check_update_needed "OpenClaude" "$(_get_installed_npm_version @gitlawb/openclaude)" "$(_get_remote_npm_version @gitlawb/openclaude)" _update_openclaude_impl
 }
 
 _update_openclaude_impl() {

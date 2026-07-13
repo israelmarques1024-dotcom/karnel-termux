@@ -2,6 +2,7 @@
 
 import "@/utils/log"
 import "@/utils/colors"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 AGY_DATA_DIR="$HOME/.local/share/karnel-data/antigravity-cli"
@@ -371,9 +372,10 @@ uninstall_antigravity_cli() {
 }
 
 update_antigravity_cli() {
-  log_info "Updating Antigravity CLI..."
-  mkdir -p "$(dirname "$LOG_FILE")"
+  _check_update_needed "Antigravity CLI" "$(_get_installed_version agy)" "$(_get_remote_github_version antigravity-cli/antigravity-cli)" _update_antigravity_cli_impl
+}
 
+_update_antigravity_cli_impl() {
   if [ -f "$AGY_DATA_DIR/agy.va39" ]; then
     _antigravity_download_binary || return 1
     _antigravity_apply_va39_patches || return 1

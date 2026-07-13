@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_shell.log"
 ZSH_PLUGINS_DIR="$HOME/.zsh-plugins"
@@ -76,7 +77,7 @@ _update_fzf_tab_impl() {
 }
 
 update_fzf_tab() {
-  loading "Updating fzf-tab" _update_fzf_tab_impl
+  _check_update_needed "fzf-tab" "$(_get_installed_git_version "$ZSH_PLUGINS_DIR/fzf-tab")" "$(_get_remote_github_version Aloxaf/fzf-tab)" _update_fzf_tab_impl
 }
 
 reinstall_fzf_tab() {

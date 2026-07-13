@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_db.log"
 
@@ -63,8 +64,7 @@ _update_mongodb_impl() {
 }
 
 update_mongodb() {
-	log_info "Updating MongoDB..."
-	loading "Updating MongoDB" _update_mongodb_impl
+	_check_update_needed "MongoDB" "$(_get_installed_pkg_version mongodb)" "$(_get_remote_pkg_version mongodb)" _update_mongodb_impl
 }
 
 reinstall_mongodb() {

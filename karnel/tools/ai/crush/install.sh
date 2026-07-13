@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 import "@/utils/colors"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
@@ -73,12 +74,10 @@ uninstall_crush() {
 }
 
 update_crush() {
-  if ! command -v crush &>/dev/null; then
-    log_info "Crush is not installed"
-    return 0
-  fi
+  _check_update_needed "Crush" "$(_get_installed_npm_version @charmland/crush)" "$(_get_remote_npm_version @charmland/crush)" _do_update_crush
+}
 
-  log_info "Updating Crush..."
+_do_update_crush() {
   uninstall_crush
   install_crush
 }

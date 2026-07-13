@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_npm.log"
 
@@ -82,12 +83,7 @@ _update_live_server_npm_impl() {
 }
 
 update_live_server() {
-  log_info "Updating Live Server..."
-  mkdir -p "$(dirname "$LOG_FILE")"
-
-  _update_live_server_npm || return 1
-  log_success "Live Server updated"
-  return 0
+  _check_update_needed "Live Server" "$(_get_installed_npm_version live-server)" "$(_get_remote_npm_version live-server)" _update_live_server_npm
 }
 
 reinstall_live_server() {

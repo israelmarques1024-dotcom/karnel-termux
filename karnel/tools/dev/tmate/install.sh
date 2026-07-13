@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_dev.log"
 
@@ -68,12 +69,7 @@ uninstall_tmate() {
 }
 
 update_tmate() {
-	log_info "Updating Tmate..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-
-	_update_tmate_pkg || return 1
-	log_success "Tmate updated"
-	return 0
+  _check_update_needed "TMate" "$(_get_installed_pkg_version tmate)" "$(_get_remote_pkg_version tmate)" _update_tmate_pkg
 }
 
 reinstall_tmate() {

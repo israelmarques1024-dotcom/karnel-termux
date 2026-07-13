@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 HERMES_HOME="$HOME/.hermes"
@@ -98,11 +99,7 @@ _uninstall_hermes_agent_impl() {
 }
 
 update_hermes_agent() {
-  log_info "Updating Hermes Agent..."
-  mkdir -p "$(dirname "$LOG_FILE")"
-  loading "Updating Hermes Agent" _update_hermes_agent_impl
-  log_success "Hermes Agent updated successfully"
-  return 0
+  _check_update_needed "Hermes Agent" "$(_get_installed_git_version "$HERMES_DIR")" "$(_get_remote_github_version NousResearch/hermes-agent)" _update_hermes_agent_impl
 }
 
 _update_hermes_agent_impl() {

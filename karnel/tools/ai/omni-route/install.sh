@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 
@@ -141,17 +142,17 @@ uninstall_omni_route() {
 }
 
 update_omni_route() {
+  _check_update_needed "omniRoute" "$(_get_installed_npm_version karnelroute)" "$(_get_remote_npm_version karnelroute)" _do_update_omni_route
+}
+
+_do_update_omni_route() {
   if ! _omni_route_ok; then
     install_omni_route
     return $?
   fi
 
-  # Update the canonical local install (the one the wrappers actually use),
-  # then re-apply the Termux/Android native fixes so it keeps working.
-  log_info "Updating omniRoute..."
   if npm i karnelroute@latest --prefix "$HOME/.karnel/packages/karnelroute" 2>>"$LOG_FILE"; then
     _omni_route_apply_platform_fixes "$HOME/.karnel/packages/karnelroute"
-    log_success "omniRoute updated"
     return 0
   else
     log_error "Failed to update omniRoute"

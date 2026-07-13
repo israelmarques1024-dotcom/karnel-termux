@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_dev.log"
 
@@ -68,12 +69,7 @@ uninstall_curl() {
 }
 
 update_curl() {
-	log_info "Updating Curl..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-
-	_update_curl_pkg || return 1
-	log_success "Curl updated"
-	return 0
+  _check_update_needed "cURL" "$(_get_installed_pkg_version curl)" "$(_get_remote_pkg_version curl)" _update_curl_pkg
 }
 
 reinstall_curl() {

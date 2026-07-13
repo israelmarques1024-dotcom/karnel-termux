@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_dev.log"
 
@@ -68,12 +69,7 @@ uninstall_wget() {
 }
 
 update_wget() {
-	log_info "Updating Wget..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-
-	_update_wget_pkg || return 1
-	log_success "Wget updated"
-	return 0
+  _check_update_needed "Wget" "$(_get_installed_pkg_version wget)" "$(_get_remote_pkg_version wget)" _update_wget_pkg
 }
 
 reinstall_wget() {

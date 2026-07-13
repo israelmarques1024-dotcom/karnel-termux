@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+import "@/utils/log"
+import "@/utils/version"
+
 # code-server - VS Code in the browser for Termux
 # Official docs: https://coder.com/docs/code-server
 # Termux install: pkg install tur-repo && pkg install code-server
@@ -62,9 +65,11 @@ update_code_server() {
     return 1
   fi
 
-  log_info "Updating code-server..."
+  _check_update_needed "code-server" "$(_get_installed_pkg_version code-server)" "$(_get_remote_pkg_version code-server)" _update_code_server_impl
+}
+
+_update_code_server_impl() {
   pkg upgrade -y code-server 2>/dev/null
-  return $?
 }
 
 reinstall_code_server() {

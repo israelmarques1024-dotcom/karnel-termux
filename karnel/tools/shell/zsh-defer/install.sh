@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_shell.log"
 ZSH_PLUGINS_DIR="$HOME/.zsh-plugins"
@@ -76,7 +77,7 @@ _update_zsh_defer_impl() {
 }
 
 update_zsh_defer() {
-  loading "Updating zsh-defer" _update_zsh_defer_impl
+  _check_update_needed "zsh-defer" "$(_get_installed_git_version "$ZSH_PLUGINS_DIR/zsh-defer")" "$(_get_remote_github_version romkatv/zsh-defer)" _update_zsh_defer_impl
 }
 
 reinstall_zsh_defer() {

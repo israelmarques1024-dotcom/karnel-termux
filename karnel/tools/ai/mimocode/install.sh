@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 import "@/utils/colors"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
@@ -251,9 +252,10 @@ uninstall_mimocode() {
 }
 
 update_mimocode() {
-  log_info "Updating mimocode..."
-  mkdir -p "$(dirname "$LOG_FILE")"
+  _check_update_needed "mimocode" "$(_get_installed_version mimo)" "$(_get_remote_github_version XiaomiMiMo/MiMo-Code)" _do_update_mimocode
+}
 
+_do_update_mimocode() {
   if [ -f "$MIMOCODE_DATA_DIR/mimocode" ]; then
     _install_mimocode_native
     return $?
@@ -277,7 +279,6 @@ update_mimocode() {
     return 1
   fi
 
-  log_success "mimocode (proot-distro) updated"
   return 0
 }
 

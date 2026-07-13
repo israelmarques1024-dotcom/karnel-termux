@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 import "@/utils/colors"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
@@ -118,14 +119,13 @@ uninstall_gga() {
 }
 
 update_gga() {
-	log_info "Updating GGA..."
-	mkdir -p "$(dirname "$LOG_FILE")"
+  _check_update_needed "GGA" "$(_get_installed_git_version "$GGA_DATA_DIR")" "$(_get_remote_github_version israelmarques1024-dotcom/gga-termux)" _do_update_gga
+}
 
-	_gga_clone_or_update_repo || return 1
-	_gga_run_installer || return 1
-
-	log_success "GGA updated"
-	return 0
+_do_update_gga() {
+  _gga_clone_or_update_repo || return 1
+  _gga_run_installer || return 1
+  return 0
 }
 
 reinstall_gga() {

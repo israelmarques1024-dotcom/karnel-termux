@@ -2,6 +2,7 @@
 
 import "@/utils/log"
 import "@/utils/colors"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 
@@ -118,12 +119,10 @@ uninstall_kiro() {
 }
 
 update_kiro() {
-  if ! command -v kiro &>/dev/null && ! command -v kiro-cli &>/dev/null; then
-    log_info "Kiro is not installed"
-    return 0
-  fi
+  _check_update_needed "Kiro CLI" "$(_get_installed_version kiro)" "$(_get_remote_github_version kiro-dev/kiro-cli)" _update_kiro_impl
+}
 
-  log_info "Updating Kiro..."
+_update_kiro_impl() {
   uninstall_kiro
   install_kiro
 }

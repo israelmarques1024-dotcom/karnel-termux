@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_dev.log"
 
@@ -68,12 +69,7 @@ uninstall_translate() {
 }
 
 update_translate() {
-	log_info "Updating Translate Shell..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-
-	_update_translate_pkg || return 1
-	log_success "Translate Shell updated"
-	return 0
+  _check_update_needed "Translate" "$(_get_installed_pkg_version translate)" "$(_get_remote_pkg_version translate)" _update_translate_pkg
 }
 
 reinstall_translate() {

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_dev.log"
 
@@ -68,12 +69,7 @@ uninstall_tree() {
 }
 
 update_tree() {
-	log_info "Updating Tree..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-
-	_update_tree_pkg || return 1
-	log_success "Tree updated"
-	return 0
+  _check_update_needed "Tree" "$(_get_installed_pkg_version tree)" "$(_get_remote_pkg_version tree)" _update_tree_pkg
 }
 
 reinstall_tree() {

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 
@@ -93,13 +94,7 @@ _uninstall_mistral_vibe_impl() {
 }
 
 update_mistral_vibe() {
-  log_info "Updating Mistral Vibe..."
-  mkdir -p "$(dirname "$LOG_FILE")"
-
-  loading "Updating Mistral Vibe" _update_mistral_vibe_impl
-
-  log_success "Mistral Vibe updated"
-  return 0
+  _check_update_needed "Mistral Vibe" "$(_get_installed_version vibe)" "$(_get_remote_pip_version mistral-vibe)" _update_mistral_vibe_impl
 }
 
 _update_mistral_vibe_impl() {

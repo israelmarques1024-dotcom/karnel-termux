@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 import "@/utils/colors"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
@@ -135,12 +136,7 @@ uninstall_cline() {
 }
 
 update_cline() {
-  log_info "Updating Cline CLI..."
-  mkdir -p "$(dirname "$LOG_FILE")"
-
-  loading "Updating Cline CLI" _update_cline_impl
-  log_success "Cline CLI updated"
-  return 0
+  _check_update_needed "Cline CLI" "$(_get_installed_npm_version cline)" "$(_get_remote_npm_version cline)" _update_cline_impl
 }
 
 _update_cline_impl() {

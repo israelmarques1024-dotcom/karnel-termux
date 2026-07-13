@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_npm.log"
 
@@ -98,12 +99,7 @@ _update_localtunnel_npm_impl() {
 }
 
 update_localtunnel() {
-  log_info "Updating Localtunnel..."
-  mkdir -p "$(dirname "$LOG_FILE")"
-
-  _update_localtunnel_npm || return 1
-  log_success "Localtunnel updated"
-  return 0
+  _check_update_needed "Localtunnel" "$(_get_installed_npm_version localtunnel)" "$(_get_remote_npm_version localtunnel)" _update_localtunnel_npm
 }
 
 reinstall_localtunnel() {

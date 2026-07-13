@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_dev.log"
 
@@ -68,12 +69,7 @@ uninstall_jq() {
 }
 
 update_jq() {
-	log_info "Updating jq..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-
-	_update_jq_pkg || return 1
-	log_success "jq updated"
-	return 0
+  _check_update_needed "JQ" "$(_get_installed_pkg_version jq)" "$(_get_remote_pkg_version jq)" _update_jq_pkg
 }
 
 reinstall_jq() {

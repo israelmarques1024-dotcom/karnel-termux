@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_dev.log"
 
@@ -68,12 +69,7 @@ uninstall_ncurses() {
 }
 
 update_ncurses() {
-	log_info "Updating Ncurses Utils..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-
-	_update_ncurses_pkg || return 1
-	log_success "Ncurses Utils updated"
-	return 0
+  _check_update_needed "ncurses" "$(_get_installed_pkg_version ncurses)" "$(_get_remote_pkg_version ncurses)" _update_ncurses_pkg
 }
 
 reinstall_ncurses() {

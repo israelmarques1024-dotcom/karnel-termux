@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 
@@ -81,13 +82,7 @@ _uninstall_pi_impl() {
 }
 
 update_pi() {
-  log_info "Updating Pi Coding Agent..."
-  mkdir -p "$(dirname "$LOG_FILE")"
-
-  loading "Updating Pi Coding Agent" _update_pi_impl
-
-  log_success "Pi updated"
-  return 0
+  _check_update_needed "Pi Coding Agent" "$(_get_installed_npm_version @earendil-works/pi-coding-agent)" "$(_get_remote_npm_version @earendil-works/pi-coding-agent)" _update_pi_impl
 }
 
 _update_pi_impl() {

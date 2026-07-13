@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 
@@ -83,18 +84,7 @@ _uninstall_kimi_code_impl() {
 }
 
 update_kimi_code() {
-  if ! command -v kimi &>/dev/null; then
-    log_error "Kimi Code is not installed"
-    return 1
-  fi
-
-  log_info "Updating Kimi Code..."
-  mkdir -p "$(dirname "$LOG_FILE")"
-
-  loading "Updating Kimi Code" _update_kimi_code_impl
-
-  log_success "Kimi Code updated successfully"
-  return 0
+  _check_update_needed "Kimi Code" "$(_get_installed_npm_version @moonshot-ai/kimi-code)" "$(_get_remote_npm_version @moonshot-ai/kimi-code)" _update_kimi_code_impl
 }
 
 _update_kimi_code_impl() {

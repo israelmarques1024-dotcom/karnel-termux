@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_npm.log"
 
@@ -81,12 +82,7 @@ _update_typescript_npm_impl() {
 }
 
 update_typescript() {
-  log_info "Updating TypeScript..."
-  mkdir -p "$(dirname "$LOG_FILE")"
-
-  _update_typescript_npm || return 1
-  log_success "TypeScript updated"
-  return 0
+  _check_update_needed "TypeScript" "$(_get_installed_npm_version typescript)" "$(_get_remote_npm_version typescript)" _update_typescript_npm
 }
 
 reinstall_typescript() {

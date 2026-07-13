@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_npm.log"
 
@@ -81,12 +82,7 @@ _update_ngrok_npm_impl() {
 }
 
 update_ngrok() {
-  log_info "Updating Ngrok..."
-  mkdir -p "$(dirname "$LOG_FILE")"
-
-  _update_ngrok_npm || return 1
-  log_success "Ngrok updated"
-  return 0
+  _check_update_needed "Ngrok" "$(_get_installed_npm_version ngrok)" "$(_get_remote_npm_version ngrok)" _update_ngrok_npm
 }
 
 reinstall_ngrok() {

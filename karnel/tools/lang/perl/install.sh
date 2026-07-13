@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_lang.log"
 
@@ -66,11 +67,7 @@ _update_perl_pkg_impl() {
 }
 
 update_perl() {
-	log_info "Updating Perl..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-	_update_perl_pkg || return 1
-	log_success "Perl updated"
-	return 0
+	_check_update_needed "Perl" "$(_get_installed_pkg_version perl)" "$(_get_remote_pkg_version perl)" _update_perl_pkg
 }
 
 reinstall_perl() {

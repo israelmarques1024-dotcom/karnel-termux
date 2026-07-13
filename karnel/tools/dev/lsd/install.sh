@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_dev.log"
 
@@ -68,12 +69,7 @@ uninstall_lsd() {
 }
 
 update_lsd() {
-	log_info "Updating LSD..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-
-	_update_lsd_pkg || return 1
-	log_success "LSD updated"
-	return 0
+  _check_update_needed "LSD" "$(_get_installed_pkg_version lsd)" "$(_get_remote_pkg_version lsd)" _update_lsd_pkg
 }
 
 reinstall_lsd() {

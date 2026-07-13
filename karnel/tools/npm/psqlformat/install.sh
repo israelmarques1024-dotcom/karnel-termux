@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_npm.log"
 
@@ -81,12 +82,7 @@ _update_psqlformat_npm_impl() {
 }
 
 update_psqlformat() {
-  log_info "Updating PSQL Format..."
-  mkdir -p "$(dirname "$LOG_FILE")"
-
-  _update_psqlformat_npm || return 1
-  log_success "PSQL Format updated"
-  return 0
+  _check_update_needed "PSQL Format" "$(_get_installed_npm_version psqlformat)" "$(_get_remote_npm_version psqlformat)" _update_psqlformat_npm
 }
 
 reinstall_psqlformat() {

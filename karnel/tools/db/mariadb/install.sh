@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_db.log"
 
@@ -55,8 +56,7 @@ _update_mariadb_impl() {
 }
 
 update_mariadb() {
-	log_info "Updating MariaDB..."
-	loading "Updating MariaDB" _update_mariadb_impl
+	_check_update_needed "MariaDB" "$(_get_installed_pkg_version mariadb)" "$(_get_remote_pkg_version mariadb)" _update_mariadb_impl
 }
 
 reinstall_mariadb() {

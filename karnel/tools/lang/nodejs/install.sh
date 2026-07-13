@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_lang.log"
 
@@ -66,11 +67,7 @@ _update_nodejs_pkg_impl() {
 }
 
 update_nodejs() {
-	log_info "Updating Node.js LTS..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-	_update_nodejs_pkg || return 1
-	log_success "Node.js LTS updated"
-	return 0
+	_check_update_needed "Node.js LTS" "$(_get_installed_pkg_version nodejs-lts)" "$(_get_remote_pkg_version nodejs-lts)" _update_nodejs_pkg
 }
 
 reinstall_nodejs() {

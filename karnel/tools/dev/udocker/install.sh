@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_dev.log"
 
@@ -68,12 +69,7 @@ uninstall_udocker() {
 }
 
 update_udocker() {
-	log_info "Updating Udocker..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-
-	_update_udocker_pkg || return 1
-	log_success "Udocker updated"
-	return 0
+  _check_update_needed "uDocker" "$(_get_installed_pkg_version udocker)" "$(_get_remote_pkg_version udocker)" _update_udocker_pkg
 }
 
 reinstall_udocker() {

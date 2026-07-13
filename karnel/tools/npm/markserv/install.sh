@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_npm.log"
 
@@ -81,12 +82,7 @@ _update_markserv_npm_impl() {
 }
 
 update_markserv() {
-  log_info "Updating Markserv..."
-  mkdir -p "$(dirname "$LOG_FILE")"
-
-  _update_markserv_npm || return 1
-  log_success "Markserv updated"
-  return 0
+  _check_update_needed "Markserv" "$(_get_installed_npm_version markserv)" "$(_get_remote_npm_version markserv)" _update_markserv_npm
 }
 
 reinstall_markserv() {

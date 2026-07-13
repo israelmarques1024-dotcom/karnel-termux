@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_shell.log"
 ZSH_PLUGINS_DIR="$HOME/.zsh-plugins"
@@ -76,7 +77,7 @@ _update_history_substring_impl() {
 }
 
 update_history_substring() {
-  loading "Updating zsh-history-substring-search" _update_history_substring_impl
+  _check_update_needed "zsh-history-substring-search" "$(_get_installed_git_version "$ZSH_PLUGINS_DIR/zsh-history-substring-search")" "$(_get_remote_github_version zsh-users/zsh-history-substring-search)" _update_history_substring_impl
 }
 
 reinstall_history_substring() {

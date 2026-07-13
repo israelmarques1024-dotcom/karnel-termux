@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_dev.log"
 
@@ -68,12 +69,7 @@ uninstall_shfmt() {
 }
 
 update_shfmt() {
-	log_info "Updating Shfmt..."
-	mkdir -p "$(dirname "$LOG_FILE")"
-
-	_update_shfmt_pkg || return 1
-	log_success "Shfmt updated"
-	return 0
+  _check_update_needed "shfmt" "$(_get_installed_pkg_version shfmt)" "$(_get_remote_pkg_version shfmt)" _update_shfmt_pkg
 }
 
 reinstall_shfmt() {
