@@ -119,6 +119,7 @@ _list_db() {
   table_row "MariaDB" "--mariadb" "$(_check_pkg "mariadb")"
   table_row "SQLite" "--sqlite" "$(_check_pkg "sqlite")"
   table_row "MongoDB" "--mongodb" "$(_check_pkg "mongodb")"
+  table_row "Redis" "--redis" "$(_check_pkg "redis")"
   table_end
 
   echo

@@ -69,7 +69,7 @@ install_main() {
     log_info "Available targets:"
     echo
     list_item "lang       - Language packages (Node.js, Python, Perl, PHP, Rust, C, C++, Go)"
-    list_item "db         - Databases (PostgreSQL, MariaDB, SQLite, MongoDB)"
+    list_item "db         - Databases (PostgreSQL, MariaDB, SQLite, MongoDB, Redis)"
     list_item "ai         - AI tools (OpenCode, Gentle AI, Claude Code, etc.)"
     list_item "editor     - Code editor (code-server)"
     list_item "dev        - Development tools"
@@ -292,6 +292,10 @@ _install_specific_tools() {
         ;;
       mongodb)
         install_mongodb
+        case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
+      redis)
+        install_redis
         case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
         ;;
       *)
