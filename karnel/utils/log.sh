@@ -333,6 +333,76 @@ read_confirm() {
 	done
 }
 
+# --- Confirmación con default ---
+# default="y" -> [Y/n]  |  default="n" -> [y/N]
+# Retorna 0 si sí, 1 si no. VAR_NAME recibe "y" o "n"
+read_confirm_default() {
+	local prompt="$1"
+	local default="$2"
+	local var="$3"
+	local _val
+
+	local show_default
+	if [[ "$default" == "y" ]]; then
+		show_default="${D_GREEN}Y${GRAY}/${D_RED}n${GRAY}"
+	else
+		show_default="${D_GREEN}y${GRAY}/${D_RED}N${GRAY}"
+	fi
+
+	while true; do
+		echo -e -n "    ${GRAY}┌─${D_YELLOW} ${prompt} ${GRAY}[${show_default}${GRAY}]${D_NC}\n" >&2
+		echo -e -n "    ${GRAY}└─${D_YELLOW}▶ ${D_NC}" >&2
+		read -rn1 _val
+		echo >&2
+		if [[ -z "$_val" ]]; then
+			_val="$default"
+		fi
+		case "${_val,,}" in
+		y)
+			read -r "$var" <<<"y"
+			return 0
+			;;
+		n)
+			read -r "$var" <<<"n"
+			return 1
+			;;
+		*) echo -e "    ${RED}✖${D_NC} Reply ${D_GREEN}y${D_NC} o ${D_RED}n${D_NC}" >&2 ;;
+		esac
+	done
+}
+
+# --- Entrada multi-línea ---
+read_multiline() {
+	local initial="$1"
+	local tmpfile
+	tmpfile=$(mktemp)
+
+	echo "$initial" >"$tmpfile"
+	echo >>"$tmpfile"
+
+	local cols
+	cols=$(tput cols 2>/dev/null || echo 80)
+	local w=$((cols - 6))
+	local bar
+	printf -v bar '%*s' "$w" ''
+
+	echo -e "    ${GRAY}╭${bar// /─}╮${NC}" >&2
+	printf "    ${GRAY}│${NC}  ${D_CYAN}✎  Write your content${D_NC}%*s ${GRAY}│${NC}\n" $((w - 26)) "" >&2
+	printf "    ${GRAY}│${NC}  ${D_DIM}(Ctrl+D to finish, Ctrl+C to cancel)${D_NC}%*s ${GRAY}│${NC}\n" $((w - 40)) "" >&2
+	echo -e "    ${GRAY}├${bar// /─}┤${NC}" >&2
+
+	local line
+	while IFS= read -r line; do
+		echo "$line" >>"$tmpfile"
+	done
+
+	echo >&2
+	echo -e "    ${GRAY}╰${bar// /─}╯${NC}" >&2
+	echo -e "    ${GRAY}${D_GREEN}✔ Content captured${D_NC}" >&2
+
+	echo "$tmpfile"
+}
+
 # --- Selección de opciones ---
 # Uso: read_select "Prompt" VAR_NAME "Opción1" "Opción2" ...
 # VAR_NAME recibe el texto de la opción elegida
