@@ -3,12 +3,12 @@
 </p>
 
 <p align="center">
-  <strong>🚀 Transforme seu Android em uma estação de desenvolvimento completa.</strong>
+  <strong>Transform your Android into a complete development workstation.</strong>
 </p>
 
 <p align="center">
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux">
-    <img src="https://img.shields.io/badge/version-4.7.6-0078D4?style=for-the-badge&logo=appveyor" alt="Version">
+    <img src="https://img.shields.io/badge/version-4.7.6-0078D4?style=for-the-badge" alt="Version">
   </a>
   <a href="https://www.npmjs.com/package/karnel-termux">
     <img src="https://img.shields.io/npm/v/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
@@ -17,42 +17,42 @@
     <img src="https://img.shields.io/npm/dt/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm downloads">
   </a>
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/license-MIT-0078D4?style=for-the-badge&logo=bookstack" alt="License">
+    <img src="https://img.shields.io/badge/license-MIT-0078D4?style=for-the-badge" alt="License">
   </a>
   <a href="https://termux.dev/">
-    <img src="https://img.shields.io/badge/platform-Termux%20%7C%20Android-0078D4?style=for-the-badge&logo=android" alt="Platform">
+    <img src="https://img.shields.io/badge/platform-Termux%20%7C%20Android-0078D4?style=for-the-badge" alt="Platform">
   </a>
   <a href="https://kerneltermux.vercel.app">
-    <img src="https://img.shields.io/badge/%F0%9F%8C%90%20Site-kerneltermux.vercel.app-0078D4?style=for-the-badge" alt="Website">
+    <img src="https://img.shields.io/badge/Site-kerneltermux.vercel.app-0078D4?style=for-the-badge" alt="Website">
   </a>
 </p>
 
 ---
 
-**KARNEL TERMUX** é um ambiente de desenvolvimento modular que transforma o Termux em uma workstation completa. Com um único CLI (`karnel`), instale e gerencie:
+**Karnel Termux** is a modular development environment that transforms Termux into a complete workstation. With a single CLI (`karnel`), install and manage:
 
-Criado por **israel marques** (12 anos).
+Created by **Israel Marques**.
 
-- **30 agentes de IA** para coding — Claude, Gemini, OpenCode, Ollama, Cline, karnelRoute e mais
-- **7 linguagens** — Node.js, Python, Go, Rust, C/C++, PHP, Perl
-- **5 bancos de dados** — PostgreSQL, MariaDB, SQLite, MongoDB, Redis
-- **19 ferramentas dev** — gh, curl, fzf, bat, lsd, jq e muito mais
-- **3 CLIs de deploy** — Vercel, Railway, Netlify
-- **Editor profissional** — code-server (VS Code no navegador)
-- **Segundo cérebro** — Sistema de memória com busca por IA e grafo de ideias
-- **Comandos de voz** — Fale com seus agentes de IA
+- **30 AI agents** for coding — Claude, Gemini, OpenCode, Ollama, Cline, karnelRoute and more
+- **7 languages** — Node.js, Python, Go, Rust, C/C++, PHP, Perl
+- **5 databases** — PostgreSQL, MariaDB, SQLite, MongoDB, Redis
+- **19 dev tools** — gh, curl, fzf, bat, lsd, jq and more
+- **3 deploy CLIs** — Vercel, Railway, Netlify
+- **Professional editor** — code-server (VS Code in browser)
+- **Second brain** — Memory system with AI search and idea graph
+- **Voice commands** — Speak to your AI agents
 
 > [!IMPORTANT]
-> Projetado exclusivamente para **Termux no Android**. Não funciona em outras plataformas.
+> Designed exclusively for **Termux on Android**. Does not work on other platforms.
 
 > [!NOTE]
-> 💻 **Também disponível para Desktop:** [Karnel Desktop CLI](https://github.com/israelmarques1024-dotcom/karnel-termux-desktop-cli) — Gerenciador multiplataforma para Linux, macOS e Windows. Mesmo CLI, mesmos comandos, gerenciadores de pacote nativos.
+> Also available for **Desktop:** [Karnel Desktop CLI](https://github.com/israelmarques1024-dotcom/karnel-termux-desktop-cli) — Cross-platform manager for Linux, macOS, and Windows. Same CLI, same commands, native package managers.
 
 ---
 
-## 📦 Instalação
+## Installation
 
-### Via curl (recomendado)
+### Via curl (recommended)
 
 ```bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/israelmarques1024-dotcom/karnel-termux/main/install.sh)"
@@ -70,7 +70,7 @@ npm install -g karnel-termux
 pnpm add -g karnel-termux
 ```
 
-Depois de instalar, execute:
+After installation, run:
 
 ```bash
 karnel
@@ -78,155 +78,155 @@ karnel
 
 ---
 
-## 🎯 Comandos Principais
+## Usage
 
-| Comando | Descrição |
-|---------|-----------|
-| `karnel install <modulo>` | Instala módulos e ferramentas |
-| `karnel list <modulo>` | Lista ferramentas disponíveis |
-| `karnel show <modulo> --<tool>` | Mostra documentação de uma ferramenta |
-| `karnel open <modulo>` | Abre documentação no navegador |
-| `karnel update <modulo>` | Atualiza módulos ou o karnel |
-| `karnel uninstall <modulo>` | Remove módulos instalados |
-| `karnel reinstall <modulo>` | Reinstala módulos |
-| `karnel doctor` | Diagnostica o ambiente (30+ verificações) |
-| `karnel brain` | Segundo cérebro — memórias e busca |
-| `karnel env` | Gerencia variáveis de ambiente |
-| `karnel voice` | Comandos de voz para agentes IA |
-| `karnel start editor` | Inicia code-server (VS Code no navegador) |
-| `karnel pg` | Gerenciador PostgreSQL |
-| `karnel init <template>` | Inicializa projetos com templates |
-| `karnel deploy` | Publica projetos (Vercel, Railway, Netlify) |
-| `karnel --version` | Mostra a versão instalada |
+### Main Commands
 
----
+| Command | Description |
+|---------|-------------|
+| `karnel install <module>` | Install modules and tools |
+| `karnel list <module>` | List available tools |
+| `karnel show <module> --<tool>` | Show tool documentation |
+| `karnel open <module>` | Open documentation in browser |
+| `karnel update <module>` | Update modules or karnel |
+| `karnel uninstall <module>` | Remove installed modules |
+| `karnel reinstall <module>` | Reinstall modules |
+| `karnel doctor` | Diagnose environment (30+ checks) |
+| `karnel brain` | Second brain — memories and search |
+| `karnel env` | Manage environment variables |
+| `karnel voice` | Voice commands for AI agents |
+| `karnel start editor` | Start code-server (VS Code in browser) |
+| `karnel pg` | PostgreSQL manager |
+| `karnel init <template>` | Initialize projects with templates |
+| `karnel deploy` | Deploy projects (Vercel, Railway, Netlify) |
+| `karnel --version` | Show installed version |
 
-## 🧩 Módulos
+### Modules
 
-| Módulo | Descrição | Instalação |
-|--------|-----------|------------|
+| Module | Description | Installation |
+|--------|-------------|--------------|
 | `lang` | Node.js, Python, Go, Rust, C/C++, PHP, Perl | `karnel install lang` |
 | `db` | PostgreSQL, MariaDB, SQLite, MongoDB, Redis | `karnel install db` |
-| `ai` | 30 agentes de IA para coding | `karnel install ai` |
-| `editor` | code-server (VS Code no navegador) | `karnel install editor` |
-| `dev` | gh, curl, fzf, bat, lsd, jq e mais | `karnel install dev` |
-| `npm` | TypeScript, NestJS CLI, Prettier e mais | `karnel install npm` |
+| `ai` | 30 AI agents for coding | `karnel install ai` |
+| `editor` | code-server (VS Code in browser) | `karnel install editor` |
+| `dev` | gh, curl, fzf, bat, lsd, jq and more | `karnel install dev` |
+| `npm` | TypeScript, NestJS CLI, Prettier and more | `karnel install npm` |
 | `shell` | ZSH + Oh My Zsh + 10 plugins | `karnel install shell` |
-| `ui` | Fonte, cursor, extra-keys, banner | `karnel install ui` |
-| `auto` | Automação com n8n | `karnel install auto` |
+| `ui` | Font, cursor, extra-keys, banner | `karnel install ui` |
+| `auto` | Automation with n8n | `karnel install auto` |
 | `deploy` | Vercel, Railway, Netlify | `karnel install deploy` |
 
 ---
 
-## 🤖 Agentes de IA (30)
+## AI Agents (30)
 
 ```bash
-karnel install ai                               # Instala todos
-karnel install ai --opencode --ollama           # Instala específicos
+karnel install ai                             # Install all
+karnel install ai --opencode --ollama         # Install specific agents
 ```
 
 <details>
-<summary><strong>Ver lista completa de agentes</strong></summary>
+<summary><strong>View complete agent list</strong></summary>
 
-| Agente | Flag | Descrição |
-|--------|------|-----------|
-| **Qwen Code** | `--qwen-code` | Assistente de codificação da Alibaba |
-| **Gemini CLI** | `--gemini-cli` | Assistente Google Gemini |
-| **Claude Code** | `--claude-code` | CLI da Anthropic com Claude AI |
-| **Mistral Vibe** | `--mistral-vibe` | Assistente de linha de comando Mistral |
-| **OpenClaude** | `--openclaude` | Alternativa open source ao Claude Code |
-| **OpenClaw** | `--openclaw` | Assistente pessoal de IA |
-| **Ollama** | `--ollama` | Execute LLMs open source localmente |
-| **Codex CLI** | `--codex` | Agente de codificação OpenAI |
-| **OpenCode** | `--opencode` | Agente open source para terminal |
-| **MiMoCode** | `--mimocode` | Agente de IA rápido e open source |
-| **Engram** | `--engram` | Sistema de memória persistente |
-| **CodeGraph** | `--codegraph` | Análise de estrutura de código |
-| **Pi** | `--pi` | Harness de terminal minimalista |
-| **Antigravity CLI** | `--antigravity-cli` | Interface terminal para Antigravity |
-| **MiniMax CLI** | `--minimax-cli` | Gere texto, imagem, vídeo e áudio |
-| **Gentle AI** | `--gentle-ai` | Ecossistema de workflows para IA |
-| **GGA** | `--gga` | Code review automatizado multi-provider |
-| **Hermes Agent** | `--hermes-agent` | Agente auto-melhorável Nous Research |
-| **Kimi Code** | `--kimi-code` | CLI Kimi Code —下一代 agent |
-| **Command Code** | `--command-code` | Agente que aprende seu estilo |
-| **Freebuff** | `--freebuff` | Agente comunitário gratuito |
-| **Kilo Code CLI** | `--kilocode-cli` | CLI nativo glibc para Termux |
-| **Kiro CLI** | `--kiro` | Assistente de código AI da AWS |
-| **Crush CLI** | `--crush` | CLI para AI agents Charm |
-| **Odysseus** | `--odysseus` | Assistente de código Odysseus |
-| **Kimchi CLI** | `--kimchi-code` | Agente de IA Kimchi |
-| **Cline CLI** | `--cline` | Agente de codificação autônomo (via proot-distro) |
-| **karnelRoute** | `--karnel-route` | AI Gateway com 236+ provedores |
-| **Context7** | `--ctx7` | Documentação para AI assistants |
+| Agent | Flag | Description |
+|-------|------|-------------|
+| **Qwen Code** | `--qwen-code` | Alibaba coding assistant |
+| **Gemini CLI** | `--gemini-cli` | Google Gemini assistant |
+| **Claude Code** | `--claude-code` | Anthropic CLI with Claude AI |
+| **Mistral Vibe** | `--mistral-vibe` | Mistral command-line assistant |
+| **OpenClaude** | `--openclaude` | Open source Claude Code alternative |
+| **OpenClaw** | `--openclaw` | Personal AI assistant |
+| **Ollama** | `--ollama` | Run open source LLMs locally |
+| **Codex CLI** | `--codex` | OpenAI coding agent |
+| **OpenCode** | `--opencode` | Open source terminal agent |
+| **MiMoCode** | `--mimocode` | Fast open source AI agent |
+| **Engram** | `--engram` | Persistent memory system |
+| **CodeGraph** | `--codegraph` | Code structure analysis |
+| **Pi** | `--pi` | Minimalist terminal harness |
+| **Antigravity CLI** | `--antigravity-cli` | Terminal interface for Antigravity |
+| **MiniMax CLI** | `--minimax-cli` | Generate text, image, video and audio |
+| **Gentle AI** | `--gentle-ai` | AI workflow ecosystem |
+| **GGA** | `--gga` | Multi-provider automated code review |
+| **Hermes Agent** | `--hermes-agent` | Nous Research self-improving agent |
+| **Kimi Code** | `--kimi-code` | Kimi Code CLI |
+| **Command Code** | `--command-code` | Agent that learns your style |
+| **Freebuff** | `--freebuff` | Free community agent |
+| **Kilo Code CLI** | `--kilocode-cli` | Native glibc CLI for Termux |
+| **Kiro CLI** | `--kiro` | AWS AI coding assistant |
+| **Crush CLI** | `--crush` | Charm AI agents CLI |
+| **Odysseus** | `--odysseus` | Odysseus coding assistant |
+| **Kimchi CLI** | `--kimchi-code` | Kimchi AI agent |
+| **Cline CLI** | `--cline` | Autonomous coding agent (via proot-distro) |
+| **karnelRoute** | `--karnel-route` | AI Gateway with 236+ providers |
+| **Context7** | `--ctx7` | Documentation for AI assistants |
 | **OpenSpec** | `--openspec` | Spec-Driven Development |
 
 </details>
 
 ---
 
-## 🏥 karnel doctor
+## karnel doctor
 
-Diagnostique seu ambiente Termux + Karnel com 30+ verificações automáticas:
+Diagnose your Termux + Karnel environment with 30+ automatic checks:
 
 ```bash
 karnel doctor
 ```
 
-**Verificações incluídas:**
-1. Informações do sistema (Android, Termux, CPU)
-2. Recursos (disco, RAM, alertas)
-3. Armazenamento e permissões
-4. Linguagens e ferramentas críticas
-5. Saúde do gerenciador de pacotes (dpkg, apt)
-6. Node.js e npm
-7. Ambiente Python
+**Checks included:**
+1. System information (Android, Termux, CPU)
+2. Resources (disk, RAM, alerts)
+3. Storage and permissions
+4. Languages and critical tools
+5. Package manager health (dpkg, apt)
+6. Node.js and npm
+7. Python environment
 8. PostgreSQL
-9. Framework Karnel
-10. Status dos agentes de IA
-11. Configuração do shell
-12. Compatibilidade Android
+9. Karnel framework
+10. AI agent status
+11. Shell configuration
+12. Android compatibility
 13. Termux:API
-14. Configuração Git
-15. Chaves SSH
-16. Conectividade de rede
-17. Servidor OpenSSH
-18. Saúde do disco
-19. Integridade dos dados Karnel
-20. Geração de relatório
+14. Git configuration
+15. SSH keys
+16. Network connectivity
+17. OpenSSH server
+18. Disk health
+19. Karnel data integrity
+20. Report generation
 
-Cada verificação pode ser corrigida automaticamente com auto-fix.
+Each check can be auto-fixed.
 
 ---
 
-## 🧠 karnel brain — Segundo Cérebro
+## karnel brain — Second Brain
 
-Sistema de memória integrado com busca semântica por IA e visualização em grafo.
+Integrated memory system with AI-powered semantic search and graph visualization.
 
 ```bash
-karnel brain save "minha ideia"       # Salva um pensamento
-karnel brain search "postgres"       # Busca por similaridade semântica
-karnel brain graph                   # Visualiza conexões entre ideias
-karnel brain sync                    # Sincroniza com GitHub privado
+karnel brain save "my idea"         # Save a thought
+karnel brain search "postgres"     # Search by semantic similarity
+karnel brain graph                 # Visualize idea connections
+karnel brain sync                  # Sync with private GitHub
 ```
 
 ---
 
-## 🎤 karnel voice
+## karnel voice
 
-Capture áudio pelo microfone, revise no editor, copie para a área de transferência e dispare qualquer agente de IA com o prompt transcrito.
+Capture audio from microphone, review in editor, copy to clipboard, and dispatch any AI agent with the transcribed prompt.
 
 ```bash
-karnel voice opencode                # Grava → edita → opencode run
-karnel voice text                    # Grava → edita → imprime no terminal
-karnel voice claude-code --lang pt-BR # Fala em português → claude -p
-karnel voice "!"                     # Atalho para "text"
+karnel voice opencode              # Record -> edit -> opencode run
+karnel voice text                  # Record -> edit -> print to terminal
+karnel voice claude-code --lang en # Speak in English -> claude -p
+karnel voice "!"                   # Shortcut for "text"
 ```
 
-### Agentes Suportados (15)
+### Supported Agents (15)
 
-| Agente | Comando executado |
-|--------|------------------|
+| Agent | Command executed |
+|-------|-----------------|
 | `kilo` | `kilo --prompt "..."` |
 | `opencode` | `opencode run "..."` |
 | `claude-code` | `claude -p "..."` |
@@ -241,28 +241,28 @@ karnel voice "!"                     # Atalho para "text"
 | `qwen-code` | `qwen -p "..."` |
 | `crush` | `crush "..."` |
 | `kiro` | `kiro-cli "..."` |
-| `text` | Imprime o prompt no terminal |
+| `text` | Prints prompt to terminal |
 
-### Opções
+### Options
 
-| Flag | Descrição |
-|------|-----------|
-| `--lang <code>` | Idioma da fala: `pt-BR`, `en-US`, `es`, etc |
-| `--raw` | Pula edição no editor, usa captura direta |
-| `--no-clip` | Não copia prompt para área de transferência |
+| Flag | Description |
+|------|-------------|
+| `--lang <code>` | Speech language: `pt-BR`, `en-US`, `es`, etc |
+| `--raw` | Skip editor, use raw capture |
+| `--no-clip` | Don't copy prompt to clipboard |
 
-### Fluxo de Uso
+### Flow
 
 ```
-Microfone → termux-speech-to-text → editor (edição) → clipboard → AI agent
+Microphone -> termux-speech-to-text -> editor (edit) -> clipboard -> AI agent
 ```
 
-1. Fale o prompt
-2. Revise e corrija no editor
-3. Prompt é copiado pro clipboard
-4. Agente de IA é disparado com o prompt
+1. Speak the prompt
+2. Review and correct in editor
+3. Prompt is copied to clipboard
+4. AI agent is dispatched with the prompt
 
-### Requisitos
+### Requirements
 
 - Termux:API: `pkg install termux-api`
 - App Termux:API: https://kerneltermux.vercel.app/termux/api
@@ -270,183 +270,183 @@ Microfone → termux-speech-to-text → editor (edição) → clipboard → AI a
 
 ---
 
-## 🗄️ karnel pg — PostgreSQL
+## karnel pg — PostgreSQL
 
-Gerencie bancos PostgreSQL com comandos simples:
+Manage PostgreSQL databases with simple commands:
 
 ```bash
-karnel pg init && karnel pg start      # Inicializa e sobe o servidor
-karnel pg create meuapp              # Cria um banco
-karnel pg shell                      # Abre o console psql
+karnel pg init && karnel pg start      # Initialize and start server
+karnel pg create myapp               # Create a database
+karnel pg shell                      # Open psql console
 ```
 
 ---
 
-## 🚀 karnel init — Templates de Projetos
+## karnel init — Project Templates
 
-Crie projetos pré-configurados em segundos:
+Create pre-configured projects in seconds:
 
 ```bash
 cd my-app && karnel init next         # Next.js + TypeScript + Tailwind
 cd my-api && karnel init express      # Express + TypeORM
-cd backend && karnel init nest        # NestJS + autenticação
+cd backend && karnel init nest        # NestJS + authentication
 ```
 
-| Template | Descrição |
-|----------|-----------|
-| `next` | Next.js com Turbopack, TypeScript, Tailwind, React Query, Zustand |
-| `react` | React + Vite com estrutura moderna |
-| `express` | Express API com TypeScript + TypeORM + migrations |
-| `nest` | NestJS com TypeORM e autenticação JWT |
-| `python` | FastAPI com SQLModel/SQLAlchemy |
-| `go` | Go com Gin ou Fiber |
-| `rust` | Rust com Axum ou Actix Web |
+| Template | Description |
+|----------|-------------|
+| `next` | Next.js with Turbopack, TypeScript, Tailwind, React Query, Zustand |
+| `react` | React + Vite with modern structure |
+| `express` | Express API with TypeScript + TypeORM + migrations |
+| `nest` | NestJS with TypeORM and JWT auth |
+| `python` | FastAPI with SQLModel/SQLAlchemy |
+| `go` | Go with Gin or Fiber |
+| `rust` | Rust with Axum or Actix Web |
 
 ---
 
-## 🔧 karnel env
+## karnel env
 
-Gerencie variáveis de ambiente com segurança:
+Manage environment variables securely:
 
 ```bash
-karnel env set OPENAI_API_KEY        # Adiciona chave (input oculto)
-karnel env list                      # Lista variáveis
-karnel env ls                        # Lista variáveis
+karnel env set OPENAI_API_KEY        # Add key (hidden input)
+karnel env list                      # List variables
+karnel env ls                        # List variables
 ```
 
 ---
 
-## 🚢 karnel deploy
+## karnel deploy
 
-Publique seus projetos diretamente do terminal:
+Deploy your projects directly from terminal:
 
 ```bash
-karnel deploy vercel                  # Deploy para Vercel
-karnel deploy railway                 # Deploy para Railway
-karnel deploy netlify                 # Deploy para Netlify
+karnel deploy vercel                  # Deploy to Vercel
+karnel deploy railway                 # Deploy to Railway
+karnel deploy netlify                 # Deploy to Netlify
 ```
 
-Os CLIs das plataformas são instalados automaticamente e você faz deploy sem sair do Termux.
+Platform CLIs are installed automatically.
 
 ---
 
-## 📖 karnel open
+## karnel open
 
-Abra a documentação de qualquer módulo ou ferramenta no navegador:
+Open documentation for any module or tool in browser:
 
 ```bash
-karnel open ai                        # Abre documentação do módulo AI
-karnel open db                        # Abre documentação do módulo DB
-karnel open ai --opencode             # Abre docs do OpenCode no site
+karnel open ai                        # Open AI module docs
+karnel open db                        # Open DB module docs
+karnel open ai --opencode             # Open OpenCode docs on site
 ```
 
-A documentação é carregada do site oficial em https://kerneltermux.vercel.app.
+Documentation loads from https://kerneltermux.vercel.app.
 
 ---
 
-## 📖 Exemplos de Uso
+## Examples
 
 ```bash
-# Instalar banco de dados
+# Install databases
 karnel install db --postgresql --sqlite
 
-# Instalar agentes de IA específicos
+# Install specific AI agents
 karnel install ai --opencode --ollama --claude-code
 
-# Ver ferramentas disponíveis
+# View available tools
 karnel list ai
 
-# Ver documentação de uma ferramenta
+# View tool documentation
 karnel show ai --opencode
 
-# Atualizar tudo
+# Update everything
 karnel update karnel
 
-# Reinstalar um módulo
+# Reinstall a module
 karnel reinstall shell
 
-# Diagnóstico completo
+# Full diagnosis
 karnel doctor
 
-# Deploy direto
+# Deploy directly
 karnel deploy vercel
 ```
 
 ---
 
-## 🏗️ Estrutura do Projeto
+## Project Structure
 
 ```
 karnel/
 ├── karnel/
-│   ├── bin/           # Binário (karnel)
+│   ├── bin/           # Binary (karnel)
 │   ├── cli/
-│   │   ├── commands/  # Comandos CLI (install, list, show, etc.)
-│   │   └── karnel.sh    # CLI principal (com TUI)
-│   ├── modules/       # Orquestradores de módulos
-│   ├── tools/         # Instaladores de ferramentas
-│   │   ├── ai/        # 30 agentes de IA
-│   │   ├── lang/      # Linguagens
-│   │   ├── db/        # Bancos de dados
-│   │   ├── dev/       # Ferramentas dev
-│   │   ├── editor/    # Editor de código
-│   │   ├── npm/       # Pacotes npm globais
-│   │   ├── shell/     # Plugins ZSH
-│   │   ├── ui/        # Interface Termux
-│   │   ├── auto/      # Automação
-│   │   └── deploy/    # CLIs de deploy
-│   └── utils/         # Utilitários (banner, log, env, etc.)
-├── install.sh         # Script de instalação
-├── package.json       # Publicação npm/pnpm
+│   │   ├── commands/  # CLI commands (install, list, show, etc.)
+│   │   └── karnel.sh    # Main CLI (with TUI)
+│   ├── modules/       # Module orchestrators
+│   ├── tools/         # Tool installers
+│   │   ├── ai/        # 30 AI agents
+│   │   ├── lang/      # Languages
+│   │   ├── db/        # Databases
+│   │   ├── dev/       # Dev tools
+│   │   ├── editor/    # Code editor
+│   │   ├── npm/       # Global npm packages
+│   │   ├── shell/     # ZSH plugins
+│   │   ├── ui/        # Termux interface
+│   │   ├── auto/      # Automation
+│   │   └── deploy/    # Deploy CLIs
+│   └── utils/         # Utilities (banner, log, env, etc.)
+├── install.sh         # Installation script
+├── package.json       # npm/pnpm publishing
 └── .github/workflows/ # CI/CD
 ```
 
 ---
 
-## ⚙️ Configuração
+## Configuration
 
-### Variáveis de Ambiente
+### Environment Variables
 
 ```bash
-export KARNEL_DEBUG=1      # Logs de debug
+export KARNEL_DEBUG=1      # Debug logs
 ```
 
-### Diretórios
+### Directories
 
-| Diretório | Descrição |
-|-----------|-----------|
-| `~/.local/share/karnel-data/` | Dados persistentes das ferramentas |
-| `~/.cache/karnel/` | Logs e cache |
-| `~/.config/karnel/` | Configuração do usuário |
+| Directory | Description |
+|-----------|-------------|
+| `~/.local/share/karnel-data/` | Persistent tool data |
+| `~/.cache/karnel/` | Logs and cache |
+| `~/.config/karnel/` | User configuration |
 
 ---
 
-## 🔄 Atualizações Automáticas
+## Automatic Updates
 
-O framework verifica atualizações a cada 24 horas em background.
+The framework checks for updates every 24 hours in background.
 
 ```bash
-karnel update karnel     # Atualiza o framework
+karnel update karnel     # Update the framework
 ```
 
 ---
 
-## ⭐ Apoie o Projeto
+## Support the Project
 
-Se o Karnel Termux foi útil pra você, considere apoiar via Pix ou dar uma estrela no GitHub — isso ajuda outros desenvolvedores a descobrirem o projeto.
+If Karnel Termux has been useful to you, consider supporting via Pix or starring on GitHub — it helps other developers discover the project.
 
 **Pix:** `037f07bd-a326-42b6-a5a3-f29b36e703db`
 
 ---
 
-## 📄 Licença
+## License
 
-MIT © israel marques
+MIT © Israel Marques
 
 ---
 
 <p align="center">
   <a href="https://kerneltermux.vercel.app">
-    <img src="https://img.shields.io/badge/%F0%9F%8C%90%20Documenta%C3%A7%C3%A3o%20Completa-0078D4?style=for-the-badge" alt="Documentação">
+    <img src="https://img.shields.io/badge/Full%20Documentation-0078D4?style=for-the-badge" alt="Documentation">
   </a>
 </p>
