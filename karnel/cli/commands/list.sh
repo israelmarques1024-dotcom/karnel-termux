@@ -223,6 +223,9 @@ _list_dev() {
   table_row "Shfmt" "--shfmt" "$(_check_pkg "shfmt")"
   table_row "Make" "--make" "$(_check_pkg "make")"
   table_row "Udocker" "--udocker" "$(_check_pkg "udocker")"
+  table_row "Snyk" "--snyk" "$(_check_cmd "snyk")"
+  table_row "httptmux" "--httptmux" "$(_check_cmd "httptmux")"
+  table_row "Zork" "--zork" "$(_check_cmd "zork")"
   table_end
 
   echo
