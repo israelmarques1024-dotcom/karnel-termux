@@ -11,7 +11,7 @@ upgrade_main() {
   log_info "Upgrading Karnel framework to latest version..."
 
   # Pull latest from git
-  if ! git -C "$KARNEL_PATH" pull origin main 2>/dev/null; then
+  if ! git -C "$KARNEL_PATH/.." pull origin main 2>/dev/null; then
     log_warn "Git pull failed — check your internet connection"
     return 1
   fi

@@ -127,7 +127,7 @@ doctor_main() {
       case "$dep" in
         git) version=$(git --version | awk '{print $3}') ;;
         node) version=$(node --version) ;;
-        python) version=$(python3 --version 2>/dev/null || python --version 2>/dev/null | awk '{print $2}') ;;
+        python) version=$((python3 --version 2>/dev/null || python --version 2>/dev/null) | awk '{print $2}') ;;
         rustc) version=$(rustc --version | awk '{print $2}') ;;
         go) version=$(go version | awk '{print $3}') ;;
         clang) version=$(clang --version | head -1 | awk '{print $3}') ;;

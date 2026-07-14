@@ -52,9 +52,49 @@ restore_main() {
   read_confirm "Proceed with restore?" confirm
   [[ "$confirm" != "y" ]] && { log_info "Cancelled"; return 0; }
 
-  # Configs
-  log_info "Restoring configs..."
-  tar -xzf "$file" -C / 2>/dev/null
+  # Configs — extract to temp then copy to correct locations
+  local tmp
+  tmp=$(mktemp -d)
+  tar -xzf "$file" -C "$tmp" 2>/dev/null
+
+  if [[ -d "$tmp/config/home" ]]; then
+    log_info "Restoring shell configs..."
+    for f in "$tmp/config/home/"*; do
+      cp "$f" "$HOME/$(basename "$f")" 2>/dev/null
+    done
+    log_success "Shell configs restored"
+  fi
+
+  if [[ -d "$tmp/config/termux" ]]; then
+    log_info "Restoring Termux configs..."
+    cp -r "$tmp/config/termux/.termux" "$HOME/" 2>/dev/null
+    log_success "Termux configs restored"
+  fi
+
+  if [[ -d "$tmp/config/ssh" ]]; then
+    log_info "Restoring SSH keys..."
+    mkdir -p "$HOME/.ssh"
+    chmod 700 "$HOME/.ssh"
+    for f in "$tmp/config/ssh/"*; do
+      cp "$f" "$HOME/.ssh/$(basename "$f")" 2>/dev/null
+    done
+    chmod 600 "$HOME/.ssh/id_"* 2>/dev/null
+    log_success "SSH keys restored"
+  fi
+
+  if [[ -d "$tmp/config/config" ]]; then
+    log_info "Restoring .config..."
+    cp -r "$tmp/config/config/"* "$HOME/.config/" 2>/dev/null
+    log_success ".config restored"
+  fi
+
+  if [[ -d "$tmp/config/prefix-etc" ]]; then
+    log_info "Restoring apt sources..."
+    cp "$tmp/config/prefix-etc/"* "$PREFIX/etc/apt/" 2>/dev/null
+    log_success "APT sources restored"
+  fi
+
+  rm -rf "$tmp"
   log_success "Configs restored"
 
   # Packages

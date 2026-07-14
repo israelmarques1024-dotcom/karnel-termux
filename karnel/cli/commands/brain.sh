@@ -274,13 +274,12 @@ brain_init() {
 	log_info "Creating private repo: ${D_CYAN}$gh_user/$repo_name${D_NC}..."
 	if gh repo create "$repo_name" --private &>/dev/null; then
 		(
-			cd "$BRAIN_DIR" || return 1
-			git init &>/dev/null
-			echo "# Karnel Brain" >README.md
-			git add -A
-			git commit -m "init brain" &>/dev/null
-			git remote add origin "https://github.com/$gh_user/$repo_name.git"
-			loading "Pushing to GitHub..." git push -u origin main
+			git -C "$BRAIN_DIR" init &>/dev/null
+			echo "# Karnel Brain" >"$BRAIN_DIR/README.md"
+			git -C "$BRAIN_DIR" add -A
+			git -C "$BRAIN_DIR" commit -m "init brain" &>/dev/null
+			git -C "$BRAIN_DIR" remote add origin "https://github.com/$gh_user/$repo_name.git"
+			loading "Pushing to GitHub..." git -C "$BRAIN_DIR" push -u origin main
 		)
 		log_success "Repo created and linked: ${D_CYAN}https://github.com/$gh_user/$repo_name${D_NC}"
 	else
@@ -769,9 +768,10 @@ brain_sync() {
 		return 1
 	fi
 
-	cd "$BRAIN_DIR" || return 1
+	local branch
+	branch=$(git -C "$BRAIN_DIR" rev-parse --abbrev-ref HEAD 2>/dev/null)
 
-	if ! git remote -v &>/dev/null; then
+	if ! git -C "$BRAIN_DIR" remote -v &>/dev/null; then
 		log_info "No remote configured — local commit only"
 		list_item "Set up GitHub sync with: ${D_CYAN}karnel brain init${D_NC}"
 		separator
@@ -779,18 +779,15 @@ brain_sync() {
 	fi
 
 	local commit_msg="brain sync $(date +%Y-%m-%d_%H:%M)"
-	if [[ -n "$(git status --porcelain)" ]]; then
-		loading "Staging changes..." git add -A
-		loading "Committing changes..." git commit -m "$commit_msg"
+	if [[ -n "$(git -C "$BRAIN_DIR" status --porcelain)" ]]; then
+		loading "Staging changes..." git -C "$BRAIN_DIR" add -A
+		loading "Committing changes..." git -C "$BRAIN_DIR" commit -m "$commit_msg"
 	else
 		log_info "No changes to commit"
 	fi
 
-	local branch
-	branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
-
-	if ! git rev-parse --abbrev-ref --symbolic-full-name @{upstream} &>/dev/null; then
-		loading "Pushing to origin/$branch..." git push -u origin "$branch"
+	if ! git -C "$BRAIN_DIR" rev-parse --abbrev-ref --symbolic-full-name @{upstream} &>/dev/null; then
+		loading "Pushing to origin/$branch..." git -C "$BRAIN_DIR" push -u origin "$branch"
 		if [[ $? -eq 0 ]]; then
 			log_success "Brain synced with GitHub"
 		else
@@ -801,7 +798,7 @@ brain_sync() {
 		return
 	fi
 
-	loading "Pulling latest from remote..." git pull --rebase
+	loading "Pulling latest from remote..." git -C "$BRAIN_DIR" pull --rebase
 	local pull_exit=$?
 	if [[ $pull_exit -ne 0 ]]; then
 		log_error "Pull failed — your local and remote histories diverged"
@@ -811,7 +808,7 @@ brain_sync() {
 		return 1
 	fi
 
-	loading "Pushing to remote..." git push
+	loading "Pushing to remote..." git -C "$BRAIN_DIR" push
 	if [[ $? -eq 0 ]]; then
 		log_success "Brain synced with GitHub"
 	else
