@@ -276,14 +276,20 @@ show_final_message() {
 }
 
 main() {
-	bootstrap_dependencies
-	banner
-	install_dependencies
-	setup_directories
-	clone_repo
-	create_symlink
-	save_config
-	show_final_message
+  if [[ -z "${PREFIX:-}" ]]; then
+    echo -e "\n  ${P_FAIL}✖${P_NC}  PREFIX is not set. Are you running in Termux?"
+    echo -e "  ${P_DIM}This installer requires Termux environment.${P_NC}"
+    echo -e "  ${P_DIM}Install Termux from GitHub or F-Droid first.${P_NC}"
+    exit 1
+  fi
+  bootstrap_dependencies
+  banner
+  install_dependencies
+  setup_directories
+  clone_repo
+  create_symlink
+  save_config
+  show_final_message
 }
 
 main

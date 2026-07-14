@@ -1201,8 +1201,6 @@ EOF
 
         if [[ -n "$callback" ]] && type "$callback" &>/dev/null 2>&1; then
           "$callback" && success=true
-        elif [[ -n "${fix_commands[$i]}" ]]; then
-          eval "${fix_commands[$i]}" 2>/dev/null && success=true
         fi
 
         if [[ "$success" == "true" ]]; then
