@@ -396,6 +396,18 @@ _install_specific_tools() {
         install_udocker
         case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
         ;;
+      snyk)
+        install_snyk
+        case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
+      httptmux)
+        install_httptmux
+        case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
+      zork)
+        install_zork
+        case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
       *)
         log_warn "Unknown tool: --$tool"
         ;;

@@ -26,6 +26,9 @@ TOOLS_PACKAGES=(
   "shfmt"
   "make"
   "udocker"
+  "snyk"
+  "httptmux"
+  "zork"
 )
 
 for _tool in "${TOOLS_PACKAGES[@]}"; do

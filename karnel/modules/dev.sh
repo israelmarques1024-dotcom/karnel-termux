@@ -43,6 +43,9 @@ install_dev() {
 	list_item "Shfmt (shell script formatter)"
 	list_item "Make (build automation)"
 	list_item "Udocker (container management)"
+	list_item "Snyk (security scanner)"
+	list_item "httptmux (interactive API client)"
+	list_item "Zork (text adventure games I, II, III)"
 	echo
 }
 
@@ -136,9 +139,12 @@ reinstall_dev() {
   list_item "Fzf (fuzzy finder)"
   list_item "ImageMagick (image manipulation)"
   list_item "Shfmt (shell script formatter)"
-  list_item "Make (build automation)"
-  list_item "Udocker (container management)"
-  echo
+	list_item "Make (build automation)"
+	list_item "Udocker (container management)"
+	list_item "Snyk (security scanner)"
+	list_item "httptmux (interactive API client)"
+	list_item "Zork (text adventure games I, II, III)"
+	echo
 }
 
 _reinstall_dev_wrapper() {
