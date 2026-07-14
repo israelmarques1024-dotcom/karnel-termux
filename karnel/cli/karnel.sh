@@ -2,7 +2,6 @@
 
 import "@/utils/log"
 import "@/utils/colors"
-import "@/cli/commands/deploy"
 
 karnel_main() {
   local cmd="$1"
