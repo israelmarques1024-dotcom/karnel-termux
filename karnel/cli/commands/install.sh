@@ -3,60 +3,6 @@
 import "@/utils/log"
 import "@/utils/colors"
 
-# Generic tool installer helper
-_install_tool() {
-  local tool_name="$1"
-  local install_func="$2"
-  local display_name="${3:-$tool_name}"
-
-  if command -v "$tool_name" &>/dev/null; then
-    log_info "$display_name is already installed"
-    return 2
-  fi
-
-  $install_func
-  return $?
-}
-
-# Generic module installer with progress tracking
-_install_tools_in_module() {
-  local module="$1"
-  local action="${2:-install}"
-  shift 2
-  local -a tools=("$@")
-
-  local success_count=0
-  local failed_count=0
-  local total=${#tools[@]}
-  local current=0
-
-  progress_start "$total" "${action^}ing tools..."
-
-  for tool in "${tools[@]}"; do
-    ((current++))
-
-    local func_name="${action}_${tool//-/_}"
-    loading "${action^}ing ${tool}" "$func_name"
-    case $? in
-      0|2) ((success_count++)) ;;
-      1) ((failed_count++)) ;;
-    esac
-
-    progress_update "$current" "$total"
-  done
-
-  progress_done "$total"
-  if [[ $success_count -gt 0 ]]; then
-    log_success "$success_count tool(s) ${action}ed"
-  fi
-  if [[ $failed_count -gt 0 ]]; then
-    log_warn "$failed_count tool(s) failed to ${action}"
-  fi
-  echo
-
-  return 0
-}
-
 install_main() {
 
   if [[ $# -eq 0 ]]; then

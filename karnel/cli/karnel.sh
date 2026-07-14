@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-# Importar funciones de log y colores para el help
 import "@/utils/log"
 import "@/utils/colors"
+import "@/cli/commands/deploy"
 
 karnel_main() {
   local cmd="$1"

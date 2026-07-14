@@ -212,6 +212,14 @@ clone_repo() {
 	fi
 
 	export KARNEL_REPO
+
+	# Install shell completions
+	if [ -f "$KARNEL_REPO/scripts/completion.bash" ]; then
+		cp "$KARNEL_REPO/scripts/completion.bash" "$PREFIX/share/bash-completion/completions/karnel" 2>/dev/null || true
+	fi
+	if [ -f "$KARNEL_REPO/scripts/completion.zsh" ]; then
+		cp "$KARNEL_REPO/scripts/completion.zsh" "$PREFIX/share/zsh/site-functions/_karnel" 2>/dev/null || true
+	fi
 }
 
 create_symlink() {

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+import "@/utils/log"
+
 LOG_FILE="$KARNEL_CACHE/install_db.log"
 
 DB_TOOLS=(
