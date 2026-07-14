@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-KARNEL_VERSION="4.7.5"
+KARNEL_VERSION="4.7.6"
 
 # -------------------------
 # Directorios del usuario

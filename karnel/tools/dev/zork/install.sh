@@ -48,12 +48,12 @@ _download_zork_data_impl() {
       continue
     fi
 
-    if ! curl -fsSL "$url" -o "$zip_file" &>>"$LOG_FILE"; then
+    if ! curl -sSfL "$url" -o "$zip_file" 2>>"$LOG_FILE"; then
       log_error "Failed to download Zork ${num}"
       return 1
     fi
 
-    if ! unzip -o "$zip_file" -d "$ZORK_DATA_DIR" &>>"$LOG_FILE"; then
+    if ! unzip -o "$zip_file" -d "$ZORK_DATA_DIR" 2>>"$LOG_FILE"; then
       log_error "Failed to extract Zork ${num}"
       return 1
     fi
