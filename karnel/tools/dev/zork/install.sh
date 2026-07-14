@@ -6,10 +6,10 @@ import "@/utils/version"
 LOG_FILE="$KARNEL_CACHE/install_dev.log"
 ZORK_DATA_DIR="$HOME/.local/share/karnel-data/zork"
 
-ZORK_GAMES=(
-  "Zork I:zdung4.zip:https://www.infocom-if.org/downloads/zdung4.zip"
-  "Zork II:zdung4.zip:https://www.infocom-if.org/downloads/zdung4.zip"
-  "Zork III:zdung4.zip:https://www.infocom-if.org/downloads/zdung4.zip"
+ZORK_URLS=(
+  "1:http://www.infocom-if.org/downloads/zork1.zip"
+  "2:http://www.infocom-if.org/downloads/zork2.zip"
+  "3:http://www.infocom-if.org/downloads/zork3.zip"
 )
 
 _install_zork_deps() {
@@ -23,6 +23,12 @@ _install_zork_deps_impl() {
       return 1
     fi
   fi
+  if ! command -v unzip &>/dev/null; then
+    if ! pkg install unzip -y &>>"$LOG_FILE"; then
+      log_error "Failed to install unzip"
+      return 1
+    fi
+  fi
   return 0
 }
 
@@ -33,22 +39,27 @@ _download_zork_data() {
 _download_zork_data_impl() {
   mkdir -p "$ZORK_DATA_DIR"
 
-  local url="https://www.infocom-if.org/downloads/zdung4.zip"
-  local zip_file="$ZORK_DATA_DIR/zdung4.zip"
+  for entry in "${ZORK_URLS[@]}"; do
+    local num="${entry%%:*}"
+    local url="${entry#*:}"
+    local zip_file="$ZORK_DATA_DIR/zork${num}.zip"
 
-  if [ ! -f "$ZORK_DATA_DIR/zork1.dat" ] && [ ! -f "$ZORK_DATA_DIR/DATA/ZORK1.DAT" ]; then
+    if [ -f "$ZORK_DATA_DIR/DATA/ZORK${num}.DAT" ]; then
+      continue
+    fi
+
     if ! curl -fsSL "$url" -o "$zip_file" &>>"$LOG_FILE"; then
-      log_error "Failed to download Zork data"
+      log_error "Failed to download Zork ${num}"
       return 1
     fi
 
     if ! unzip -o "$zip_file" -d "$ZORK_DATA_DIR" &>>"$LOG_FILE"; then
-      log_error "Failed to extract Zork data"
+      log_error "Failed to extract Zork ${num}"
       return 1
     fi
 
     rm -f "$zip_file"
-  fi
+  done
 
   return 0
 }
