@@ -15,6 +15,7 @@ NODE_PACKAGES=(
   "psqlformat"
   "ncu"
   "turbopack"
+  "ngrok"
 )
 
 for _tool in "${NODE_PACKAGES[@]}"; do

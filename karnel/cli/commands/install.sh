@@ -298,6 +298,14 @@ _install_specific_tools() {
         install_tmate
         case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
         ;;
+      openssh)
+        install_openssh
+        case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
+      tmux)
+        install_tmux
+        case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
       cloudflared)
         install_cloudflared
         case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac

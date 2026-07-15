@@ -368,6 +368,18 @@ _reinstall_specific_tools() {
         reinstall_udocker
         case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
+      snyk)
+        reinstall_snyk
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      httptmux)
+        reinstall_httptmux
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      zork)
+        reinstall_zork
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
       *)
         log_warn "Unknown tool: --$tool"
         ;;
