@@ -29,7 +29,7 @@ _install_railway_manual_impl() {
   log_info "Downloading Railway ${version} for ARM64 Linux..."
   if ! curl -fsSL --connect-timeout 15 "$tarball_url" -o "$RAILWAY_DATA_DIR/railway.tar.gz" 2>>"$LOG_FILE"; then
     log_warn "ARM64 binary not available. Railway CLI does not provide ARM Linux builds."
-    log_info "Install Railway on a desktop or use 'npx @railway/cli' instead."
+    log_info "Use 'npx @railway/cli' instead."
     return 1
   fi
 
@@ -77,7 +77,7 @@ install_railway() {
 
   log_error "Railway CLI installation failed. Railway does not provide official ARM Linux builds."
   log_info "Workaround: use 'npx @railway/cli' instead of 'railway' command."
-  log_info "Or install Railway on a desktop/cloud machine."
+  log_info "Or install Railway on a cloud machine."
   return 1
 }
 

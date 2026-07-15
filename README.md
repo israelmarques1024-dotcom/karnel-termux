@@ -45,8 +45,7 @@ Created by **Israel Marques**.
 > [!IMPORTANT]
 > Designed exclusively for **Termux on Android**. Does not work on other platforms.
 
-> [!NOTE]
-> Also available for **Desktop:** [Karnel Desktop CLI](https://github.com/israelmarques1024-dotcom/karnel-termux-desktop-cli) — Cross-platform manager for Linux, macOS, and Windows. Same CLI, same commands, native package managers.
+
 
 ---
 

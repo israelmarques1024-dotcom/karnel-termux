@@ -227,6 +227,8 @@ create_symlink() {
 
 	[[ -z "$PREFIX" ]] && { log_fail "PREFIX is not set. Are you running in Termux?"; return 1; }
 
+	command -v termux-fix-shebang &>/dev/null && termux-fix-shebang "$KARNEL_REPO/karnel/bin/karnel" &>/dev/null
+
 	rm -f "$PREFIX/bin/karnel"
 	ln -sf "$KARNEL_REPO/karnel/bin/karnel" "$PREFIX/bin/karnel"
 
