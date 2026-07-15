@@ -361,38 +361,26 @@ ia_sessions() {
 
 	# Persist all discovered sessions to IA_SESSIONS_DIR for history
 	local persist_file="$IA_SESSIONS_DIR/.all_sessions.json"
-	if command -v jq &>/dev/null; then
-		local json_entries="[]"
-		for session in "${sessions[@]}"; do
-			local tool ts_raw name
-			tool=$(echo "$session" | cut -d'|' -f1)
-			ts_raw=$(echo "$session" | cut -d'|' -f2)
-			name=$(echo "$session" | cut -d'|' -f3-)
-			json_entries=$(echo "$json_entries" | jq --arg tool "$tool" --arg ts "$ts_raw" --arg name "$name" '. + [{"tool": $tool, "ts": $ts, "name": $name}]')
-		done
-		echo "$json_entries" > "$persist_file" 2>/dev/null || true
-	else
-		local tmp_persist
-		tmp_persist=$(mktemp)
-		echo "[" > "$tmp_persist"
-		local first=1
-		for session in "${sessions[@]}"; do
-			local tool ts_raw name
-			tool=$(echo "$session" | cut -d'|' -f1)
-			ts_raw=$(echo "$session" | cut -d'|' -f2)
-			name=$(echo "$session" | cut -d'|' -f3-)
-			local escaped_name
-			escaped_name=$(printf '%s' "$name" | sed 's/"/\\"/g' | sed "s/'/\\\\'/g")
-			if [[ $first -eq 1 ]]; then
-				first=0
-			else
-				echo "," >> "$tmp_persist"
-			fi
-			printf '{"tool":"%s","ts":"%s","name":"%s"}\n' "$tool" "$ts_raw" "$escaped_name" >> "$tmp_persist"
-		done
-		echo "]" >> "$tmp_persist"
-		mv "$tmp_persist" "$persist_file" 2>/dev/null || true
-	fi
+	local tmp_persist
+	tmp_persist=$(mktemp)
+	echo "[" > "$tmp_persist"
+	local first=1
+	for session in "${sessions[@]}"; do
+		local tool ts_raw name
+		tool=$(echo "$session" | cut -d'|' -f1)
+		ts_raw=$(echo "$session" | cut -d'|' -f2)
+		name=$(echo "$session" | cut -d'|' -f3-)
+		local escaped_name
+		escaped_name=$(printf '%s' "$name" | sed 's/"/\\"/g' | sed "s/'/\\\\'/g")
+		if [[ $first -eq 1 ]]; then
+			first=0
+		else
+			echo "," >> "$tmp_persist"
+		fi
+		printf '{"tool":"%s","ts":"%s","name":"%s"}\n' "$tool" "$ts_raw" "$escaped_name" >> "$tmp_persist"
+	done
+	echo "]" >> "$tmp_persist"
+	mv "$tmp_persist" "$persist_file" 2>/dev/null || true
 
 	separator
 	box "AI Sessions (${#sessions[@]})"

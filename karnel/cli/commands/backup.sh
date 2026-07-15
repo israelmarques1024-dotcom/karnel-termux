@@ -68,7 +68,12 @@ backup_main() {
   [[ -d "$HOME/.termux" ]] && cp -r "$HOME/.termux" "$tmp/config/termux/" 2>/dev/null
   [[ -d "$HOME/.ssh" ]] && cp "$HOME/.ssh/id_"* "$HOME/.ssh/config" "$HOME/.ssh/known_hosts" "$tmp/config/ssh/" 2>/dev/null
   for d in "$HOME/.config"/*; do
-    [[ -d "$d" ]] && cp -r "$d" "$tmp/config/config/" 2>/dev/null
+    if [[ -d "$d" ]]; then
+      local base; base=$(basename "$d")
+      if [[ "$base" != "github-copilot" && "$base" != "nvm" && "$base" != "coc" && "$base" != "Code" && "$base" != "yarn" ]]; then
+        cp -r "$d" "$tmp/config/config/" 2>/dev/null
+      fi
+    fi
   done
   [[ -f "$PREFIX/etc/apt/sources.list" ]] && cp "$PREFIX/etc/apt/sources.list" "$tmp/config/prefix-etc/" 2>/dev/null
 

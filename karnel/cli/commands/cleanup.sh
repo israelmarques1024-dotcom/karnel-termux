@@ -42,10 +42,10 @@ cleanup_main() {
 
   # __pycache__ dirs
   local pycache_size
-  pycache_size=$(du -sh "$PREFIX/lib/python3"* 2>/dev/null | awk '{print $1}')
+  pycache_size=$(find "$PREFIX/lib/"python3* -name "__pycache__" -type d 2>/dev/null | head -n 1)
   if [[ -n "$pycache_size" ]]; then
-    log_info "Python __pycache__: ${pycache_size} → cleaning..."
-    find "$PREFIX/lib/python3"* -name "__pycache__" -exec rm -rf {} + 2>/dev/null
+    log_info "Python __pycache__: cleaning..."
+    find "$PREFIX/lib/"python3* -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null
     log_success "Python cache cleaned"
     ((total_freed++))
   fi
