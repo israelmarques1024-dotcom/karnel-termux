@@ -100,6 +100,7 @@ env_unset() {
 	local -a keys=()
 	local line k
 	while IFS= read -r line; do
+		[[ "$line" != *"="* ]] && continue
 		line="${line#export }"
 		k="${line%%=*}"
 		keys+=("$k")
@@ -179,6 +180,7 @@ env_ls() {
 	local line
 
 	while IFS= read -r line; do
+		[[ "$line" != *"="* ]] && continue
 		line="${line#export }"
 		local k="${line%%=*}"
 		local v="${line#*=}"
