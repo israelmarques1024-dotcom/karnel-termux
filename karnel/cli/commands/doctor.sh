@@ -127,7 +127,7 @@ doctor_main() {
       case "$dep" in
         git) version=$(git --version | awk '{print $3}') ;;
         node) version=$(node --version) ;;
-        python) version=$((python3 --version 2>/dev/null || python --version 2>/dev/null) | awk '{print $2}') ;;
+        python) version=$( (python3 --version 2>/dev/null || python --version 2>/dev/null) | awk '{print $2}' ) ;;
         rustc) version=$(rustc --version | awk '{print $2}') ;;
         go) version=$(go version | awk '{print $3}') ;;
         clang) version=$(clang --version | head -1 | awk '{print $3}') ;;
@@ -1023,7 +1023,7 @@ doctor_main() {
   # Check for orphaned node/python processes
   local orphan_count=0
   orphan_count=$(pgrep -c -f 'node.*karnel\|python.*karnel' 2>/dev/null || echo 0)
-  if (( orphan_count > 2 )); then
+  if [[ "$orphan_count" =~ ^[0-9]+$ ]] && (( orphan_count > 2 )); then
     log_warn "$orphan_count Karnel-related processes running (may be stale)"
     ((warnings++))
   fi

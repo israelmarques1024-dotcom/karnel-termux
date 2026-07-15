@@ -517,6 +517,11 @@ _tui_install_checklist() {
         "shfmt" "Shfmt" OFF
         "make" "Make" OFF
         "udocker" "Udocker" OFF
+        "tmux" "Tmux" OFF
+        "openssh" "OpenSSH" OFF
+        "snyk" "Snyk" OFF
+        "httptmux" "Httptmux" OFF
+        "zork" "Zork" OFF
       )
       ;;
     shell)

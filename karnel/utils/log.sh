@@ -257,6 +257,11 @@ read_input() {
 	local var="$2"
 	local _val
 
+	if [[ ! -t 0 ]]; then
+		read -r "$var" <<<""
+		return 1
+	fi
+
 	echo -e -n "    ${GRAY}┌─${D_CYAN} ${prompt} ${NC}\n" >&2
 	echo -e -n "    ${GRAY}└─${D_CYAN}▶ ${D_NC}" >&2
 	read -r _val
@@ -341,6 +346,11 @@ read_confirm_default() {
 	local default="$2"
 	local var="$3"
 	local _val
+
+	if [[ ! -t 0 ]]; then
+		read -r "$var" <<<"$default"
+		[[ "$default" == "y" ]] && return 0 || return 1
+	fi
 
 	local show_default
 	if [[ "$default" == "y" ]]; then

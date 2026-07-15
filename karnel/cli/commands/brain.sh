@@ -294,6 +294,12 @@ brain_init() {
 brain_save() {
 	_brain_ensure || return 1
 
+	if [[ ! -t 0 ]]; then
+		log_error "Interactive mode requires a terminal."
+		log_info "Use: ${D_CYAN}karnel brain add \"your text\"${NC}"
+		return 1
+	fi
+
 	separator
 	box "Save a New Memory"
 	separator
@@ -468,9 +474,10 @@ brain_search() {
 	local -a menu_titles=()
 	local idx=0
 	for result in "${results[@]}"; do
-		local f=$(echo "$result" | cut -d'|' -f1)
-		local ln=$(echo "$result" | cut -d'|' -f2)
-		local text=$(echo "$result" | cut -d'|' -f3-)
+		local f ln text
+		f=$(echo "$result" | cut -d'|' -f1)
+		ln=$(echo "$result" | cut -d'|' -f2)
+		text=$(echo "$result" | cut -d'|' -f3-)
 		local relative="${f#$BRAIN_DIR/}"
 		local title
 		title=$(_brain_title "$f")

@@ -36,7 +36,7 @@ Created by **Israel Marques**.
 - **30 AI agents** for coding — Claude, Gemini, OpenCode, Ollama, Cline, karnelRoute and more
 - **7 languages** — Node.js, Python, Go, Rust, C/C++, PHP, Perl
 - **5 databases** — PostgreSQL, MariaDB, SQLite, MongoDB, Redis
-- **19 dev tools** — gh, curl, fzf, bat, lsd, jq and more
+- **24 dev tools** — gh, curl, fzf, bat, lsd, jq, tmux, openssh, snyk and more
 - **3 deploy CLIs** — Vercel, Railway, Netlify
 - **Professional editor** — code-server (VS Code in browser)
 - **Second brain** — Memory system with AI search and idea graph
