@@ -353,6 +353,16 @@ ia_sessions() {
 		done
 	fi
 
+	# Copilot-Termux sessions
+	if [[ -d "$HOME/.copilot" ]]; then
+		while IFS= read -r -d '' f; do
+			local basename; basename=$(basename "$f")
+			local ts; ts=$(stat -c %Y "$f" 2>/dev/null || echo "unknown")
+			local readable_ts; readable_ts=$(date -d "@$ts" +%Y%m%d_%H%M%S 2>/dev/null || echo "unknown")
+			sessions+=("[copilot]|$readable_ts|$basename")
+		done < <(find "$HOME/.copilot" \( -name 'events.jsonl' -o -name 'command-history-state.json' \) -type f -print0 2>/dev/null)
+	fi
+
 	if [[ ${#sessions[@]} -eq 0 ]]; then
 		log_warn "No AI sessions found"
 		log_info "Start an AI tool to create your first session"
@@ -421,7 +431,7 @@ ia_routes() {
 	local -a routes=()
 
 	# Collect all available AI CLIs (em sincronia com AI_TOOLS_REGISTRY em tools/ai/all.sh)
-	for cmd in qwen gemini claude vibe openclaude openclaw ollama codex opencode mimo engram codegraph pi agy mmx gentle-ai gga hermes kimi command-code freebuff kilocode kiro cline crush odysseus kimchi omni-route ctx7 openspec; do
+	for cmd in qwen gemini claude vibe openclaude openclaw ollama codex opencode mimo engram codegraph pi agy mmx gentle-ai gga hermes kimi command-code freebuff kilocode kiro cline crush odysseus kimchi omni-route ctx7 openspec copilot; do
 		if command -v "$cmd" &>/dev/null; then
 			local path
 			path=$(command -v "$cmd")

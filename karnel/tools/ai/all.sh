@@ -58,6 +58,7 @@ AI_TOOLS_REGISTRY=(
   "omni-route:omniRoute:omni-route"
   "ctx7:Context7 Documentation Provider:ctx7"
   "openspec:OpenSpec SDD Framework:openspec"
+  "copilot-termux:Copilot-Termux:copilot"
 )
 
 # ---- IMPORTAR TODOS OS SCRIPTS INDIVIDUAIS ----

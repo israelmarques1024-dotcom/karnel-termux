@@ -167,6 +167,7 @@ _list_ai() {
   table_row "omniRoute" "--omni-route" "omni-route" "$(_check_cmd "omni-route")"
   table_row "Context7 Docs" "--ctx7" "ctx7" "$(_check_cmd "ctx7")"
   table_row "OpenSpec SDD" "--openspec" "openspec" "$(_check_cmd "openspec")"
+  table_row "Copilot-Termux" "--copilot-termux" "copilot" "$(_check_cmd "copilot")"
   table_end
 
   echo

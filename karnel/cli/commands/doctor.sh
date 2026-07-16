@@ -4,6 +4,64 @@ import "@/utils/log"
 import "@/utils/colors"
 
 doctor_main() {
+  local subcommand="${1:-termux}"
+  case "$subcommand" in
+    help|--help|-h)
+      doctor_help
+      ;;
+    termux)
+      shift
+      doctor_termux "$@"
+      ;;
+    code)
+      shift
+      doctor_code "$@"
+      ;;
+    --quick|-q)
+      log_warn "Deprecated: use ${D_CYAN}karnel doctor termux --quick${NC}"
+      doctor_termux "$@"
+      ;;
+    --fix|-f)
+      log_warn "Deprecated: use ${D_CYAN}karnel doctor termux --fix${NC}"
+      shift
+      doctor_termux "--fix" "$@"
+      ;;
+    *)
+      log_error "Unknown doctor subcommand: $subcommand"
+      echo
+      doctor_help
+      return 1
+      ;;
+  esac
+}
+
+doctor_help() {
+  echo
+  box "◈ KARNEL DOCTOR ◈"
+  echo
+  log_info "Usage: karnel doctor <subcommand> [options]"
+  echo
+  log_info "When no subcommand is given, runs termux diagnostics."
+  echo
+  separator_section "Subcommands"
+  echo
+  printf "    ${D_CYAN}%-16s${NC} %s\n" "termux" "Diagnose Termux environment (full system check)"
+  printf "    ${D_CYAN}%-16s${NC} %s\n" "code" "Analyze project code structure and tools"
+  echo
+  separator_section "Termux Options"
+  echo
+  printf "    ${D_CYAN}%-16s${NC} %s\n" "--quick, -q" "Skip slow checks"
+  printf "    ${D_CYAN}%-16s${NC} %s\n" "--fix, -f" "Auto-apply all fixes without prompt"
+  echo
+  log_info "Examples:"
+  list_item "${D_CYAN}karnel doctor${NC} — Termux diagnostics (default)"
+  list_item "${D_CYAN}karnel doctor termux --quick${NC} — Quick diagnostics"
+  list_item "${D_CYAN}karnel doctor code${NC} — Analyze current project"
+  list_item "${D_CYAN}karnel doctor termux --fix${NC} — Diagnose + auto-fix"
+  echo
+}
+
+doctor_termux() {
   local QUICK_MODE=false
   local FIX_MODE=false
   for arg in "$@"; do
@@ -12,10 +70,10 @@ doctor_main() {
   done
 
   echo
-  box "◈ KARNEL DOCTOR ◈"
+  box "◈ KARNEL DOCTOR — TERMUX ◈"
   echo
   if $QUICK_MODE; then
-    log_info "Quick mode — skipping slow checks"
+    log_info "Quick mode — running essential system and package checks only"
   fi
   log_info "Diagnosing your Termux and Karnel environment..."
   echo
@@ -186,9 +244,55 @@ doctor_main() {
     fi
   fi
 
+  # Keyring integrity check (Termux-fixer inspired)
+  local keyring_dir="$PREFIX/etc/apt/trusted.gpg.d"
+  if [[ -d "$keyring_dir" ]]; then
+    local key_count
+    key_count=$(find "$keyring_dir" -maxdepth 1 -type f \( -name '*.gpg' -o -name '*.asc' \) -print 2>/dev/null | wc -l)
+    if (( key_count == 0 )); then
+      log_warn "No APT keyring files found in $keyring_dir"
+      ((warnings++))
+      fix_commands+=("pkg update -y && pkg install -y termux-keyring")
+      fix_descriptions+=("Reinstall termux-keyring")
+      fix_callbacks+=("_fix_keyring")
+    else
+      log_success "APT keyring: $key_count key file(s) present"
+    fi
+  fi
+
+  # System clock sanity check (HTTPS cert validation)
+  if command -v date &>/dev/null; then
+    local current_year
+    current_year=$(date +%Y 2>/dev/null)
+    if (( current_year < 2024 )); then
+      log_error "System clock is incorrect (year: $current_year) — HTTPS/TLS certs will fail!"
+      ((errors++))
+    else
+      log_success "System clock: $current_year"
+    fi
+  fi
+
+  # APT cache health check
+  local apt_cache_dir="$PREFIX/var/apt/lists"
+  if [[ -d "$apt_cache_dir" ]]; then
+    local cache_size
+    cache_size=$(du -sh "$apt_cache_dir" 2>/dev/null | awk '{print $1}')
+    local cache_files
+    cache_files=$(find "$apt_cache_dir" -type f 2>/dev/null | wc -l)
+    if (( cache_files > 500 )); then
+      log_warn "APT lists cache is large: $cache_size ($cache_files files)"
+      ((warnings++))
+      fix_commands+=("rm -rf $apt_cache_dir/* && pkg update -y")
+      fix_descriptions+=("Reset APT lists cache (fixes Hash Sum mismatch)")
+      fix_callbacks+=("_fix_apt_cache")
+    else
+      log_success "APT cache: $cache_size ($cache_files files)"
+    fi
+  fi
+
   if $QUICK_MODE; then
     echo
-    log_info "Quick mode: skipping Node.js, Python, PostgreSQL, AI tools, binary health, I/O, and network checks"
+    log_info "Quick mode: skipping extended runtime, AI, shell, process, I/O, and network checks"
     echo
   else
 
@@ -384,10 +488,12 @@ doctor_main() {
   fi
 
   # C extension build capability
-  local cc_test="$PREFIX/tmp/cext_test.c"
-  echo '#include <Python.h>' > "$cc_test"
-  if python3-config --includes &>/dev/null && \
-     clang $(python3-config --includes) -shared -fPIC -o /dev/null -x c - <<<'#include <Python.h>' &>/dev/null; then
+  local python_include_output
+  local -a python_include_flags=()
+  python_include_output=$(python3-config --includes 2>/dev/null || true)
+  read -r -a python_include_flags <<< "$python_include_output"
+  if [[ ${#python_include_flags[@]} -gt 0 ]] && \
+     clang "${python_include_flags[@]}" -shared -fPIC -o /dev/null -x c - <<<'#include <Python.h>' &>/dev/null; then
     log_success "C extensions can be compiled (Python.h + clang OK)"
   else
     log_warn "C extension build may fail — clang or Python headers issue"
@@ -396,7 +502,6 @@ doctor_main() {
     fix_descriptions+=("Install C build dependencies for Python extensions")
     fix_callbacks+=("_fix_pkg_install")
   fi
-  rm -f "$cc_test"
 
   # uv availability (used by hermes-agent installer)
   if command -v uv &>/dev/null; then
@@ -467,14 +572,13 @@ doctor_main() {
       fix_callbacks+=("_fix_banner")
     fi
   fi
-  fi  # end QUICK_MODE skip
 
   # ===== 10. AI TOOLS STATUS =====
   echo
   separator_section "AI Tools Installed"
   echo
 
-  local -a ai_cmds=("opencode" "claude" "gemini" "codex" "qwen" "vibe" "mimo" "hermes" "kimi" "ollama" "freebuff" "pi" "agy" "mmx" "gentle-ai" "gga" "engram" "codegraph" "kilocode" "kiro" "crush" "odysseus" "openclaude" "openclaw" "command-code" "kimchi" "cline" "omni-route" "ctx7" "openspec")
+  local -a ai_cmds=("opencode" "claude" "gemini" "codex" "qwen" "vibe" "mimo" "hermes" "kimi" "ollama" "freebuff" "pi" "agy" "mmx" "gentle-ai" "gga" "engram" "codegraph" "kilocode" "kiro" "crush" "odysseus" "openclaude" "openclaw" "command-code" "kimchi" "cline" "omni-route" "ctx7" "openspec" "copilot")
   local ai_count=0
 
   for cmd in "${ai_cmds[@]}"; do
@@ -699,9 +803,7 @@ doctor_main() {
 
   if command -v proot-distro &>/dev/null; then
     log_success "proot-distro: available"
-    local ubuntu_installed=false
     if proot-distro list 2>/dev/null | grep -qi ubuntu; then
-      ubuntu_installed=true
       log_success "Ubuntu proot container: installed"
     else
       log_info "Ubuntu proot container: not installed (needed by kimchi)"
@@ -887,7 +989,7 @@ doctor_main() {
 
   # Check url-quote-magic for parse errors (Termux zsh bug)
   local uqm_file="$PREFIX/share/zsh/functions/Zle/url-quote-magic"
-  if [[ -f "$uqm_file" ]] && grep -q '((${~localschema})' "$uqm_file" 2>/dev/null; then
+  if [[ -f "$uqm_file" ]] && grep -qF "((\${~localschema})" "$uqm_file" 2>/dev/null; then
     log_warn "url-quote-magic: double-paren parse error found (zsh 5.9 bug)"
     log_warn "url-quote-magic has known double-paren syntax error"
     fix_commands+=("true")
@@ -902,7 +1004,7 @@ doctor_main() {
 
   if command -v termux-info &>/dev/null; then
     local gpu_info
-    gpu_info=$(termux-info 2>/dev/null | grep -i "gpu\|render\|opengl" | head -3)
+    gpu_info=$(timeout 10 termux-info 2>/dev/null | grep -i "gpu\|render\|opengl" | head -3)
     if [[ -n "$gpu_info" ]]; then
       log_success "GPU: $(echo "$gpu_info" | tr -s ' ')"
     fi
@@ -936,7 +1038,7 @@ doctor_main() {
 
   if command -v termux-battery-status &>/dev/null; then
     local battery_info
-    battery_info=$(termux-battery-status 2>/dev/null)
+    battery_info=$(timeout 5 termux-battery-status 2>/dev/null || true)
     if [[ -n "$battery_info" ]]; then
       local battery_pct
       battery_pct=$(echo "$battery_info" | python3 -c "import json,sys; print(json.load(sys.stdin).get('percentage',0))" 2>/dev/null || echo "?")
@@ -952,6 +1054,8 @@ doctor_main() {
       local charging
       charging=$(echo "$battery_info" | python3 -c "import json,sys; print(json.load(sys.stdin).get('status','Unknown'))" 2>/dev/null || echo "?")
       log_info "Charging status: $charging"
+    else
+      log_info "Battery status unavailable or timed out"
     fi
   else
     log_info "termux-battery-status not available (install termux-api)"
@@ -1107,8 +1211,13 @@ doctor_main() {
   echo
 
   if [[ -d /storage ]]; then
-    local storage_count
-    storage_count=$(ls -1 /storage 2>/dev/null | grep -v '^emulated$\|^self$' | wc -l)
+    local storage_count=0 storage_path storage_name
+    for storage_path in /storage/*; do
+      [[ -e "$storage_path" ]] || continue
+      storage_name=$(basename "$storage_path")
+      [[ "$storage_name" == "emulated" || "$storage_name" == "self" ]] && continue
+      storage_count=$((storage_count + 1))
+    done
     if (( storage_count > 0 )); then
       log_success "External storage: $storage_count volume(s) mounted"
     else
@@ -1119,54 +1228,23 @@ doctor_main() {
   # Check USB devices
   if [[ -d /dev/bus/usb ]]; then
     local usb_count
-    usb_count=$(ls /dev/bus/usb/ 2>/dev/null | wc -l)
+    usb_count=$(find /dev/bus/usb -mindepth 1 -maxdepth 1 -type d -print 2>/dev/null | wc -l)
     if (( usb_count > 0 )); then
       log_info "USB: $usb_count bus(es) detected"
     fi
   fi
+
+  fi  # end QUICK_MODE skip
 
   # ===== GENERATE REPORT =====
   local report_dir="$KARNEL_DATA/doctor_reports"
   mkdir -p "$report_dir"
   local report_file="$report_dir/doctor_report_latest.md"
 
-  cat >"$report_file" <<EOF
-# Karnel Doctor Diagnostic Report
-Generated: $(date)
-
-## System Info
-- **Android**: $android_ver
-- **Termux**: $termux_ver
-- **Architecture**: $arch
-- **Karnel Version**: $karnel_ver
-
-## Resources
-- **Disk Free**: $free_space
-- **RAM Total**: $ram_total
-- **RAM Free**: $ram_free
-
-## Storage & Permissions
-- **Shared Storage**: $storage_status
-- **Karnel Write Access**: $([ -w "$KARNEL_PATH" ] && echo "Yes" || echo "No")
-
-## PostgreSQL
-- **Installed**: $pg_installed
-- **Data Found**: ${pg_data_found:-unknown}
-
-## AI Tools
-- **Count**: $ai_count
-
-## Summary
-- **Errors**: $errors
-- **Warnings**: $warnings
-- **Fixed**: $fixed
-EOF
-
   # ===== RESULTS =====
   echo
   separator
   log_success "Diagnostics completed!"
-  list_item "Report saved: ${D_CYAN}$report_file${D_NC}"
 
   if [[ $errors -gt 0 ]]; then
     log_error "Found $errors error(s) and $warnings warning(s)."
@@ -1218,8 +1296,50 @@ EOF
       fi
     fi
   fi
+
+  cat >"$report_file" <<EOF
+# Karnel Doctor Diagnostic Report
+Generated: $(date)
+
+## System Info
+- **Android**: $android_ver
+- **Termux**: $termux_ver
+- **Architecture**: $arch
+- **Karnel Version**: ${karnel_ver:-skipped}
+
+## Resources
+- **Disk Free**: $free_space
+- **RAM Total**: $ram_total
+- **RAM Free**: $ram_free
+
+## Storage & Permissions
+- **Shared Storage**: $storage_status
+- **Karnel Write Access**: $([ -w "$KARNEL_PATH" ] && echo "Yes" || echo "No")
+
+## PostgreSQL
+- **Installed**: ${pg_installed:-skipped}
+- **Data Found**: ${pg_data_found:-skipped}
+
+## AI Tools
+- **Count**: ${ai_count:-skipped}
+
+## Summary
+- **Errors**: $errors
+- **Warnings**: $warnings
+- **Fixed**: $fixed
+EOF
+  list_item "Report saved: ${D_CYAN}$report_file${D_NC}"
   echo
 }
 
-import "@/cli/commands/doctor/fixes"
+_fix_keyring() {
+  pkg update -y &>/dev/null && pkg install -y termux-keyring &>/dev/null
+}
 
+_fix_apt_cache() {
+  rm -rf "$PREFIX/var/apt/lists"/* 2>/dev/null
+  pkg update -y &>/dev/null
+}
+
+import "@/cli/commands/doctor/fixes"
+import "@/cli/commands/doctor/code"

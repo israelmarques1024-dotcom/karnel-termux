@@ -72,9 +72,9 @@ karnel_help() {
   printf "    ${D_CYAN}%-12s${NC} %s\n" "list" "List available tools in modules"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "pg" "PostgreSQL database manager"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "status" "Quick system overview"
-  printf "    ${D_CYAN}%-12s${NC} %s\n" "doctor" "Diagnose and fix environment"
-  printf "    ${D_CYAN}%-12s${NC} %s\n" "doctor --quick" "Quick diagnostics (skip slow checks)"
-  printf "    ${D_CYAN}%-12s${NC} %s\n" "cleanup" "Clean caches, logs, and temp files"
+  printf "    ${D_CYAN}%-12s${NC} %s\n" "doctor" "Show doctor subcommands"
+  printf "    ${D_CYAN}%-12s${NC} %s\n" "doctor termux" "Full Termux environment diagnostics"
+  printf "    ${D_CYAN}%-12s${NC} %s\n" "doctor code" "Analyze project code structure"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "upgrade" "Upgrade Karnel framework"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "init" "Configure existing projects"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "start" "Start services (editor, etc.)"
@@ -210,7 +210,7 @@ _tui_main_menu() {
       "init" "Project Initializer" \
       "voice" "Speech-to-Agent" \
       "ia" "AI Agent Manager" \
-      "doctor" "Run Diagnostics" \
+      "doctor" "Run Diagnostics (termux/code)" \
       "cleanup" "Clean caches and temp files" \
       "status" "Quick System Overview" \
       "upgrade" "Upgrade Karnel Framework" \
@@ -494,6 +494,7 @@ _tui_install_checklist() {
         "omni-route" "omniRoute" OFF
         "ctx7" "Context7 Docs" OFF
         "openspec" "OpenSpec SDD" OFF
+        "copilot-termux" "Copilot-Termux" OFF
       )
       ;;
     dev)

@@ -33,7 +33,7 @@
 
 Created by **Israel Marques**.
 
-- **30 AI agents** for coding — Claude, Gemini, OpenCode, Ollama, Cline, karnelRoute and more
+- **31 AI agents** for coding — Claude, Gemini, OpenCode, Ollama, Cline, karnelRoute and more
 - **7 languages** — Node.js, Python, Go, Rust, C/C++, PHP, Perl
 - **5 databases** — PostgreSQL, MariaDB, SQLite, MongoDB, Redis
 - **24 dev tools** — gh, curl, fzf, bat, lsd, jq, tmux, openssh, snyk and more
@@ -90,7 +90,8 @@ karnel
 | `karnel update <module>` | Update modules or karnel |
 | `karnel uninstall <module>` | Remove installed modules |
 | `karnel reinstall <module>` | Reinstall modules |
-| `karnel doctor` | Diagnose environment (30+ checks) |
+| `karnel doctor termux` | Diagnose the Termux environment (30+ sections) |
+| `karnel doctor code` | Detect project ecosystems and run code checks |
 | `karnel brain` | Second brain — memories and search |
 | `karnel env` | Manage environment variables |
 | `karnel voice` | Voice commands for AI agents |
@@ -106,7 +107,7 @@ karnel
 |--------|-------------|--------------|
 | `lang` | Node.js, Python, Go, Rust, C/C++, PHP, Perl | `karnel install lang` |
 | `db` | PostgreSQL, MariaDB, SQLite, MongoDB, Redis | `karnel install db` |
-| `ai` | 30 AI agents for coding | `karnel install ai` |
+| `ai` | 31 AI agents for coding | `karnel install ai` |
 | `editor` | code-server (VS Code in browser) | `karnel install editor` |
 | `dev` | gh, curl, fzf, bat, lsd, jq and more | `karnel install dev` |
 | `npm` | TypeScript, NestJS CLI, Prettier and more | `karnel install npm` |
@@ -117,7 +118,7 @@ karnel
 
 ---
 
-## AI Agents (30)
+## AI Agents (31)
 
 ```bash
 karnel install ai                             # Install all
@@ -159,6 +160,7 @@ karnel install ai --opencode --ollama         # Install specific agents
 | **karnelRoute** | `--karnel-route` | AI Gateway with 236+ providers |
 | **Context7** | `--ctx7` | Documentation for AI assistants |
 | **OpenSpec** | `--openspec` | Spec-Driven Development |
+| **Copilot-Termux** | `--copilot-termux` | GitHub Copilot CLI adapted for Termux |
 
 </details>
 
@@ -166,45 +168,38 @@ karnel install ai --opencode --ollama         # Install specific agents
 
 ## karnel doctor
 
-Diagnose your Termux + Karnel environment with 30+ automatic checks:
+Doctor has exactly two operational subcommands:
 
 ```bash
-karnel doctor
+karnel doctor termux                 # 30+ Termux/Karnel diagnostic sections
+karnel doctor termux --quick         # Run essential system/package checks only
+karnel doctor termux --fix           # Apply queued fixes without group confirmation
+
+karnel doctor code                   # Quick project analysis
+karnel doctor code --standard .      # Add security, deps, coverage and complexity
+karnel doctor code --deep --json .   # All 76 definitions as standalone JSON
+karnel doctor code --fix .           # Apply fixes classified as safe
 ```
 
-**Checks included:**
-1. System information (Android, Termux, CPU)
-2. Resources (disk, RAM, alerts)
-3. Storage and permissions
-4. Languages and critical tools
-5. Package manager health (dpkg, apt)
-6. Node.js and npm
-7. Python environment
-8. PostgreSQL
-9. Karnel framework
-10. AI agent status
-11. Shell configuration
-12. Android compatibility
-13. Termux:API
-14. Git configuration
-15. SSH keys
-16. Network connectivity
-17. OpenSSH server
-18. Disk health
-19. Karnel data integrity
-20. Report generation
+Running `karnel doctor` without a subcommand defaults to `termux`.
 
-Each check can be auto-fixed.
+The code analyzer recognizes 25 ecosystem labels and contains 76 check
+definitions across 68 distinct tool labels. It detects subprojects, executes
+checks in the matching project or subproject directory, preserves command exit status, and writes
+timestamped text reports under `$KARNEL_DATA/doctor_code_reports/`.
+
+Read the **[complete Doctor reference](docs/doctor/README.md)** for modes,
+supported ecosystems, tool coverage, JSON schema, reports, and auto-fix safety.
 
 ---
 
 ## karnel brain — Second Brain
 
-Integrated memory system with AI-powered semantic search and graph visualization.
+Integrated memory system with text search, AI-assisted questions, and graph visualization.
 
 ```bash
 karnel brain save "my idea"         # Save a thought
-karnel brain search "postgres"     # Search by semantic similarity
+karnel brain search "postgres"     # Search local memories by text
 karnel brain graph                 # Visualize idea connections
 karnel brain sync                  # Sync with private GitHub
 ```
@@ -343,6 +338,17 @@ Documentation loads from https://kerneltermux.vercel.app.
 
 ---
 
+## Documentation
+
+- [Documentation index](docs/README.md)
+- [CLI reference](docs/cli/README.md)
+- [Doctor reference](docs/doctor/README.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Documentation changelog](docs/CHANGELOG.md)
+- [Official website](https://kerneltermux.vercel.app)
+
+---
+
 ## Examples
 
 ```bash
@@ -384,7 +390,7 @@ karnel/
 │   │   └── karnel.sh    # Main CLI (with TUI)
 │   ├── modules/       # Module orchestrators
 │   ├── tools/         # Tool installers
-│   │   ├── ai/        # 30 AI agents
+│   │   ├── ai/        # 31 AI agents
 │   │   ├── lang/      # Languages
 │   │   ├── db/        # Databases
 │   │   ├── dev/       # Dev tools

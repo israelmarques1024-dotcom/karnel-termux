@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC1091
 
 import "@/utils/log"
 import "@/utils/colors"
@@ -215,10 +216,12 @@ _fix_psutil() {
 }
 
 _fix_pip_check() {
-  local broken
-  broken=$(pip check 2>&1 | grep -oP '^\S+' | head -3)
-  if [[ -n "$broken" ]]; then
-    pip install --upgrade --force-reinstall $broken 2>/dev/null
+  local -a broken_pkgs=()
+  while IFS= read -r line; do
+    broken_pkgs+=("$line")
+  done < <(pip check 2>&1 | grep -oP '^\S+' | head -3)
+  if [[ ${#broken_pkgs[@]} -gt 0 ]]; then
+    pip install --upgrade --force-reinstall "${broken_pkgs[@]}" 2>/dev/null
   fi
   return 0
 }
@@ -256,7 +259,11 @@ _fix_pip_cache() {
 }
 
 _fix_pycache() {
-  find "$PREFIX/lib/python3.*" -name "__pycache__" -exec rm -rf {} + 2>/dev/null
+  local python_dir
+  for python_dir in "$PREFIX"/lib/python3.*; do
+    [[ -d "$python_dir" ]] || continue
+    find "$python_dir" -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null
+  done
   return 0
 }
 
@@ -270,7 +277,6 @@ _fix_proot_ubuntu() {
 
 _fix_dns() {
   echo 'nameserver 8.8.8.8' > "$PREFIX/etc/resolv.conf" 2>/dev/null
-  return $?
 }
 
 _fix_mirror() {
@@ -287,7 +293,6 @@ _fix_locale() {
     config="$HOME/.bashrc"
   fi
   echo 'export LANG=en_US.UTF-8' >> "$config" 2>/dev/null
-  return $?
 }
 
 
