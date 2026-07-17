@@ -10,11 +10,11 @@ _fix_storage() {
 }
 
 _fix_mkdir() {
+  local rc=0
   for dir in "$KARNEL_CONFIG" "$KARNEL_CACHE" "$KARNEL_DATA"; do
-    mkdir -p "$dir" 2>/dev/null
-    chmod 755 "$dir" 2>/dev/null
+    mkdir -p "$dir" && chmod 755 "$dir" 2>/dev/null || { rc=1; log_warn "Failed to create $dir"; }
   done
-  return 0
+  return $rc
 }
 
 _fix_pkg_install() {
@@ -98,14 +98,18 @@ _fix_pg_start() {
 }
 
 _fix_pg_install() {
-  source "$KARNEL_PATH/utils/env.sh" 2>/dev/null
-  import "@/modules/db" 2>/dev/null
-  if type install_db &>/dev/null; then
-    install_db 2>/dev/null
-    return $?
+  if ! command -v pg_ctl &>/dev/null; then
+    pkg install -y postgresql 2>/dev/null || return 1
   fi
-  pkg install -y postgresql 2>/dev/null
-  return $?
+  if ! command -v initdb &>/dev/null; then
+    return 1
+  fi
+  local pg_data="$PREFIX/var/lib/postgresql"
+  mkdir -p "$pg_data" 2>/dev/null
+  if [[ ! -f "$pg_data/PG_VERSION" ]]; then
+    initdb -D "$pg_data" 2>/dev/null || return 1
+  fi
+  return 0
 }
 
 _fix_symlinks() {
@@ -151,31 +155,24 @@ _fix_shell_syntax() {
   local config=""
   if [[ -f "$HOME/.zshrc" ]]; then
     config="$HOME/.zshrc"
+    if ! command -v zsh &>/dev/null; then
+      log_warn "zsh not installed — cannot validate .zshrc syntax"
+      return 1
+    fi
   elif [[ -f "$HOME/.bashrc" ]]; then
     config="$HOME/.bashrc"
+  else
+    return 1
   fi
-  if [[ -n "$config" ]]; then
-    cp "$config" "${config}.bak" 2>/dev/null
-    local marker="# ===== Karnel Banner ====="
-    local banner_block=""
-    if grep -qF "$marker" "$config" 2>/dev/null; then
-      local marker_line
-      marker_line=$(grep -nF "$marker" "$config" | head -1 | cut -d: -f1)
-      if [[ -n "$marker_line" ]]; then
-        banner_block=$(sed -n "$((marker_line - 1)),\$p" "$config" 2>/dev/null)
-      fi
-    fi
-    local tmpconfig
-    tmpconfig=$(mktemp)
-    sed '/^source.*\/dev\/null$/d; /^#.*syntax error/d' "$config" > "$tmpconfig" 2>/dev/null
-    if [[ -n "$banner_block" ]]; then
-      echo "" >> "$tmpconfig"
-      echo "$banner_block" >> "$tmpconfig"
-    fi
-    cp "$tmpconfig" "$config" 2>/dev/null
-    rm -f "$tmpconfig"
+  local bak="${config}.bak.$(date +%s)"
+  cp "$config" "$bak" 2>/dev/null || return 1
+  sed -i '/^# syntax error/d' "$config" 2>/dev/null
+  local validator="bash"
+  [[ "$config" == *.zshrc ]] && validator="zsh"
+  if "$validator" -n "$config" 2>/dev/null; then
     return 0
   fi
+  cp "$bak" "$config" 2>/dev/null
   return 1
 }
 
@@ -195,10 +192,11 @@ _fix_disk_cleanup() {
 }
 
 _fix_mkdir_single() {
-  for dir in "$KARNEL_CONFIG" "$KARNEL_CACHE" "$KARNEL_DATA" "$HOME/.local/share/karnel-data"; do
-    [[ -d "$dir" ]] || mkdir -p "$dir" 2>/dev/null
+  local rc=0
+  for dir in "$KARNEL_CONFIG" "$KARNEL_CACHE" "$KARNEL_DATA"; do
+    [[ -d "$dir" ]] || mkdir -p "$dir" 2>/dev/null || { rc=1; log_warn "Failed to create $dir"; }
   done
-  return 0
+  return $rc
 }
 
 # ===== NEW FIX CALLBACKS =====
@@ -233,11 +231,11 @@ _fix_npm_shebangs() {
     local shebang
     shebang=$(head -1 "$f" 2>/dev/null | tr -d '\0')
     if [[ "$shebang" == "#!/usr/bin/env node" ]]; then
-      sed -i "1s|^.*$|#!$PREFIX/bin/node|" "$f"
-      ((fixed++))
+      sed -i "1s|^.*$|#!$PREFIX/bin/node|" "$f" && ((fixed++))
     elif [[ "$shebang" == "#!/usr/bin/env bash" ]] || [[ "$shebang" == "#!/usr/bin/env sh" ]]; then
-      sed -i "1s|^.*$|#!$PREFIX/bin/bash|" "$f"
-      ((fixed++))
+      sed -i "1s|^.*$|#!$PREFIX/bin/bash|" "$f" && ((fixed++))
+    elif [[ "$shebang" == "#!/usr/bin/env python3" ]] || [[ "$shebang" == "#!/usr/bin/env python" ]]; then
+      sed -i "1s|^.*$|#!$PREFIX/bin/python3|" "$f" && ((fixed++))
     fi
   done
   return 0
@@ -276,7 +274,16 @@ _fix_proot_ubuntu() {
 }
 
 _fix_dns() {
-  echo 'nameserver 8.8.8.8' > "$PREFIX/etc/resolv.conf" 2>/dev/null
+  if command -v nslookup &>/dev/null && nslookup github.com &>/dev/null; then
+    return 0
+  fi
+  local resolv_conf="$PREFIX/etc/resolv.conf"
+  if [[ -w "$resolv_conf" ]] || [[ -w "$PREFIX/etc" ]]; then
+    cp "$resolv_conf" "${resolv_conf}.bak" 2>/dev/null
+    echo 'nameserver 8.8.8.8' > "$resolv_conf" 2>/dev/null && return 0
+    echo 'nameserver 8.8.4.4' >> "$resolv_conf" 2>/dev/null || true
+  fi
+  return 1
 }
 
 _fix_mirror() {
@@ -297,7 +304,12 @@ _fix_locale() {
 
 
 _fix_zombies() {
-  ps aux 2>/dev/null | awk '$8 ~ /^Z/ {print $2}' | xargs kill -9 2>/dev/null
+  local zombies
+  zombies=$(ps aux 2>/dev/null | awk '$8 ~ /^Z/ {print $2}')
+  if [[ -n "$zombies" ]]; then
+    log_warn "Zombie processes (PID: $zombies) cannot be killed — the parent process must reap them"
+    log_info "Run 'ps aux | grep Z' to see zombie parent PIDs"
+  fi
   return 0
 }
 

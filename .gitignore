@@ -5,3 +5,6 @@ node_modules/
 .cache/
 *.log
 .github/workflows/
+__pycache__/
+*.pyc
+.ruff_cache/

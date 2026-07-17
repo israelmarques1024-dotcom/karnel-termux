@@ -112,10 +112,15 @@ pg_init() {
 
 	# Executar initdb
 	if loading "Initializing database" initdb -D "$PG_DATA_DEFAULT"; then
+		local os_user; os_user=$(whoami 2>/dev/null || id -un 2>/dev/null || echo "unknown")
 		log_success "PostgreSQL initialized successfully"
 		echo
 		list_item "Data directory: $PG_DATA_DEFAULT"
-		list_item "Default user: $PG_USER"
+		list_item "OS user: $os_user (superuser)"
+		list_item "PostgreSQL user: $PG_USER (may need to be created)"
+		echo
+		log_info "To create the 'postgres' role:"
+		list_item "${D_CYAN}psql -d postgres -c \"CREATE ROLE $PG_USER LOGIN SUPERUSER;\"${NC}"
 		echo
 		log_info "Start PostgreSQL with: ${D_CYAN}karnel pg start${NC}"
 	else
@@ -288,7 +293,7 @@ pg_create() {
 		log_success "Database '$db_name' created successfully"
 	else
 		log_error "Failed to create database '$db_name'"
-		log_warn "PostgreSQL may not be running. Run: karnel pg start"
+		log_warn "Check that PostgreSQL is running (karnel pg status) and the pg_user role exists"
 		return 1
 	fi
 }
@@ -352,7 +357,7 @@ pg_list() {
 	else
 		echo
 		log_error "Failed to list databases"
-		log_warn "PostgreSQL may not be running. Run: karnel pg start"
+		log_warn "Check that PostgreSQL is running (karnel pg status) and the pg_user role exists"
 		return 1
 	fi
 }
@@ -613,6 +618,12 @@ pg_restore_db() {
 			success=true
 		fi
 	else
+		local pg_confirm
+		read_confirm "Restore will clean ($db_name) and replace all objects. Continue?" pg_confirm
+		if [[ "$pg_confirm" != "y" ]]; then
+			log_info "Restore cancelled"
+			return 0
+		fi
 		if loading "Restoring database" pg_restore -d "$db_name" -c "$backup_file" 2>/dev/null || pg_restore -d "$db_name" "$backup_file" 2>/dev/null; then
 			success=true
 		fi
@@ -665,8 +676,10 @@ pg_list_backups() {
 
 		local integrity="OK"
 		if [[ -f "${f}.sha256" ]]; then
-			local current_hash=$(sha256sum "$f" | cut -d' ' -f1)
-			local expected_hash=$(cat "${f}.sha256" 2>/dev/null)
+			local current_hash
+		current_hash=$(sha256sum "$f" | cut -d' ' -f1)
+			local expected_hash
+			expected_hash=$(cat "${f}.sha256" 2>/dev/null)
 			if [[ "$current_hash" != "$expected_hash" ]]; then
 				integrity="Corrupted"
 			fi
@@ -710,7 +723,9 @@ pg_schedule() {
 			pkg install -y cronie >/dev/null 2>&1 || true
 		fi
 
-		local job="$cron_expr KARNEL_PATH=$KARNEL_PATH $KARNEL_PATH/bin/karnel pg backup $db_name >/dev/null 2>&1"
+		local escaped_db; printf -v escaped_db '%q' "$db_name"
+		local escaped_path; printf -v escaped_path '%q' "$KARNEL_PATH"
+		local job="$cron_expr KARNEL_PATH=$escaped_path $escaped_path/bin/karnel pg backup $escaped_db >/dev/null 2>&1"
 		(crontab -l 2>/dev/null | grep -v "karnel pg backup $db_name"; echo "$job") | crontab -
 		log_success "Backup scheduled successfully ($interval) for database '$db_name'!"
 		list_item "Ensure cron daemon is running (run: 'crond')"

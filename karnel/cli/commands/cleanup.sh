@@ -4,6 +4,12 @@ import "@/utils/log"
 import "@/utils/colors"
 
 cleanup_main() {
+  for arg in "$@"; do
+    case "$arg" in
+      --help|-h) echo; echo "Usage: karnel cleanup"; echo; echo "  Cleans npm, pip, pkg caches and temp files."; echo; return ;;
+    esac
+  done
+
   echo
   box "Karnel Cleanup"
   echo
@@ -43,7 +49,7 @@ cleanup_main() {
   # __pycache__ dirs
   local pycache_size
   pycache_size=$(find "$PREFIX/lib/"python3* -name "__pycache__" -type d 2>/dev/null | head -n 1)
-  if [[ -n "$pycache_size" ]]; then
+  if [[ -n "$pycache_size" ]] && compgen -G "$PREFIX/lib/python3.*" >/dev/null 2>&1; then
     log_info "Python __pycache__: cleaning..."
     find "$PREFIX/lib/"python3* -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null
     log_success "Python cache cleaned"

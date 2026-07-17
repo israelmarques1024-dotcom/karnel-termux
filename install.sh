@@ -65,9 +65,13 @@ log_info() {
 	echo -e "  ${P_BORDER}→${P_NC}  $1"
 }
 
+_INSTALL_CREATED_KARNEL_REPO=false
+
 _cleanup_failed() {
 	echo -e "\n  ${P_FAIL}✖${P_NC}  Installation failed at step ${CURRENT_STEP}. Cleaning up..."
-	[[ -d "$KARNEL_REPO" ]] && rm -rf "$KARNEL_REPO"
+	if $_INSTALL_CREATED_KARNEL_REPO && [[ -d "$KARNEL_REPO" ]]; then
+		rm -rf "$KARNEL_REPO"
+	fi
 	[[ -L "$PREFIX/bin/karnel" ]] && rm -f "$PREFIX/bin/karnel"
 	echo -e "  ${P_DIM}Run install.sh again to retry${P_NC}"
 	exit 1
@@ -196,6 +200,7 @@ clone_repo() {
 		echo
 		log_ok "Repository updated"
 	else
+		_INSTALL_CREATED_KARNEL_REPO=true
 		progress_bar 0 10
 		git clone --depth=1 -b "$BRANCH" "$REPO" "$KARNEL_REPO" &>/dev/null &
 		local pid=$!

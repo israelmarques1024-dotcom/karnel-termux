@@ -65,8 +65,12 @@ doctor_termux() {
   local QUICK_MODE=false
   local FIX_MODE=false
   for arg in "$@"; do
-    [[ "$arg" == "--quick" || "$arg" == "-q" ]] && QUICK_MODE=true
-    [[ "$arg" == "--fix" || "$arg" == "-f" ]] && FIX_MODE=true
+    case "$arg" in
+      --quick|-q) QUICK_MODE=true ;;
+      --fix|-f) FIX_MODE=true ;;
+      --help|-h) doctor_help; return ;;
+      --*) log_error "Unknown option: $arg"; doctor_help; return 1 ;;
+    esac
   done
 
   echo
@@ -93,14 +97,13 @@ doctor_termux() {
   android_ver=$(getprop ro.build.version.release 2>/dev/null)
   android_ver="${android_ver:-Unknown}"
 
-  local termux_ver=""
-  if command -v termux-info &>/dev/null; then
-    termux_ver=$(timeout 5 termux-info 2>/dev/null | grep -i "termux_version" | head -n1 | cut -d'=' -f2)
+  local termux_ver="${TERMUX_VERSION:-}"
+  if [[ -z "$termux_ver" ]] && command -v termux-info &>/dev/null; then
+    termux_ver=$(timeout 5 termux-info 2>/dev/null | grep -i "termux_version" | head -n1 | cut -d'=' -f2 || true)
   fi
   if [[ -z "$termux_ver" ]]; then
-    termux_ver=$(dpkg -s termux-tools 2>/dev/null | grep -i version | awk '{print $2}')
+    termux_ver=$(dpkg -s termux-tools 2>/dev/null | grep -i version | awk '{print $2}' 2>/dev/null || echo "Unknown")
   fi
-  termux_ver="${termux_ver:-Unknown}"
 
   log_success "Android Version: $android_ver"
   log_success "Termux Version: $termux_ver"
@@ -211,7 +214,10 @@ doctor_termux() {
   separator_section "Package Manager & System Health"
   echo
 
-  if dpkg --audit &>/dev/null; then
+  local dpkg_audit_out
+  dpkg_audit_out=$(dpkg --audit 2>&1)
+  local dpkg_rc=$?
+  if [[ $dpkg_rc -eq 0 ]] && [[ -z "$dpkg_audit_out" ]]; then
     log_success "dpkg package manager is healthy"
   else
     log_error "dpkg has interrupted installations!"
@@ -511,9 +517,11 @@ doctor_termux() {
   fi
 
   # pip check — detect broken dependencies
-  local pip_check_output
-  pip_check_output=$(timeout 15 pip check 2>&1 | grep -i "broken\|missing\|conflict\|incompatible" || true)
-  if [[ -z "$pip_check_output" ]]; then
+  local pip_check_output pip_check_rc
+  pip_check_output=$(timeout 15 pip check 2>&1) && pip_check_rc=0 || pip_check_rc=$?
+  local broken_lines
+  broken_lines=$(echo "$pip_check_output" | grep -i "broken\|missing\|conflict\|incompatible" || true)
+  if (( pip_check_rc == 0 )) || [[ -z "$broken_lines" ]]; then
     log_success "pip dependencies: consistent"
   else
     log_warn "pip dependency issues detected"
@@ -522,7 +530,7 @@ doctor_termux() {
     done
     ((warnings++))
     local broken_pkgs
-    broken_pkgs=$(timeout 10 pip check 2>&1 | grep -oP '^\S+' | head -3 | tr '\n' ' ')
+    broken_pkgs=$(echo "$broken_lines" | grep -oP '^\S+' | head -3 | tr '\n' ' ')
     if [[ -n "$broken_pkgs" ]]; then
       fix_commands+=("pip install --upgrade --force-reinstall $broken_pkgs")
       fix_descriptions+=("Fix pip dependency conflicts: $broken_pkgs")
@@ -803,7 +811,7 @@ doctor_termux() {
 
   if command -v proot-distro &>/dev/null; then
     log_success "proot-distro: available"
-    if proot-distro list 2>/dev/null | grep -qi ubuntu; then
+    if proot-distro list 2>&1 | grep -qi ubuntu; then
       log_success "Ubuntu proot container: installed"
     else
       log_info "Ubuntu proot container: not installed (needed by kimchi)"
@@ -829,8 +837,10 @@ doctor_termux() {
   separator_section "Termux:API"
   echo
 
-  if command -v termux-info &>/dev/null; then
-    log_success "Termux:API is installed"
+  if command -v termux-battery-status &>/dev/null; then
+    log_success "Termux:API is installed (termux-battery-status available)"
+  elif dpkg -s termux-api 2>/dev/null | grep -q 'Status.*installed'; then
+    log_success "Termux:API package installed"
   else
     log_warn "Termux:API not installed (needed for voice commands)"
     ((warnings++))
@@ -877,14 +887,24 @@ doctor_termux() {
   echo
 
   # DNS resolution
-  if nslookup github.com &>/dev/null || host github.com &>/dev/null; then
+  local dns_ok=false
+  if command -v nslookup &>/dev/null; then
+    nslookup github.com &>/dev/null && dns_ok=true
+  elif command -v host &>/dev/null; then
+    host github.com &>/dev/null && dns_ok=true
+  elif command -v curl &>/dev/null; then
+    curl -fsSL --max-time 5 https://github.com &>/dev/null && dns_ok=true
+  fi
+  if $dns_ok; then
     log_success "DNS resolution: OK"
   else
-    log_warn "DNS resolution failed"
+    local dns_warn="DNS resolution check failed"
+    if ! command -v nslookup &>/dev/null && ! command -v host &>/dev/null; then
+      dns_warn="$dns_warn (install dnsutils or whois for detailed check)"
+    fi
+    log_warn "$dns_warn"
     ((warnings++))
-    fix_commands+=("echo 'nameserver 8.8.8.8' > $PREFIX/etc/resolv.conf")
-    fix_descriptions+=("Set Google DNS (8.8.8.8) for Termux")
-    fix_callbacks+=("_fix_dns")
+
   fi
 
   if curl -fsSL --max-time 5 https://github.com &>/dev/null; then
@@ -945,7 +965,7 @@ doctor_termux() {
   separator_section "Karnel Data Integrity"
   echo
 
-  local karnel_dirs=("$KARNEL_CONFIG" "$KARNEL_CACHE" "$KARNEL_DATA" "$HOME/.local/share/karnel-data")
+  local karnel_dirs=("$KARNEL_CONFIG" "$KARNEL_CACHE" "$KARNEL_DATA")
   for dir in "${karnel_dirs[@]}"; do
     if [[ -d "$dir" ]]; then
       local size
@@ -1137,8 +1157,8 @@ doctor_termux() {
   separator_section "Storage I/O Health"
   echo
 
-  local io_test_file="$HOME/.cache/karnel_io_test"
-  mkdir -p "$(dirname "$io_test_file")" 2>/dev/null
+  local io_test_file
+  io_test_file="$(mktemp "$KARNEL_CACHE/karnel_io_test.XXXXXX" 2>/dev/null)" || io_test_file="$KARNEL_CACHE/karnel_io_test.$$"
   local io_start io_end io_time
   io_start=$(date +%s%N 2>/dev/null || echo 0)
   dd if=/dev/zero of="$io_test_file" bs=4096 count=100 2>/dev/null
@@ -1238,7 +1258,7 @@ doctor_termux() {
 
   # ===== GENERATE REPORT =====
   local report_dir="$KARNEL_DATA/doctor_reports"
-  mkdir -p "$report_dir"
+  mkdir -p "$report_dir" 2>/dev/null || log_warn "Could not create report directory"
   local report_file="$report_dir/doctor_report_latest.md"
 
   # ===== RESULTS =====
@@ -1297,7 +1317,7 @@ doctor_termux() {
     fi
   fi
 
-  cat >"$report_file" <<EOF
+  if cat >"$report_file" <<EOF
 # Karnel Doctor Diagnostic Report
 Generated: $(date)
 
@@ -1328,7 +1348,11 @@ Generated: $(date)
 - **Warnings**: $warnings
 - **Fixed**: $fixed
 EOF
-  list_item "Report saved: ${D_CYAN}$report_file${D_NC}"
+  then
+    list_item "Report saved: ${D_CYAN}$report_file${D_NC}"
+  else
+    log_warn "Failed to save report"
+  fi
   echo
 }
 

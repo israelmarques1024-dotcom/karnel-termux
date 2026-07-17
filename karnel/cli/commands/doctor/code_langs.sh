@@ -204,7 +204,7 @@ _is_tool_available() {
     python) command -v python3 &>/dev/null || command -v python &>/dev/null ;;
     eslint|prettier|vitest|jest|markdownlint-cli2|tsc|biome)
       command -v "$tool" &>/dev/null || {
-        command -v npx &>/dev/null && npx --no-install "$tool" --version &>/dev/null
+        command -v npx &>/dev/null && timeout 5 npx --no-install "$tool" --version &>/dev/null
       } ;;
     "npm audit") command -v npm &>/dev/null ;;
     "go vet"|"go test") command -v go &>/dev/null ;;
@@ -225,5 +225,5 @@ _run_tool_check() {
     printf '%s\n' "__TOOL_NOT_FOUND__"
     return 2
   fi
-  timeout "$timeout_val" bash -c "$cmd" 2>&1
+  timeout "$timeout_val" bash -o pipefail -c "$cmd" 2>&1
 }

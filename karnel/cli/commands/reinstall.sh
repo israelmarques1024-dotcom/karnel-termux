@@ -23,6 +23,7 @@ reinstall_main() {
     list_item "shell      - Reinstall ZSH + Oh My Zsh"
     list_item "ui         - Reinstall Termux UI"
     list_item "auto       - Reinstall automation tools"
+    list_item "games      - Reinstall games"
     echo
     log_info "Reinstall specific tools with flags:"
     echo
@@ -99,6 +100,10 @@ _reinstall_full_module() {
   auto)
     import "@/modules/auto"
     reinstall_auto
+    ;;
+  games)
+    import "@/tools/games/all"
+    reinstall_all_games
     ;;
   *)
     log_warn "Unknown reinstall target: $target"
@@ -384,6 +389,38 @@ _reinstall_specific_tools() {
         reinstall_zork
         case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
+      fconv)
+        reinstall_fconv
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      filecheck)
+        reinstall_filecheck
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      websites)
+        reinstall_websites
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      notes)
+        reinstall_notes
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      treex)
+        reinstall_treex
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      passman)
+        reinstall_passman
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      applaunch)
+        reinstall_applaunch
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      splash)
+        reinstall_splash
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
       *)
         log_warn "Unknown tool: --$tool"
         ;;
@@ -396,6 +433,52 @@ _reinstall_specific_tools() {
     fi
     if [[ $failed_count -gt 0 ]]; then
       log_warn "$failed_count tool(s) failed to reinstall"
+    fi
+    echo
+    ;;
+  games)
+    import "@/tools/games/all"
+    local reinstalled_count=0
+    local failed_count=0
+
+    for tool in "${tools[@]}"; do
+      case "$tool" in
+      buzz)
+        reinstall_buzz
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      ctfgod)
+        reinstall_ctfgod
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      detective)
+        reinstall_detective
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      pet-friends)
+        reinstall_pet_friends
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      tamagotchi)
+        reinstall_tamagotchi
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      arcade)
+        reinstall_arcade
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      *)
+        log_warn "Unknown game: --$tool"
+        ;;
+      esac
+    done
+
+    echo
+    if [[ $reinstalled_count -gt 0 ]]; then
+      log_success "$reinstalled_count game(s) reinstalled"
+    fi
+    if [[ $failed_count -gt 0 ]]; then
+      log_warn "$failed_count game(s) failed to reinstall"
     fi
     echo
     ;;

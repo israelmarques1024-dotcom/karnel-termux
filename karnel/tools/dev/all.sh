@@ -29,6 +29,14 @@ TOOLS_PACKAGES=(
   "snyk"
   "httptmux"
   "zork"
+  "fconv"
+  "filecheck"
+  "websites"
+  "notes"
+  "treex"
+  "passman"
+  "applaunch"
+  "splash"
 )
 
 for _tool in "${TOOLS_PACKAGES[@]}"; do

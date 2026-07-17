@@ -66,7 +66,10 @@ backup_main() {
     [[ -f "$HOME/$f" ]] && cp "$HOME/$f" "$tmp/config/home/"
   done
   [[ -d "$HOME/.termux" ]] && cp -r "$HOME/.termux" "$tmp/config/termux/" 2>/dev/null
-  [[ -d "$HOME/.ssh" ]] && cp "$HOME/.ssh/id_"* "$HOME/.ssh/config" "$HOME/.ssh/known_hosts" "$tmp/config/ssh/" 2>/dev/null
+  if [[ -d "$HOME/.ssh" ]]; then
+    log_warn "Including SSH keys in backup — these are sensitive!"
+    cp "$HOME/.ssh/id_"* "$HOME/.ssh/config" "$HOME/.ssh/known_hosts" "$tmp/config/ssh/" 2>/dev/null
+  fi
   for d in "$HOME/.config"/*; do
     if [[ -d "$d" ]]; then
       local base; base=$(basename "$d")

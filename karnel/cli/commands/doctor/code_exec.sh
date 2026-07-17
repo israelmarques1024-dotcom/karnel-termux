@@ -5,7 +5,6 @@ declare -ga _CODE_RESULTS=()
 
 _exec_init() {
   _CODE_REPORT_DIR="$KARNEL_DATA/doctor_code_reports"
-  mkdir -p "$_CODE_REPORT_DIR" || return 1
   _CODE_RESULTS=()
 }
 
@@ -159,11 +158,11 @@ _format_report() {
   for entry in "${_CODE_RESULTS[@]}"; do
     IFS='|' read -r severity lang tool cat count detail <<< "$entry"
     [[ -z "$lang" || "$lang" == "__MISSING__" ]] && continue
-    if [[ "$lang" != "Cross-language" && -z "${langs_seen[$lang]}" ]]; then
+    if [[ "$lang" != "Cross-language" && -z "${langs_seen[$lang]:-}" ]]; then
       langs_seen[$lang]=1
       lang_count=$((lang_count + 1))
     fi
-    [[ -z "${tools_seen[$tool]}" ]] && tools_seen[$tool]=1 && ((tool_count++))
+    [[ -z "${tools_seen[$tool]:-}" ]] && tools_seen[$tool]=1 && ((tool_count++))
   done
 
   echo
@@ -246,13 +245,22 @@ _format_json() {
 }
 
 _json_escape() {
-  local value="$1"
+  local value="$1" out="" c
   value="${value//\\/\\\\}"
   value="${value//\"/\\\"}"
   value="${value//$'\n'/\\n}"
   value="${value//$'\r'/\\r}"
   value="${value//$'\t'/\\t}"
-  printf '%s' "$value"
+  value="${value//$'\b'/\\b}"
+  value="${value//$'\f'/\\f}"
+  for ((i=0; i<${#value}; i++)); do
+    c="${value:$i:1}"
+    if [[ "$c" < ' ' ]] && [[ "$c" != $'\n' ]] && [[ "$c" != $'\r' ]] && [[ "$c" != $'\t' ]]; then
+      printf '\\u%04x' "'$c"
+    else
+      printf '%s' "$c"
+    fi
+  done
 }
 
 _save_report() {
@@ -266,6 +274,5 @@ _save_report() {
       IFS='|' read -r severity lang tool cat count detail <<< "$entry"
       echo "[$severity] $lang / $tool ($cat): $detail"
     done
-  } > "$file" 2>/dev/null
-  list_item "Report saved: ${D_CYAN}$file${NC}"
+  } > "$file" 2>/dev/null && list_item "Report saved: ${D_CYAN}$file${NC}" || log_warn "Failed to save report: $file"
 }

@@ -45,12 +45,12 @@ search_main() {
   separator_section "Brain Memories"
   echo
   if [[ -d "$KARNEL_DATA/brain" ]]; then
-    grep -ril "$query" "$KARNEL_DATA/brain" 2>/dev/null | while IFS= read -r file; do
+    while IFS= read -r file; do
       local title
       title=$(head -1 "$file" 2>/dev/null | sed 's/^# //')
       list_item "${D_CYAN}$(basename "$file")${NC}: ${title:-$file}"
       any_found=true
-    done
+    done < <(grep -ril "$query" "$KARNEL_DATA/brain" 2>/dev/null)
     if ! $any_found; then
       log_info "No memories found matching '$query'"
     fi

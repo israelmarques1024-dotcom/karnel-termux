@@ -53,23 +53,29 @@ list_item_check() {
 # ===== SEPARATOR FUNCTIONS =====
 
 separator() {
-	local cols=$(tput cols)
-	local line=$(printf "%${cols}s")
+	local cols
+	cols=$(tput cols)
+	local line
+	line=$(printf "%${cols}s")
 	echo -e "${GRAY}${line// /─}${NC}"
 }
 
 separator_double() {
-	local cols=$(tput cols)
-	local line=$(printf "%${cols}s")
+	local cols
+	cols=$(tput cols)
+	local line
+	line=$(printf "%${cols}s")
 	echo -e "${GRAY}${line// /═}${NC}"
 	echo -e "${GRAY}${line// /═}${NC}"
 }
 
 separator_section() {
 	local title="$1"
-	local cols=$(tput cols)
+	local cols
+	cols=$(tput cols)
 	local padding=$(( (cols - ${#title} - 2) / 2 ))
-	local line=$(printf "%${padding}s")
+	local line
+	line=$(printf "%${padding}s")
 
 	echo -e "${GRAY}${line// /─} ${D_CYAN}${title}${GRAY} ${line// /─}${NC}"
 }
@@ -77,7 +83,8 @@ separator_section() {
 box_large() {
   local text="$1"
   local len=${#text}
-  local line=$(printf "%$((len + 4))s")
+  local line
+  line=$(printf "%$((len + 4))s")
 
   echo -e "${GRAY}╔${line// /═}╗${NC}"
   echo -e "${GRAY}║${D_CYAN}  $text  ${GRAY}║${NC}"
@@ -88,7 +95,8 @@ box_with_subtitle() {
   local title="$1"
   local subtitle="$2"
   local max_len=$(( ${#title} > ${#subtitle} ? ${#title} : ${#subtitle} ))
-  local line=$(printf "%$((max_len + 2))s")
+  local line
+  line=$(printf "%$((max_len + 2))s")
 
   echo -e "${GRAY}╭${line// /─}╮${NC}"
   echo -e "${GRAY}│${D_CYAN} $title${GRAY}$(printf "%$((max_len - ${#title}))s") │${NC}"
@@ -99,12 +107,14 @@ box_with_subtitle() {
 # ===== CENTER TEXT =====
 
 center_text() {
-	local cols=$(tput cols)
+	local cols
+	cols=$(tput cols)
 	local text="$1"
 	local padding=$(( (cols - ${#text}) / 2 ))
 
 	# Remover códigos ANSI para calcular padding correcto
-	local clean_text=$(echo -e "$text" | sed 's/\x1b\[[0-9;]*m//g')
+	local clean_text
+	clean_text=$(echo -e "$text" | sed 's/\x1b\[[0-9;]*m//g')
 	local clean_len=${#clean_text}
 	padding=$(( (cols - clean_len) / 2 ))
 
@@ -118,7 +128,8 @@ center_text() {
 box() {
 	local text="$1"
 	local len=${#text}
-	local line=$(printf "%$((len + 2))s")
+	local line
+	line=$(printf "%$((len + 2))s")
 
 	echo -e "${GRAY}╭${line// /─}╮${NC}"
 	echo -e "${GRAY}│${D_CYAN} $text ${GRAY}│${NC}"
@@ -196,7 +207,8 @@ table_border() {
 	local last=$((${#TABLE_WIDTHS[@]} - 1))
 	for i in "${!TABLE_WIDTHS[@]}"; do
 		local w="${TABLE_WIDTHS[$i]}"
-		local line=$(printf "%$((w + 2))s")
+		local line
+		line=$(printf "%$((w + 2))s")
 		echo -ne "${line// /${fill}}"
 		if ((i < last)); then
 			echo -ne "${sep}"

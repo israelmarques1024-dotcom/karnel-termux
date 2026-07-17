@@ -793,7 +793,7 @@ brain_sync() {
 		log_info "No changes to commit"
 	fi
 
-	if ! git -C "$BRAIN_DIR" rev-parse --abbrev-ref --symbolic-full-name @{upstream} &>/dev/null; then
+	if ! git -C "$BRAIN_DIR" rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' &>/dev/null; then
 		loading "Pushing to origin/$branch..." git -C "$BRAIN_DIR" push -u origin "$branch"
 		if [[ $? -eq 0 ]]; then
 			log_success "Brain synced with GitHub"
@@ -1303,7 +1303,8 @@ EOF
 	fi
 
 	if command -v jq &>/dev/null; then
-		local temp=$(mktemp)
+		local temp
+		temp=$(mktemp)
 		if [[ "$val" == "true" ]] || [[ "$val" == "false" ]]; then
 			jq --argjson v "$val" ".${key} = \$v" "$config_file" > "$temp" && mv "$temp" "$config_file"
 		elif [[ "$val" =~ ^[0-9]+$ ]]; then

@@ -23,6 +23,7 @@ list_main() {
     list_item "ui         - List Termux UI components"
     list_item "auto       - List automation tools"
     list_item "deploy     - List deploy CLIs"
+    list_item "games      - List games"
     echo
     return
   fi
@@ -58,6 +59,9 @@ list_main() {
       ;;
     deploy)
       _list_deploy
+      ;;
+    games)
+      _list_games
       ;;
     *)
       log_warn "Unknown list target: $arg"
@@ -227,11 +231,42 @@ _list_dev() {
   table_row "Snyk" "--snyk" "$(_check_cmd "snyk")"
   table_row "httptmux" "--httptmux" "$(_check_cmd "httptmux")"
   table_row "Zork" "--zork" "$(_check_cmd "zork")"
+  table_row "File Converter" "--fconv" "$(_check_cmd "fconv")"
+  table_row "File Checker" "--filecheck" "$(_check_cmd "filecheck")"
+  table_row "Websites Creator" "--websites" "$(_check_cmd "websites")"
+  table_row "Smart Notes" "--notes" "$(_check_cmd "notes")"
+  table_row "Tree Explorer" "--treex" "$(_check_cmd "treex")"
+  table_row "Password Master" "--passman" "$(_check_cmd "passman")"
+  table_row "App Launcher" "--applaunch" "$(_check_cmd "applaunch")"
+  table_row "Loading Screen" "--splash" "$(_check_cmd "splash")"
   table_end
 
   echo
   log_info "Install specific: ${D_CYAN}karnel install dev --gh --fzf --jq${NC}"
   log_info "Install all: ${D_CYAN}karnel install dev${NC}"
+  echo
+}
+
+# ===== LIST GAMES =====
+_list_games() {
+  echo
+  box "Games"
+  echo
+  log_info "Available games and install commands:"
+  echo
+
+  table_start "Game" "Install Flag" "Status"
+  table_row "Buzz" "--buzz" "$(_check_cmd "buzz")"
+  table_row "CTF God" "--ctfgod" "$(_check_cmd "ctfgod")"
+  table_row "Detective" "--detective" "$(_check_cmd "detective")"
+  table_row "Pet Friends" "--pet-friends" "$(_check_cmd "pet-friends")"
+  table_row "Tamagotchi" "--tamagotchi" "$(_check_cmd "tamagotchi")"
+  table_row "Terminal Arcade" "--arcade" "$(_check_cmd "arcade")"
+  table_end
+
+  echo
+  log_info "Install specific: ${D_CYAN}karnel install games --buzz --ctf-god${NC}"
+  log_info "Install all: ${D_CYAN}karnel install games${NC}"
   echo
 }
 

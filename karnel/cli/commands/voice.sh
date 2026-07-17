@@ -62,7 +62,7 @@ voice_main() {
   # Parse options before agent
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --lang) lang="$2"; shift 2 ;;
+      --lang) lang="${2:-}"; shift 2 ;;
       --raw) skip_edit=true; shift ;;
       --no-clip) no_clip=true; shift ;;
       --help|-h) voice_help; return ;;
@@ -72,6 +72,7 @@ voice_main() {
   done
 
   agent="${1:-}"
+  [[ -z "$agent" ]] && { voice_help; return; }
 
   if [[ -z "$agent" ]] || [[ "$agent" == "--help" ]] || [[ "$agent" == "-h" ]]; then
     voice_help

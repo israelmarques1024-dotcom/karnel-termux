@@ -131,7 +131,8 @@ EOF
 		if ! command -v jq &>/dev/null; then
 			log_warn "jq not found — skipping package.json update"
 		else
-			local temp=$(mktemp)
+			local temp
+			temp=$(mktemp)
 			jq '.scripts.dev = "next dev --webpack" | .scripts.build = "next build --webpack" | .scripts.start = "next start"' package.json > "$temp" && mv "$temp" package.json
 			log_success "Added --webpack flag to dev and build scripts"
 		fi
@@ -531,7 +532,8 @@ EOF
 		if ! command -v jq &>/dev/null; then
 			log_warn "jq not found — skipping package.json update"
 		else
-		local temp=$(mktemp)
+		local temp
+		temp=$(mktemp)
 		jq '.scripts += {
       "dev": "ts-node-dev --require tsconfig-paths/register --env-file=.env --respawn src/index.ts",
       "build": "tsc && tsc-alias -p tsconfig.json",
@@ -1005,8 +1007,8 @@ EOF
 
 	# Create scripts/run.sh
 	cat >scripts/run.sh <<'EOF'
-#!/usr/bin/bash
-go run cmd/api/main.go
+#!/usr/bin/env bash
+cargo run
 EOF
 	chmod +x scripts/run.sh
 
@@ -1076,8 +1078,13 @@ configure_rust() {
 
 	# Append dependencies to Cargo.toml
 	if [[ -f "Cargo.toml" ]]; then
-		# Reset dependencies block
-		sed -i '/\[dependencies\]/q' Cargo.toml
+		# Append after [dependencies] or add it
+		if grep -q '^\[dependencies\]' Cargo.toml; then
+			cat >>Cargo.toml <<EOF
+EOF
+		else
+			echo -e "\n[dependencies]" >> Cargo.toml
+		fi
 		cat >>Cargo.toml <<EOF
 tokio = { version = "1.0", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
@@ -1184,8 +1191,8 @@ EOF
 
 	# Create scripts/run.sh
 	cat >scripts/run.sh <<'EOF'
-#!/usr/bin/bash
-cargo run
+#!/usr/bin/env bash
+go run cmd/api/main.go
 EOF
 	chmod +x scripts/run.sh
 
@@ -1236,7 +1243,8 @@ init_main() {
 	go | gin) configure_go ;;
 	rust | axum) configure_rust ;;
 	"")
-		local detected=$(detect_project_type)
+		local detected
+		detected=$(detect_project_type)
 		if [[ "$detected" != "unknown" ]]; then
 			log_info "Detected project type: $detected"
 			echo

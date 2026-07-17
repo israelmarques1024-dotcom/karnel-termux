@@ -103,6 +103,7 @@ karnel_help() {
   printf "    ${D_GREEN}%-10s${NC} %s\n" "ui" "Font, Cursor, Extra-keys, Banner"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "auto" "Automation Tools (n8n)"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "deploy" "Vercel, Railway, Netlify CLIs"
+  printf "    ${D_GREEN}%-10s${NC} %s\n" "games" "Buzz, CTF God, Detective, Tamagotchi, etc."
 
   echo
   separator_section "Help"

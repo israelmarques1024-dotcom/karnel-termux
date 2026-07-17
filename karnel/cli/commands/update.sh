@@ -108,6 +108,10 @@ _update_full_module() {
     import "@/modules/auto"
     update_auto
     ;;
+  games)
+    import "@/tools/games/all"
+    update_all_games
+    ;;
   *)
     log_warn "Unknown update target: $target"
     echo "Run 'karnel update' to see available targets"
@@ -146,7 +150,8 @@ update_karnel() {
     rm -f "$KARNEL_CACHE/new_version" "$KARNEL_CACHE/last_version_check"
   else
     log_warn "Not a git repository, cannot update"
-    log_info "If you installed via curl, reinstall with:"
+    log_info "If installed via npm/pnpm, run: npm update -g karnel-termux"
+    log_info "If installed via curl, reinstall with:"
     echo "  curl -fsSL https://raw.githubusercontent.com/israelmarques1024-dotcom/karnel-termux/main/install.sh | bash"
   fi
 

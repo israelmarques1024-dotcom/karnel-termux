@@ -24,6 +24,7 @@ _scan_project() {
 
   for entry in "$current"/* "$current"/.github "$current"/.luacheckrc; do
     [[ -e "$entry" ]] || continue
+    [[ -L "$entry" ]] && continue
     local name; name=$(basename "$entry")
     case "$name" in
       node_modules|.git|.venv|venv|__pycache__|target|dist|build|vendor|coverage|.cache|.terraform|.next|.nuxt|.angular|cache|elixir_build|_build|deps|.bundle|.gem|bin|obj|.gradle|.mvn|CMakeFiles|.cargo|.rustup|go/pkg|Godeps)

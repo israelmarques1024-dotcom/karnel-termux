@@ -130,6 +130,10 @@ _install_full_module() {
     import "@/modules/voice"
     install_voice
     ;;
+  games)
+    import "@/modules/games"
+    install_games
+    ;;
   *)
     log_warn "Unknown install target: $target"
     echo "Run 'karnel install' to see available targets"
@@ -362,6 +366,38 @@ _install_specific_tools() {
         install_zork
         case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
         ;;
+      fconv)
+        install_fconv
+        case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
+      filecheck)
+        install_filecheck
+        case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
+      websites)
+        install_websites
+        case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
+      notes)
+        install_notes
+        case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
+      treex)
+        install_treex
+        case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
+      passman)
+        install_passman
+        case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
+      applaunch)
+        install_applaunch
+        case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
+      splash)
+        install_splash
+        case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
       *)
         log_warn "Unknown tool: --$tool"
         ;;
@@ -374,6 +410,52 @@ _install_specific_tools() {
     fi
     if [[ $failed_count -gt 0 ]]; then
       log_warn "$failed_count tool(s) failed to install"
+    fi
+    echo
+    ;;
+  games)
+    import "@/tools/games/all"
+    local installed_count=0
+    local failed_count=0
+
+    for tool in "${tools[@]}"; do
+      case "$tool" in
+      buzz)
+        install_buzz
+        case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
+      ctfgod)
+        install_ctfgod
+        case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
+      detective)
+        install_detective
+        case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
+      pet-friends)
+        install_pet_friends
+        case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
+      tamagotchi)
+        install_tamagotchi
+        case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
+      arcade)
+        install_arcade
+        case $? in 0|2) ((installed_count++));; 1) ((failed_count++));; esac
+        ;;
+      *)
+        log_warn "Unknown game: --$tool"
+        ;;
+      esac
+    done
+
+    echo
+    if [[ $installed_count -gt 0 ]]; then
+      log_success "$installed_count game(s) installed"
+    fi
+    if [[ $failed_count -gt 0 ]]; then
+      log_warn "$failed_count game(s) failed to install"
     fi
     echo
     ;;

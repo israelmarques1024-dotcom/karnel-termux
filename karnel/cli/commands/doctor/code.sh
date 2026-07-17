@@ -95,7 +95,7 @@ doctor_code() {
 
   # Deduplicate langs
   local -A seen; local unique_langs=()
-  for l in "${PROJECT_LANGS[@]}"; do [[ -z "${seen[$l]}" ]] && seen[$l]=1 && unique_langs+=("$l"); done
+  for l in "${PROJECT_LANGS[@]}"; do [[ -z "${seen[$l]:-}" ]] && seen[$l]=1 && unique_langs+=("$l"); done
 
   local manifest_map=()
   for m in "${PROJECT_MANIFESTS[@]}"; do
@@ -195,6 +195,7 @@ doctor_code() {
 
   _format_report "$output" "$target_dir"
   $human_output && echo
+  return 0
 }
 
 _doctor_code_help() {
