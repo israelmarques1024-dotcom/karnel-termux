@@ -32,6 +32,8 @@ install_dev() {
 	list_item "Proot (chroot alternative)"
 	list_item "Ncurses Utils"
 	list_item "Tmate (terminal sharing)"
+	list_item "OpenSSH"
+	list_item "Tmux"
 	list_item "Cloudflared (Cloudflare Tunnel)"
 	list_item "Translate Shell"
 	list_item "html2text (HTML to text converter)"
@@ -46,6 +48,14 @@ install_dev() {
 	list_item "Snyk (security scanner)"
 	list_item "httptmux (interactive API client)"
 	list_item "Zork (text adventure games I, II, III)"
+	list_item "Fconv (file converter)"
+	list_item "Filecheck (file integrity)"
+	list_item "Websites (project scaffold)"
+	list_item "Notes (terminal notes)"
+	list_item "Treex (tree explorer)"
+	list_item "Passman (password manager)"
+	list_item "Applaunch (app launcher)"
+	list_item "Splash (startup splash)"
 	echo
 }
 
@@ -130,6 +140,8 @@ reinstall_dev() {
   list_item "Proot (chroot alternative)"
   list_item "Ncurses Utils"
   list_item "Tmate (terminal sharing)"
+  list_item "OpenSSH"
+  list_item "Tmux"
   list_item "Cloudflared (Cloudflare Tunnel)"
   list_item "Translate Shell"
   list_item "html2text (HTML to text converter)"
@@ -144,6 +156,14 @@ reinstall_dev() {
 	list_item "Snyk (security scanner)"
 	list_item "httptmux (interactive API client)"
 	list_item "Zork (text adventure games I, II, III)"
+	list_item "Fconv (file converter)"
+	list_item "Filecheck (file integrity)"
+	list_item "Websites (project scaffold)"
+	list_item "Notes (terminal notes)"
+	list_item "Treex (tree explorer)"
+	list_item "Passman (password manager)"
+	list_item "Applaunch (app launcher)"
+	list_item "Splash (startup splash)"
 	echo
 }
 
