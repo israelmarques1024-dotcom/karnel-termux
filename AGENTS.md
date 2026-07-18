@@ -6,9 +6,9 @@ Karnel is a Termux environment manager. The project is at `~/karnel/` with code 
 
 - CLI command: `karnel` (in PATH)
 - Main entry: `karnel/bin/karnel`
-- Module orchestrators: `karnel/modules/` (ai.sh, auto.sh, db.sh, deploy.sh, dev.sh, editor.sh, lang.sh, npm.sh, shell.sh, ui.sh, voice.sh)
-- Tool installers: `karnel/tools/` (ai/*, auto/*, db/*, deploy/*, dev/*, editor/*, lang/*, npm/*, shell/*, ui/*, voice/*)
-- CLI commands: `karnel/cli/commands/` (install.sh, uninstall.sh, update.sh, reinstall.sh, list.sh, show.sh, open.sh, doctor.sh, brain.sh, env.sh, init.sh, pg.sh, voice.sh, ia.sh)
+- Module orchestrators: `karnel/modules/` (ai.sh, auto.sh, db.sh, deploy.sh, dev.sh, editor.sh, lang.sh, npm.sh, osint.sh, shell.sh, ui.sh, voice.sh)
+- Tool installers: `karnel/tools/` (ai/*, auto/*, db/*, deploy/*, dev/*, editor/*, lang/*, npm/*, osint/*, shell/*, ui/*, voice/*)
+- CLI commands: `karnel/cli/commands/` (install.sh, uninstall.sh, update.sh, reinstall.sh, list.sh, show.sh, open.sh, doctor.sh, brain.sh, env.sh, init.sh, pg.sh, robin.sh, voice.sh, ia.sh)
 - CLI commands: AI subcommands include `karnel ia sessions`, `karnel ia routes`, `karnel ia install`
 - AI listing: `karnel list ai` (not `karnel ia list`)
 - omniRoute: `karnel install ai --omni-route`; installs omni-route wrapper (npm: karnelroute); official AI gateway: https://karnelroute.online

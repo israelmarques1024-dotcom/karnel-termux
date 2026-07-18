@@ -1,11 +1,12 @@
 # Karnel Doctor
 
-`karnel doctor` diagnoses the Termux environment and analyzes project code. It
-has exactly two operational subcommands:
+`karnel doctor` diagnoses the Termux environment, analyzes project code, and
+validates the optional Robin OSINT service. It has three operational subcommands:
 
 ```bash
 karnel doctor termux [--quick] [--fix]
 karnel doctor code [options] [directory]
+karnel doctor robin [--network]
 ```
 
 Running `karnel doctor` without a subcommand is equivalent to

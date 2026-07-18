@@ -1,6 +1,6 @@
 {
   "name": "karnel-termux",
-  "version": "4.7.7",
+  "version": "4.8.0",
   "description": "Modular Dev Environment for Termux — install languages, databases, AI agents, editors, and more with one command",
   "bin": {
     "karnel": "karnel/bin/karnel"
@@ -13,6 +13,11 @@
     "LICENSE"
   ],
   "scripts": {
+    "check:syntax": "bash tests/check-syntax.sh",
+    "lint:shell": "bash tests/check-shellcheck.sh",
+    "test": "bash tests/run.sh",
+    "pack:check": "node scripts/check-package.js",
+    "ci": "npm run lint:shell && npm test && npm run pack:check",
     "postinstall": "node scripts/npm-install.js"
   },
   "engines": {

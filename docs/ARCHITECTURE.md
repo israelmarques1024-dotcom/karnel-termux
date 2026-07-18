@@ -30,13 +30,14 @@ karnel-termux/
 │   │   ├── ai/                 # 31 AI agents
 │   │   ├── lang/               # 7 languages
 │   │   ├── db/                 # 5 databases
-│   │   ├── dev/                # 24 dev tools
+│   │   ├── dev/                # 32 dev tools
 │   │   ├── editor/             # Code editor
 │   │   ├── npm/                # Global npm packages
 │   │   ├── shell/              # ZSH plugins
 │   │   ├── ui/                 # Termux UI
 │   │   ├── auto/               # Automation
-│   │   └── deploy/             # Deploy CLIs
+│   │   ├── deploy/             # Deploy CLIs
+│   │   └── osint/              # Robin OSINT integration
 │   └── utils/                  # Shared utilities
 │       ├── bootstrap.sh        # Import mechanism, shell detection
 │       ├── banner.sh           # ASCII banners
@@ -95,6 +96,19 @@ Each module (`lang`, `db`, `ai`, `dev`, etc.) has:
 
 1. A **module orchestrator** in `karnel/modules/<name>.sh` — handles installation logic
 2. Individual **tool installers** in `karnel/tools/<name>/<tool>/install.sh` — each installs one tool
+
+Robin uses a managed layout because its configuration and investigations are
+persistent user data:
+
+- Source checkout: `$KARNEL_TOOLS/osint/robin/app`
+- Virtual environment: `$KARNEL_TOOLS/osint/robin/.venv`
+- Provider configuration: `$KARNEL_CONFIG/robin/.env`
+- Investigations: `$KARNEL_DATA/robin/investigations`
+- PID and logs: `$KARNEL_RUN` and `$KARNEL_LOGS`
+
+The upstream release and commit are pinned in `tools/osint/robin/common.sh`.
+Candidate source and virtualenv trees are verified before replacing the active
+installation. Uninstall does not delete persistent data.
 
 ### Tool Installer Pattern
 

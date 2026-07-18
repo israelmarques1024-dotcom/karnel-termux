@@ -24,6 +24,7 @@ list_main() {
     list_item "auto       - List automation tools"
     list_item "deploy     - List deploy CLIs"
     list_item "games      - List games"
+    list_item "osint      - List OSINT tools"
     echo
     return
   fi
@@ -62,6 +63,9 @@ list_main() {
       ;;
     games)
       _list_games
+      ;;
+    osint)
+      _list_osint
       ;;
     *)
       log_warn "Unknown list target: $arg"
@@ -364,6 +368,26 @@ _list_auto() {
   echo
 }
 
+# ===== LIST OSINT =====
+_list_osint() {
+  import "@/tools/osint/robin/common"
+  echo
+  box "OSINT Tools"
+  echo
+  log_info "Available OSINT tools and install commands:"
+  echo
+
+  table_start "Tool" "Install Flag" "Status"
+  table_row "Robin — Dark Web OSINT" "--robin" "$(_check_robin)"
+  table_end
+
+  echo
+  log_info "Install specific: ${D_CYAN}karnel install osint --robin${NC}"
+  log_info "Install all: ${D_CYAN}karnel install osint${NC}"
+  log_info "Start: ${D_CYAN}karnel robin start${NC}"
+  echo
+}
+
 # ===== HELPER FUNCTIONS =====
 
 # Check if command exists
@@ -390,6 +414,14 @@ _check_pkg() {
 _check_dir() {
   local dir="$1"
   if [[ -d "$dir" ]]; then
+    echo -e "${D_GREEN}installed${NC}"
+  else
+    echo -e "${D_RED}not installed${NC}"
+  fi
+}
+
+_check_robin() {
+  if _robin_is_installed; then
     echo -e "${D_GREEN}installed${NC}"
   else
     echo -e "${D_RED}not installed${NC}"

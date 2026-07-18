@@ -24,6 +24,7 @@ uninstall_main() {
     list_item "shell      - Remove ZSH + Oh My Zsh"
     list_item "ui         - Restore Termux UI to default"
     list_item "auto       - Remove automation tools"
+    list_item "osint      - Remove OSINT tools"
     echo
     log_info "Uninstall specific tools with flags:"
     echo
@@ -106,6 +107,10 @@ _uninstall_full_module() {
     import "@/modules/auto"
     uninstall_auto
     ;;
+  osint)
+    import "@/modules/osint"
+    uninstall_osint
+    ;;
   *)
     log_warn "Unknown uninstall target: $target"
     echo "Run 'karnel uninstall' to see available targets"
@@ -116,5 +121,9 @@ _uninstall_full_module() {
 _uninstall_specific_tools() {
   local module="$1"
   shift
+  if [[ "$module" == "osint" ]]; then
+    import "@/tools/osint/robin/common"
+    _robin_print_disclaimer
+  fi
   _batch_tool_action "$module" "uninstall" "$@"
 }

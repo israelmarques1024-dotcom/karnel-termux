@@ -11,6 +11,7 @@ start_main() {
     log_info "Usage: karnel start <target>"
     echo
     list_item "editor    - Start code-server (VS Code in browser)"
+    list_item "robin     - Start Tor + Robin on 127.0.0.1:8501"
     echo
     return
   fi
@@ -21,6 +22,10 @@ start_main() {
   case "$target" in
   editor)
     _start_editor "$@"
+    ;;
+  robin)
+    import "@/cli/commands/robin"
+    robin_main start "$@"
     ;;
   *)
     log_warn "Unknown start target: $target"

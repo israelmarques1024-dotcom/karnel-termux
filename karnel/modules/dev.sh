@@ -24,38 +24,7 @@ install_dev() {
 	fi
 	separator
 	echo
-	list_item "GitHub CLI"
-	list_item "Wget"
-	list_item "Curl"
-	list_item "LSD (ls replacement)"
-	list_item "Bat (cat replacement)"
-	list_item "Proot (chroot alternative)"
-	list_item "Ncurses Utils"
-	list_item "Tmate (terminal sharing)"
-	list_item "OpenSSH"
-	list_item "Tmux"
-	list_item "Cloudflared (Cloudflare Tunnel)"
-	list_item "Translate Shell"
-	list_item "html2text (HTML to text converter)"
-	list_item "jq (JSON processor)"
-	list_item "bc (calculator)"
-	list_item "Tree (directory listing)"
-	list_item "Fzf (fuzzy finder)"
-	list_item "ImageMagick (image manipulation)"
-	list_item "Shfmt (shell script formatter)"
-	list_item "Make (build automation)"
-	list_item "Udocker (container management)"
-	list_item "Snyk (security scanner)"
-	list_item "httptmux (interactive API client)"
-	list_item "Zork (text adventure games I, II, III)"
-	list_item "Fconv (file converter)"
-	list_item "Filecheck (file integrity)"
-	list_item "Websites (project scaffold)"
-	list_item "Notes (terminal notes)"
-	list_item "Treex (tree explorer)"
-	list_item "Passman (password manager)"
-	list_item "Applaunch (app launcher)"
-	list_item "Splash (startup splash)"
+	_show_dev_summary
 	echo
 }
 
@@ -132,43 +101,27 @@ reinstall_dev() {
   fi
   separator
   echo
-  list_item "GitHub CLI"
-  list_item "Wget"
-  list_item "Curl"
-  list_item "LSD (ls replacement)"
-  list_item "Bat (cat replacement)"
-  list_item "Proot (chroot alternative)"
-  list_item "Ncurses Utils"
-  list_item "Tmate (terminal sharing)"
-  list_item "OpenSSH"
-  list_item "Tmux"
-  list_item "Cloudflared (Cloudflare Tunnel)"
-  list_item "Translate Shell"
-  list_item "html2text (HTML to text converter)"
-  list_item "jq (JSON processor)"
-  list_item "bc (calculator)"
-  list_item "Tree (directory listing)"
-  list_item "Fzf (fuzzy finder)"
-  list_item "ImageMagick (image manipulation)"
-  list_item "Shfmt (shell script formatter)"
-	list_item "Make (build automation)"
-	list_item "Udocker (container management)"
-	list_item "Snyk (security scanner)"
-	list_item "httptmux (interactive API client)"
-	list_item "Zork (text adventure games I, II, III)"
-	list_item "Fconv (file converter)"
-	list_item "Filecheck (file integrity)"
-	list_item "Websites (project scaffold)"
-	list_item "Notes (terminal notes)"
-	list_item "Treex (tree explorer)"
-	list_item "Passman (password manager)"
-	list_item "Applaunch (app launcher)"
-	list_item "Splash (startup splash)"
-	echo
+  _show_dev_summary
+  echo
 }
 
 _reinstall_dev_wrapper() {
   import "@/tools/dev/all"
   reinstall_all_dev
   return $?
+}
+
+_show_dev_summary() {
+  local idx=0
+  for tool in "${TOOLS_PACKAGES[@]}"; do
+    local display="${TOOLS_DISPLAY[$idx]:-$tool}"
+    local result="${_INSTALL_RESULTS[$tool]:-}"
+    case "$result" in
+      0) list_item_check success "$display" ;;
+      2) list_item_check pending "$display" ;;
+      1) list_item_check fail "$display" ;;
+      *) list_item "$display" ;;
+    esac
+    ((idx++))
+  done
 }

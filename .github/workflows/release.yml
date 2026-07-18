@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: Install validation tools
+        run: sudo apt-get update && sudo apt-get install -y shellcheck zsh
+      - name: Verify release version
+        run: |
+          version=$(node -p "require('./package.json').version")
+          test "${GITHUB_REF_NAME:-v$version}" = "v$version"
+          test "$(grep '^KARNEL_VERSION=' karnel/utils/env.sh | cut -d'\"' -f2)" = "$version"
+      - name: Validate release
+        run: npm run ci
+      - name: Build package artifact
+        run: npm pack --ignore-scripts
+      - name: Publish npm package
+        run: |
+          version=$(node -p 'require("./package.json").version')
+          if npm view "karnel-termux@$version" version >/dev/null 2>&1; then
+            echo "karnel-termux@$version is already published"
+          else
+            npm publish "karnel-termux-$version.tgz" --access public --provenance
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          artifact="karnel-termux-$(node -p 'require("./package.json").version').tgz"
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "$artifact" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" --generate-notes "$artifact"
+          fi

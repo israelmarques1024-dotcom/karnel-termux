@@ -2,6 +2,7 @@
 
 import "@/utils/log"
 import "@/utils/colors"
+import "@/utils/tools"
 
 install_main() {
 
@@ -20,6 +21,7 @@ install_main() {
     list_item "editor     - Code editor (code-server, neovim, nvchad)"
     list_item "dev        - Development tools"
     list_item "npm        - Node.js global modules (npm packages)"
+    list_item "osint      - OSINT tools (Robin — Dark Web + LLM)"
     list_item "shell      - ZSH + Oh My Zsh + plugins"
     list_item "ui         - Termux UI (font, cursor, extra-keys, banner)"
     list_item "auto       - Automation Tools (n8n)"
@@ -133,6 +135,10 @@ _install_full_module() {
   games)
     import "@/modules/games"
     install_games
+    ;;
+  osint)
+    import "@/modules/osint"
+    install_osint
     ;;
   *)
     log_warn "Unknown install target: $target"
@@ -812,6 +818,11 @@ _install_specific_tools() {
       log_warn "$failed_count CLI(s) failed to install"
     fi
     echo
+    ;;
+  osint)
+    import "@/tools/osint/robin/common"
+    _robin_print_disclaimer
+    _batch_tool_action "osint" "install" "${tools[@]}"
     ;;
   *)
     log_warn "Unknown install target: $module"

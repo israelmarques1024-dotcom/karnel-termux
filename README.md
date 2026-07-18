@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux">
-    <img src="https://img.shields.io/badge/version-4.7.6-0078D4?style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/badge/version-4.8.0-0078D4?style=for-the-badge" alt="Version">
   </a>
   <a href="https://www.npmjs.com/package/karnel-termux">
     <img src="https://img.shields.io/npm/v/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
@@ -36,8 +36,9 @@ Created by **Israel Marques**.
 - **31 AI agents** for coding — Claude, Gemini, OpenCode, Ollama, Cline, karnelRoute and more
 - **7 languages** — Node.js, Python, Go, Rust, C/C++, PHP, Perl
 - **5 databases** — PostgreSQL, MariaDB, SQLite, MongoDB, Redis
-- **24 dev tools** — gh, curl, fzf, bat, lsd, jq, tmux, openssh, snyk and more
+- **32 dev tools** — gh, curl, fzf, bat, lsd, jq, tmux, openssh, snyk and more
 - **3 deploy CLIs** — Vercel, Railway, Netlify
+- **Responsible OSINT** — Robin v2.8 through Tor with a loopback-only web UI
 - **Professional editor** — code-server (VS Code in browser)
 - **Second brain** — Memory system with AI search and idea graph
 - **Voice commands** — Speak to your AI agents
@@ -92,6 +93,7 @@ karnel
 | `karnel reinstall <module>` | Reinstall modules |
 | `karnel doctor termux` | Diagnose the Termux environment (30+ sections) |
 | `karnel doctor code` | Detect project ecosystems and run code checks |
+| `karnel doctor robin` | Diagnose Robin, Tor, dependencies, and local UI |
 | `karnel brain` | Second brain — memories and search |
 | `karnel env` | Manage environment variables |
 | `karnel voice` | Voice commands for AI agents |
@@ -99,6 +101,7 @@ karnel
 | `karnel pg` | PostgreSQL manager |
 | `karnel init <template>` | Initialize projects with templates |
 | `karnel deploy` | Deploy projects (Vercel, Railway, Netlify) |
+| `karnel robin` | Manage the Robin OSINT service |
 | `karnel --version` | Show installed version |
 
 ### Modules
@@ -115,6 +118,36 @@ karnel
 | `ui` | Font, cursor, extra-keys, banner | `karnel install ui` |
 | `auto` | Automation with n8n | `karnel install auto` |
 | `deploy` | Vercel, Railway, Netlify | `karnel install deploy` |
+| `games` | Buzz, CTF God, Detective, Tamagotchi and more | `karnel install games` |
+| `osint` | Robin v2.8, Tor, Streamlit, and LLM providers | `karnel install osint` |
+| `voice` | Speech-to-agent through Termux:API | `karnel install voice` |
+
+---
+
+## Robin OSINT
+
+Robin is an independent AI-assisted dark-web OSINT project. Karnel pins the
+tested `v2.8` release, installs native Termux scientific dependencies, binds the
+web interface only to `127.0.0.1`, and keeps application code separate from
+provider configuration and saved investigations.
+
+```bash
+karnel install osint --robin
+karnel robin config
+karnel robin start
+karnel robin doctor --network
+```
+
+Open `http://127.0.0.1:8501` only after the health check succeeds. Use Robin
+solely for lawful, authorized, and ethical research. Tor does not guarantee
+anonymity, external LLM traffic normally bypasses Tor, providers may process
+submitted data, and AI output is not verified evidence.
+
+Uninstall and reinstall preserve `$KARNEL_CONFIG/robin/.env` and
+`$KARNEL_DATA/robin/investigations`. Permanent deletion requires the explicit
+`karnel robin purge-data` command.
+
+See the bundled reference with `karnel show osint --robin`.
 
 ---
 
@@ -157,7 +190,7 @@ karnel install ai --opencode --ollama         # Install specific agents
 | **Odysseus** | `--odysseus` | Odysseus coding assistant |
 | **Kimchi CLI** | `--kimchi-code` | Kimchi AI agent |
 | **Cline CLI** | `--cline` | Autonomous coding agent (via proot-distro) |
-| **karnelRoute** | `--karnel-route` | AI Gateway with 236+ providers |
+| **omniRoute** | `--omni-route` | AI gateway with 236+ providers |
 | **Context7** | `--ctx7` | Documentation for AI assistants |
 | **OpenSpec** | `--openspec` | Spec-Driven Development |
 | **Copilot-Termux** | `--copilot-termux` | GitHub Copilot CLI adapted for Termux |
@@ -168,7 +201,7 @@ karnel install ai --opencode --ollama         # Install specific agents
 
 ## karnel doctor
 
-Doctor has exactly two operational subcommands:
+Doctor has three operational subcommands:
 
 ```bash
 karnel doctor termux                 # 30+ Termux/Karnel diagnostic sections
@@ -179,6 +212,8 @@ karnel doctor code                   # Quick project analysis
 karnel doctor code --standard .      # Add security, deps, coverage and complexity
 karnel doctor code --deep --json .   # All 76 definitions as standalone JSON
 karnel doctor code --fix .           # Apply fixes classified as safe
+karnel doctor robin                  # Robin/Tor/dependency diagnostics
+karnel doctor robin --network        # Also verify traffic through Tor
 ```
 
 Running `karnel doctor` without a subcommand defaults to `termux`.

@@ -2,6 +2,7 @@
 
 import "@/utils/log"
 import "@/utils/colors"
+import "@/tools/osint/robin/common"
 
 backup_main() {
   if [[ "$1" == "--help" || "$1" == "-h" ]]; then
@@ -78,6 +79,13 @@ backup_main() {
       fi
     fi
   done
+  # Robin API keys and investigations are intentionally excluded from ordinary,
+  # unencrypted backups. The acknowledgement file is harmless to retain.
+  if [[ "$ROBIN_CONFIG_DIR" == "$HOME/.config/"* ]]; then
+    local robin_config_relative="${ROBIN_CONFIG_DIR#"$HOME/.config/"}"
+    rm -f "$tmp/config/config/$robin_config_relative"/.env* 2>/dev/null
+  fi
+  find "$tmp/config/config" -type f -path '*/karnel/robin/.env*' -delete 2>/dev/null
   [[ -f "$PREFIX/etc/apt/sources.list" ]] && cp "$PREFIX/etc/apt/sources.list" "$tmp/config/prefix-etc/" 2>/dev/null
 
   tar -czf "$file" -C "$tmp" . 2>/dev/null

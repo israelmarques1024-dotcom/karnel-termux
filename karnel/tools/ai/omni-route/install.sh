@@ -134,7 +134,7 @@ uninstall_omni_route() {
   fi
 
   log_info "Uninstalling omniRoute..."
-  npm uninstall -g karnelroute 2>>"$LOG_FILE" 2>/dev/null
+  npm uninstall -g karnelroute &>>"$LOG_FILE"
   rm -rf "$HOME/.karnel/packages/karnelroute"
   rm -f "$PREFIX/bin/karnelroute" "$PREFIX/bin/omni-route"
   log_success "omniRoute uninstalled"

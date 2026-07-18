@@ -62,6 +62,17 @@ status_main() {
     services+=("omni-route")
   fi
 
+  # Robin OSINT
+  import "@/tools/osint/robin/common"
+  if [[ -d "$ROBIN_APP_DIR/.git" ]]; then
+    if _robin_managed_process_running && _robin_http_healthy; then
+      log_success "Robin: RUNNING (127.0.0.1:$ROBIN_PORT)"
+      services+=("robin")
+    else
+      log_info "Robin: installed, not started"
+    fi
+  fi
+
   # Internet
   if command -v ping &>/dev/null; then
     if timeout 3 ping -c 1 -W 3 8.8.8.8 &>/dev/null; then

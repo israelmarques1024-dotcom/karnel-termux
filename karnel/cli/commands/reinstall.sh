@@ -2,6 +2,7 @@
 
 import "@/utils/log"
 import "@/utils/colors"
+import "@/utils/tools"
 
 reinstall_main() {
 
@@ -24,6 +25,7 @@ reinstall_main() {
     list_item "ui         - Reinstall Termux UI"
     list_item "auto       - Reinstall automation tools"
     list_item "games      - Reinstall games"
+    list_item "osint      - Reinstall OSINT tools"
     echo
     log_info "Reinstall specific tools with flags:"
     echo
@@ -104,6 +106,10 @@ _reinstall_full_module() {
   games)
     import "@/tools/games/all"
     reinstall_all_games
+    ;;
+  osint)
+    import "@/modules/osint"
+    reinstall_osint
     ;;
   *)
     log_warn "Unknown reinstall target: $target"
@@ -757,6 +763,11 @@ _reinstall_specific_tools() {
       log_warn "$failed_count tool(s) failed to reinstall"
     fi
     echo
+    ;;
+  osint)
+    import "@/tools/osint/robin/common"
+    _robin_print_disclaimer
+    _batch_tool_action "osint" "reinstall" "${tools[@]}"
     ;;
   *)
     log_warn "Unknown reinstall target: $module"

@@ -39,10 +39,48 @@ TOOLS_PACKAGES=(
   "splash"
 )
 
+TOOLS_DISPLAY=(
+  "GitHub CLI"
+  "Wget"
+  "Curl"
+  "LSD (ls replacement)"
+  "Bat (cat replacement)"
+  "Proot (chroot alternative)"
+  "Ncurses Utils"
+  "Tmate (terminal sharing)"
+  "OpenSSH"
+  "Tmux"
+  "Cloudflared (Cloudflare Tunnel)"
+  "Translate Shell"
+  "html2text (HTML to text converter)"
+  "jq (JSON processor)"
+  "bc (calculator)"
+  "Tree (directory listing)"
+  "Fzf (fuzzy finder)"
+  "ImageMagick (image manipulation)"
+  "Shfmt (shell script formatter)"
+  "Make (build automation)"
+  "Udocker (container management)"
+  "Snyk (security scanner)"
+  "httptmux (interactive API client)"
+  "Zork (text adventure games I, II, III)"
+  "Fconv (file converter)"
+  "Filecheck (file integrity)"
+  "Websites (project scaffold)"
+  "Notes (terminal notes)"
+  "Treex (tree explorer)"
+  "Passman (password manager)"
+  "Applaunch (app launcher)"
+  "Splash (startup splash)"
+)
+
 for _tool in "${TOOLS_PACKAGES[@]}"; do
-  source "$(dirname "$BASH_SOURCE")/$_tool/install.sh"
+  # shellcheck disable=SC1090
+  source "$(dirname "${BASH_SOURCE[0]}")/$_tool/install.sh"
 done
 unset _tool
+
+declare -gA _INSTALL_RESULTS
 
 _batch_dev() {
   local action="$1"
@@ -54,13 +92,18 @@ _batch_dev() {
   local current=0
   local func_name
 
+  _INSTALL_RESULTS=()
   progress_start "$total" "${action_past}ing dev tools..."
 
   for tool in "${TOOLS_PACKAGES[@]}"; do
     func_name="${action}_${tool//-/_}"
     if declare -f "$func_name" &>/dev/null; then
       loading "${action_past^}ing ${tool}" "$func_name"
-      case $? in 0) ((count++));; 1) ((failed++));; esac
+      _INSTALL_RESULTS["$tool"]=$?
+      case ${_INSTALL_RESULTS["$tool"]} in
+        0) ((count++));;
+        1) ((failed++));;
+      esac
     fi
     ((current++))
     progress_update "$current" "$total"

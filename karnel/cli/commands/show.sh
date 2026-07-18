@@ -19,6 +19,7 @@ show_main() {
     list_item "karnel show db --postgresql"
     list_item "karnel show dev --gh"
     list_item "karnel show npm --typescript"
+    list_item "karnel show osint --robin"
     list_item "karnel show backup              Show backup docs"
     list_item "karnel show restore             Show restore docs"
     list_item "karnel show all --<tool>"

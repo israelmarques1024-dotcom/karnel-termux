@@ -16,6 +16,7 @@ _karnel_commands() {
     'pg:PostgreSQL database manager'
     'reinstall:Uninstall + install modules'
     'restore:Restore from a backup'
+    'robin:Manage Robin dark-web OSINT'
     'search:Search tools and memories'
     'show:Show tool documentation'
     'start:Start services'
@@ -37,10 +38,13 @@ _karnel_modules() {
     'deploy:Deployment CLIs'
     'dev:Development tools'
     'editor:Code editors'
+    'games:Terminal games'
     'lang:Programming languages'
     'npm:Node.js packages'
+    'osint:OSINT tools'
     'shell:ZSH shell plugins'
     'ui:Termux UI components'
+    'voice:Speech-to-agent tools'
   )
   _describe 'module' modules
 }
@@ -77,7 +81,10 @@ _karnel() {
           fi
           ;;
         doctor)
-          _arguments '--quick[Quick mode]' '--fix[Auto-fix]'
+          _arguments '1:subcommand:(termux code robin)' '--quick[Quick mode]' '--fix[Auto-fix]' '--network[Test Tor network]'
+          ;;
+        robin)
+          _arguments '1:subcommand:(start stop status config doctor update purge-data help)' '--accept-responsible-use[Accept responsible-use notice]' '--network[Test Tor network]'
           ;;
         *)
           _default

@@ -25,6 +25,7 @@ update_main() {
     list_item "shell      - Update ZSH plugins"
     list_item "ui         - Update Termux UI"
     list_item "auto       - Update Automation Tools"
+    list_item "osint      - Update OSINT tools"
     echo
     log_info "Update specific tools with flags:"
     echo
@@ -112,6 +113,10 @@ _update_full_module() {
     import "@/tools/games/all"
     update_all_games
     ;;
+  osint)
+    import "@/modules/osint"
+    update_osint
+    ;;
   *)
     log_warn "Unknown update target: $target"
     echo "Run 'karnel update' to see available targets"
@@ -123,6 +128,10 @@ _update_full_module() {
 _update_specific_tools() {
   local module="$1"
   shift
+  if [[ "$module" == "osint" ]]; then
+    import "@/tools/osint/robin/common"
+    _robin_print_disclaimer
+  fi
   _batch_tool_action "$module" "update" "$@"
 }
 

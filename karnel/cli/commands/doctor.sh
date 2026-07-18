@@ -17,6 +17,12 @@ doctor_main() {
       shift
       doctor_code "$@"
       ;;
+    robin)
+      shift
+      import "@/cli/commands/robin"
+      _robin_print_disclaimer
+      _robin_doctor "$@"
+      ;;
     --quick|-q)
       log_warn "Deprecated: use ${D_CYAN}karnel doctor termux --quick${NC}"
       doctor_termux "$@"
@@ -47,6 +53,7 @@ doctor_help() {
   echo
   printf "    ${D_CYAN}%-16s${NC} %s\n" "termux" "Diagnose Termux environment (full system check)"
   printf "    ${D_CYAN}%-16s${NC} %s\n" "code" "Analyze project code structure and tools"
+  printf "    ${D_CYAN}%-16s${NC} %s\n" "robin" "Diagnose Robin, Tor, dependencies, and local UI"
   echo
   separator_section "Termux Options"
   echo
@@ -57,6 +64,7 @@ doctor_help() {
   list_item "${D_CYAN}karnel doctor${NC} — Termux diagnostics (default)"
   list_item "${D_CYAN}karnel doctor termux --quick${NC} — Quick diagnostics"
   list_item "${D_CYAN}karnel doctor code${NC} — Analyze current project"
+  list_item "${D_CYAN}karnel doctor robin${NC} — Diagnose Robin locally"
   list_item "${D_CYAN}karnel doctor termux --fix${NC} — Diagnose + auto-fix"
   echo
 }

@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 _batch_tool_action() {
   local module="$1"
   local action="$2"
@@ -5,6 +7,7 @@ _batch_tool_action() {
   local -a tools=("$@")
   local success_count=0
   local failed_count=0
+  local skipped_count=0
 
   import "@/tools/$module/all"
 
@@ -14,7 +17,8 @@ _batch_tool_action() {
       "$func_name"
       case $? in
         0) ((success_count++));;
-        1) ((failed_count++));;
+        2) ((skipped_count++));;
+        *) ((failed_count++));;
       esac
     else
       log_warn "Unknown $module tool: $tool"
@@ -29,6 +33,9 @@ _batch_tool_action() {
   if [[ $failed_count -gt 0 ]]; then
     log_warn "$failed_count tool(s) failed to ${action}"
   fi
+  if [[ $skipped_count -gt 0 ]]; then
+    log_info "$skipped_count tool(s) already in the requested state"
+  fi
 
-  return $failed_count
+  (( failed_count == 0 ))
 }

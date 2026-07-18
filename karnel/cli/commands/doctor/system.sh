@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 _doctor_system() {
   local arch
   arch=$(uname -m)

@@ -74,6 +74,7 @@ karnel_help() {
   printf "    ${D_CYAN}%-12s${NC} %s\n" "pg" "PostgreSQL database manager"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "reinstall" "Uninstall + install a module"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "restore" "Restore Termux from a backup"
+  printf "    ${D_CYAN}%-12s${NC} %s\n" "robin" "Dark Web OSINT tool (Tor + LLM)"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "search" "Search across all tools and memories"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "show" "Show README/docs for a tool"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "start" "Start services (code-server, etc.)"
@@ -81,6 +82,7 @@ karnel_help() {
   printf "    ${D_CYAN}%-12s${NC} %s\n" "uninstall" "Remove installed modules"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "update" "Update modules or framework"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "upgrade" "Upgrade Karnel framework itself"
+  printf "    ${D_CYAN}%-12s${NC} %s\n" "version" "Show current version"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "voice" "Speech-to-agent via microphone"
   echo
   separator_section "Quick Start"
@@ -95,17 +97,19 @@ karnel_help() {
   echo
   log_info "Install, update, reinstall, uninstall, list, show or open:"
   echo
-  printf "    ${D_GREEN}%-10s${NC} %s\n" "lang" "Node, Python, Perl, PHP, Rust, C/C++, Go"
-  printf "    ${D_GREEN}%-10s${NC} %s\n" "db" "PostgreSQL, MariaDB, SQLite, MongoDB"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "ai" "OpenCode, Gentle AI, Claude Code, etc."
-  printf "    ${D_GREEN}%-10s${NC} %s\n" "editor" "code-server (VS Code in browser)"
+  printf "    ${D_GREEN}%-10s${NC} %s\n" "auto" "Automation Tools (n8n)"
+  printf "    ${D_GREEN}%-10s${NC} %s\n" "db" "PostgreSQL, MariaDB, SQLite, MongoDB"
+  printf "    ${D_GREEN}%-10s${NC} %s\n" "deploy" "Vercel, Railway, Netlify CLIs"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "dev" "GitHub CLI, wget, curl, fzf, etc."
+  printf "    ${D_GREEN}%-10s${NC} %s\n" "editor" "code-server (VS Code in browser)"
+  printf "    ${D_GREEN}%-10s${NC} %s\n" "games" "Buzz, CTF God, Detective, Tamagotchi, etc."
+  printf "    ${D_GREEN}%-10s${NC} %s\n" "lang" "Node, Python, Perl, PHP, Rust, C/C++, Go"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "npm" "Node.js global npm packages"
+  printf "    ${D_GREEN}%-10s${NC} %s\n" "osint" "OSINT Tools (Robin — Dark Web + LLM)"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "shell" "ZSH + Oh My Zsh + 10 plugins"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "ui" "Font, Cursor, Extra-keys, Banner"
-  printf "    ${D_GREEN}%-10s${NC} %s\n" "auto" "Automation Tools (n8n)"
-  printf "    ${D_GREEN}%-10s${NC} %s\n" "deploy" "Vercel, Railway, Netlify CLIs"
-  printf "    ${D_GREEN}%-10s${NC} %s\n" "games" "Buzz, CTF God, Detective, Tamagotchi, etc."
+  printf "    ${D_GREEN}%-10s${NC} %s\n" "voice" "Speech-to-agent via microphone"
 
   echo
   separator_section "Help"
@@ -410,14 +414,18 @@ _tui_install_menu() {
     local target
     target=$(_dialog_menu "Install Modules" "Select target module to install:" \
       "ai" "AI Tools (OpenCode, Claude, Ollama, etc.)" \
+      "auto" "Automation Tools (n8n)" \
       "db" "Databases (PostgreSQL, MariaDB, SQLite, MongoDB)" \
-      "lang" "Programming Languages (Node, Python, Go, Rust, etc.)" \
-      "editor" "Code Editor (code-server)" \
+      "deploy" "Deploy CLIs (Vercel, Railway, Netlify)" \
       "dev" "Development Tools (GitHub CLI, fzf, bat, etc.)" \
+      "editor" "Code Editor (code-server)" \
+      "games" "Games (Buzz, CTF God, Detective, etc.)" \
+      "lang" "Programming Languages (Node, Python, Go, Rust, etc.)" \
       "npm" "Node.js Global npm Packages" \
+      "osint" "OSINT Tools (Robin — Dark Web + LLM)" \
       "shell" "ZSH + Oh My Zsh + Plugins" \
       "ui" "Termux UI (font, cursor, extra-keys, banner)" \
-      "auto" "Automation Tools (n8n)" \
+      "voice" "Speech-to-Agent via microphone" \
       "back" "Back to Main Menu")
       
     local exit_status=$?

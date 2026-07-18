@@ -1,5 +1,26 @@
 # Documentation Changelog
 
+## 4.8.0 - 2026-07-18
+
+### Robin OSINT
+
+- Added the `osint` module and `karnel robin` lifecycle command.
+- Pinned Robin `v2.8` and validated its source commit before activation.
+- Added a transactional source/venv installation path for Termux aarch64.
+- Separated application code, provider configuration, and investigations.
+- Added safe migration from the original single-directory layout.
+- Added process identity validation, Streamlit readiness checks, Tor probes,
+  versioned responsible-use acknowledgement, and explicit data purge.
+- Added `karnel start robin`, global status integration, and
+  `karnel doctor robin [--network]`.
+
+### Quality and release
+
+- Expanded catalog documentation from 24 to 32 development tools.
+- Added complete Bash/Zsh syntax validation, Robin contract tests, ShellCheck
+  error gating, npm package inspection, CI, and release automation.
+- Corrected competing stderr redirections in three installers.
+
 ## Unreleased - 2026-07-16
 
 ### Doctor command surface

@@ -24,6 +24,7 @@ available and prints help in noninteractive contexts.
 | `karnel search` | Search tools and stored memories |
 | `karnel status` | Print a concise system overview |
 | `karnel doctor` | Open diagnostics; see below |
+| `karnel robin` | Manage Robin OSINT, Tor, configuration, and local UI |
 | `karnel brain` | Manage the local second-brain store |
 | `karnel env` | Manage shell environment exports |
 | `karnel voice` | Capture speech and dispatch an AI agent |
@@ -40,11 +41,12 @@ Run a command without required arguments to see its command-specific usage.
 
 ## Doctor
 
-Doctor has exactly two operational subcommands:
+Doctor has three operational subcommands:
 
 ```bash
 karnel doctor termux [--quick] [--fix]
 karnel doctor code [options] [directory]
+karnel doctor robin [--network]
 ```
 
 `karnel doctor` defaults to `karnel doctor termux`.
@@ -82,3 +84,17 @@ karnel doctor code --fix /path/to/project
 
 See the [complete Doctor reference](../doctor/README.md) for check counts,
 supported ecosystems, tools, reports, JSON schema, and safety details.
+
+### Robin
+
+```bash
+karnel doctor robin
+karnel doctor robin --network
+```
+
+Robin mode verifies the pinned source, Python environment, required imports,
+Tor SOCKS listener, Streamlit health endpoint, protected configuration, and
+persistent investigation directory. It never calls an LLM. `--network` adds a
+small HTTPS request through Tor.
+
+See the [Robin reference](../../karnel/tools/osint/robin/README.md).

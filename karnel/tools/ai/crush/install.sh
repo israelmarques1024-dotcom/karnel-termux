@@ -68,7 +68,7 @@ uninstall_crush() {
 
   log_info "Uninstalling Crush..."
   rm -f "$PREFIX/bin/crush"
-  npm uninstall -g @charmland/crush &>>"$LOG_FILE" 2>/dev/null
+  npm uninstall -g @charmland/crush &>>"$LOG_FILE"
   log_success "Crush uninstalled"
   return 0
 }

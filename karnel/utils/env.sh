@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-KARNEL_VERSION="4.7.7"
+KARNEL_VERSION="4.8.0"
 
 # -------------------------
 # Directorios del usuario
@@ -23,6 +23,9 @@ KARNEL_BIN="$KARNEL_PATH/bin"
 KARNEL_MODULES="$KARNEL_PATH/modules"
 KARNEL_UTILS="$KARNEL_PATH/utils"
 KARNEL_CLI="$KARNEL_PATH/cli"
+KARNEL_TOOLS="$KARNEL_DATA/tools"
+KARNEL_RUN="$KARNEL_CACHE/run"
+KARNEL_LOGS="$KARNEL_CACHE/logs"
 
 # -------------------------
 # Crear directorios
@@ -31,7 +34,18 @@ KARNEL_CLI="$KARNEL_PATH/cli"
 mkdir -p \
   "$KARNEL_CONFIG" \
   "$KARNEL_CACHE" \
-  "$KARNEL_DATA"
+  "$KARNEL_DATA" \
+  "$KARNEL_TOOLS" \
+  "$KARNEL_RUN" \
+  "$KARNEL_LOGS"
+
+chmod 700 \
+  "$KARNEL_CONFIG" \
+  "$KARNEL_CACHE" \
+  "$KARNEL_DATA" \
+  "$KARNEL_TOOLS" \
+  "$KARNEL_RUN" \
+  "$KARNEL_LOGS" 2>/dev/null || true
 
 # -------------------------
 # TUI Colors - Ruby & Obsidian

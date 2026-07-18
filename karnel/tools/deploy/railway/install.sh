@@ -83,7 +83,7 @@ install_railway() {
 
 uninstall_railway() {
   log_info "Uninstalling Railway CLI..."
-  npm uninstall -g @railway/cli &>>"$LOG_FILE" 2>/dev/null || true
+  npm uninstall -g @railway/cli &>>"$LOG_FILE" || true
   rm -f "$PREFIX/bin/railway" 2>/dev/null
   rm -rf "$RAILWAY_DATA_DIR" 2>/dev/null
   log_success "Railway CLI uninstalled"

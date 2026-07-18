@@ -48,10 +48,13 @@ open_main() {
 	deploy)
 		url="$OPEN_BASE_URL/karnel/deploy"
 		;;
-	cleanup)
-		url="$OPEN_BASE_URL/karnel/cleanup"
-		;;
-	--help | -h)
+  cleanup)
+    url="$OPEN_BASE_URL/karnel/cleanup"
+    ;;
+  osint|robin)
+    url="$OPEN_BASE_URL/karnel/osint"
+    ;;
+  --help | -h)
 		open_help
 		return
 		;;
@@ -97,8 +100,9 @@ open_help() {
 	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "ui" "Termux UI"
 	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "auto" "Automation tools"
 	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "deploy" "Deploy CLIs"
-	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "cleanup" "Cache cleanup"
-	echo
+  printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "cleanup" "Cache cleanup"
+  printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "osint" "OSINT tools"
+  echo
 	separator_section "Website"
 	echo
 	list_item "${D_CYAN}$OPEN_BASE_URL${NC}"

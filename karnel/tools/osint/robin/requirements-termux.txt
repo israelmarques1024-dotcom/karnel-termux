@@ -1,0 +1,33 @@
+# Pure-Python dependencies tested with Robin v2.8 on Termux.
+# Native numpy, pandas, Pillow and pyarrow come from pkg.
+beautifulsoup4>=4.12,<5
+PySocks>=1.7,<2
+requests>=2.32,<3
+python-dotenv>=1.0,<2
+backports.tarfile>=1.2,<2
+langchain-openai>=0.3,<2
+langchain-ollama>=0.3,<2
+langchain-anthropic>=0.3,<2
+langchain-community>=0.3,<2
+langchain-google-genai>=2,<5
+altair>=4,<7
+blinker>=1.5,<2
+cachetools>=5.5,<8
+click>=7,<9
+gitpython>=3.0.7,<4
+packaging>=20
+protobuf>=3.20,<8
+pydeck>=0.8.0b4,<1
+rich>=11
+tenacity>=8.1,<10
+toml>=0.10.1,<2
+tornado>=6.0,<7
+typing-extensions>=4.10,<5
+watchdog>=2.1.5,<7
+starlette>=0.40
+uvicorn>=0.30
+httptools>=0.6.3
+anyio>=4
+python-multipart>=0.0.10
+websockets>=12
+itsdangerous>=2.1.2
