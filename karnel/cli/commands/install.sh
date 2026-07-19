@@ -559,6 +559,10 @@ _install_specific_tools() {
 
     for tool in "${tools[@]}"; do
       case "$tool" in
+      bun)
+        install_bun
+        case $? in 0) ((installed_count++));; 2) ((skipped_count++));; 1) ((failed_count++));; esac
+        ;;
       nodejs)
         install_nodejs
         case $? in 0) ((installed_count++));; 2) ((skipped_count++));; 1) ((failed_count++));; esac

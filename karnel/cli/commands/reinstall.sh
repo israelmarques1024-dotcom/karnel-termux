@@ -171,8 +171,8 @@ _reinstall_specific_tools() {
         reinstall_kilocode_cli
         case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
-      kimchi)
-        reinstall_kimchi
+      kimchi-code)
+        reinstall_kimchi_code
         case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       mimocode)
@@ -561,8 +561,12 @@ _reinstall_specific_tools() {
 
     for tool in "${tools[@]}"; do
       case "$tool" in
+      bun)
+        reinstall_bun
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
       nodejs)
-        reinstall_npmjs
+        reinstall_nodejs
         case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       python)

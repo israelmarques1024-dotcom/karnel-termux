@@ -5,6 +5,7 @@ import "@/utils/log"
 LOG_FILE="$KARNEL_CACHE/install_lang.log"
 
 LANGUAGE_PACKAGES=(
+  "bun"
   "nodejs"
   "python"
   "perl"
