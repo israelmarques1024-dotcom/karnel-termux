@@ -47,7 +47,7 @@ backup_main() {
       local tool
       tool=$(basename "${t%/}")
       local bins
-      bins=$(grep "\"$tool:" "$m/all.sh" 2>/dev/null | cut -d: -f3 | tr -d '"')
+      bins=$(grep -F "\"$tool:" "$m/all.sh" 2>/dev/null | cut -d: -f3 | tr -d '"')
       local found=false
       for b in ${bins//,/ }; do
         command -v "$b" &>/dev/null && found=true && break

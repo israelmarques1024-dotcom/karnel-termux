@@ -99,6 +99,7 @@ _list_lang() {
   echo
 
   table_start "Package" "Install Flag" "Status"
+  table_row "Bun" "--bun" "$(_check_cmd "bun")"
   table_row "Node.js LTS" "--nodejs" "$(_check_pkg "nodejs-lts")"
   table_row "Python" "--python" "$(_check_pkg "python")"
   table_row "Perl" "--perl" "$(_check_pkg "perl")"
@@ -292,9 +293,9 @@ _list_npm() {
   table_row "Markserv" "--markserv" "markserv" "$(_check_cmd "markserv")"
   table_row "PSQL Format" "--psqlformat" "psqlformat" "$(_check_cmd "psqlformat")"
   table_row "NPM Check Updates" "--ncu" "ncu" "$(_check_cmd "ncu")"
-	table_row "Ngrok" "--ngrok" "ngrok" "$(_check_cmd "ngrok")"
-	table_row "Turbopack" "--turbopack" "turbo" "$(_check_cmd "turbo")"
-	table_end
+  table_row "Ngrok" "--ngrok" "ngrok" "$(_check_cmd "ngrok")"
+  table_row "Turbopack" "--turbopack" "turbo" "$(_check_cmd "turbo")"
+  table_end
 
   echo
   log_info "Install specific: ${D_CYAN}karnel install npm --typescript --prettier${NC}"

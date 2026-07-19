@@ -199,9 +199,9 @@ _dialog_yesno() {
   local title="$1"
   local prompt="$2"
   if [[ "$TUI_BIN" == "dialog" ]]; then
-    dialog --clear --backtitle "Karnel v$KARNEL_VERSION" --title "$title" --yesno "$prompt" 10 60 2>&1 >/dev/tty
+    dialog --clear --backtitle "Karnel v$KARNEL_VERSION" --title "$title" --yesno "$prompt" 10 60 >/dev/tty 2>&1
   else
-    whiptail --backtitle "Karnel v$KARNEL_VERSION" --title "$title" --yesno "$prompt" 10 60 2>&1 >/dev/tty
+    whiptail --backtitle "Karnel v$KARNEL_VERSION" --title "$title" --yesno "$prompt" 10 60 >/dev/tty 2>&1
   fi
   return $?
 }
@@ -242,49 +242,49 @@ _tui_main_menu() {
         clear
         karnel_main "voice"
         echo
-        read -p "Press Enter to return to menu..." temp
+        read -r -p "Press Enter to return to menu..." temp
         ;;
       ia)
         clear
         karnel_main "ia"
         echo
-        read -p "Press Enter to return to menu..." temp
+        read -r -p "Press Enter to return to menu..." temp
         ;;
       doctor)
         clear
         karnel_main "doctor"
         echo
-        read -p "Press Enter to return to menu..." temp
+        read -r -p "Press Enter to return to menu..." temp
         ;;
       cleanup)
         clear
         karnel_main "cleanup"
         echo
-        read -p "Press Enter to return to menu..." temp
+        read -r -p "Press Enter to return to menu..." temp
         ;;
       status)
         clear
         karnel_main "status"
         echo
-        read -p "Press Enter to return to menu..." temp
+        read -r -p "Press Enter to return to menu..." temp
         ;;
       upgrade)
         clear
         karnel_main "upgrade"
         echo
-        read -p "Press Enter to return to menu..." temp
+        read -r -p "Press Enter to return to menu..." temp
         ;;
       update)
         clear
         karnel_main "update"
         echo
-        read -p "Press Enter to return to menu..." temp
+        read -r -p "Press Enter to return to menu..." temp
         ;;
       help)
         clear
         karnel_help
         echo
-        read -p "Press Enter to return to menu..." temp
+        read -r -p "Press Enter to return to menu..." temp
         ;;
     esac
   done
@@ -312,60 +312,60 @@ _tui_brain_menu() {
     case "$sub_choice" in
       ask)
         local question
-        question=$(_dialog_input "Brain Ask" "Enter your question for the brain:")
-        if [[ $? -eq 0 ]] && [[ -n "$question" ]]; then
+        question=$(_dialog_input "Brain Ask" "Enter your question for the brain:") || true
+        if [[ -n "$question" ]]; then
           clear
           karnel_main "brain" "ask" "$question"
           echo
-          read -p "Press Enter to return..." temp
+          read -r -p "Press Enter to return..." temp
         fi
         ;;
       save)
         clear
         karnel_main "brain" "save"
         echo
-        read -p "Press Enter to return..." temp
+        read -r -p "Press Enter to return..." temp
         ;;
       search)
         local query
         query=$(_dialog_input "Search Memories" "Enter search query:")
-        if [[ $? -eq 0 ]] && [[ -n "$query" ]]; then
+        if [[ -n "$query" ]]; then
           clear
           karnel_main "brain" "search" "$query"
           echo
-          read -p "Press Enter to return..." temp
+          read -r -p "Press Enter to return..." temp
         fi
         ;;
       list)
         clear
         karnel_main "brain" "list"
         echo
-        read -p "Press Enter to return..." temp
+        read -r -p "Press Enter to return..." temp
         ;;
       init)
         clear
         karnel_main "brain" "init"
         echo
-        read -p "Press Enter to return..." temp
+        read -r -p "Press Enter to return..." temp
         ;;
       graph)
         clear
         karnel_main "brain" "graph"
         echo
-        read -p "Press Enter to return..." temp
+        read -r -p "Press Enter to return..." temp
         ;;
       sync)
         clear
         karnel_main "brain" "sync"
         echo
-        read -p "Press Enter to return..." temp
+        read -r -p "Press Enter to return..." temp
         ;;
       reset)
         if _dialog_yesno "Reset Brain" "WARNING: This will delete ALL stored memories. Are you sure?"; then
           clear
           karnel_main "brain" "reset"
           echo
-          read -p "Press Enter to return..." temp
+          read -r -p "Press Enter to return..." temp
         fi
         ;;
     esac
@@ -391,19 +391,19 @@ _tui_env_menu() {
         clear
         karnel_main "env" "set"
         echo
-        read -p "Press Enter to return..." temp
+        read -r -p "Press Enter to return..." temp
         ;;
       unset)
         clear
         karnel_main "env" "unset"
         echo
-        read -p "Press Enter to return..." temp
+        read -r -p "Press Enter to return..." temp
         ;;
       list)
         clear
         karnel_main "env" "ls"
         echo
-        read -p "Press Enter to return..." temp
+        read -r -p "Press Enter to return..." temp
         ;;
     esac
   done
@@ -442,7 +442,7 @@ _tui_install_menu() {
           clear
           karnel_main "install" "$target"
           echo
-          read -p "Press Enter to return..." temp
+          read -r -p "Press Enter to return..." temp
         fi
         ;;
     esac
@@ -456,6 +456,7 @@ _tui_install_checklist() {
   case "$target" in
     lang)
       opts=(
+        "bun" "Bun (JS Runtime)" OFF
         "nodejs" "Node.js LTS" OFF
         "python" "Python" OFF
         "perl" "Perl" OFF
@@ -534,6 +535,14 @@ _tui_install_checklist() {
         "snyk" "Snyk" OFF
         "httptmux" "Httptmux" OFF
         "zork" "Zork" OFF
+        "fconv" "File Converter" OFF
+        "filecheck" "File Checker" OFF
+        "websites" "Websites Creator" OFF
+        "notes" "Smart Notes" OFF
+        "treex" "Tree Explorer" OFF
+        "passman" "Password Master" OFF
+        "applaunch" "App Launcher" OFF
+        "splash" "Loading Screen" OFF
       )
       ;;
     shell)
@@ -573,7 +582,7 @@ _tui_install_checklist() {
       log_info "Running: karnel install $target ${clean_selections[*]}"
       karnel_main "install" "$target" "${clean_selections[@]}"
       echo
-      read -p "Press Enter to return..." temp
+      read -r -p "Press Enter to return..." temp
     fi
   fi
 }
@@ -605,51 +614,50 @@ _tui_pg_menu() {
         clear
         karnel_main "pg" "$sub_choice"
         echo
-        read -p "Press Enter to return..." temp
+        read -r -p "Press Enter to return..." temp
         ;;
       create)
         local db_name
-        db_name=$(_dialog_input "Create Database" "Enter new database name:")
-        if [[ $? -eq 0 ]] && [[ -n "$db_name" ]]; then
+        db_name=$(_dialog_input "Drop Database" "Enter database name to drop:") || true
+        if [[ -n "$db_name" ]]; then
           clear
           karnel_main "pg" "create" "$db_name"
           echo
-          read -p "Press Enter to return..." temp
+          read -r -p "Press Enter to return..." temp
         fi
         ;;
       drop)
         local db_name
-        db_name=$(_dialog_input "Drop Database" "Enter database name to drop:")
-        if [[ $? -eq 0 ]] && [[ -n "$db_name" ]]; then
+        db_name=$(_dialog_input "Drop Database" "Enter database name to drop:") || true
+        if [[ -n "$db_name" ]]; then
           if _dialog_yesno "Drop Database" "WARNING: This will permanently delete database '$db_name'. Are you sure?"; then
             clear
             karnel_main "pg" "drop" "$db_name"
             echo
-            read -p "Press Enter to return..." temp
+            read -r -p "Press Enter to return..." temp
           fi
         fi
         ;;
       backup)
         local db_name
-        db_name=$(_dialog_input "Backup Database" "Enter database name to backup (leave empty for interactive):")
-        if [[ $? -eq 0 ]]; then
+        if db_name=$(_dialog_input "Backup Database" "Enter database name to backup (leave empty for interactive):"); then
           clear
           karnel_main "pg" "backup" "$db_name"
           echo
-          read -p "Press Enter to return..." temp
+          read -r -p "Press Enter to return..." temp
         fi
         ;;
       restore)
         clear
         karnel_main "pg" "restore"
         echo
-        read -p "Press Enter to return..." temp
+        read -r -p "Press Enter to return..." temp
         ;;
       shell)
         clear
         karnel_main "pg" "shell"
         echo
-        read -p "Press Enter to return..." temp
+        read -r -p "Press Enter to return..." temp
         ;;
     esac
   done
@@ -676,7 +684,7 @@ _tui_init_menu() {
     clear
     karnel_main "init" "$sub_choice"
     echo
-    read -p "Press Enter to return..." temp
+    read -r -p "Press Enter to return..." temp
   done
 }
 
@@ -703,7 +711,7 @@ karnel_fallback_tui() {
     echo
     
     local choice
-    read -p "  Enter choice (1-11): " choice
+    read -r -p "  Enter choice (1-11): " choice
     
     case "$choice" in
       1) karnel_main "brain" ;;
@@ -720,7 +728,7 @@ karnel_fallback_tui() {
       *) log_warn "Invalid option. Please try again." ;;
     esac
     echo
-    read -p "  Press Enter to return to menu..." temp
+    read -r -p "  Press Enter to return to menu..." temp
     clear
     source "$KARNEL_PATH/utils/banner.sh"
   done
