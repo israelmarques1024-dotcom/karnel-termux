@@ -556,6 +556,7 @@ progress_start() {
 	local total=$1
 	local message="${2:-Progress}"
 	_progress_current=0
+	_progress_filled=0
 	_progress_total=$total
 	_progress_width=50
 	printf "    ${D_CYAN}%s${D_NC}" "$message"
@@ -572,15 +573,22 @@ progress_update() {
 	local current=$1
 	local total=$2
 	local width="${_progress_width:-50}"
-	local percentage=$((current * 100 / total))
-	local filled=$((current * width / total))
-	local empty=$((width - filled))
+	local target_filled=$((current * width / total))
 
-	local bar=""
-	for ((i = 0; i < filled; i++)); do bar+="█"; done
-	for ((i = 0; i < empty; i++)); do bar+="░"; done
+	local prev="${_progress_filled:-0}"
+	[[ "$target_filled" -lt "$prev" ]] && prev=0
 
-	printf "\r    ${D_CYAN}[${D_NC}${D_GREEN}%s${D_NC}${D_CYAN}]${D_NC} %3d%%" "$bar" "$percentage"
+	local anim i j bar pct
+	for ((i = prev + 1; i <= target_filled; i++)); do
+		bar=""
+		for ((j = 0; j < i; j++)); do bar="${bar}█"; done
+		for ((j = i; j < width; j++)); do bar="${bar}░"; done
+		pct=$((i * 100 / width))
+		printf "\r    ${D_CYAN}[${D_NC}${D_GREEN}%s${D_NC}${D_CYAN}]${D_NC} %3d%%" "$bar" "$pct"
+		sleep 0.003 2>/dev/null || true
+	done
+
+	_progress_filled="$target_filled"
 }
 
 progress_done() {
