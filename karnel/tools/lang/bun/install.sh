@@ -56,7 +56,7 @@ _bun_install_deps_native_impl() {
     fi
   fi
   declare -A DEPS=(
-    ["clang"]="clang"
+    ["clang"]="clang-21"
     ["unzip"]="unzip"
     ["curl"]="curl"
   )
@@ -122,32 +122,42 @@ _compile_bun_helper() {
 }
 
 _compile_bun_helper_impl() {
-  local shim_src="$KARNEL_PATH/tools/lang/bun/src/bun-shim.c"
-  local wrapper_src="$KARNEL_PATH/tools/lang/bun/src/bun_wrapper.c"
-  if [ ! -f "$shim_src" ]; then
-    log_error "Shim source not found at $shim_src"
-    return 1
-  fi
-  if [ ! -f "$wrapper_src" ]; then
-    log_error "Wrapper source not found at $wrapper_src"
-    return 1
-  fi
-  mkdir -p "$PREFIX/lib"
-  if ! clang -O2 -fPIC -shared -nostdlib -o "$PREFIX/lib/bun-shim.so" "$shim_src" &>>"$LOG_FILE"; then
-    log_error "Failed to compile bun shim"
-    return 1
-  fi
-  chmod +x "$PREFIX/lib/bun-shim.so"
-  local wrapper_tmp="$TMPDIR/bun_wrapper_$$.c"
-  sed "s|__BUN_REAL__|$BUN_DATA_DIR/bun.real|g" "$wrapper_src" >"$wrapper_tmp"
-  if ! clang -O2 -o "$PREFIX/bin/bun" "$wrapper_tmp" &>>"$LOG_FILE"; then
-    rm -f "$wrapper_tmp"
-    log_error "Failed to compile bun wrapper"
-    return 1
-  fi
-  chmod +x "$PREFIX/bin/bun"
-  rm -f "$wrapper_tmp"
-  return 0
+	local CC
+	if command -v clang-21 &>/dev/null; then
+		CC="clang-21"
+	elif command -v clang &>/dev/null; then
+		CC="clang"
+	else
+		log_error "C compiler not found (install clang package)"
+		return 1
+	fi
+
+	local shim_src="$KARNEL_PATH/tools/lang/bun/src/bun-shim.c"
+	local wrapper_src="$KARNEL_PATH/tools/lang/bun/src/bun_wrapper.c"
+	if [ ! -f "$shim_src" ]; then
+		log_error "Shim source not found at $shim_src"
+		return 1
+	fi
+	if [ ! -f "$wrapper_src" ]; then
+		log_error "Wrapper source not found at $wrapper_src"
+		return 1
+	fi
+	mkdir -p "$PREFIX/lib"
+	if ! $CC -O2 -fPIC -shared -nostdlib -o "$PREFIX/lib/bun-shim.so" "$shim_src" &>>"$LOG_FILE"; then
+		log_error "Failed to compile bun shim"
+		return 1
+	fi
+	chmod +x "$PREFIX/lib/bun-shim.so"
+	local wrapper_tmp="$TMPDIR/bun_wrapper_$$.c"
+	sed "s|__BUN_REAL__|$BUN_DATA_DIR/bun.real|g" "$wrapper_src" >"$wrapper_tmp"
+	if ! $CC -O2 -o "$PREFIX/bin/bun" "$wrapper_tmp" &>>"$LOG_FILE"; then
+		rm -f "$wrapper_tmp"
+		log_error "Failed to compile bun wrapper"
+		return 1
+	fi
+	chmod +x "$PREFIX/bin/bun"
+	rm -f "$wrapper_tmp"
+	return 0
 }
 
 _install_bun_native() {
