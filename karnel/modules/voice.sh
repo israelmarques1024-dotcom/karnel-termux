@@ -15,7 +15,12 @@ install_voice() {
 
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  loading "Installing Termux:API" _install_voice_deps
+  local deps_rc=0
+  loading "Installing Termux:API" _install_voice_deps || deps_rc=$?
+  if [ "$deps_rc" -ne 0 ]; then
+    log_error "Failed to install Termux:API dependencies"
+    return 1
+  fi
   log_success "Voice dependencies installed"
 
   local rc=0
@@ -35,7 +40,8 @@ install_voice() {
 }
 
 _install_voice_deps() {
-  pkg install termux-api -y &>"$LOG_FILE"
+  pkg install termux-api -y &>>"$LOG_FILE"
+  return $?
 }
 
 _install_voice_shell() {

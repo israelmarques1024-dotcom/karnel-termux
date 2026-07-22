@@ -30,13 +30,15 @@ karnel-termux/
 │   │   ├── ai/                 # 31 AI agents
 │   │   ├── lang/               # 7 languages
 │   │   ├── db/                 # 5 databases
-│   │   ├── dev/                # 32 dev tools
+│   │   ├── dev/                # 22 dev tools
 │   │   ├── editor/             # Code editor
 │   │   ├── npm/                # Global npm packages
 │   │   ├── shell/              # ZSH plugins
 │   │   ├── ui/                 # Termux UI
 │   │   ├── auto/               # Automation
 │   │   ├── deploy/             # Deploy CLIs
+│   │   ├── network/            # 2 network tools (dark, dedsec-network)
+│   │   ├── utils/              # 11 utility tools (fconv, notes, zork, etc.)
 │   │   └── osint/              # Robin OSINT integration
 │   └── utils/                  # Shared utilities
 │       ├── bootstrap.sh        # Import mechanism, shell detection

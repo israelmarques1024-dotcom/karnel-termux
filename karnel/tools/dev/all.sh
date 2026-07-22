@@ -27,16 +27,6 @@ TOOLS_PACKAGES=(
   "make"
   "udocker"
   "snyk"
-  "httptmux"
-  "zork"
-  "fconv"
-  "filecheck"
-  "websites"
-  "notes"
-  "treex"
-  "passman"
-  "applaunch"
-  "splash"
 )
 
 TOOLS_DISPLAY=(
@@ -62,16 +52,6 @@ TOOLS_DISPLAY=(
   "Make (build automation)"
   "Udocker (container management)"
   "Snyk (security scanner)"
-  "httptmux (interactive API client)"
-  "Zork (text adventure games I, II, III)"
-  "Fconv (file converter)"
-  "Filecheck (file integrity)"
-  "Websites (project scaffold)"
-  "Notes (terminal notes)"
-  "Treex (tree explorer)"
-  "Passman (password manager)"
-  "Applaunch (app launcher)"
-  "Splash (startup splash)"
 )
 
 for _tool in "${TOOLS_PACKAGES[@]}"; do
@@ -110,7 +90,7 @@ _batch_dev() {
   done
 
   progress_done "$total"
-  eval "$count_var=$count"
+  printf -v "$count_var" '%s' "$count"
   return $failed
 }
 

@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux">
-    <img src="https://img.shields.io/badge/version-4.8.0-0078D4?style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/badge/version-4.9.0-0078D4?style=for-the-badge" alt="Version">
   </a>
   <a href="https://www.npmjs.com/package/karnel-termux">
     <img src="https://img.shields.io/npm/v/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
@@ -36,7 +36,9 @@ Created by **Israel Marques**.
 - **31 AI agents** for coding — Claude, Gemini, OpenCode, Ollama, Cline, karnelRoute and more
 - **7 languages** — Node.js, Python, Go, Rust, C/C++, PHP, Perl
 - **5 databases** — PostgreSQL, MariaDB, SQLite, MongoDB, Redis
-- **32 dev tools** — gh, curl, fzf, bat, lsd, jq, tmux, openssh, snyk and more
+- **22 dev tools** — gh, curl, fzf, bat, lsd, jq, tmux, openssh, snyk and more
+- **11 utility scripts** — fconv, notes, treex, qrcode, zork and more
+- **2 network tools** — dark, dedsec-network
 - **3 deploy CLIs** — Vercel, Railway, Netlify
 - **Responsible OSINT** — Robin v2.8 through Tor with a loopback-only web UI
 - **Professional editor** — code-server (VS Code in browser)
@@ -119,6 +121,8 @@ karnel
 | `auto` | Automation with n8n | `karnel install auto` |
 | `deploy` | Vercel, Railway, Netlify | `karnel install deploy` |
 | `games` | Buzz, CTF God, Detective, Tamagotchi and more | `karnel install games` |
+| `network` | Dark Web OSINT, DedSec Network Toolkit | `karnel install network` |
+| `utils` | fconv, notes, treex, passman, applaunch, qrcode, zork and more | `karnel install utils` |
 | `osint` | Robin v2.8, Tor, Streamlit, and LLM providers | `karnel install osint` |
 | `voice` | Speech-to-agent through Termux:API | `karnel install voice` |
 
@@ -428,12 +432,14 @@ karnel/
 │   │   ├── ai/        # 31 AI agents
 │   │   ├── lang/      # Languages
 │   │   ├── db/        # Databases
-│   │   ├── dev/       # Dev tools
+│   │   ├── dev/       # 22 dev tools
 │   │   ├── editor/    # Code editor
 │   │   ├── npm/       # Global npm packages
 │   │   ├── shell/     # ZSH plugins
 │   │   ├── ui/        # Termux interface
 │   │   ├── auto/      # Automation
+│   │   ├── network/   # 2 network tools
+│   │   ├── utils/     # 11 utility tools
 │   │   └── deploy/    # Deploy CLIs
 │   └── utils/         # Utilities (banner, log, env, etc.)
 ├── install.sh         # Installation script

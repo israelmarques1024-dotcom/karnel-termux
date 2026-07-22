@@ -502,7 +502,6 @@ loading() {
 	local cmd_pid=$!
 
 	mkdir -p "$KARNEL_CACHE"
-	echo "$cmd_pid" >> "$KARNEL_CACHE/.loading_pids"
 
 	local frame_idx=0
 	while kill -0 "$cmd_pid" 2>/dev/null; do

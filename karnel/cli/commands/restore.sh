@@ -47,6 +47,22 @@ restore_main() {
   echo
   log_info "Restoring: $(basename "$file")"
   [[ -f "$manifest" ]] && log_info "$(wc -l < "$manifest") tools to reinstall"
+
+  # Checksum verification
+  local checksum_file="$file.sha256"
+  if [[ -f "$checksum_file" ]]; then
+    log_info "Verifying checksum..."
+    if sha256sum -c "$checksum_file" &>/dev/null; then
+      log_success "Checksum verified"
+    else
+      log_error "Checksum mismatch! Backup may be corrupted"
+      read_confirm "Continue anyway?" confirm
+      [[ "$confirm" != "y" ]] && { log_info "Cancelled"; return 1; }
+    fi
+  else
+    log_warn "No checksum file found (pre-checksum backup)"
+  fi
+
   echo
 
   read_confirm "Proceed with restore?" confirm

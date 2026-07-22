@@ -49,18 +49,6 @@ _karnel_modules() {
   _describe 'module' modules
 }
 
-_karnel_ai_tools() {
-  local -a tools=(
-    '--qwen-code:Qwen Code'
-    '--gemini-cli:Gemini CLI'
-    '--claude-code:Claude Code'
-    '--ollama:Ollama'
-    '--opencode:OpenCode'
-    '--codex:Codex CLI'
-  )
-  _describe 'tool' tools
-}
-
 _karnel() {
   local curcontext="$curcontext" state line
   typeset -A opt_args

@@ -111,8 +111,8 @@ bootstrap_dependencies() {
 
 	if [[ $needed_tput -eq 1 ]]; then
 		echo -e "  ${P_BORDER}→${P_NC}  Installing ncurses-utils..."
-		pkg install -y ncurses-utils &>/dev/null
-		echo -e "  ${P_OK}✔${P_NC}  ncurses-utils installed"
+		pkg install -y ncurses &>/dev/null
+		echo -e "  ${P_OK}✔${P_NC}  ncurses installed"
 		echo
 	fi
 

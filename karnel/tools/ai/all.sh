@@ -59,6 +59,7 @@ AI_TOOLS_REGISTRY=(
   "ctx7:Context7 Documentation Provider:ctx7"
   "openspec:OpenSpec SDD Framework:openspec"
   "copilot-termux:Copilot-Termux:copilot"
+  "qoder:Qoder:qodercli"
 )
 
 # ---- IMPORTAR TODOS OS SCRIPTS INDIVIDUAIS ----

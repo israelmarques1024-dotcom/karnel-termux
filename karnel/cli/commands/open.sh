@@ -51,6 +51,18 @@ open_main() {
   cleanup)
     url="$OPEN_BASE_URL/karnel/cleanup"
     ;;
+  network)
+    url="$OPEN_BASE_URL/karnel/network"
+    ;;
+  utils)
+    url="$OPEN_BASE_URL/karnel/utils"
+    ;;
+  games)
+    url="$OPEN_BASE_URL/karnel/games"
+    ;;
+  voice)
+    url="$OPEN_BASE_URL/karnel/voice"
+    ;;
   osint|robin)
     url="$OPEN_BASE_URL/karnel/osint"
     ;;
@@ -98,9 +110,13 @@ open_help() {
 	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "npm" "Node.js tools"
 	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "shell" "ZSH shell"
 	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "ui" "Termux UI"
-	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "auto" "Automation tools"
-	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "deploy" "Deploy CLIs"
+  printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "auto" "Automation tools"
+  printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "deploy" "Deploy CLIs"
+  printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "games" "Games"
   printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "cleanup" "Cache cleanup"
+  printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "network" "Network tools"
+  printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "utils" "Utility tools"
+  printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "voice" "Voice command"
   printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "osint" "OSINT tools"
   echo
 	separator_section "Website"

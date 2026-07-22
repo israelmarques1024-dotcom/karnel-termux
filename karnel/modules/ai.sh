@@ -82,8 +82,13 @@ uninstall_ai() {
 
   log_info "Uninstalling AI tools..."
 
-  _uninstall_ai_tools_wrapper
-  log_success "AI tools uninstalled"
+  local rc=0
+  _uninstall_ai_tools_wrapper || rc=$?
+  if [ "$rc" -eq 0 ]; then
+    log_success "AI tools uninstalled"
+  else
+    log_warn "AI tools uninstalled with $rc failure(s)"
+  fi
 }
 
 _uninstall_ai_tools_wrapper() {
@@ -99,8 +104,13 @@ update_ai() {
 
   log_info "Updating AI tools..."
 
-  _update_ai_tools_wrapper
-  log_success "AI tools updated"
+  local rc=0
+  _update_ai_tools_wrapper || rc=$?
+  if [ "$rc" -eq 0 ]; then
+    log_success "AI tools updated"
+  else
+    log_warn "AI tools updated with $rc failure(s)"
+  fi
 }
 
 _update_ai_tools_wrapper() {
@@ -117,8 +127,9 @@ reinstall_ai() {
   log_info "Reinstalling AI tools..."
   echo
 
+  local rc=0
   import "@/tools/ai/all"
-  reinstall_all_ai_tools
+  reinstall_all_ai_tools || rc=$?
   echo
   log_info "Reinstalled tools:"
   echo
@@ -130,6 +141,10 @@ reinstall_ai() {
   done
   echo
 
-  log_success "AI tools reinstalled successfully"
+  if [ "$rc" -eq 0 ]; then
+    log_success "AI tools reinstalled successfully"
+  else
+    log_warn "AI tools reinstalled with $rc failure(s)"
+  fi
   echo
 }

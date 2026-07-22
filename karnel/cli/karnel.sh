@@ -31,7 +31,7 @@ karnel_main() {
     log_error "Command not found: $cmd"
     echo
     karnel_help
-    exit 1
+    return 1
   fi
 
   local command_file="$KARNEL_PATH/cli/commands/$cmd.sh"
@@ -44,7 +44,7 @@ karnel_main() {
     log_error "Command not found: $cmd"
     echo
     karnel_help
-    exit 1
+    return 1
   fi
 }
 
@@ -101,12 +101,14 @@ karnel_help() {
   printf "    ${D_GREEN}%-10s${NC} %s\n" "auto" "Automation Tools (n8n)"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "db" "PostgreSQL, MariaDB, SQLite, MongoDB"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "deploy" "Vercel, Railway, Netlify CLIs"
-  printf "    ${D_GREEN}%-10s${NC} %s\n" "dev" "GitHub CLI, wget, curl, fzf, etc."
+  printf "    ${D_GREEN}%-10s${NC} %s\n" "dev" "GitHub CLI, wget, curl, fzf, jq, etc."
+  printf "    ${D_GREEN}%-10s${NC} %s\n" "utils" "File Converter, Notes, QR Code, etc."
   printf "    ${D_GREEN}%-10s${NC} %s\n" "editor" "code-server (VS Code in browser)"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "games" "Buzz, CTF God, Detective, Tamagotchi, etc."
   printf "    ${D_GREEN}%-10s${NC} %s\n" "lang" "Node, Python, Perl, PHP, Rust, C/C++, Go"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "npm" "Node.js global npm packages"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "osint" "OSINT Tools (Robin — Dark Web + LLM)"
+  printf "    ${D_GREEN}%-10s${NC} %s\n" "network" "Network tools (Dark Web, DedSec Network)"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "shell" "ZSH + Oh My Zsh + 10 plugins"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "ui" "Font, Cursor, Extra-keys, Banner"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "voice" "Speech-to-agent via microphone"
@@ -229,6 +231,7 @@ _tui_main_menu() {
     if [[ $exit_status -ne 0 ]] || [[ "$choice" == "exit" ]] || [[ -z "$choice" ]]; then
       clear
       source "$KARNEL_PATH/utils/banner.sh"
+      render_banner
       break
     fi
 
@@ -423,6 +426,8 @@ _tui_install_menu() {
       "lang" "Programming Languages (Node, Python, Go, Rust, etc.)" \
       "npm" "Node.js Global npm Packages" \
       "osint" "OSINT Tools (Robin — Dark Web + LLM)" \
+      "network" "Network Tools (Dark Web, DedSec Network)" \
+      "utils" "Utility Scripts (Fconv, Notes, QR Code)" \
       "shell" "ZSH + Oh My Zsh + Plugins" \
       "ui" "Termux UI (font, cursor, extra-keys, banner)" \
       "voice" "Speech-to-Agent via microphone" \
@@ -434,7 +439,7 @@ _tui_install_menu() {
     fi
     
     case "$target" in
-      ai|db|lang|dev|shell|ui)
+      ai|db|lang|dev|utils|network|shell|ui)
         _tui_install_checklist "$target"
         ;;
       *)
@@ -561,6 +566,27 @@ _tui_install_checklist() {
         "banner" "Startup banner" OFF
       )
       ;;
+    utils)
+      opts=(
+        "fconv" "File Converter" OFF
+        "filecheck" "File Checker" OFF
+        "websites" "Websites Creator" OFF
+        "notes" "Smart Notes" OFF
+        "treex" "Tree Explorer" OFF
+        "passman" "Password Master" OFF
+        "applaunch" "App Launcher" OFF
+        "splash" "Loading Screen" OFF
+        "httptmux" "HTTP API Client" OFF
+        "zork" "Zork Adventure Games" OFF
+        "qrcode" "QR Code Generator" OFF
+      )
+      ;;
+    network)
+      opts=(
+        "dark" "Dark Web OSINT" OFF
+        "dedsec-network" "DedSec Network Toolkit" OFF
+      )
+      ;;
   esac
   
   local selections
@@ -618,7 +644,7 @@ _tui_pg_menu() {
         ;;
       create)
         local db_name
-        db_name=$(_dialog_input "Drop Database" "Enter database name to drop:") || true
+        db_name=$(_dialog_input "Create Database" "Enter database name to create:") || true
         if [[ -n "$db_name" ]]; then
           clear
           karnel_main "pg" "create" "$db_name"
@@ -691,6 +717,7 @@ _tui_init_menu() {
 karnel_fallback_tui() {
   clear
   source "$KARNEL_PATH/utils/banner.sh"
+  render_banner
   while true; do
     echo
     box "◈ KARNEL TUI MENU ◈"
@@ -731,5 +758,6 @@ karnel_fallback_tui() {
     read -r -p "  Press Enter to return to menu..." temp
     clear
     source "$KARNEL_PATH/utils/banner.sh"
+    render_banner
   done
 }

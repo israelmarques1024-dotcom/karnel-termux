@@ -80,7 +80,7 @@ setupPersistentSession() {
 
 	mkdir -p "$KARNEL_CACHE" 2>/dev/null || mkdir -p ~/.cache/karnel
 
-	echo "$HOME" > ~/.cache/karnel/last_dir
+	echo "$HOME" > "$KARNEL_CACHE/last_dir"
 
 	if grep -q "# ===== Persistent Directory =====" ~/.zshrc 2>/dev/null; then
 		log_warn "Persistent session already configured"

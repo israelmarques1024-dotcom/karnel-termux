@@ -57,16 +57,16 @@ _cline_install_global_impl() {
   fi
 
   # Step 3: Extract to global node_modules
-  mkdir -p /data/data/com.termux/files/usr/lib/node_modules/@cline
+  mkdir -p "$PREFIX/lib/node_modules/@cline"
   tar -xzf "$tarball" \
-    -C /data/data/com.termux/files/usr/lib/node_modules/@cline/ &>>"$LOG_FILE"
-  mv /data/data/com.termux/files/usr/lib/node_modules/@cline/package \
-    /data/data/com.termux/files/usr/lib/node_modules/@cline/cli-linux-arm64 &>>"$LOG_FILE" || true
+    -C "$PREFIX/lib/node_modules/@cline/" &>>"$LOG_FILE"
+  mv "$PREFIX/lib/node_modules/@cline/package" \
+    "$PREFIX/lib/node_modules/@cline/cli-linux-arm64" &>>"$LOG_FILE" || true
   rm -f "$tarball"
 
   # Step 4: Create cached binary for fast startup
-  local binary="/data/data/com.termux/files/usr/lib/node_modules/@cline/cli-linux-arm64/bin/cline"
-  local cached="/data/data/com.termux/files/usr/lib/node_modules/cline/bin/.cline"
+  local binary="$PREFIX/lib/node_modules/@cline/cli-linux-arm64/bin/cline"
+  local cached="$PREFIX/lib/node_modules/cline/bin/.cline"
   if [ -f "$binary" ]; then
     cp "$binary" "$cached" 2>/dev/null
     chmod 755 "$cached" 2>/dev/null
@@ -128,8 +128,8 @@ uninstall_cline() {
   fi
 
   npm uninstall -g cline &>>"$LOG_FILE" || true
-  rm -rf /data/data/com.termux/files/usr/lib/node_modules/@cline/cli-linux-arm64 &>>"$LOG_FILE" || true
-  rm -f /data/data/com.termux/files/usr/lib/node_modules/cline/bin/.cline &>>"$LOG_FILE" || true
+  rm -rf "$PREFIX/lib/node_modules/@cline/cli-linux-arm64" &>>"$LOG_FILE" || true
+  rm -f "$PREFIX/lib/node_modules/cline/bin/.cline" &>>"$LOG_FILE" || true
 
   log_success "Cline CLI uninstalled"
   return 0

@@ -29,6 +29,10 @@ _install_deploy_wrapper() {
 }
 
 uninstall_deploy() {
+  if ! command -v vercel &>/dev/null && ! command -v railway &>/dev/null && ! command -v netlify &>/dev/null; then
+    log_info "Deploy CLIs are not installed"
+    return 0
+  fi
   separator
   box "Uninstalling Deploy CLIs"
   separator

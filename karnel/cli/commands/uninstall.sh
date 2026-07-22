@@ -24,6 +24,11 @@ uninstall_main() {
     list_item "shell      - Remove ZSH + Oh My Zsh"
     list_item "ui         - Restore Termux UI to default"
     list_item "auto       - Remove automation tools"
+    list_item "network    - Remove network tools"
+    list_item "utils      - Remove utility scripts"
+    list_item "games      - Remove games"
+    list_item "deploy     - Remove deploy CLIs"
+    list_item "voice      - Remove voice command"
     list_item "osint      - Remove OSINT tools"
     echo
     log_info "Uninstall specific tools with flags:"
@@ -40,6 +45,7 @@ uninstall_main() {
   # Separate module target from tool flags
   local module_target=""
   local -a tool_flags=()
+  local -a invalid_args=()
 
   for arg in "$@"; do
     if [[ "$arg" == --* ]]; then
@@ -47,8 +53,20 @@ uninstall_main() {
       tool_flags+=("$flag")
     elif [[ -z "$module_target" ]]; then
       module_target="$arg"
+    else
+      invalid_args+=("$arg")
     fi
   done
+
+  # If there are invalid arguments, show error and abort
+  if [[ ${#invalid_args[@]} -gt 0 ]]; then
+    log_error "Invalid arguments: ${invalid_args[*]}"
+    echo
+    log_info "To uninstall specific tools, use -- before the name:"
+    log_info "  ${D_CYAN}karnel uninstall $module_target --${invalid_args[0]}${NC}"
+    echo
+    return 1
+  fi
 
   # If no module target specified, show error
   if [[ -z "$module_target" ]]; then
@@ -110,6 +128,26 @@ _uninstall_full_module() {
   osint)
     import "@/modules/osint"
     uninstall_osint
+    ;;
+  network)
+    import "@/modules/network"
+    uninstall_network
+    ;;
+  utils)
+    import "@/modules/utils"
+    uninstall_utils
+    ;;
+  games)
+    import "@/tools/games/all"
+    uninstall_all_games
+    ;;
+  deploy)
+    import "@/modules/deploy"
+    uninstall_deploy
+    ;;
+  voice)
+    import "@/modules/voice"
+    uninstall_voice
     ;;
   *)
     log_warn "Unknown uninstall target: $target"

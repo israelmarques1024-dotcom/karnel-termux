@@ -1008,7 +1008,7 @@ EOF
 	# Create scripts/run.sh
 	cat >scripts/run.sh <<'EOF'
 #!/usr/bin/env bash
-cargo run
+go run cmd/api/main.go
 EOF
 	chmod +x scripts/run.sh
 
@@ -1192,7 +1192,7 @@ EOF
 	# Create scripts/run.sh
 	cat >scripts/run.sh <<'EOF'
 #!/usr/bin/env bash
-go run cmd/api/main.go
+cargo run
 EOF
 	chmod +x scripts/run.sh
 

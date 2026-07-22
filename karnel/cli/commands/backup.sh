@@ -91,9 +91,12 @@ backup_main() {
   tar -czf "$file" -C "$tmp" . 2>/dev/null
   rm -rf "$tmp"
 
-  local size
+  local size checksum
   size=$(du -h "$file" | awk '{print $1}')
+  checksum=$(sha256sum "$file" | awk '{print $1}')
+  echo "$checksum" > "$file.sha256"
   log_success "Backup: $(basename "$file") ($size)"
+  log_success "Checksum (SHA256): ${checksum:0:16}...${checksum: -16}"
 
   # Cloud
   if $cloud; then

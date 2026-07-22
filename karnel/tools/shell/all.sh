@@ -46,7 +46,7 @@ _batch_shell() {
   done
 
   progress_done "$total"
-  eval "$count_var=$count"
+  printf -v "$count_var" '%s' "$count"
   return $failed
 }
 

@@ -24,6 +24,9 @@ list_main() {
     list_item "auto       - List automation tools"
     list_item "deploy     - List deploy CLIs"
     list_item "games      - List games"
+    list_item "network    - List network tools"
+    list_item "utils      - List utility scripts"
+    list_item "voice      - List voice commands"
     list_item "osint      - List OSINT tools"
     echo
     return
@@ -66,6 +69,15 @@ list_main() {
       ;;
     osint)
       _list_osint
+      ;;
+    network)
+      _list_network
+      ;;
+    utils)
+      _list_utils
+      ;;
+    voice)
+      _list_voice
       ;;
     *)
       log_warn "Unknown list target: $arg"
@@ -234,16 +246,6 @@ _list_dev() {
   table_row "Make" "--make" "$(_check_pkg "make")"
   table_row "Udocker" "--udocker" "$(_check_pkg "udocker")"
   table_row "Snyk" "--snyk" "$(_check_cmd "snyk")"
-  table_row "httptmux" "--httptmux" "$(_check_cmd "httptmux")"
-  table_row "Zork" "--zork" "$(_check_cmd "zork")"
-  table_row "File Converter" "--fconv" "$(_check_cmd "fconv")"
-  table_row "File Checker" "--filecheck" "$(_check_cmd "filecheck")"
-  table_row "Websites Creator" "--websites" "$(_check_cmd "websites")"
-  table_row "Smart Notes" "--notes" "$(_check_cmd "notes")"
-  table_row "Tree Explorer" "--treex" "$(_check_cmd "treex")"
-  table_row "Password Master" "--passman" "$(_check_cmd "passman")"
-  table_row "App Launcher" "--applaunch" "$(_check_cmd "applaunch")"
-  table_row "Loading Screen" "--splash" "$(_check_cmd "splash")"
   table_end
 
   echo
@@ -389,6 +391,53 @@ _list_osint() {
   echo
 }
 
+# ===== LIST NETWORK =====
+_list_network() {
+  echo
+  box "Network Tools"
+  echo
+  log_info "Available network tools and install commands:"
+  echo
+
+  table_start "Tool" "Install Flag" "Command" "Status"
+  table_row "Dark Web OSINT" "--dark" "dark" "$(_check_cmd "dark")"
+  table_row "DedSec Network Toolkit" "--dedsec-network" "dedsec-network" "$(_check_cmd "dedsec-network")"
+  table_end
+
+  echo
+  log_info "Install specific: ${D_CYAN}karnel install network --dark --dedsec-network${NC}"
+  log_info "Install all: ${D_CYAN}karnel install network${NC}"
+  echo
+}
+
+# ===== LIST UTILS =====
+_list_utils() {
+  echo
+  box "Utility Scripts"
+  echo
+  log_info "Available utility scripts and install commands:"
+  echo
+
+  table_start "Tool" "Install Flag" "Command" "Status"
+  table_row "File Converter" "--fconv" "fconv" "$(_check_cmd "fconv")"
+  table_row "File Checker" "--filecheck" "filecheck" "$(_check_cmd "filecheck")"
+  table_row "Websites Creator" "--websites" "websites" "$(_check_cmd "websites")"
+  table_row "Smart Notes" "--notes" "notes" "$(_check_cmd "notes")"
+  table_row "Tree Explorer" "--treex" "treex" "$(_check_cmd "treex")"
+  table_row "Password Master" "--passman" "passman" "$(_check_cmd "passman")"
+  table_row "App Launcher" "--applaunch" "applaunch" "$(_check_cmd "applaunch")"
+  table_row "Loading Screen" "--splash" "splash" "$(_check_cmd "splash")"
+  table_row "httptmux (API client)" "--httptmux" "httptmux" "$(_check_cmd "httptmux")"
+  table_row "Zork (text adventure)" "--zork" "zork" "$(_check_cmd "zork")"
+  table_row "QR Code Generator" "--qrcode" "qrcode" "$(_check_cmd "qrcode")"
+  table_end
+
+  echo
+  log_info "Install specific: ${D_CYAN}karnel install utils --fconv --notes${NC}"
+  log_info "Install all: ${D_CYAN}karnel install utils${NC}"
+  echo
+}
+
 # ===== HELPER FUNCTIONS =====
 
 # Check if command exists
@@ -471,4 +520,15 @@ _grep_config() {
   else
     echo -e "${D_RED}not installed${NC}"
   fi
+}
+
+# ===== LIST VOICE =====
+_list_voice() {
+  echo
+  box "Voice Command"
+  echo
+  printf "    ${D_GREEN}%-18s${NC} %s\n" "voice" "Speech-to-agent AI command"
+  echo
+  list_item "Usage: ${D_CYAN}karnel install voice${NC}"
+  echo
 }

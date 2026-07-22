@@ -44,6 +44,7 @@ search_main() {
   echo
   separator_section "Brain Memories"
   echo
+  any_found=false
   if [[ -d "$KARNEL_DATA/brain" ]]; then
     while IFS= read -r file; do
       local title

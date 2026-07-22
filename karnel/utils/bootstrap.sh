@@ -17,7 +17,7 @@ import() {
 
 	if [[ ! -f "$path" ]]; then
 		echo "karnel: import error: $path not found" >&2
-		exit 1
+		return 1
 	fi
 
 	__KARNEL_IMPORTED[$path]=1

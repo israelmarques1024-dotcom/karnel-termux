@@ -6,7 +6,7 @@ import "@/utils/colors"
 
 : "${KARNEL_CACHE:=$HOME/.cache/karnel}"
 : "${KARNEL_PATH:=$HOME/karnel}"
-: "${PREFIX:=$PREFIX}"
+: "${PREFIX:=/data/data/com.termux/files/usr}"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 GENTLE_AI_DATA_DIR="${GENTLE_AI_DATA_DIR:-$HOME/.local/share/karnel-data/gentle-ai}"

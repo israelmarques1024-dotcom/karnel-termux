@@ -21,6 +21,24 @@
   error gating, npm package inspection, CI, and release automation.
 - Corrected competing stderr redirections in three installers.
 
+## 4.9.0 - 2026-07-20
+
+### New modules
+
+- Added `network` module with 2 tools: dark (Dark Web OSINT Tor crawler) and
+  dedsec-network (multi-purpose network scanner/OSINT/pentest).
+- Added `utils` module with 11 utility scripts: fconv, filecheck, websites,
+  notes, treex, passman, applaunch, splash, httptmux, zork, and qrcode.
+
+### Documentation
+
+- Created READMEs for all 13 new tools under `karnel/tools/network/` and
+  `karnel/tools/utils/`.
+- Updated `open.sh` with `network` and `utils` targets for browser docs.
+- Updated root README, docs index, CLI reference, and architecture docs with
+  the new module counts and tool descriptions.
+- Bumped version to 4.9.0.
+
 ## Unreleased - 2026-07-16
 
 ### Doctor command surface

@@ -52,14 +52,13 @@ voice_help() {
 }
 
 voice_main() {
-  local agent="${1:-}"
   local lang=""
   local skip_edit=false
   local no_clip=false
   local extra_args=()
-  local parsed=false
+  local agent=""
 
-  # Parse options before agent
+  # Parse all arguments: flags can appear anywhere
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --lang) lang="${2:-}"; shift 2 ;;
@@ -67,14 +66,20 @@ voice_main() {
       --no-clip) no_clip=true; shift ;;
       --help|-h) voice_help; return ;;
       --) shift; break ;;
-      *) break ;;
+      -*)
+        log_warn "Unknown option: $1"
+        shift
+        ;;
+      *)
+        [[ -z "$agent" ]] && agent="$1"
+        shift
+        ;;
     esac
   done
 
-  agent="${1:-}"
   [[ -z "$agent" ]] && { voice_help; return; }
 
-  if [[ -z "$agent" ]] || [[ "$agent" == "--help" ]] || [[ "$agent" == "-h" ]]; then
+  if [[ "$agent" == "--help" ]] || [[ "$agent" == "-h" ]]; then
     voice_help
     return
   fi

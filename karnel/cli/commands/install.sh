@@ -22,11 +22,15 @@ install_main() {
     list_item "dev        - Development tools"
     list_item "npm        - Node.js global modules (npm packages)"
     list_item "osint      - OSINT tools (Robin — Dark Web + LLM)"
+    list_item "network    - Network tools (Dark Web OSINT, DedSec Network)"
+    list_item "utils      - Utility scripts (File Converter, Notes, QR Code, etc.)"
     list_item "shell      - ZSH + Oh My Zsh + plugins"
     list_item "ui         - Termux UI (font, cursor, extra-keys, banner)"
     list_item "auto       - Automation Tools (n8n)"
     list_item "deploy     - Deploy CLIs (Vercel, Railway, Netlify)"
-
+    list_item "games      - Games (Buzz, CTF God, Detective, etc.)"
+    list_item "voice      - Voice command (speech-to-agent)"
+ 
     echo
     log_info "Install specific tools with flags:"
     echo
@@ -139,6 +143,14 @@ _install_full_module() {
   osint)
     import "@/modules/osint"
     install_osint
+    ;;
+  network)
+    import "@/modules/network"
+    install_network
+    ;;
+  utils)
+    import "@/modules/utils"
+    install_utils
     ;;
   *)
     log_warn "Unknown install target: $target"
@@ -373,49 +385,9 @@ _install_specific_tools() {
         install_snyk
         case $? in 0) ((installed_count++));; 2) ((skipped_count++));; 1) ((failed_count++));; esac
         ;;
-      httptmux)
-        install_httptmux
-        case $? in 0) ((installed_count++));; 2) ((skipped_count++));; 1) ((failed_count++));; esac
-        ;;
-      zork)
-        install_zork
-        case $? in 0) ((installed_count++));; 2) ((skipped_count++));; 1) ((failed_count++));; esac
-        ;;
-      fconv)
-        install_fconv
-        case $? in 0) ((installed_count++));; 2) ((skipped_count++));; 1) ((failed_count++));; esac
-        ;;
-      filecheck)
-        install_filecheck
-        case $? in 0) ((installed_count++));; 2) ((skipped_count++));; 1) ((failed_count++));; esac
-        ;;
-      websites)
-        install_websites
-        case $? in 0) ((installed_count++));; 2) ((skipped_count++));; 1) ((failed_count++));; esac
-        ;;
-      notes)
-        install_notes
-        case $? in 0) ((installed_count++));; 2) ((skipped_count++));; 1) ((failed_count++));; esac
-        ;;
-      treex)
-        install_treex
-        case $? in 0) ((installed_count++));; 2) ((skipped_count++));; 1) ((failed_count++));; esac
-        ;;
-      passman)
-        install_passman
-        case $? in 0) ((installed_count++));; 2) ((skipped_count++));; 1) ((failed_count++));; esac
-        ;;
-      applaunch)
-        install_applaunch
-        case $? in 0) ((installed_count++));; 2) ((skipped_count++));; 1) ((failed_count++));; esac
-        ;;
-      splash)
-        install_splash
-        case $? in 0) ((installed_count++));; 2) ((skipped_count++));; 1) ((failed_count++));; esac
-        ;;
-      *)
-        log_warn "Unknown tool: --$tool"
-        ;;
+        *)
+          log_warn "Unknown tool: --$tool"
+          ;;
       esac
     done
 
@@ -827,6 +799,12 @@ _install_specific_tools() {
     import "@/tools/osint/robin/common"
     _robin_print_disclaimer
     _batch_tool_action "osint" "install" "${tools[@]}"
+    ;;
+  network)
+    _batch_tool_action "network" "install" "${tools[@]}"
+    ;;
+  utils)
+    _batch_tool_action "utils" "install" "${tools[@]}"
     ;;
   *)
     log_warn "Unknown install target: $module"

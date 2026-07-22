@@ -134,6 +134,7 @@ _fix_banner() {
 
 $marker
 source "$KARNEL_UTILS/banner.sh"
+render_banner
 EOF
     return 0
   fi
@@ -273,19 +274,6 @@ _fix_proot_ubuntu() {
   return 1
 }
 
-_fix_dns() {
-  if command -v nslookup &>/dev/null && nslookup github.com &>/dev/null; then
-    return 0
-  fi
-  local resolv_conf="$PREFIX/etc/resolv.conf"
-  if [[ -w "$resolv_conf" ]] || [[ -w "$PREFIX/etc" ]]; then
-    cp "$resolv_conf" "${resolv_conf}.bak" 2>/dev/null
-    echo 'nameserver 8.8.8.8' > "$resolv_conf" 2>/dev/null && return 0
-    echo 'nameserver 8.8.4.4' >> "$resolv_conf" 2>/dev/null || true
-  fi
-  return 1
-}
-
 _fix_mirror() {
   if command -v termux-change-repo &>/dev/null; then
     termux-change-repo 2>/dev/null
@@ -324,4 +312,114 @@ _fix_url_quote_magic() {
     -e 's/((${~otherschema})/(${~otherschema})/g' \
     "$uqm_file" 2>/dev/null
   return $?
+}
+
+# ===== SCRIPT KEEPER FIX CALLBACKS =====
+
+_fix_script_symlinks() {
+  local fixed=0 module_dir tool_dir
+  while IFS= read -r -d '' module_dir; do
+    while IFS= read -r -d '' tool_dir; do
+      local installer="$tool_dir/install.sh"
+      [[ -f "$installer" ]] || continue
+      local tool_name
+      tool_name=$(basename "$tool_dir")
+      local bin_names
+      bin_names=$(grep -E '^local BIN_NAME=' "$installer" 2>/dev/null | head -1 | sed "s/.*BIN_NAME=\"\?//;s/\"\?$//")
+      [[ -z "$bin_names" ]] && bin_names="$tool_name"
+      for bin_name in $bin_names; do
+        local expected="$tool_dir/$bin_name.py"
+        local link="$PREFIX/bin/$bin_name"
+        if [[ -L "$link" ]]; then
+          local target
+          target=$(readlink "$link")
+          if [[ "$target" != "$expected" ]]; then
+            ln -sf "$expected" "$link" 2>/dev/null && ((fixed++))
+          fi
+        fi
+      done
+    done < <(find "$module_dir" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null || true)
+  done < <(find "$KARNEL_PATH/tools/" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null || true)
+  [[ $fixed -gt 0 ]] && log_success "Fixed $fixed symlink(s)"
+  return 0
+}
+
+_fix_script_shebangs() {
+  local fixed=0 f
+  while IFS= read -r -d '' f; do
+    local shebang
+    shebang=$(head -1 "$f" 2>/dev/null | tr -d '\0')
+    case "$shebang" in
+      "#!/usr/bin/env node")
+        sed -i "1s|^.*$|#!$PREFIX/bin/node|" "$f" && ((fixed++)) ;;
+      "#!/usr/bin/env bash"|"#!/usr/bin/env sh")
+        sed -i "1s|^.*$|#!$PREFIX/bin/bash|" "$f" && ((fixed++)) ;;
+      "#!/usr/bin/env python3"|"#!/usr/bin/env python")
+        sed -i "1s|^.*$|#!$PREFIX/bin/python3|" "$f" && ((fixed++)) ;;
+    esac
+  done < <(find "$PREFIX/bin" -maxdepth 1 -type f -print0 2>/dev/null || true)
+  [[ $fixed -gt 0 ]] && log_success "Fixed $fixed shebang(s)"
+  return 0
+}
+
+_fix_script_perms() {
+  local fixed=0 script module_dir tool_dir
+  while IFS= read -r -d '' module_dir; do
+    while IFS= read -r -d '' tool_dir; do
+      while IFS= read -r -d '' script; do
+        [[ -x "$script" ]] || { chmod +x "$script" 2>/dev/null && ((fixed++)); }
+      done < <(find "$tool_dir" -maxdepth 1 -type f \( -name '*.py' -o -name '*.sh' \) -print0 2>/dev/null || true)
+    done < <(find "$module_dir" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null || true)
+  done < <(find "$KARNEL_PATH/tools/" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null || true)
+  [[ $fixed -gt 0 ]] && log_success "Fixed $fixed script permission(s)"
+  return 0
+}
+
+_fix_script_missing() {
+  local fixed=0 total=0 module_dir tool_dir
+  while IFS= read -r -d '' module_dir; do
+    while IFS= read -r -d '' tool_dir; do
+      local installer="$tool_dir/install.sh"
+      [[ -f "$installer" ]] || continue
+      local tool_name
+      tool_name=$(basename "$tool_dir")
+      local module_name
+      module_name=$(basename "$module_dir")
+      local bin_names
+      bin_names=$(grep -E '^local BIN_NAME=' "$installer" 2>/dev/null | head -1 | sed "s/.*BIN_NAME=\"\?//;s/\"\?$//")
+      [[ -z "$bin_names" ]] && bin_names="$tool_name"
+      for bin_name in $bin_names; do
+        ((total++))
+        if ! command -v "$bin_name" &>/dev/null; then
+          karnel install "$module_name" "--$tool_name" &>/dev/null && ((fixed++))
+        fi
+      done
+    done < <(find "$module_dir" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null || true)
+  done < <(find "$KARNEL_PATH/tools/" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null || true)
+  [[ $fixed -gt 0 ]] && log_success "Reinstalled $fixed/$total missing tool(s)"
+  return 0
+}
+
+_fix_script_stale() {
+  local removed=0 bin_link
+  while IFS= read -r -d '' bin_link; do
+    if [[ -L "$bin_link" ]]; then
+      local target
+      target=$(readlink "$bin_link")
+      if echo "$target" | grep -q "$KARNEL_PATH/tools/" && [[ ! -f "$target" ]]; then
+        rm -f "$bin_link" 2>/dev/null && ((removed++))
+      fi
+    fi
+  done < <(find "$PREFIX/bin" -maxdepth 1 -print0 2>/dev/null || true)
+  [[ $removed -gt 0 ]] && log_success "Removed $removed stale symlink(s)"
+  return 0
+}
+
+_fix_keyring() {
+  pkg update -y &>/dev/null && pkg install -y termux-keyring &>/dev/null
+}
+
+_fix_apt_cache() {
+  rm -rf "$PREFIX/var/apt/lists"/* 2>/dev/null
+  pkg update -y &>/dev/null
 }

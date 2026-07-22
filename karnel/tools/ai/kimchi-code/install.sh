@@ -136,8 +136,10 @@ KIMCHI_DIR="/data/data/com.termux/files/home/.local/share/karnel-data/kimchi"
 KIMCHI_BIN="$KIMCHI_DIR/kimchi"
 
 ARGS=""
+sep=""
 for arg in "$@"; do
-  ARGS="$ARGS '$arg'"
+  ARGS="$ARGS$sep$(printf '%q ' "$arg")"
+  sep=" "
 done
 
 exec proot-distro login ubuntu -- bash -c "

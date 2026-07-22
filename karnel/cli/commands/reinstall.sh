@@ -25,6 +25,10 @@ reinstall_main() {
     list_item "ui         - Reinstall Termux UI"
     list_item "auto       - Reinstall automation tools"
     list_item "games      - Reinstall games"
+    list_item "network    - Reinstall network tools"
+    list_item "utils      - Reinstall utility scripts"
+    list_item "deploy     - Reinstall deploy CLIs"
+    list_item "voice      - Reinstall voice command"
     list_item "osint      - Reinstall OSINT tools"
     echo
     log_info "Reinstall specific tools with flags:"
@@ -40,6 +44,7 @@ reinstall_main() {
 
   local module_target=""
   local -a tool_flags=()
+  local -a invalid_args=()
 
   for arg in "$@"; do
     if [[ "$arg" == --* ]]; then
@@ -47,8 +52,19 @@ reinstall_main() {
       tool_flags+=("$flag")
     elif [[ -z "$module_target" ]]; then
       module_target="$arg"
+    else
+      invalid_args+=("$arg")
     fi
   done
+
+  if [[ ${#invalid_args[@]} -gt 0 ]]; then
+    log_error "Invalid arguments: ${invalid_args[*]}"
+    echo
+    log_info "To reinstall specific tools, use -- before the name:"
+    log_info "  ${D_CYAN}karnel reinstall $module_target --${invalid_args[0]}${NC}"
+    echo
+    return 1
+  fi
 
   if [[ -z "$module_target" ]]; then
     log_error "No target specified"
@@ -107,9 +123,25 @@ _reinstall_full_module() {
     import "@/tools/games/all"
     reinstall_all_games
     ;;
+  deploy)
+    import "@/modules/deploy"
+    reinstall_deploy
+    ;;
+  voice)
+    import "@/modules/voice"
+    reinstall_voice
+    ;;
   osint)
     import "@/modules/osint"
     reinstall_osint
+    ;;
+  network)
+    import "@/modules/network"
+    reinstall_network
+    ;;
+  utils)
+    import "@/modules/utils"
+    reinstall_utils
     ;;
   *)
     log_warn "Unknown reinstall target: $target"
@@ -233,6 +265,26 @@ _reinstall_specific_tools() {
         ;;
       copilot-termux)
         reinstall_copilot_termux
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      kiro)
+        reinstall_kiro
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      crush)
+        reinstall_crush
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      cline)
+        reinstall_cline
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      odysseus)
+        reinstall_odysseus
+        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
+        ;;
+      omni-route)
+        reinstall_omni_route
         case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
       *)
@@ -387,49 +439,9 @@ _reinstall_specific_tools() {
         reinstall_snyk
         case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
         ;;
-      httptmux)
-        reinstall_httptmux
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      zork)
-        reinstall_zork
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      fconv)
-        reinstall_fconv
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      filecheck)
-        reinstall_filecheck
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      websites)
-        reinstall_websites
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      notes)
-        reinstall_notes
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      treex)
-        reinstall_treex
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      passman)
-        reinstall_passman
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      applaunch)
-        reinstall_applaunch
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      splash)
-        reinstall_splash
-        case $? in 0) ((reinstalled_count++));; 1) ((failed_count++));; esac
-        ;;
-      *)
-        log_warn "Unknown tool: --$tool"
-        ;;
+        *)
+          log_warn "Unknown tool: --$tool"
+          ;;
       esac
     done
 
@@ -772,6 +784,12 @@ _reinstall_specific_tools() {
     import "@/tools/osint/robin/common"
     _robin_print_disclaimer
     _batch_tool_action "osint" "reinstall" "${tools[@]}"
+    ;;
+  network)
+    _batch_tool_action "network" "reinstall" "${tools[@]}"
+    ;;
+  utils)
+    _batch_tool_action "utils" "reinstall" "${tools[@]}"
     ;;
   *)
     log_warn "Unknown reinstall target: $module"

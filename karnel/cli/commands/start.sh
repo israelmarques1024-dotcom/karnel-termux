@@ -43,6 +43,11 @@ _start_editor() {
 
   local port="${1:-8080}"
 
+  if ! [[ "$port" =~ ^[0-9]+$ ]] || (( port < 1024 || port > 65535 )); then
+    log_error "Invalid port: $port (must be between 1024 and 65535)"
+    return 1
+  fi
+
   echo
   box "Starting code-server"
   echo
@@ -50,10 +55,10 @@ _start_editor() {
   log_info "Port: $port"
   log_info "Password set via --auth password flag"
   echo
-  log_success "Open http://localhost:$port in your browser"
+  log_success "Open http://127.0.0.1:$port in your browser"
   echo
   log_info "Press Ctrl+C to stop"
   echo
 
-  code-server . --bind-addr "0.0.0.0:$port" --auth password
+  code-server . --bind-addr "127.0.0.1:$port" --auth password
 }

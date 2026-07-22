@@ -25,6 +25,11 @@ update_main() {
     list_item "shell      - Update ZSH plugins"
     list_item "ui         - Update Termux UI"
     list_item "auto       - Update Automation Tools"
+    list_item "network    - Update network tools"
+    list_item "utils      - Update utility scripts"
+    list_item "games      - Update games"
+    list_item "deploy     - Update deploy CLIs"
+    list_item "voice      - Update voice command"
     list_item "osint      - Update OSINT tools"
     echo
     log_info "Update specific tools with flags:"
@@ -39,6 +44,7 @@ update_main() {
   # Separate module target from tool flags
   local module_target=""
   local -a tool_flags=()
+  local -a invalid_args=()
 
   for arg in "$@"; do
     if [[ "$arg" == --* ]]; then
@@ -46,8 +52,20 @@ update_main() {
       tool_flags+=("$flag")
     elif [[ -z "$module_target" ]]; then
       module_target="$arg"
+    else
+      invalid_args+=("$arg")
     fi
   done
+
+  # If there are invalid arguments, show error and abort
+  if [[ ${#invalid_args[@]} -gt 0 ]]; then
+    log_error "Invalid arguments: ${invalid_args[*]}"
+    echo
+    log_info "To update specific tools, use -- before the name:"
+    log_info "  ${D_CYAN}karnel update $module_target --${invalid_args[0]}${NC}"
+    echo
+    return 1
+  fi
 
   # If no module target specified, show error
   if [[ -z "$module_target" ]]; then
@@ -116,6 +134,22 @@ _update_full_module() {
   osint)
     import "@/modules/osint"
     update_osint
+    ;;
+  network)
+    import "@/modules/network"
+    update_network
+    ;;
+  utils)
+    import "@/modules/utils"
+    update_utils
+    ;;
+  deploy)
+    import "@/modules/deploy"
+    update_deploy
+    ;;
+  voice)
+    import "@/modules/voice"
+    update_voice
     ;;
   *)
     log_warn "Unknown update target: $target"

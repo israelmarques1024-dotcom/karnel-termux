@@ -92,7 +92,10 @@ uninstall_engram() {
 }
 
 _uninstall_engram_impl() {
-  if rm -rf "$KARNEL_DATA/engram" && rm "$PREFIX/bin/engram" &>>"$LOG_FILE"; then
+  if [[ -n "$KARNEL_DATA" && -d "$KARNEL_DATA/engram" ]]; then
+    rm -rf "$KARNEL_DATA/engram"
+  fi
+  if rm -f "$PREFIX/bin/engram" &>>"$LOG_FILE"; then
     return 0
   else
     log_error "Failed to uninstall Engram"
@@ -109,7 +112,7 @@ _update_engram_impl() {
   export GOCACHE="$HOME/.cache/go"
   export GOMODCACHE="$GOPATH/pkg/mod"
 
-  if ! git -C "$KARNEL_DATA/engram" pull &>>"$LOG_FILE" && go build -C "$KARNEL_DATA/engram/cmd/engram" -o $PREFIX/bin/engram &>>"$LOG_FILE"; then
+  if ! git -C "$KARNEL_DATA/engram" pull &>>"$LOG_FILE" && go build -C "$KARNEL_DATA/engram/cmd/engram" -o "$PREFIX/bin/engram" &>>"$LOG_FILE"; then
     log_error "Failed to update Engram"
     return 1
   fi

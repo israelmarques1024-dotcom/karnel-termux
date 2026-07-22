@@ -439,7 +439,7 @@ _karnel_banner_cache="${XDG_CACHE_HOME:-$HOME/.cache}/karnel/banner_cache"
 mkdir -p "$(dirname "$_karnel_banner_cache")" 2>/dev/null
 [[ -t 1 ]] && echo "$_banner_output" > "$_karnel_banner_cache" 2>/dev/null
 
-log_tip() { echo " ${TP[3]}●${NC} ${GRAY}Tip${NC} $*"; }
+banner_tip() { echo " ${TP[3]}●${NC} ${GRAY}Tip${NC} $*"; }
 
 KARNEL_TIPS=(
   "Keep Karnel updated: ${TP[3]}karnel update karnel${NC}"
@@ -496,8 +496,10 @@ _unblock_input() {
   stty "${_OLD_STTY:-sane}" 2>/dev/null || true
 }
 
-_block_input
-_render_animated
-_unblock_input
-
-echo
+# Exportado para ser chamado pelo karnel.sh quando necessário
+render_banner() {
+  _block_input
+  _render_animated
+  _unblock_input
+  echo
+}

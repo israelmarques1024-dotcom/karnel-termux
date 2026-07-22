@@ -120,10 +120,13 @@ uninstall_codegraph() {
 }
 
 _uninstall_codegraph_impl() {
-	if rm -rf "$KARNEL_DATA/codegraph-linux-arm64" && rm -f "$PREFIX/bin/codegraph" &>>"$LOG_FILE"; then
+	if [[ -n "$KARNEL_DATA" && -d "$KARNEL_DATA/codegraph-linux-arm64" ]]; then
+	  rm -rf "$KARNEL_DATA/codegraph-linux-arm64"
+	fi
+	if rm -f "$PREFIX/bin/codegraph" &>>"$LOG_FILE"; then
 		return 0
 	else
-		log_error "Failed to uninstall CodeGraph"
+		log_error "Failed to remove old CodeGraph installation"
 		return 1
 	fi
 }
@@ -141,10 +144,10 @@ _do_update_codegraph() {
 }
 
 _update_codegraph_remove_impl() {
-	if ! rm -rf "$KARNEL_DATA/codegraph-linux-arm64" &>>"$LOG_FILE"; then
-		log_error "Failed to remove old CodeGraph installation"
-		return 1
+	if [[ -n "$KARNEL_DATA" && -d "$KARNEL_DATA/codegraph-linux-arm64" ]]; then
+	  rm -rf "$KARNEL_DATA/codegraph-linux-arm64" &>>"$LOG_FILE"
 	fi
+
 
 	if ! rm -f "$PREFIX/bin/codegraph" &>>"$LOG_FILE"; then
 		log_error "Failed to remove old CodeGraph wrapper"

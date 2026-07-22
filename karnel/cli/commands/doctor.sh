@@ -641,7 +641,110 @@ doctor_termux() {
     ((warnings++))
   fi
 
-  # ===== SHEBANG & BINARY HEALTH =====
+  # ===== SCRIPT KEEPER =====
+  echo
+  separator_section "Script Keeper — Karnel-managed Script Audit"
+  echo
+
+  local script_ok=0 script_warn=0 script_err=0
+  local found_symlink_issues=false found_shebang_issues=false
+  local found_perm_issues=false found_missing_issues=false found_stale_issues=false
+
+  for module_dir in "$KARNEL_PATH/tools/"*/; do
+    local module_name
+    module_name=$(basename "${module_dir%/}")
+    for tool_dir in "$module_dir"*/; do
+      [[ -d "$tool_dir" ]] || continue
+      local tool_name
+      tool_name=$(basename "${tool_dir%/}")
+      local installer="$tool_dir/install.sh"
+      [[ -f "$installer" ]] || continue
+
+      local bin_names
+      bin_names=$(grep -E '^local BIN_NAME=' "$installer" 2>/dev/null | head -1 | sed "s/.*BIN_NAME=\"\?//;s/\"\?$//")
+      [[ -z "$bin_names" ]] && bin_names="$tool_name"
+
+      for bin_name in $bin_names; do
+        local bin_path="$PREFIX/bin/$bin_name"
+        local tool_script="$tool_dir/$bin_name.py"
+
+        if [[ -L "$bin_path" ]]; then
+          local target
+          target=$(readlink "$bin_path")
+          if [[ "$target" == "$tool_script" ]]; then
+            log_success "$module_name/$tool_name → $bin_name (OK)"
+            ((script_ok++))
+          else
+            log_warn "$bin_name: symlink target changed (→ $target, expected $tool_script)"
+            ((script_warn++)); found_symlink_issues=true
+          fi
+
+          if [[ -f "$bin_path" ]] && head -1 "$bin_path" 2>/dev/null | grep -q "^#!/usr/bin/env"; then
+            log_warn "$bin_name: uses #!/usr/bin/env — will fail on Termux"
+            ((script_warn++)); found_shebang_issues=true
+          fi
+
+          if [[ -f "$tool_script" ]]; then
+            local perms
+            perms=$(stat -c "%a" "$tool_script" 2>/dev/null)
+            if [[ "$perms" != "755" ]] && [[ "$perms" != "555" ]] && [[ "$perms" != "775" ]]; then
+              log_warn "$bin_name: script permissions $perms (should be 755)"
+              ((script_warn++)); found_perm_issues=true
+            fi
+          fi
+        elif [[ -f "$bin_path" ]]; then
+          log_info "$bin_name: standalone binary (not Karnel-managed)"
+        else
+          log_warn "$module_name/$tool_name: $bin_name not found in PATH"
+          ((script_warn++)); found_missing_issues=true
+        fi
+      done
+    done
+  done
+
+  for bin_link in "$PREFIX/bin"/*; do
+    if [[ -L "$bin_link" ]]; then
+      local target
+      target=$(readlink "$bin_link")
+      if echo "$target" | grep -q "$KARNEL_PATH/tools/" && [[ ! -f "$target" ]]; then
+        log_warn "Stale symlink: $(basename "$bin_link") → $target (missing)"
+        ((script_warn++)); found_stale_issues=true
+      fi
+    fi
+  done
+
+  if $found_symlink_issues; then
+    fix_commands+=("_fix_script_symlinks")
+    fix_descriptions+=("Fix all Karnel tool symlinks")
+    fix_callbacks+=("_fix_script_symlinks")
+  fi
+  if $found_shebang_issues; then
+    fix_commands+=("_fix_script_shebangs")
+    fix_descriptions+=("Fix all Karnel tool shebangs for Termux")
+    fix_callbacks+=("_fix_script_shebangs")
+  fi
+  if $found_perm_issues; then
+    fix_commands+=("_fix_script_perms")
+    fix_descriptions+=("Fix all Karnel script permissions")
+    fix_callbacks+=("_fix_script_perms")
+  fi
+  if $found_missing_issues; then
+    fix_commands+=("_fix_script_missing")
+    fix_descriptions+=("Reinstall missing Karnel tools")
+    fix_callbacks+=("_fix_script_missing")
+  fi
+  if $found_stale_issues; then
+    fix_commands+=("_fix_script_stale")
+    fix_descriptions+=("Remove stale symlinks from PREFIX/bin")
+    fix_callbacks+=("_fix_script_stale")
+  fi
+
+  if (( script_err == 0 && script_warn == 0 )); then
+    log_success "All $script_ok Karnel-managed scripts healthy"
+  else
+    log_info "Scripts: $script_ok OK, $script_warn warnings, $script_err errors"
+  fi
+
   echo
   separator_section "Binary & Shebang Health"
   echo
@@ -1362,15 +1465,6 @@ EOF
     log_warn "Failed to save report"
   fi
   echo
-}
-
-_fix_keyring() {
-  pkg update -y &>/dev/null && pkg install -y termux-keyring &>/dev/null
-}
-
-_fix_apt_cache() {
-  rm -rf "$PREFIX/var/apt/lists"/* 2>/dev/null
-  pkg update -y &>/dev/null
 }
 
 import "@/cli/commands/doctor/fixes"

@@ -60,7 +60,7 @@ echo "6) All module files syntax check"
 for mod in karnel/modules/*.sh; do
   if ! bash -n "$mod" 2>/dev/null; then
     fail "$mod has syntax errors"
-    continue 2
+    continue
   fi
 done
 pass
@@ -70,7 +70,7 @@ echo "7) All CLI command files syntax check"
 for cmd in karnel/cli/commands/*.sh; do
   if ! bash -n "$cmd" 2>/dev/null; then
     fail "$cmd has syntax errors"
-    continue 2
+    continue
   fi
 done
 pass
@@ -88,7 +88,7 @@ echo "9) Tool orchestrators syntax check"
 for all in karnel/tools/*/all.sh; do
   if ! bash -n "$all" 2>/dev/null; then
     fail "$all has syntax errors"
-    continue 2
+    continue
   fi
 done
 pass
