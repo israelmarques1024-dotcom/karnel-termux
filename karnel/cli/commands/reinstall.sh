@@ -143,6 +143,14 @@ _reinstall_full_module() {
     import "@/modules/utils"
     reinstall_utils
     ;;
+  plugin)
+    import "@/modules/plugin"
+    reinstall_plugin_module
+    ;;
+  security)
+    import "@/modules/security"
+    reinstall_security
+    ;;
   *)
     log_warn "Unknown reinstall target: $target"
     echo "Run 'karnel reinstall' to see available targets"

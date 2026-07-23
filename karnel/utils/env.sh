@@ -26,6 +26,7 @@ KARNEL_CLI="$KARNEL_PATH/cli"
 KARNEL_TOOLS="$KARNEL_DATA/tools"
 KARNEL_RUN="$KARNEL_CACHE/run"
 KARNEL_LOGS="$KARNEL_CACHE/logs"
+KARNEL_PLUGINS="$KARNEL_DATA/plugins"
 
 # -------------------------
 # Crear directorios

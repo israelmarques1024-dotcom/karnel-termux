@@ -152,6 +152,14 @@ _install_full_module() {
     import "@/modules/utils"
     install_utils
     ;;
+  plugin)
+    import "@/modules/plugin"
+    install_plugin_module
+    ;;
+  security)
+    import "@/modules/security"
+    install_security
+    ;;
   *)
     log_warn "Unknown install target: $target"
     echo "Run 'karnel install' to see available targets"
@@ -805,6 +813,9 @@ _install_specific_tools() {
     ;;
   utils)
     _batch_tool_action "utils" "install" "${tools[@]}"
+    ;;
+  security)
+    _batch_tool_action "security" "install" "${tools[@]}"
     ;;
   *)
     log_warn "Unknown install target: $module"

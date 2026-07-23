@@ -76,6 +76,14 @@ list_main() {
     utils)
       _list_utils
       ;;
+    plugin)
+      import "@/tools/plugins/install"
+      echo "Installed Plugins:"
+      _list_plugins
+      ;;
+    security)
+      _list_security
+      ;;
     voice)
       _list_voice
       ;;
@@ -521,6 +529,30 @@ _grep_config() {
   else
     echo -e "${D_RED}not installed${NC}"
   fi
+}
+
+# ===== LIST SECURITY =====
+_list_security() {
+  echo
+  box "Security Tools"
+  echo
+  log_info "Available security tools:"
+  echo
+  table_start "Tool" "Install Flag" "Command" "Status"
+  table_row "Nmap" "--nmap" "nmap" "$(_check_cmd "nmap")"
+  table_row "Hydra" "--hydra" "hydra" "$(_check_cmd "hydra")"
+  table_row "Nikto" "--nikto" "nikto" "$(_check_cmd "nikto")"
+  table_row "SQLMap" "--sqlmap" "sqlmap" "$(_check_cmd "sqlmap")"
+  table_row "Gobuster" "--gobuster" "gobuster" "$(_check_cmd "gobuster")"
+  table_row "Dirb" "--dirb" "dirb" "$(_check_cmd "dirb")"
+  table_row "WPScan" "--wpscan" "wpscan" "$(_check_cmd "wpscan")"
+  table_row "John the Ripper" "--john" "john" "$(_check_cmd "john")"
+  table_row "Aircrack-ng" "--aircrack-ng" "aircrack-ng" "$(_check_cmd "aircrack-ng")"
+  table_row "Metasploit" "--metasploit" "msfconsole" "$(_check_cmd "msfconsole")"
+  table_end
+  echo
+  log_info "Install all: ${D_CYAN}karnel install security${NC}"
+  echo
 }
 
 # ===== LIST VOICE =====

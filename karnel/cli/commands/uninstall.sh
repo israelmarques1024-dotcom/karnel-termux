@@ -137,6 +137,14 @@ _uninstall_full_module() {
     import "@/modules/utils"
     uninstall_utils
     ;;
+  plugin)
+    import "@/modules/plugin"
+    uninstall_plugin_module
+    ;;
+  security)
+    import "@/modules/security"
+    uninstall_security
+    ;;
   games)
     import "@/tools/games/all"
     uninstall_all_games

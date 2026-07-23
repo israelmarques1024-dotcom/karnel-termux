@@ -1,0 +1,44 @@
+name: Plugin Submission
+description: Submit your Karnel plugin for listing
+labels: [plugin]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for creating a Karnel plugin!
+  - type: input
+    id: name
+    attributes:
+      label: Plugin name
+      placeholder: "my-karnel-plugin"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What does your plugin do?
+    validations:
+      required: true
+  - type: input
+    id: repo
+    attributes:
+      label: GitHub repository
+      description: "user/repo format"
+      placeholder: "username/my-karnel-plugin"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: "1.0.0"
+    validations:
+      required: true
+  - type: textarea
+    id: commands
+    attributes:
+      label: Commands registered
+      description: List the CLI commands your plugin adds
+      placeholder: |
+        - mycommand
+        - anothercommand

@@ -63,6 +63,12 @@ open_main() {
   voice)
     url="$OPEN_BASE_URL/karnel/voice"
     ;;
+  plugin)
+    url="$OPEN_BASE_URL/karnel/plugin"
+    ;;
+  security)
+    url="$OPEN_BASE_URL/karnel/security"
+    ;;
   osint|robin)
     url="$OPEN_BASE_URL/karnel/osint"
     ;;

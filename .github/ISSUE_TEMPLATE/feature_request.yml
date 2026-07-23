@@ -1,0 +1,48 @@
+name: Feature Request
+description: Suggest an idea for Karnel
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for suggesting a feature!
+  - type: textarea
+    id: problem
+    attributes:
+      label: Is your feature request related to a problem?
+      description: A clear and concise description of what the problem is.
+      placeholder: "I'm always frustrated when..."
+  - type: textarea
+    id: solution
+    attributes:
+      label: Describe the solution
+      description: What would you like to see added?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any alternative solutions you've considered.
+  - type: dropdown
+    id: module
+    attributes:
+      label: Related module
+      options:
+        - ai
+        - auto
+        - db
+        - deploy
+        - dev
+        - editor
+        - games
+        - lang
+        - network
+        - npm
+        - osint
+        - plugin
+        - security
+        - shell
+        - ui
+        - utils
+        - voice
+        - Other

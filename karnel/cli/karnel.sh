@@ -36,16 +36,21 @@ karnel_main() {
 
   local command_file="$KARNEL_PATH/cli/commands/$cmd.sh"
 
-  # verificar si existe el comando
   if [[ -f "$command_file" ]]; then
     import "@/cli/commands/$cmd"
     "${cmd}_main" "$@"
-  else
-    log_error "Command not found: $cmd"
-    echo
-    karnel_help
-    return 1
+    return $?
   fi
+
+  import "@/tools/plugins/install"
+  if _plugin_dispatch "$cmd" "$@"; then
+    return $?
+  fi
+
+  log_error "Command not found: $cmd"
+  echo
+  karnel_help
+  return 1
 }
 
 karnel_help() {
@@ -72,6 +77,7 @@ karnel_help() {
   printf "    ${D_CYAN}%-12s${NC} %s\n" "list" "List available tools in a module"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "open" "Open docs in browser for a module"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "pg" "PostgreSQL database manager"
+  printf "    ${D_CYAN}%-12s${NC} %s\n" "plugin" "Plugin manager — install, list, remove"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "reinstall" "Uninstall + install a module"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "restore" "Restore Termux from a backup"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "robin" "Dark Web OSINT tool (Tor + LLM)"
@@ -109,6 +115,8 @@ karnel_help() {
   printf "    ${D_GREEN}%-10s${NC} %s\n" "npm" "Node.js global npm packages"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "osint" "OSINT Tools (Robin — Dark Web + LLM)"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "network" "Network tools (Dark Web, DedSec Network)"
+  printf "    ${D_GREEN}%-10s${NC} %s\n" "plugin" "Plugin manager — install plugins from GitHub"
+  printf "    ${D_GREEN}%-10s${NC} %s\n" "security" "Nmap, Hydra, Metasploit, SQLMap, Gobuster, etc."
   printf "    ${D_GREEN}%-10s${NC} %s\n" "shell" "ZSH + Oh My Zsh + 10 plugins"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "ui" "Font, Cursor, Extra-keys, Banner"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "voice" "Speech-to-agent via microphone"

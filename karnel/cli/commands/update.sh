@@ -143,6 +143,14 @@ _update_full_module() {
     import "@/modules/utils"
     update_utils
     ;;
+  plugin)
+    import "@/modules/plugin"
+    update_plugin_module
+    ;;
+  security)
+    import "@/modules/security"
+    update_security
+    ;;
   deploy)
     import "@/modules/deploy"
     update_deploy
