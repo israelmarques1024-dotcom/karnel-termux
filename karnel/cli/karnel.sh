@@ -220,18 +220,27 @@ _tui_main_menu() {
   while true; do
     local choice
     choice=$(_dialog_menu "Main Menu" "Select an action to perform:" \
-      "brain" "Second Brain Manager" \
-      "env" "Environment Variables Manager" \
       "install" "Install Packages/Modules" \
+      "list" "List Available Tools" \
+      "backup" "Backup & Restore" \
+      "brain" "Second Brain Manager" \
+      "plugin" "Plugin Manager" \
+      "env" "Environment Variables Manager" \
       "pg" "PostgreSQL Database Manager" \
       "init" "Project Initializer" \
+      "deploy" "Deploy Projects" \
       "voice" "Speech-to-Agent" \
       "ia" "AI Agent Manager" \
+      "robin" "Dark Web OSINT" \
       "doctor" "Run Diagnostics (termux/code)" \
+      "search" "Search Tools & Memories" \
+      "show" "Show Tool Documentation" \
       "cleanup" "Clean caches and temp files" \
       "status" "Quick System Overview" \
       "upgrade" "Upgrade Karnel Framework" \
       "update" "Update Karnel" \
+      "reinstall" "Reinstall Modules" \
+      "uninstall" "Remove Modules" \
       "help" "Show Help Documentation" \
       "exit" "Exit")
     
@@ -244,11 +253,15 @@ _tui_main_menu() {
     fi
 
     case "$choice" in
-      brain) _tui_brain_menu ;;
-      env) _tui_env_menu ;;
       install) _tui_install_menu ;;
+      list) _tui_list_menu ;;
+      backup) _tui_backup_menu ;;
+      brain) _tui_brain_menu ;;
+      plugin) _tui_plugin_menu ;;
+      env) _tui_env_menu ;;
       pg) _tui_pg_menu ;;
       init) _tui_init_menu ;;
+      deploy) _tui_deploy_menu ;;
       voice)
         clear
         karnel_main "voice"
@@ -261,9 +274,27 @@ _tui_main_menu() {
         echo
         read -r -p "Press Enter to return to menu..." temp
         ;;
+      robin)
+        clear
+        karnel_main "robin"
+        echo
+        read -r -p "Press Enter to return to menu..." temp
+        ;;
       doctor)
         clear
         karnel_main "doctor"
+        echo
+        read -r -p "Press Enter to return to menu..." temp
+        ;;
+      search)
+        clear
+        karnel_main "search"
+        echo
+        read -r -p "Press Enter to return to menu..." temp
+        ;;
+      show)
+        clear
+        karnel_main "show"
         echo
         read -r -p "Press Enter to return to menu..." temp
         ;;
@@ -291,6 +322,18 @@ _tui_main_menu() {
         echo
         read -r -p "Press Enter to return to menu..." temp
         ;;
+      reinstall)
+        clear
+        karnel_main "reinstall"
+        echo
+        read -r -p "Press Enter to return to menu..." temp
+        ;;
+      uninstall)
+        clear
+        karnel_main "uninstall"
+        echo
+        read -r -p "Press Enter to return to menu..." temp
+        ;;
       help)
         clear
         karnel_help
@@ -299,6 +342,192 @@ _tui_main_menu() {
         ;;
     esac
   done
+}
+
+_tui_list_menu() {
+  local modules="ai db lang dev editor npm shell ui auto deploy games network utils osint voice plugin security"
+  local choice
+  choice=$(_dialog_menu "List Tools" "Select a module to list:" \
+    "ai" "AI Agents (31)" \
+    "db" "Databases" \
+    "lang" "Programming Languages" \
+    "editor" "Code Editors" \
+    "dev" "Development Tools" \
+    "npm" "NPM Packages" \
+    "shell" "Shell Plugins" \
+    "ui" "Termux Interface" \
+    "auto" "Automation" \
+    "deploy" "Deploy CLIs" \
+    "games" "Games" \
+    "network" "Network Tools" \
+    "utils" "Utilities" \
+    "osint" "OSINT Tools" \
+    "voice" "Voice Commands" \
+    "plugin" "Plugin System" \
+    "security" "Security Tools" \
+    "back" "Back to Main Menu")
+  local es=$?
+  if [[ $es -ne 0 || "$choice" == "back" || -z "$choice" ]]; then
+    return
+  fi
+  if [[ -n "$choice" ]]; then
+    clear
+    karnel_main "list" "$choice"
+    echo
+    read -r -p "Press Enter to return to menu..." temp
+  fi
+}
+
+_tui_backup_menu() {
+  while true; do
+    local sub_choice
+    sub_choice=$(_dialog_menu "Backup & Restore" "Select an operation:" \
+      "backup" "Create new backup" \
+      "cloud" "Backup + upload to cloud" \
+      "snapshot" "Create named snapshot" \
+      "list" "List all backups" \
+      "restore" "Restore latest backup" \
+      "restore_file" "Restore specific file" \
+      "cron" "Schedule daily backup" \
+      "back" "Back to Main Menu")
+    local es=$?
+    if [[ $es -ne 0 || "$sub_choice" == "back" || -z "$sub_choice" ]]; then
+      break
+    fi
+    case "$sub_choice" in
+      backup)
+        clear
+        karnel_main "backup"
+        echo
+        read -r -p "Press Enter to return..." temp
+        ;;
+      cloud)
+        clear
+        karnel_main "backup" "--cloud"
+        echo
+        read -r -p "Press Enter to return..." temp
+        ;;
+      snapshot)
+        local snap_name
+        snap_name=$(_dialog_input "Snapshot" "Snapshot name (e.g. before-update):") || true
+        if [[ -n "$snap_name" ]]; then
+          clear
+          karnel_main "backup" "snapshot" "$snap_name"
+          echo
+          read -r -p "Press Enter to return..." temp
+        fi
+        ;;
+      list)
+        clear
+        karnel_main "backup" "list"
+        echo
+        read -r -p "Press Enter to return..." temp
+        ;;
+      restore)
+        clear
+        karnel_main "restore"
+        echo
+        read -r -p "Press Enter to return..." temp
+        ;;
+      restore_file)
+        clear
+        karnel_main "restore" "--list"
+        local restore_file
+        restore_file=$(_dialog_input "Restore" "Enter backup filename:") || true
+        if [[ -n "$restore_file" ]]; then
+          karnel_main "restore" "$restore_file"
+          echo
+          read -r -p "Press Enter to return..." temp
+        fi
+        ;;
+      cron)
+        clear
+        karnel_main "backup" "--cron"
+        echo
+        read -r -p "Press Enter to return..." temp
+        ;;
+    esac
+  done
+}
+
+_tui_plugin_menu() {
+  while true; do
+    local sub_choice
+    sub_choice=$(_dialog_menu "Plugin Manager" "Select an operation:" \
+      "install" "Install plugin from GitHub" \
+      "search" "Search available plugins" \
+      "list" "List installed plugins" \
+      "remove" "Remove installed plugin" \
+      "create" "Scaffold new plugin" \
+      "back" "Back to Main Menu")
+    local es=$?
+    if [[ $es -ne 0 || "$sub_choice" == "back" || -z "$sub_choice" ]]; then
+      break
+    fi
+    case "$sub_choice" in
+      install)
+        local repo
+        repo=$(_dialog_input "Install Plugin" "GitHub repo (user/repo):") || true
+        if [[ -n "$repo" ]]; then
+          clear
+          karnel_main "plugin" "install" "$repo"
+          echo
+          read -r -p "Press Enter to return..." temp
+        fi
+        ;;
+      search)
+        clear
+        karnel_main "plugin" "search"
+        echo
+        read -r -p "Press Enter to return..." temp
+        ;;
+      list)
+        clear
+        karnel_main "plugin" "list"
+        echo
+        read -r -p "Press Enter to return..." temp
+        ;;
+      remove)
+        local pname
+        pname=$(_dialog_input "Remove Plugin" "Plugin name:") || true
+        if [[ -n "$pname" ]]; then
+          clear
+          karnel_main "plugin" "remove" "$pname"
+          echo
+          read -r -p "Press Enter to return..." temp
+        fi
+        ;;
+      create)
+        local cname
+        cname=$(_dialog_input "Create Plugin" "Plugin name:") || true
+        if [[ -n "$cname" ]]; then
+          clear
+          karnel_main "plugin" "create" "$cname"
+          echo
+          read -r -p "Press Enter to return..." temp
+        fi
+        ;;
+    esac
+  done
+}
+
+_tui_deploy_menu() {
+  local choice
+  choice=$(_dialog_menu "Deploy" "Select platform:" \
+    "vercel" "Deploy to Vercel" \
+    "railway" "Deploy to Railway" \
+    "netlify" "Deploy to Netlify" \
+    "back" "Back to Main Menu")
+  local es=$?
+  if [[ $es -ne 0 || "$choice" == "back" || -z "$choice" ]]; then
+    return
+  fi
+  if [[ -n "$choice" ]]; then
+    clear
+    karnel_main "deploy" "$choice"
+    echo
+    read -r -p "Press Enter to return to menu..." temp
+  fi
 }
 
 _tui_brain_menu() {

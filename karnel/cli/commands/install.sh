@@ -23,6 +23,7 @@ install_main() {
     list_item "npm        - Node.js global modules (npm packages)"
     list_item "osint      - OSINT tools (Robin — Dark Web + LLM)"
     list_item "network    - Network tools (Dark Web OSINT, DedSec Network)"
+    list_item "security   - Security tools (Nmap, Hydra, SQLMap, Metasploit, etc.)"
     list_item "utils      - Utility scripts (File Converter, Notes, QR Code, etc.)"
     list_item "shell      - ZSH + Oh My Zsh + plugins"
     list_item "ui         - Termux UI (font, cursor, extra-keys, banner)"
