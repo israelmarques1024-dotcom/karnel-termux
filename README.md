@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux">
-    <img src="https://img.shields.io/badge/version-4.9.0-0078D4?style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/badge/version-4.9.6-0078D4?style=for-the-badge" alt="Version">
   </a>
   <a href="https://www.npmjs.com/package/karnel-termux">
     <img src="https://img.shields.io/npm/v/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
@@ -44,6 +44,8 @@ Created by **Israel Marques**.
 - **Professional editor** — code-server (VS Code in browser)
 - **Second brain** — Memory system with AI search and idea graph
 - **Voice commands** — Speak to your AI agents
+- **Plugin system** — Install community plugins from GitHub: `karnel plugin install <user/repo>`
+- **Security tools** — Nmap, Hydra, SQLMap, Metasploit and more: `karnel install security`
 
 > [!IMPORTANT]
 > Designed exclusively for **Termux on Android**. Does not work on other platforms.
@@ -125,6 +127,34 @@ karnel
 | `utils` | fconv, notes, treex, passman, applaunch, qrcode, zork and more | `karnel install utils` |
 | `osint` | Robin v2.8, Tor, Streamlit, and LLM providers | `karnel install osint` |
 | `voice` | Speech-to-agent through Termux:API | `karnel install voice` |
+| `plugin` | Plugin manager — install extensions from GitHub | `karnel install plugin` |
+| `security` | Nmap, Hydra, SQLMap, Metasploit, Gobuster and more | `karnel install security` |
+
+---
+
+## Plugin System
+
+Extend Karnel with community plugins from GitHub:
+
+```bash
+karnel plugin install <user/repo>   # Install a plugin
+karnel plugin list                  # List installed plugins
+karnel plugin remove <name>         # Uninstall a plugin
+karnel plugin create <name>         # Scaffold a new plugin
+```
+
+Each plugin needs a `karnel-plugin.json` manifest at the root of its repo. Commands go in a `commands/` directory — Karnel discovers them automatically at startup.
+
+## Security Tools
+
+Install security auditing tools:
+
+```bash
+karnel install security                           # Install all
+karnel install security --nmap --hydra --sqlmap    # Install specific ones
+```
+
+Includes: Nmap, Hydra, Nikto, SQLMap, Gobuster, Dirb, WPScan, John the Ripper, Aircrack-ng, Metasploit.
 
 ---
 
