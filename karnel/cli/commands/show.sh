@@ -78,7 +78,13 @@ show_main() {
     return
   fi
 
-  local readme_path="$KARNEL_PATH/tools/$module/$tool/README.md"
+  local readme_path
+  readme_path="$(realpath "$KARNEL_PATH/tools/$module/$tool/README.md" 2>/dev/null)"
+
+  if [[ -z "$readme_path" || "$readme_path" != "$KARNEL_PATH/tools/"* ]]; then
+    log_error "No documentation found for $module/$tool"
+    return 1
+  fi
 
   if [[ ! -f "$readme_path" ]]; then
     log_error "No documentation found for $module/$tool"

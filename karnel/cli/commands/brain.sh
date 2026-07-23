@@ -150,7 +150,11 @@ _brain_pick_file() {
 _brain_editor() {
 	local title="$1"
 
-	if ! command -v ${EDITOR:-nano} &>/dev/null; then
+	local editor_bin
+	editor_bin="${EDITOR:-nano}"
+	editor_bin="${editor_bin%% *}"
+
+	if ! command -v "$editor_bin" &>/dev/null; then
 		log_error "${EDITOR:-nano} not found"
 		list_item "Install it: ${D_CYAN}karnel install editor${D_NC}"
 		return 1
@@ -1082,7 +1086,10 @@ brain_edit() {
 	fi
 
 	local editor="${EDITOR:-}"
-	if command -v ${EDITOR:-nano} &>/dev/null; then
+	local editor_bin
+	editor_bin="${EDITOR:-nano}"
+	editor_bin="${editor_bin%% *}"
+	if command -v "$editor_bin" &>/dev/null; then
 		editor="${EDITOR:-nano}"
 	elif [[ -z "$editor" ]] || ! command -v "$editor" &>/dev/null; then
 		for e in vim nano vi; do

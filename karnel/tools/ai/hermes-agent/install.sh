@@ -31,7 +31,10 @@ _install_hermes_agent_impl() {
   if [ -d "$HERMES_DIR/.git" ]; then
     cd "$HERMES_DIR" && git pull
   else
-    git clone https://github.com/NousResearch/hermes-agent.git "$HERMES_DIR"
+    git clone https://github.com/NousResearch/hermes-agent.git "$HERMES_DIR" || {
+      log_error "Failed to clone hermes-agent repository"
+      return 1
+    }
   fi
 
   cd "$HERMES_DIR"

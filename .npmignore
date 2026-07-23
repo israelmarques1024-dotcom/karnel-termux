@@ -5,6 +5,7 @@
 node_modules
 *.log
 test_*.sh
+tests/
 AGENTS.md
 opencode.jsonc
 assets/

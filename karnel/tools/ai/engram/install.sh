@@ -108,15 +108,19 @@ update_engram() {
 }
 
 _update_engram_impl() {
-  export GOPATH="$HOME/.local/go"
-  export GOCACHE="$HOME/.cache/go"
-  export GOMODCACHE="$GOPATH/pkg/mod"
+	export GOPATH="$HOME/.local/go"
+	export GOCACHE="$HOME/.cache/go"
+	export GOMODCACHE="$GOPATH/pkg/mod"
 
-  if ! git -C "$KARNEL_DATA/engram" pull &>>"$LOG_FILE" && go build -C "$KARNEL_DATA/engram/cmd/engram" -o "$PREFIX/bin/engram" &>>"$LOG_FILE"; then
-    log_error "Failed to update Engram"
-    return 1
-  fi
-  return 0
+	if ! git -C "$KARNEL_DATA/engram" pull &>>"$LOG_FILE"; then
+		log_error "Failed to pull engram repository"
+		return 1
+	fi
+	if ! go build -C "$KARNEL_DATA/engram/cmd/engram" -o "$PREFIX/bin/engram" &>>"$LOG_FILE"; then
+		log_error "Failed to build Engram"
+		return 1
+	fi
+	return 0
 }
 
 reinstall_engram() {

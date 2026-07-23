@@ -240,14 +240,15 @@ int access(const char *p, int mode) {
 ssize_t readlinkat(int dirfd, const char *path, char *buf, size_t bufsiz) {
     if (path && streq(path, "/proc/self/exe")) {
         int len = slen(wrapper_path);
-        if (len < (int)bufsiz) {
+        int to_copy = len < (int)bufsiz ? len : (int)bufsiz - 1;
+        if (to_copy > 0) {
             char *d = buf;
             const char *s = wrapper_path;
-            while (*s)
+            for (int i = 0; i < to_copy; i++)
                 *d++ = *s++;
             *d = '\0';
         }
-        return len;
+        return to_copy > 0 ? to_copy : 0;
     }
     return (ssize_t)SREADLINKAT(dirfd, path, buf, bufsiz);
 }
@@ -270,9 +271,14 @@ ssize_t readlinkat(int dirfd, const char *path, char *buf, size_t bufsiz) {
  * bionic binaries. We use --library-path/--preload for glibc binaries instead.
  * Returns pointer to static buffer. */
 static char **strip_glibc_env(char *const envp[]) {
-    static char *clean[256];
+    int count = 0;
+    while (envp[count])
+        count++;
+    static char *clean[4096];
+    if (count > 4095)
+        count = 4095;
     int j = 0;
-    for (int i = 0; envp[i] && j < 255; i++) {
+    for (int i = 0; envp[i] && j < count; i++) {
         const char *e = envp[i];
         /* Skip LD_LIBRARY_PATH=* */
         if (e[0] == 'L' && e[1] == 'D' && e[2] == '_' && e[3] == 'L' &&
@@ -301,7 +307,9 @@ int execve(const char *pathname, char *const argv[], char *const envp[]) {
         while (argv[argc])
             argc++;
 
-        char *new_argv[64];
+        if (argc + 7 > 1024)
+            goto fallback;
+        char *new_argv[1024];
         int i = 0;
         new_argv[i++] = (char *)pathname;
         new_argv[i++] = "--library-path";
@@ -331,7 +339,9 @@ int execve(const char *pathname, char *const argv[], char *const envp[]) {
             while (argv[argc])
                 argc++;
 
-            char *new_argv[64];
+            if (argc + 8 > 1024)
+                goto fallback;
+            char *new_argv[1024];
             int i = 0;
             new_argv[i++] = (char *)ld_path;
             new_argv[i++] = "--library-path";
@@ -348,5 +358,16 @@ int execve(const char *pathname, char *const argv[], char *const envp[]) {
     }
 
     errno = err;
+    return -1;
+
+fallback:
+    /* If argv was too large for our static buffer, try the original execve */
+    r = SEXECVE(pathname, argv, clean_env);
+    if (r >= 0)
+        return (int)r;
+    r = SEXECVE(pathname, argv, envp);
+    if (r >= 0)
+        return (int)r;
+    errno = (int)(-r);
     return -1;
 }

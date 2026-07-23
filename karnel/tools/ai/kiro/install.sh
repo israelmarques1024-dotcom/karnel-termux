@@ -24,10 +24,15 @@ install_kiro() {
 
   # Try the official installer first
   log_info "Running official Kiro installer..."
-  if echo "y" | curl -fsSL https://cli.kiro.dev/install 2>/dev/null | bash 2>>"$LOG_FILE"; then
-    if command -v kiro &>/dev/null || command -v kiro-cli &>/dev/null; then
-      log_success "Kiro installed successfully"
-      return 0
+  local install_script
+  install_script=$(curl -fsSL https://cli.kiro.dev/install 2>/dev/null)
+  if [[ -n "$install_script" ]]; then
+    if echo "y" | bash -s -- <<<"$install_script" 2>>"$LOG_FILE"; then
+      hash -r
+      if command -v kiro &>/dev/null || command -v kiro-cli &>/dev/null; then
+        log_success "Kiro installed successfully"
+        return 0
+      fi
     fi
   fi
 
@@ -93,6 +98,7 @@ for p in d['packages']:
         # Create symlink for convenience
         ln -sf "$PREFIX/bin/kiro-cli" "$PREFIX/bin/kiro"
         rm -rf "$tmpdir"
+        hash -r
         if command -v kiro-cli &>/dev/null || command -v kiro &>/dev/null; then
           log_success "Kiro installed from direct download"
           return 0

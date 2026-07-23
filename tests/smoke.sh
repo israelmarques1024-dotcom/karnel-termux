@@ -57,23 +57,25 @@ fi
 
 # 6. All module files have valid syntax
 echo "6) All module files syntax check"
+mod_ok=true
 for mod in karnel/modules/*.sh; do
   if ! bash -n "$mod" 2>/dev/null; then
     fail "$mod has syntax errors"
-    continue
+    mod_ok=false
   fi
 done
-pass
+$mod_ok && pass
 
 # 7. All CLI command files have valid syntax
 echo "7) All CLI command files syntax check"
+cmd_ok=true
 for cmd in karnel/cli/commands/*.sh; do
   if ! bash -n "$cmd" 2>/dev/null; then
     fail "$cmd has syntax errors"
-    continue
+    cmd_ok=false
   fi
 done
-pass
+$cmd_ok && pass
 
 # 8. install.sh syntax check
 echo "8) install.sh syntax check"
@@ -85,13 +87,14 @@ fi
 
 # 9. All tool all.sh orchestrators syntax check
 echo "9) Tool orchestrators syntax check"
+all_ok=true
 for all in karnel/tools/*/all.sh; do
   if ! bash -n "$all" 2>/dev/null; then
     fail "$all has syntax errors"
-    continue
+    all_ok=false
   fi
 done
-pass
+$all_ok && pass
 
 # 10. Version consistency check
 echo "10) Version consistency check"
