@@ -15,7 +15,7 @@ _codegraph_dependencies_impl() {
 		["sqlite"]="sqlite"
 		["git"]="git"
 		["python"]="python"
-		["clang"]="clang"
+		["clang"]="cc"
 		["make"]="make"
 		["curl"]="curl"
 	)

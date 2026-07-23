@@ -14,6 +14,14 @@ install_kiro() {
 
   log_info "Installing Kiro CLI..."
 
+  # Ensure python3 is available (needed for manifest parsing)
+  if ! command -v python3 &>/dev/null; then
+    if ! yes | pkg install python &>>"$LOG_FILE"; then
+      log_error "Failed to install python3 (needed for kiro manifest parsing)"
+      return 1
+    fi
+  fi
+
   # Try the official installer first
   log_info "Running official Kiro installer..."
   if echo "y" | curl -fsSL https://cli.kiro.dev/install 2>/dev/null | bash 2>>"$LOG_FILE"; then
@@ -91,10 +99,21 @@ for p in d['packages']:
         fi
         # Binary exists but can't execute (missing glibc)
         if [[ -f "$PREFIX/bin/kiro-cli" ]]; then
-          log_warn "Kiro binary installed but requires glibc to run"
-          log_info "Install glibc: ${D_CYAN}pkg install glibc-repo glibc${NC}"
-          log_info "Or use proot: ${D_CYAN}proot-distro install ubuntu${NC}"
-          return 0
+          log_warn "Kiro binary needs glibc — installing..."
+          if [[ ! -f $PREFIX/etc/apt/sources.list.d/glibc.list ]]; then
+            yes | pkg install glibc-repo &>>"$LOG_FILE"
+          fi
+          if [[ ! -f $PREFIX/glibc/lib/libc.so.6 ]]; then
+            yes | pkg install glibc &>>"$LOG_FILE"
+          fi
+          if command -v kiro-cli &>/dev/null || command -v kiro &>/dev/null; then
+            log_success "Kiro installed successfully after glibc install"
+            return 0
+          else
+            log_warn "Kiro binary installed but still cannot execute"
+            log_info "Try: ${D_CYAN}proot-distro install ubuntu${NC}"
+            return 0
+          fi
         fi
       fi
     fi

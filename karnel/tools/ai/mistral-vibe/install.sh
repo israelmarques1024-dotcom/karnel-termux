@@ -12,7 +12,7 @@ _mistral_vibe_dependencies() {
 _mistral_vibe_dependencies_impl() {
   declare -A DEPS=(
     ["python"]="python"
-    ["clang"]="clang"
+    ["clang"]="cc"
     ["make"]="make"
     ["rust"]="rust"
     ["libffi"]=""

@@ -55,7 +55,7 @@ _freebuff_install_deps_native_impl() {
     ["git"]="git"
     ["curl"]="curl"
     ["tar"]="tar"
-    ["clang"]="clang"
+    ["clang"]="cc"
   )
 
   local pkg_name bin_name
@@ -121,7 +121,7 @@ _compile_freebuff_helper_impl() {
     return 1
   fi
 
-  if ! clang -O2 -o "$PREFIX/bin/freebuff" "$HELPER_SRC" &>>"$LOG_FILE"; then
+  if ! cc -O2 -o "$PREFIX/bin/freebuff" "$HELPER_SRC" &>>"$LOG_FILE"; then
     log_error "Failed to compile freebuff helper"
     return 1
   fi

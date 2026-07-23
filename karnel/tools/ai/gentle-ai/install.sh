@@ -146,7 +146,7 @@ _compile() {
 }
 
 _compile_impl() {
-  if ! command -v gcc &>/dev/null && ! command -v clang &>/dev/null; then
+  if ! command -v gcc &>/dev/null && ! command -v cc &>/dev/null; then
     export CGO_ENABLED=0
   fi
 

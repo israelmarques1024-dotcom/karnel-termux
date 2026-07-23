@@ -33,7 +33,7 @@ _mimocode_install_deps_impl() {
   fi
 
   declare -A DEPS=(
-    ["clang"]="clang"
+    ["clang"]="cc"
     ["curl"]="curl"
     ["tar"]="tar"
   )
@@ -102,7 +102,7 @@ _compile_mimocode_helper_impl() {
     return 1
   fi
 
-  if ! clang -O2 -o "$PREFIX/bin/mimo" "$HELPER_SRC" &>>"$LOG_FILE"; then
+  if ! cc -O2 -o "$PREFIX/bin/mimo" "$HELPER_SRC" &>>"$LOG_FILE"; then
     log_error "Failed to compile mimocode helper"
     return 1
   fi

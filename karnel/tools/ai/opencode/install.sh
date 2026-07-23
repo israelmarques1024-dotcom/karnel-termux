@@ -55,7 +55,7 @@ _opencode_install_deps_native_impl() {
     ["git"]="git"
     ["ripgrep"]="rg"
     ["python"]="python"
-    ["clang"]="clang"
+    ["clang"]="cc"
     ["jq"]="jq"
     ["nodejs-lts"]="node"
     ["curl"]="curl"
@@ -125,7 +125,7 @@ _compile_opencode_helper_impl() {
     return 1
   fi
 
-  if ! clang -O2 -o "$PREFIX/bin/opencode" "$HELPER_SRC" &>>"$LOG_FILE"; then
+  if ! cc -O2 -o "$PREFIX/bin/opencode" "$HELPER_SRC" &>>"$LOG_FILE"; then
     log_error "Failed to compile opencode helper"
     return 1
   fi

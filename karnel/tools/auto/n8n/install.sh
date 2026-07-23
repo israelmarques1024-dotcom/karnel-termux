@@ -13,7 +13,7 @@ _n8n_dependencies() {
     ["build-essential"]=""
     ["binutils"]=""
     ["make"]="make"
-    ["clang"]="clang"
+    ["clang"]="cc"
   )
 
   local pkg_name bin_name

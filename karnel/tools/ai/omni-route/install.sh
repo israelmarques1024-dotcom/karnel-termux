@@ -42,7 +42,7 @@ _omni_route_apply_platform_fixes() {
   log_info "Termux/Android detected — applying native build fixes for omniRoute..."
 
   local ng="/data/data/com.termux/files/usr/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js"
-  if [ -x "$ng" ] && command -v clang >/dev/null 2>&1; then
+  if [ -x "$ng" ] && command -v cc >/dev/null 2>&1; then
     for mod in better-sqlite3 sqlite-vec; do
       local moddir="$pkg_root/node_modules/$mod"
       [ -d "$moddir" ] || continue

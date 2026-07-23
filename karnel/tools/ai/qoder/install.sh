@@ -65,7 +65,7 @@ _qoder_install_deps_native_impl() {
   declare -A DEPS=(
     ["git"]="git"
     ["ripgrep"]="rg"
-    ["clang"]="clang"
+    ["clang"]="cc"
     ["jq"]="jq"
     ["nodejs-lts"]="node"
     ["curl"]="curl"
@@ -142,7 +142,7 @@ _compile_qoder_helper_impl() {
     return 1
   fi
 
-  if ! clang -O2 -o "$PREFIX/bin/qodercli" "$HELPER_SRC" &>>"$LOG_FILE"; then
+  if ! cc -O2 -o "$PREFIX/bin/qodercli" "$HELPER_SRC" &>>"$LOG_FILE"; then
     log_error "Failed to compile qoder helper"
     return 1
   fi

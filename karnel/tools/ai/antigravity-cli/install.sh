@@ -36,7 +36,7 @@ _antigravity_cli_dependencies_impl() {
   fi
 
   declare -A DEPS=(
-    ["clang"]="clang"
+    ["clang"]="cc"
     ["python"]="python"
     ["jq"]="jq"
     ["curl"]="curl"
@@ -191,7 +191,7 @@ _antigravity_compile_helper_impl() {
     return 1
   fi
 
-  if ! clang -O2 -o "$PREFIX/bin/agy" "$HELPER_SRC" &>>"$LOG_FILE"; then
+  if ! cc -O2 -o "$PREFIX/bin/agy" "$HELPER_SRC" &>>"$LOG_FILE"; then
     log_error "Failed to compile agy helper"
     return 1
   fi

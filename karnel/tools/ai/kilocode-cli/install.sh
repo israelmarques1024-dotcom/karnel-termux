@@ -35,7 +35,7 @@ _install_kilocode_deps_impl() {
     ["git"]="git"
     ["ripgrep"]="rg"
     ["python"]="python"
-    ["clang"]="clang"
+    ["clang"]="cc"
     ["jq"]="jq"
     ["nodejs-lts"]="node"
     ["curl"]="curl"
@@ -105,7 +105,7 @@ _compile_kilocode_helper_impl() {
     return 1
   fi
 
-  if ! clang -O2 -o "$PREFIX/bin/kilocode" "$HELPER_SRC" &>>"$LOG_FILE"; then
+  if ! cc -O2 -o "$PREFIX/bin/kilocode" "$HELPER_SRC" &>>"$LOG_FILE"; then
     log_error "Failed to compile kilocode helper"
     return 1
   fi
