@@ -8,7 +8,7 @@
 - [Doctor System](./doctor/README.md) — Environment diagnosis and code analysis
 - [Architecture Overview](./ARCHITECTURE.md)
 - [Bug Fixes & Changelog](./CHANGELOG.md)
-- [Official Documentation Site](https://kerneltermux.vercel.app/karnel/doctor)
+- [Official Documentation Site](https://karneltermux.vercel.app/karnel/doctor)
 
 ## What is Karnel?
 

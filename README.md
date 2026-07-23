@@ -22,8 +22,8 @@
   <a href="https://termux.dev/">
     <img src="https://img.shields.io/badge/platform-Termux%20%7C%20Android-0078D4?style=for-the-badge" alt="Platform">
   </a>
-  <a href="https://kerneltermux.vercel.app">
-    <img src="https://img.shields.io/badge/Site-kerneltermux.vercel.app-0078D4?style=for-the-badge" alt="Website">
+  <a href="https://karneltermux.vercel.app">
+    <img src="https://img.shields.io/badge/Site-karneltermux.vercel.app-0078D4?style=for-the-badge" alt="Website">
   </a>
 </p>
 
@@ -298,7 +298,7 @@ Microphone -> termux-speech-to-text -> editor (edit) -> clipboard -> AI agent
 ### Requirements
 
 - Termux:API: `pkg install termux-api`
-- App Termux:API: https://kerneltermux.vercel.app/termux/api
+- App Termux:API: https://karneltermux.vercel.app/termux/api
 - Editor: `karnel install editor`
 
 ---
@@ -373,7 +373,7 @@ karnel open db                        # Open DB module docs
 karnel open ai --opencode             # Open OpenCode docs on site
 ```
 
-Documentation loads from https://kerneltermux.vercel.app.
+Documentation loads from https://karneltermux.vercel.app.
 
 ---
 
@@ -384,7 +384,7 @@ Documentation loads from https://kerneltermux.vercel.app.
 - [Doctor reference](docs/doctor/README.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Documentation changelog](docs/CHANGELOG.md)
-- [Official website](https://kerneltermux.vercel.app)
+- [Official website](https://karneltermux.vercel.app)
 
 ---
 
@@ -492,7 +492,7 @@ MIT © Israel Marques
 ---
 
 <p align="center">
-  <a href="https://kerneltermux.vercel.app">
+  <a href="https://karneltermux.vercel.app">
     <img src="https://img.shields.io/badge/Full%20Documentation-0078D4?style=for-the-badge" alt="Documentation">
   </a>
 </p>
