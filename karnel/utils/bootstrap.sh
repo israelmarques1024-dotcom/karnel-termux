@@ -7,6 +7,9 @@ __KARNEL_BOOTSTRAP_LOADED=1
 # registro de imports
 declare -A __KARNEL_IMPORTED
 
+# CAUTION: import() calls `source` from within a function. Any `declare` (without -g)
+# in the sourced file creates LOCAL variables scoped to import(), not globals.
+# Always use plain assignments (VAR=val) or `declare -g` for globals in sourced files.
 import() {
 	local base="${KARNEL_PATH}"
 	local resolved="${1//@/$base}.sh"
