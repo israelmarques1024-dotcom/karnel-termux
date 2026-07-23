@@ -103,23 +103,37 @@ _repeat() {
 # ================================================================
 # Counters
 # ================================================================
-_count_ai() { local c=0; for cmd in opencode claude gemini codex qwen vibe mimo hermes kimi ollama freebuff agy mmx pi engram codegraph command-code gentle-ai gga openclaude openclaw kiro crush odysseus kilocode kimchi cline omni-route ctx7 openspec; do command -v "$cmd" &>/dev/null && ((c++)); done; echo "$c"; }
-_count_lang() { local c=0; for cmd in node python python3 rustc go clang php perl; do command -v "$cmd" &>/dev/null && ((c++)); done; echo "$c"; }
-_count_db() { local c=0; command -v pg_ctl &>/dev/null && ((c++)); command -v mariadb &>/dev/null && ((c++)); command -v sqlite3 &>/dev/null && ((c++)); command -v mongod &>/dev/null && ((c++)); echo "$c"; }
-_uptime() {
-  if [[ -f /proc/uptime ]]; then
-    local secs; secs=$(awk '{print int($1)}' /proc/uptime 2>/dev/null)
-    local d=$((secs/86400)) h=$((secs%86400/3600)) m=$((secs%3600/60))
-    if (( d>0 )); then printf "%dd %dh" "$d" "$h"
-    elif (( h>0 )); then printf "%dh %dm" "$h" "$m"
-    else printf "%dm" "$m"; fi
-  else echo "?"; fi
+_count_ai() {
+  local reg="$KARNEL_PATH/tools/ai/all.sh"
+  local c=0
+  if [[ -f "$reg" ]]; then
+    while IFS= read -r line; do
+      [[ "$line" =~ ^[[:space:]]*\"([^\"]+)\" ]] || continue
+      local entry="${BASH_REMATCH[1]}"
+      local bin="${entry##*:}"
+      command -v "$bin" &>/dev/null && ((c++))
+    done < <(grep -E '^\s+"' "$reg" 2>/dev/null || true)
+  fi
+  echo "$c"
 }
-_ram_free() {
-  if [[ -f /proc/meminfo ]]; then
-    local kb; kb=$(grep MemAvailable /proc/meminfo 2>/dev/null | awk '{print $2}')
-    [[ -n "$kb" ]] && echo "$((kb/1024))MB" || echo "?"
-  else echo "?"; fi
+_count_lang() { local c=0; for cmd in node python rustc go clang php perl bun; do command -v "$cmd" &>/dev/null && ((c++)); done; echo "$c"; }
+_count_db() { local c=0; command -v pg_ctl &>/dev/null && ((c++)); command -v mariadb &>/dev/null && ((c++)); command -v sqlite3 &>/dev/null && ((c++)); command -v mongod &>/dev/null && ((c++)); command -v redis-cli &>/dev/null && ((c++)); echo "$c"; }
+_count_doctor() {
+  local doc_sh="$KARNEL_PATH/cli/commands/doctor/code_langs.sh"
+  if [[ -f "$doc_sh" ]]; then
+    local count; count=$(grep -c 'LANG_TOOLS\[' "$doc_sh" 2>/dev/null || echo 0)
+    echo "$count"
+  else echo "0"; fi
+}
+_pg_status() {
+  if command -v pg_ctl &>/dev/null; then
+    local data="$KARNEL_DATA/pg/data"
+    if [[ -d "$data" ]] && pg_ctl status -D "$data" &>/dev/null 2>&1; then
+      echo "ON"
+    else
+      echo "OFF"
+    fi
+  else echo "—"; fi
 }
 
 # ================================================================
@@ -236,16 +250,16 @@ _render_frame_line() {
 # ================================================================
 # Panel
 # ================================================================
-PANEL_HEADERS=("AI" "Lang" "DB" "Up" "RAM")
-PANEL_ICONS=("◆" "</>" "⛁" "↗" "◫")
+PANEL_HEADERS=("AI" "Lang" "DB" "Doctor" "PG")
+PANEL_ICONS=("◆" "</>" "⛁" "◈" "🐘")
 
 _panel_value() {
   case $1 in
     0) echo "${KAI_VAL:-$(_count_ai)}" ;;
     1) echo "${KLANG_VAL:-$(_count_lang)}" ;;
     2) echo "${KDB_VAL:-$(_count_db)}" ;;
-    3) echo "${KUP_VAL:-$(_uptime)}" ;;
-    4) echo "${KRAM_VAL:-$(_ram_free)}" ;;
+    3) echo "${KDOCTOR_VAL:-$(_count_doctor)}" ;;
+    4) echo "${KPG_VAL:-$(_pg_status)}" ;;
   esac
 }
 
@@ -430,8 +444,8 @@ _render_animated() {
 KAI_VAL=$(_count_ai)
 KLANG_VAL=$(_count_lang)
 KDB_VAL=$(_count_db)
-KUP_VAL=$(_uptime)
-KRAM_VAL=$(_ram_free)
+KDOCTOR_VAL=$(_count_doctor)
+KPG_VAL=$(_pg_status)
 
 # Cache banner for clear() override (capture only, no terminal output)
 _banner_output=$(_render 2>/dev/null) || true
