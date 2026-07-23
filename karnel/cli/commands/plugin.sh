@@ -34,6 +34,9 @@ plugin_main() {
   list|ls)
     _list_plugins
     ;;
+  search)
+    _search_plugins
+    ;;
   create|scaffold)
     if [[ $# -lt 1 ]]; then
       log_error "Usage: karnel plugin create <name>"
@@ -61,6 +64,7 @@ plugin_help() {
   printf "    ${D_CYAN}%-20s${NC} %s\n" "remove <name>" "Uninstall a plugin"
   printf "    ${D_CYAN}%-20s${NC} %s\n" "update <name>" "Update a plugin"
   printf "    ${D_CYAN}%-20s${NC} %s\n" "list" "List installed plugins"
+  printf "    ${D_CYAN}%-20s${NC} %s\n" "search" "Search available plugins in the registry"
   printf "    ${D_CYAN}%-20s${NC} %s\n" "create <name>" "Scaffold a new plugin"
   echo
   echo "Plugins are installed from GitHub repos."
@@ -71,7 +75,40 @@ plugin_help() {
   echo "  karnel plugin install username/my-karnel-plugin"
   echo "  karnel plugin list"
   echo "  karnel plugin remove my-karnel-plugin"
+  echo "  karnel plugin search"
   echo "  karnel plugin create my-plugin"
+}
+
+_search_plugins() {
+  local registry_url="https://raw.githubusercontent.com/israelmarques1024-dotcom/karnel-plugins/main/registry.json"
+  log_info "Fetching plugin registry..."
+  local data
+  data="$(curl -sfL "$registry_url" 2>/dev/null)" || {
+    log_error "Failed to fetch registry. Check internet connection."
+    return 1
+  }
+  local count
+  count="$(echo "$data" | sed -n 's/.*"plugins": \[\(.*\)\]/\1/p' | grep -o '"name"' | wc -l)"
+  if [[ "$count" -eq 0 ]]; then
+    echo "  No plugins available in the registry yet."
+    echo "  Be the first: https://github.com/israelmarques1024-dotcom/karnel-plugins"
+    return 0
+  fi
+  echo
+  box "Available Plugins ($count)"
+  echo
+  local names
+  names="$(echo "$data" | sed 's/.*"plugins":\[//;s/\]$//' | tr '}' '\n' | while IFS= read -r entry; do
+    [[ -z "$entry" ]] && continue
+    local n d r c
+    n="$(echo "$entry" | sed -n 's/.*"name":"\([^"]*\)".*/\1/p')"
+    d="$(echo "$entry" | sed -n 's/.*"description":"\([^"]*\)".*/\1/p')"
+    r="$(echo "$entry" | sed -n 's/.*"repo":"\([^"]*\)".*/\1/p')"
+    printf "  ${D_GREEN}%-20s${NC} %s\n" "$n" "$d"
+    printf "  ${D_CYAN}    install:${NC} karnel plugin install %s\n" "$r"
+  done)"
+  echo "$names"
+  echo
 }
 
 _scaffold_plugin() {
