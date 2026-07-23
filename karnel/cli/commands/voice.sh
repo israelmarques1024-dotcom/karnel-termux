@@ -47,7 +47,7 @@ voice_help() {
   echo
   list_item "Termux:API package: ${D_CYAN}pkg install termux-api${NC}"
   list_item "${EDITOR:-nano} editor: ${D_CYAN}karnel install editor${NC}"
-  list_item "Termux:API app: ${D_CYAN}https://kerneltermux.vercel.app/termux/api${NC}"
+  list_item "Termux:API app: ${D_CYAN}https://karneltermux.vercel.app/termux/api${NC}"
   echo
 }
 
@@ -94,7 +94,7 @@ voice_main() {
     else
       log_error "Termux:API is not installed"
       list_item "Install the package: ${D_CYAN}pkg install termux-api${NC}"
-      list_item "Install the app: https://kerneltermux.vercel.app/termux/api"
+      list_item "Install the app: https://karneltermux.vercel.app/termux/api"
       separator
       return 1
     fi

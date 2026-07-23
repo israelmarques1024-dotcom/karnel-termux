@@ -5,6 +5,6 @@ import "@/utils/log"
 _install_voice_tool() {
   log_info "All voice dependencies are managed by Termux:API"
   log_info "To use voice, install the Termux:API app from:"
-  log_info "  https://kerneltermux.vercel.app/termux/api"
+  log_info "  https://karneltermux.vercel.app/termux/api"
   return 0
 }
