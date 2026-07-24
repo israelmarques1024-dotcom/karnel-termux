@@ -1,3 +1,5 @@
+# shellcheck shell=bash
+
 install_security() {
   separator
   box "Installing Security Tools"

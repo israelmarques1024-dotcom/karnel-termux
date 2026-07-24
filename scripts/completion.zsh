@@ -14,6 +14,7 @@ _karnel_commands() {
     'list:List available tools in modules'
     'open:Open documentation in browser'
     'pg:PostgreSQL database manager'
+    'plugin:Manage reviewed and local plugins'
     'reinstall:Uninstall + install modules'
     'restore:Restore from a backup'
     'robin:Manage Robin dark-web OSINT'
@@ -42,6 +43,7 @@ _karnel_modules() {
     'lang:Programming languages'
     'npm:Node.js packages'
     'osint:OSINT tools'
+    'plugin:Built-in plugin manager'
     'shell:ZSH shell plugins'
     'ui:Termux UI components'
     'voice:Speech-to-agent tools'
@@ -73,6 +75,14 @@ _karnel() {
           ;;
         robin)
           _arguments '1:subcommand:(start stop status config doctor update purge-data help)' '--accept-responsible-use[Accept responsible-use notice]' '--network[Test Tor network]'
+          ;;
+        plugin)
+          _arguments \
+            '1:subcommand:(install remove update list search create)' \
+            '--unsafe[Allow an unreviewed repository after confirmation]' \
+            '--command[Filter registry by command]:command:' \
+            '--compatible[Filter registry by Karnel compatibility]' \
+            '--capability[Filter registry by declared capability]:capability:(network filesystem-read filesystem-write process environment)'
           ;;
         *)
           _default

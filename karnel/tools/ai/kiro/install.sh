@@ -27,7 +27,7 @@ install_kiro() {
   local install_script
   install_script=$(curl -fsSL https://cli.kiro.dev/install 2>/dev/null)
   if [[ -n "$install_script" ]]; then
-    if echo "y" | bash -s -- <<<"$install_script" 2>>"$LOG_FILE"; then
+    if bash -s -- <<<"$install_script" 2>>"$LOG_FILE"; then
       hash -r
       if command -v kiro &>/dev/null || command -v kiro-cli &>/dev/null; then
         log_success "Kiro installed successfully"

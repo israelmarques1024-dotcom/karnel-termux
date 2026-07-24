@@ -65,7 +65,7 @@ install_<module>() {
 
 ```bash
 karnel plugin create meu-plugin
-cd "$KARNEL_PLUGINS/meu-plugin"
+cd "${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data/plugins/meu-plugin"
 # Edite karnel-plugin.json e adicione comandos em commands/
 ```
 
@@ -74,7 +74,8 @@ Estrutura:
 ```
 meu-plugin/
 ├── karnel-plugin.json   # Manifesto obrigatório
-└── commands/            # Comandos descobertos automaticamente
+├── LICENSE              # Licença obrigatória
+└── commands/            # Somente comandos declarados no manifesto
     └── meu-comando.sh
 ```
 
@@ -82,12 +83,28 @@ Exemplo de `karnel-plugin.json`:
 
 ```json
 {
+  "schemaVersion": 1,
   "name": "meu-plugin",
   "version": "1.0.0",
   "description": "Faz algo incrível",
-  "commands": ["meu-comando"]
+  "commands": ["meu-comando"],
+  "minKarnelVersion": "4.11.6",
+  "license": "MIT",
+  "checksum": "sha256:<hash-do-payload-do-plugin>",
+  "capabilities": []
 }
 ```
+
+Os nomes seguem `^[a-z][a-z0-9-]{0,62}$`; a versão e
+`minKarnelVersion` seguem SemVer. `commands/meu-comando.sh` precisa declarar
+`meu-comando_main()` com a chave de abertura na mesma linha. Campos
+desconhecidos, arquivos de comando extras, qualquer symlink no payload e
+colisões de comando são rejeitados.
+
+Plugins são Bash executado com as permissões do usuário. `capabilities` é apenas
+uma declaração informativa; não existe sandbox. Para instalar repositório que
+não está no registry é obrigatório `karnel plugin install owner/repo --unsafe`
+e confirmação interativa.
 
 ## Plugin Registry — Publicar seu Plugin
 
@@ -105,10 +122,21 @@ Formato da entrada:
 {
   "name": "meu-plugin",
   "repo": "seu-user/meu-plugin",
+  "ref": "main",
+  "version": "1.0.0",
   "description": "Descrição curta",
-  "commands": ["meu-comando"]
+  "commands": ["meu-comando"],
+  "minKarnelVersion": "4.11.6",
+  "license": "MIT",
+  "checksum": "sha256:<hash-do-payload-do-plugin>",
+  "capabilities": []
 }
 ```
+
+O registry valida schema, unicidade, SemVer, repositório acessível, licença,
+manifesto, comandos e checksum. Consulte o README e a política de revisão do
+[`karnel-plugins`](https://github.com/israelmarques1024-dotcom/karnel-plugins)
+antes de abrir o PR.
 
 ## Pull Requests
 

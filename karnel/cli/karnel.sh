@@ -43,8 +43,10 @@ karnel_main() {
   fi
 
   import "@/tools/plugins/install"
-  if _plugin_dispatch "$cmd" "$@"; then
-    return $?
+  _plugin_dispatch "$cmd" "$@"
+  local plugin_status=$?
+  if [[ "${PLUGIN_DISPATCH_FOUND:-0}" == "1" ]]; then
+    return "$plugin_status"
   fi
 
   log_error "Command not found: $cmd"
@@ -466,6 +468,7 @@ _tui_plugin_menu() {
       "install" "Install plugin from GitHub" \
       "search" "Search available plugins" \
       "list" "List installed plugins" \
+      "update" "Update approved plugin" \
       "remove" "Remove installed plugin" \
       "create" "Scaffold new plugin" \
       "back" "Back to Main Menu")
@@ -495,6 +498,16 @@ _tui_plugin_menu() {
         karnel_main "plugin" "list"
         echo
         read -r -p "Press Enter to return..." temp
+        ;;
+      update)
+        local uname
+        uname=$(_dialog_input "Update Plugin" "Approved plugin name:") || true
+        if [[ -n "$uname" ]]; then
+          clear
+          karnel_main "plugin" "update" "$uname"
+          echo
+          read -r -p "Press Enter to return..." temp
+        fi
         ;;
       remove)
         local pname

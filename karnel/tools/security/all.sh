@@ -1,3 +1,5 @@
+# shellcheck shell=bash
+
 SECURITY_TOOLS=(
   "nmap"
   "hydra"

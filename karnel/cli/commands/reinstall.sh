@@ -72,7 +72,14 @@ reinstall_main() {
     return 1
   fi
 
-  if [[ ${#tool_flags[@]} -eq 0 ]]; then
+  if [[ "$module_target" == "plugin" && ${#tool_flags[@]} -gt 0 ]]; then
+    if [[ ${#tool_flags[@]} -eq 1 && "${tool_flags[0]}" == "unsafe" ]]; then
+      _reinstall_full_module "$module_target" "--unsafe"
+    else
+      log_error "Usage: karnel reinstall plugin [--unsafe]"
+      return 1
+    fi
+  elif [[ ${#tool_flags[@]} -eq 0 ]]; then
     _reinstall_full_module "$module_target"
   else
     _reinstall_specific_tools "$module_target" "${tool_flags[@]}"
@@ -81,6 +88,7 @@ reinstall_main() {
 
 _reinstall_full_module() {
   local target="$1"
+  local unsafe_flag="${2:-}"
 
   case "$target" in
   lang)
@@ -145,7 +153,7 @@ _reinstall_full_module() {
     ;;
   plugin)
     import "@/modules/plugin"
-    reinstall_plugin_module
+    reinstall_plugin_module "$unsafe_flag"
     ;;
   security)
     import "@/modules/security"

@@ -44,7 +44,7 @@ Created by **Israel Marques**.
 - **Professional editor** — code-server (VS Code in browser)
 - **Second brain** — Memory system with AI search and idea graph
 - **Voice commands** — Speak to your AI agents
-- **Plugin system** — Install community plugins from GitHub: `karnel plugin install <user/repo>`
+- **Plugin system** — Discover reviewed extensions: `karnel plugin search`
 - **Security tools** — Nmap, Hydra, SQLMap, Metasploit and more: `karnel install security`
 
 > [!IMPORTANT]
@@ -127,23 +127,50 @@ karnel
 | `utils` | fconv, notes, treex, passman, applaunch, qrcode, zork and more | `karnel install utils` |
 | `osint` | Robin v2.8, Tor, Streamlit, and LLM providers | `karnel install osint` |
 | `voice` | Speech-to-agent through Termux:API | `karnel install voice` |
-| `plugin` | Plugin manager — install extensions from GitHub | `karnel install plugin` |
+| `plugin` | Built-in plugin manager — reviewed registry and local plugins | `karnel plugin search` |
 | `security` | Nmap, Hydra, SQLMap, Metasploit, Gobuster and more | `karnel install security` |
 
 ---
 
 ## Plugin System
 
-Extend Karnel with community plugins from GitHub:
+Discover and install reviewed plugins from the official registry:
 
 ```bash
-karnel plugin install <user/repo>   # Install a plugin
-karnel plugin list                  # List installed plugins
-karnel plugin remove <name>         # Uninstall a plugin
-karnel plugin create <name>         # Scaffold a new plugin
+karnel plugin search
+karnel plugin search backup --compatible
+karnel plugin install karnel-hello
+karnel plugin update karnel-hello
+karnel plugin list
+karnel plugin remove karnel-hello
+karnel plugin create meu-plugin
 ```
 
-Each plugin needs a `karnel-plugin.json` manifest at the root of its repo. Commands go in a `commands/` directory — Karnel discovers them automatically at startup.
+Plugins are Bash code loaded by the Karnel process and run with the current
+user's permissions. They are not sandboxed. Registry plugins have reviewed
+metadata and are staged, validated, and atomically activated, but you should
+still review code you do not trust.
+
+Installing an arbitrary GitHub repository requires both `--unsafe` and an
+interactive confirmation:
+
+```bash
+karnel plugin install owner/repo --unsafe
+```
+
+`--unsafe` is not a sandbox or an approval. It is intentionally required again
+when updating an unsafe plugin. The plugin manager never creates a missing
+manifest for a cloned repository.
+
+Every plugin requires a strict `karnel-plugin.json`, a `LICENSE` or
+`LICENSE.md`, and exact files in `commands/`. The manifest declares Schema v1,
+safe name, SemVer version, description, `commands`, `minKarnelVersion`, license,
+optional checksum, and informational capabilities. Native command names and
+plugin-to-plugin command collisions are rejected.
+
+The installed plugin directory is `${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data/plugins`.
+See the [official plugin registry](https://github.com/israelmarques1024-dotcom/karnel-plugins)
+for schemas, review policy, and safe publication requirements.
 
 ## Security Tools
 

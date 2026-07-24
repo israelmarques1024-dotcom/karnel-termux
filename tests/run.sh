@@ -7,3 +7,4 @@ cd "$ROOT_DIR"
 bash tests/check-syntax.sh
 bash tests/smoke.sh
 bash tests/robin.sh
+bash tests/plugins.sh

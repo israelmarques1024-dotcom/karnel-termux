@@ -1,35 +1,41 @@
+# shellcheck shell=bash
+
 # Template for security tool installers.
-# Copy this file and replace TOOL_NAME with the actual tool name.
+# Copy this file, replace `tool` in the function names, and set TOOL_NAME/TOOL_PKG.
 
-_TOOL="tool"
-_TOOL_PKG="$1"
+TOOL_NAME="tool"
+TOOL_PKG="tool"
 
-install_${_TOOL}() {
-  if command -v "$_TOOL" &>/dev/null; then
-    log_info "$_TOOL is already installed"
+install_tool() {
+  if command -v "$TOOL_NAME" &>/dev/null; then
+    log_info "$TOOL_NAME is already installed"
     return 2
   fi
-  log_info "Installing $_TOOL..."
-  if pkg install -y "$_TOOL_PKG" 2>/dev/null || apt install -y "$_TOOL_PKG" 2>/dev/null; then
-    log_success "$_TOOL installed"
+  log_info "Installing $TOOL_NAME..."
+  if pkg install -y "$TOOL_PKG" 2>/dev/null || apt install -y "$TOOL_PKG" 2>/dev/null; then
+    log_success "$TOOL_NAME installed"
     return 0
   fi
-  log_error "Failed to install $_TOOL"
+  log_error "Failed to install $TOOL_NAME"
   return 1
 }
 
-uninstall_${_TOOL}() {
-  log_info "Removing $_TOOL..."
-  pkg uninstall -y "$_TOOL_PKG" 2>/dev/null || true
-  log_success "$_TOOL removed"
+uninstall_tool() {
+  log_info "Removing $TOOL_NAME..."
+  if pkg uninstall -y "$TOOL_PKG" 2>/dev/null || apt remove -y "$TOOL_PKG" 2>/dev/null; then
+    log_success "$TOOL_NAME removed"
+    return 0
+  fi
+  log_error "Failed to remove $TOOL_NAME"
+  return 1
 }
 
-update_${_TOOL}() {
-  log_info "$_TOOL updated via package manager"
+update_tool() {
+  log_info "$TOOL_NAME is updated via package manager"
   return 2
 }
 
-reinstall_${_TOOL}() {
-  uninstall_$_TOOL
-  install_$_TOOL
+reinstall_tool() {
+  uninstall_tool || return 1
+  install_tool
 }
