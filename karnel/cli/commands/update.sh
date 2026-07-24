@@ -31,6 +31,8 @@ update_main() {
     list_item "deploy     - Update deploy CLIs"
     list_item "voice      - Update voice command"
     list_item "osint      - Update OSINT tools"
+    list_item "security   - Update security tools"
+    list_item "plugin     - Update plugins"
     echo
     log_info "Update specific tools with flags:"
     echo
@@ -194,19 +196,57 @@ update_karnel() {
     elif [[ $rc -eq 2 ]]; then
       log_success "Karnel-Termux is already up to date"
     else
-      log_error "Failed to update Karnel-Termux"
-      log_info "Check your internet connection or run git pull manually"
+      log_error "Failed to update via git"
+      _update_karnel_npm_fallback
     fi
 
     rm -f "$KARNEL_CACHE/new_version" "$KARNEL_CACHE/last_version_check"
+  elif command -v npm &>/dev/null && npm list -g karnel-termux &>/dev/null 2>&1; then
+    _update_karnel_npm
+  elif command -v pnpm &>/dev/null && pnpm list -g karnel-termux &>/dev/null 2>&1; then
+    _update_karnel_pnpm
   else
-    log_warn "Not a git repository, cannot update"
-    log_info "If installed via npm/pnpm, run: npm update -g karnel-termux"
-    log_info "If installed via curl, reinstall with:"
-    echo "  curl -fsSL https://raw.githubusercontent.com/israelmarques1024-dotcom/karnel-termux/main/install.sh | bash"
+    log_warn "Karnel-Termux installation not detected"
+    _update_karnel_npm_fallback
   fi
 
   echo
+}
+
+_update_karnel_npm() {
+  log_info "Updating via npm..."
+  if npm update -g karnel-termux 2>&1; then
+    local new_ver
+    new_ver=$(npm list -g karnel-termux 2>/dev/null | grep karnel-termux | grep -oP '@\K[0-9.]+' || echo "latest")
+    log_success "Karnel-Termux updated to $new_ver"
+  else
+    log_error "npm update failed"
+    log_info "Try: npm install -g karnel-termux@latest"
+  fi
+}
+
+_update_karnel_pnpm() {
+  log_info "Updating via pnpm..."
+  if pnpm update -g karnel-termux 2>&1; then
+    log_success "Karnel-Termux updated via pnpm"
+  else
+    log_error "pnpm update failed"
+    _update_karnel_npm_fallback
+  fi
+}
+
+_update_karnel_npm_fallback() {
+  log_info "Trying npm update as fallback..."
+  if command -v npm &>/dev/null; then
+    npm update -g karnel-termux 2>&1 || {
+      log_info "Try manually:"
+      echo "  npm install -g karnel-termux@latest"
+      echo "  curl -fsSL https://raw.githubusercontent.com/israelmarques1024-dotcom/karnel-termux/main/install.sh | bash"
+    }
+  else
+    log_info "Reinstall via curl:"
+    echo "  bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/israelmarques1024-dotcom/karnel-termux/main/install.sh)\""
+  fi
 }
 
 _update_karnel_repo() {
