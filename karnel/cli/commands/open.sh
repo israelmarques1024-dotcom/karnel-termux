@@ -85,15 +85,26 @@ open_main() {
 	esac
 
 	if command -v termux-open-url &>/dev/null; then
-		termux-open-url "$url"
-		log_success "Opening: ${D_CYAN}$url${NC}"
+		termux-open-url "$url" 2>/dev/null && {
+			log_success "Opening: ${D_CYAN}$url${NC}"
+			return 0
+		}
+		log_warn "Failed to open URL, printing to terminal instead"
+		echo
+		echo "  ${D_CYAN}$url${NC}"
+		echo
 	elif command -v termux-open &>/dev/null; then
-		termux-open "$url"
-		log_success "Opening: ${D_CYAN}$url${NC}"
+		termux-open "$url" 2>/dev/null && {
+			log_success "Opening: ${D_CYAN}$url${NC}"
+			return 0
+		}
+		log_warn "Failed to open URL, printing to terminal instead"
+		echo "  ${D_CYAN}$url${NC}"
 	else
-		log_error "termux-open-url not found. Are you running in Termux?"
-		echo "Documentation at: $url"
-		return 1
+		log_info "Documentation at:"
+		echo
+		echo "  ${D_CYAN}$url${NC}"
+		echo
 	fi
 }
 
@@ -124,6 +135,9 @@ open_help() {
   printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "utils" "Utility tools"
   printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "voice" "Voice command"
   printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "osint" "OSINT tools"
+  printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "plugin" "Plugin system"
+  printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "security" "Security tools"
+  printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "backup" "Backup & Restore"
   echo
 	separator_section "Website"
 	echo
