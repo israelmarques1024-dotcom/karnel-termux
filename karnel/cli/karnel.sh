@@ -85,6 +85,7 @@ karnel_help() {
   printf "    ${D_CYAN}%-12s${NC} %s\n" "show" "Show README/docs for a tool"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "start" "Start services (code-server, etc.)"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "status" "Quick system overview"
+  printf "    ${D_CYAN}%-12s${NC} %s\n" "supabase" "Supabase CLI (types, migrate, functions, secrets)"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "uninstall" "Remove installed modules"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "update" "Update modules or framework"
   printf "    ${D_CYAN}%-12s${NC} %s\n" "upgrade" "Upgrade Karnel framework itself"
@@ -106,7 +107,7 @@ karnel_help() {
   printf "    ${D_GREEN}%-10s${NC} %s\n" "ai" "OpenCode, Gentle AI, Claude Code, etc."
   printf "    ${D_GREEN}%-10s${NC} %s\n" "auto" "Automation Tools (n8n)"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "db" "PostgreSQL, MariaDB, SQLite, MongoDB"
-  printf "    ${D_GREEN}%-10s${NC} %s\n" "deploy" "Vercel, Railway, Netlify CLIs"
+  printf "    ${D_GREEN}%-10s${NC} %s\n" "deploy" "Vercel, Railway, Netlify, Supabase CLIs"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "dev" "GitHub CLI, wget, curl, fzf, jq, etc."
   printf "    ${D_GREEN}%-10s${NC} %s\n" "utils" "File Converter, Notes, QR Code, etc."
   printf "    ${D_GREEN}%-10s${NC} %s\n" "editor" "code-server (VS Code in browser)"
@@ -232,6 +233,7 @@ _tui_main_menu() {
       "voice" "Speech-to-Agent" \
       "ia" "AI Agent Manager" \
       "robin" "Dark Web OSINT" \
+      "supabase" "Supabase CLI Manager" \
       "doctor" "Run Diagnostics (termux/code)" \
       "search" "Search Tools & Memories" \
       "show" "Show Tool Documentation" \
@@ -277,6 +279,12 @@ _tui_main_menu() {
       robin)
         clear
         karnel_main "robin"
+        echo
+        read -r -p "Press Enter to return to menu..." temp
+        ;;
+      supabase)
+        clear
+        karnel_main "supabase"
         echo
         read -r -p "Press Enter to return to menu..." temp
         ;;
@@ -362,9 +370,10 @@ _tui_list_menu() {
     "network" "Network Tools" \
     "utils" "Utilities" \
     "osint" "OSINT Tools" \
-    "voice" "Voice Commands" \
-    "plugin" "Plugin System" \
-    "security" "Security Tools" \
+      "voice" "Voice Commands" \
+      "plugin" "Plugin System" \
+      "security" "Security Tools" \
+      "supabase" "Supabase CLI" \
     "back" "Back to Main Menu")
   local es=$?
   if [[ $es -ne 0 || "$choice" == "back" || -z "$choice" ]]; then
@@ -517,6 +526,7 @@ _tui_deploy_menu() {
     "vercel" "Deploy to Vercel" \
     "railway" "Deploy to Railway" \
     "netlify" "Deploy to Netlify" \
+    "supabase" "Supabase CLI (remote commands)" \
     "back" "Back to Main Menu")
   local es=$?
   if [[ $es -ne 0 || "$choice" == "back" || -z "$choice" ]]; then
@@ -667,6 +677,7 @@ _tui_install_menu() {
       "utils" "Utility Scripts (Fconv, Notes, QR Code)" \
       "shell" "ZSH + Oh My Zsh + Plugins" \
       "ui" "Termux UI (font, cursor, extra-keys, banner)" \
+      "supabase" "Supabase CLI" \
       "voice" "Speech-to-Agent via microphone" \
       "back" "Back to Main Menu")
       

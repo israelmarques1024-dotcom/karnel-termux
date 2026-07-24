@@ -28,10 +28,9 @@ install_main() {
     list_item "shell      - ZSH + Oh My Zsh + plugins"
     list_item "ui         - Termux UI (font, cursor, extra-keys, banner)"
     list_item "auto       - Automation Tools (n8n)"
-    list_item "deploy     - Deploy CLIs (Vercel, Railway, Netlify)"
+    list_item "deploy     - Deploy CLIs (Vercel, Railway, Netlify, Supabase)"
     list_item "games      - Games (Buzz, CTF God, Detective, etc.)"
     list_item "voice      - Voice command (speech-to-agent)"
- 
     echo
     log_info "Install specific tools with flags:"
     echo
@@ -160,6 +159,10 @@ _install_full_module() {
   security)
     import "@/modules/security"
     install_security
+    ;;
+  supabase)
+    import "@/tools/deploy/supabase/install"
+    install_supabase
     ;;
   *)
     log_warn "Unknown install target: $target"
@@ -786,6 +789,10 @@ _install_specific_tools() {
         install_netlify
         case $? in 0) ((installed_count++));; 2) ((skipped_count++));; 1) ((failed_count++));; esac
         ;;
+      supabase)
+        install_supabase
+        case $? in 0) ((installed_count++));; 2) ((skipped_count++));; 1) ((failed_count++));; esac
+        ;;
       *)
         log_warn "Unknown deploy tool: --$tool"
         ;;
@@ -817,6 +824,11 @@ _install_specific_tools() {
     ;;
   security)
     _batch_tool_action "security" "install" "${tools[@]}"
+    ;;
+  supabase)
+    import "@/tools/supabase/all"
+    install_supabase
+    case $? in 0) log_success "Supabase CLI installed";; 2) log_info "Supabase CLI already installed";; 1) log_error "Failed to install Supabase CLI";; esac
     ;;
   *)
     log_warn "Unknown install target: $module"

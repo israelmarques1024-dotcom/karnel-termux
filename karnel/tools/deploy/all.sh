@@ -4,7 +4,7 @@ import "@/utils/log"
 
 LOG_FILE="$KARNEL_CACHE/install_deploy.log"
 
-DEPLOY_TOOLS=("railway" "netlify" "vercel")
+DEPLOY_TOOLS=("railway" "netlify" "vercel" "supabase")
 
 for _tool in "${DEPLOY_TOOLS[@]}"; do
   source "$(dirname "$BASH_SOURCE")/$_tool/install.sh"

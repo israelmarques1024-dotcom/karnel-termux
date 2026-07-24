@@ -27,7 +27,7 @@ uninstall_main() {
     list_item "network    - Remove network tools"
     list_item "utils      - Remove utility scripts"
     list_item "games      - Remove games"
-    list_item "deploy     - Remove deploy CLIs"
+    list_item "deploy     - Remove deploy CLIs (Vercel, Railway, Netlify, Supabase)"
     list_item "voice      - Remove voice command"
     list_item "osint      - Remove OSINT tools"
     echo
@@ -148,6 +148,10 @@ _uninstall_full_module() {
   games)
     import "@/tools/games/all"
     uninstall_all_games
+    ;;
+  supabase)
+    import "@/tools/deploy/supabase/install"
+    uninstall_supabase
     ;;
   deploy)
     import "@/modules/deploy"

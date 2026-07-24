@@ -27,7 +27,7 @@ reinstall_main() {
     list_item "games      - Reinstall games"
     list_item "network    - Reinstall network tools"
     list_item "utils      - Reinstall utility scripts"
-    list_item "deploy     - Reinstall deploy CLIs"
+    list_item "deploy     - Reinstall deploy CLIs (Vercel, Railway, Netlify, Supabase)"
     list_item "voice      - Reinstall voice command"
     list_item "osint      - Reinstall OSINT tools"
     echo
@@ -150,6 +150,10 @@ _reinstall_full_module() {
   security)
     import "@/modules/security"
     reinstall_security
+    ;;
+  supabase)
+    import "@/tools/deploy/supabase/install"
+    reinstall_supabase
     ;;
   *)
     log_warn "Unknown reinstall target: $target"

@@ -28,7 +28,7 @@ update_main() {
     list_item "network    - Update network tools"
     list_item "utils      - Update utility scripts"
     list_item "games      - Update games"
-    list_item "deploy     - Update deploy CLIs"
+    list_item "deploy     - Update deploy CLIs (Vercel, Railway, Netlify, Supabase)"
     list_item "voice      - Update voice command"
     list_item "osint      - Update OSINT tools"
     list_item "security   - Update security tools"
@@ -152,6 +152,10 @@ _update_full_module() {
   security)
     import "@/modules/security"
     update_security
+    ;;
+  supabase)
+    import "@/tools/deploy/supabase/install"
+    update_supabase
     ;;
   deploy)
     import "@/modules/deploy"

@@ -22,7 +22,7 @@ list_main() {
     list_item "shell      - List ZSH plugins"
     list_item "ui         - List Termux UI components"
     list_item "auto       - List automation tools"
-    list_item "deploy     - List deploy CLIs"
+    list_item "deploy     - List deploy CLIs (Vercel, Railway, Netlify, Supabase)"
     list_item "games      - List games"
     list_item "network    - List network tools"
     list_item "utils      - List utility scripts"
@@ -103,10 +103,11 @@ _list_deploy() {
   printf "    ${D_GREEN}%-18s${NC} %s\n" "vercel" "Frontend & serverless deployment"
   printf "    ${D_GREEN}%-18s${NC} %s\n" "railway" "Full-stack with databases"
   printf "    ${D_GREEN}%-18s${NC} %s\n" "netlify" "Static sites & edge functions"
+  printf "    ${D_GREEN}%-18s${NC} %s\n" "supabase" "PostgreSQL, Edge Functions, types, migrations"
   echo
   list_item "Usage: ${D_CYAN}karnel install deploy${NC} to install all"
   list_item "Usage: ${D_CYAN}karnel install deploy --vercel${NC} for specific"
-  list_item "After install: ${D_CYAN}vercel deploy --prod${NC} or ${D_CYAN}railway up${NC}"
+  list_item "Usage: ${D_CYAN}karnel supabase${NC} for Supabase CLI subcommands"
   echo
 }
 
@@ -565,3 +566,5 @@ _list_voice() {
   list_item "Usage: ${D_CYAN}karnel install voice${NC}"
   echo
 }
+
+
