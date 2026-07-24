@@ -30,11 +30,11 @@ supabase_main() {
       supabase_link "$@"
       ;;
     install)
-      import "@/tools/supabase/all"
+      import "@/tools/deploy/supabase/install"
       install_supabase
       ;;
     uninstall)
-      import "@/tools/supabase/all"
+      import "@/tools/deploy/supabase/install"
       uninstall_supabase
       ;;
     *)

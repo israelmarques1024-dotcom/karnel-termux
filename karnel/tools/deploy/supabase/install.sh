@@ -26,9 +26,9 @@ install_supabase() {
     *) log_error "Unsupported architecture: $arch"; return 1 ;;
   esac
 
-  local filename="supabase_${_SUPABASE_VERSION}_linux_${go_arch}.tar.gz"
+  local filename="supabase_linux_${go_arch}.tar.gz"
   local url="${_SUPABASE_RELEASE_URL}/${filename}"
-  local checksum_url="${_SUPABASE_RELEASE_URL}/checksums.txt"
+  local checksum_url="${_SUPABASE_RELEASE_URL}/supabase_${_SUPABASE_VERSION}_checksums.txt"
   local tmp_dir
   tmp_dir=$(mktemp -d)
 
