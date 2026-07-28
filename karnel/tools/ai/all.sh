@@ -60,6 +60,7 @@ AI_TOOLS_REGISTRY=(
   "openspec:OpenSpec SDD Framework:openspec"
   "copilot-termux:Copilot-Termux:copilot"
   "qoder:Qoder:qodercli"
+  "grok-cli:Grok CLI:grok,agent"
 )
 
 # ---- IMPORTAR TODOS OS SCRIPTS INDIVIDUAIS ----
