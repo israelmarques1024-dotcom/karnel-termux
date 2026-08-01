@@ -87,7 +87,13 @@ if [[ "$1" != "update" ]] && [[ "$1" != "uninstall" ]] && [[ "$1" != "reinstall"
   show_update_notification
 fi
 
+command_name="${1:-}"
+
 # cargar CLI unificado (com TUI + help)
+import "@/utils/sponsor"
 import "@/cli/karnel"
 
 karnel_main "$@"
+command_status=$?
+sponsor_maybe_show "$command_name" "$command_status"
+exit "$command_status"
