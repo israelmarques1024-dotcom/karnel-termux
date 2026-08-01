@@ -36,7 +36,7 @@ _sponsor_status() {
   echo
 
   if [[ "$source" != "direct" ]]; then
-    log_info "Automatic sponsor messages are unavailable in npm installations."
+    log_info "Automatic sponsor messages are unavailable for this installation source."
     echo
   fi
 }
@@ -72,10 +72,13 @@ sponsor_main() {
       fi
       ;;
     show)
+      local status=0
       if sponsor_force_show; then
         return 0
+      else
+        status=$?
       fi
-      local status=$?
+
       if [[ "$status" == "2" ]]; then
         log_error "Sponsor preview is only available in the independent distribution."
       else
