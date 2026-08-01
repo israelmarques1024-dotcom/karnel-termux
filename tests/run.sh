@@ -10,3 +10,4 @@ bash tests/version.sh
 bash tests/cli-lifecycle.sh
 bash tests/robin.sh
 bash tests/plugins.sh
+bash tests/sponsor.sh
