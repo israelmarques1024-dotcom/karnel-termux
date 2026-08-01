@@ -9,6 +9,7 @@ export KARNEL_CONFIG="$TMP_ROOT/config"
 export KARNEL_CACHE="$TMP_ROOT/cache"
 export KARNEL_SPONSOR_NO_REFRESH=1
 export KARNEL_SPONSOR_INTERVAL=0
+export CI=""
 mkdir -p "$KARNEL_CONFIG" "$KARNEL_CACHE"
 
 # shellcheck source=/dev/null
@@ -22,6 +23,13 @@ sponsor_is_enabled
 output=$(sponsor_render_cached)
 grep -Fq "Patrocinado por Example Cloud" <<<"$output"
 grep -Fq "https://example.com/karnel" <<<"$output"
+
+export CI="1"
+if sponsor_is_enabled; then
+  echo "CI unexpectedly enabled sponsors" >&2
+  exit 1
+fi
+export CI=""
 
 sponsor_set_enabled off
 if sponsor_is_enabled; then
