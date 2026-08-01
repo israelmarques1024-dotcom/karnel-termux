@@ -55,6 +55,8 @@ The recommended first model is a fixed sponsorship fee for a defined period rath
 
 Because the project owner is under 18, contracts, invoicing, payment accounts, and tax responsibilities must be handled with a responsible adult and the applicable service requirements.
 
+The npm Open Source Terms require users of npm Services to be at least 13 years old. Until the project owner meets that requirement, an eligible responsible adult must formally own and manage the npm account and publishing access.
+
 ## npm policy boundary
 
 The npm package contains reusable sponsor infrastructure but does not enable or display sponsor messages. Automatic sponsor display is restricted to the independent installer, which writes an explicit `direct` installation marker. Unknown and npm installation sources remain disabled.
