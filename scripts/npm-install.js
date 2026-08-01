@@ -58,12 +58,34 @@ const binSymlinkExists = () => {
   }
 };
 
+const enforceNpmSponsorPolicy = () => {
+  try {
+    const home = process.env.HOME;
+    if (!home) return;
+
+    const configBase = process.env.XDG_CONFIG_HOME || path.join(home, '.config');
+    const configDir = path.join(configBase, 'karnel');
+    const sourceFile = path.join(configDir, 'install-source');
+    const stateFile = path.join(configDir, 'sponsors');
+
+    fs.mkdirSync(configDir, { recursive: true, mode: 0o700 });
+    fs.writeFileSync(sourceFile, 'npm\n', { encoding: 'utf8', mode: 0o600 });
+    fs.writeFileSync(stateFile, 'off\n', { encoding: 'utf8', mode: 0o600 });
+    fs.chmodSync(sourceFile, 0o600);
+    fs.chmodSync(stateFile, 0o600);
+  } catch (error) {
+    console.warn('[karnel] Could not persist npm sponsor policy:', error.message);
+  }
+};
+
 const main = () => {
   if (!isTermux()) {
     console.log('[karnel] Not a Termux environment — skipping install.');
     console.log('[karnel] Run "bash install.sh" manually if needed.');
     process.exit(0);
   }
+
+  enforceNpmSponsorPolicy();
 
   if (isAlreadyInstalled()) {
     console.log('[karnel] Karnel is already installed and up-to-date.');
@@ -92,6 +114,7 @@ const main = () => {
       stdio: 'inherit',
       env: { ...process.env, KARNEL_NPM_INSTALL: '1' }
     });
+    enforceNpmSponsorPolicy();
     console.log('[karnel] Installation complete! Run "karnel" to get started.');
   } catch (err) {
     console.error('[karnel] Installation failed:', err.message);
