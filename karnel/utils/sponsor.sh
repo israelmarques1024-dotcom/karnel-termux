@@ -7,6 +7,10 @@ KARNEL_SPONSOR_ENDPOINT="${KARNEL_SPONSOR_ENDPOINT:-https://karneltermux.vercel.
 KARNEL_SPONSOR_INTERVAL="${KARNEL_SPONSOR_INTERVAL:-86400}"
 KARNEL_SPONSOR_CACHE_TTL="${KARNEL_SPONSOR_CACHE_TTL:-21600}"
 
+[[ "$KARNEL_SPONSOR_ENDPOINT" == https://* ]] || KARNEL_SPONSOR_ENDPOINT="https://karneltermux.vercel.app/api/sponsors?format=tsv"
+[[ "$KARNEL_SPONSOR_INTERVAL" =~ ^[0-9]+$ ]] || KARNEL_SPONSOR_INTERVAL=86400
+[[ "$KARNEL_SPONSOR_CACHE_TTL" =~ ^[0-9]+$ ]] || KARNEL_SPONSOR_CACHE_TTL=21600
+
 _sponsor_source_file="${KARNEL_SPONSOR_SOURCE_FILE:-$KARNEL_CONFIG/install-source}"
 _sponsor_state_file="${KARNEL_SPONSOR_STATE_FILE:-$KARNEL_CONFIG/sponsors}"
 _sponsor_cache_file="${KARNEL_SPONSOR_CACHE_FILE:-$KARNEL_CACHE/sponsors.tsv}"
@@ -98,7 +102,7 @@ _sponsor_refresh_cache() {
     return 0
   fi
 
-  local tmp clean line valid_count=0
+  local tmp clean line valid_count=0 refresh_status=1
   tmp="${_sponsor_cache_file}.tmp.$$"
   clean="${_sponsor_cache_file}.clean.$$"
 
@@ -119,10 +123,12 @@ _sponsor_refresh_cache() {
     else
       rm -f "$clean" "$_sponsor_cache_file"
     fi
+    refresh_status=0
   fi
 
   rm -f "$tmp" "$clean"
   rmdir "$_sponsor_refresh_lock" 2>/dev/null || true
+  return "$refresh_status"
 }
 
 _sponsor_refresh_async() {
@@ -187,9 +193,8 @@ sponsor_maybe_show() {
 
   if ! _sponsor_cache_is_fresh; then
     _sponsor_refresh_async
+    return 0
   fi
-
-  [[ -s "$_sponsor_cache_file" ]] || return 0
 
   local now last=0
   now="$(_sponsor_now)"
@@ -210,7 +215,7 @@ sponsor_force_show() {
   sponsor_is_enabled || return 2
 
   if [[ "${KARNEL_SPONSOR_NO_REFRESH:-0}" != "1" ]]; then
-    _sponsor_refresh_cache >/dev/null 2>&1 || true
+    _sponsor_refresh_cache >/dev/null 2>&1 || return 1
   fi
 
   sponsor_render_cached
