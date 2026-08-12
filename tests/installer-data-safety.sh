@@ -84,6 +84,8 @@ assert_kiro_install_rejects_unusable_binary() (
   log_success() { :; }
   log_warn() { :; }
   log_error() { :; }
+  D_CYAN=""
+  NC=""
   curl() {
     if [[ "$*" == *manifest.json* ]]; then
       printf '%s' '{"packages":[{"architecture":"aarch64","os":"linux","fileType":"tar","download":"kiro.tar.gz"}]}'

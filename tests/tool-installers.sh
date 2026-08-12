@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -uo pipefail
 
 ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 TEST_ROOT=$(mktemp -d)
@@ -8,6 +8,19 @@ SYSTEM_RM=$(command -v rm)
 SYSTEM_CHMOD=$(command -v chmod)
 
 pass=0
+failed=0
+
+run_test() {
+  local name="$1"
+  shift
+  if "$@"; then
+    ((pass += 1))
+    printf 'ok - %s\n' "$name"
+  else
+    ((failed += 1))
+    printf 'not ok - %s\n' "$name" >&2
+  fi
+}
 
 assert_keelcode_lifecycle() (
   export PREFIX="$TEST_ROOT/prefix"
@@ -37,8 +50,7 @@ assert_keelcode_lifecycle() (
   uninstall_keelcode
   ! command -v keelcode
 )
-assert_keelcode_lifecycle
-((pass += 1))
+run_test "KeelCode lifecycle" assert_keelcode_lifecycle
 
 assert_banner_bash_startup() (
   export HOME="$TEST_ROOT/banner-home"
@@ -65,8 +77,7 @@ assert_banner_bash_startup() (
   uninstall_banner
   ! grep -qF "$KARNEL_BANNER_MARKER" "$HOME/.bashrc"
 )
-assert_banner_bash_startup
-((pass += 1))
+run_test "banner Bash startup" assert_banner_bash_startup
 
 assert_superfile_staged_build() (
   export KARNEL_DATA="$TEST_ROOT/data"
@@ -111,8 +122,7 @@ assert_superfile_staged_build() (
   uninstall_superfile
   [[ ! -e "$PREFIX/bin/spf" && ! -d "$KARNEL_DATA/superfile" ]]
 )
-assert_superfile_staged_build
-((pass += 1))
+run_test "SuperFile staged build" assert_superfile_staged_build
 
 assert_downloaded_utils_keep_source_payloads() (
   export PREFIX="$TEST_ROOT/downloaded-utils-prefix"
@@ -166,8 +176,7 @@ assert_downloaded_utils_keep_source_payloads() (
     [[ "$source_checksum" == "$(cksum "$source_payload")" ]]
   done
 )
-assert_downloaded_utils_keep_source_payloads
-((pass += 1))
+run_test "downloaded utilities preserve source payloads" assert_downloaded_utils_keep_source_payloads
 
 assert_omni_route_preserves_unowned_wrappers() (
   export HOME="$TEST_ROOT/omni-route-home"
@@ -199,8 +208,7 @@ assert_omni_route_preserves_unowned_wrappers() (
   uninstall_omni_route
   [[ ! -e "$PREFIX/bin/omni-route" && ! -e "$PREFIX/bin/karnelroute" ]]
 )
-assert_omni_route_preserves_unowned_wrappers
-((pass += 1))
+run_test "omniRoute preserves unowned wrappers" assert_omni_route_preserves_unowned_wrappers
 
 assert_turbopack_stages_and_preserves_unowned_wrappers() (
 	  export HOME="$TEST_ROOT/turbopack-home"
@@ -237,8 +245,7 @@ assert_turbopack_stages_and_preserves_unowned_wrappers() (
   [[ -e "$PREFIX/bin/node-glibc" ]]
   [[ ! -e "$PREFIX/bin/next-turbopack" && ! -e "$TURBO_DATA_DIR" ]]
 )
-assert_turbopack_stages_and_preserves_unowned_wrappers
-((pass += 1))
+run_test "Turbopack preserves unowned wrappers" assert_turbopack_stages_and_preserves_unowned_wrappers
 
 assert_kilocode_ownership_and_staging() (
   export HOME="$TEST_ROOT/kilocode-home"
@@ -277,15 +284,15 @@ assert_kilocode_ownership_and_staging() (
   uninstall_kilocode_cli
   [[ -f "$PREFIX/bin/kilocode" && -f "$PREFIX/bin/kilo" && -d "$KILOCODE_DATA_DIR" ]]
 )
-assert_kilocode_ownership_and_staging
-((pass += 1))
+run_test "Kilo Code ownership and staging" assert_kilocode_ownership_and_staging
 
 assert_odysseus_ownership() (
   export HOME="$TEST_ROOT/odysseus-home"
   export PREFIX="$TEST_ROOT/odysseus-prefix"
   export KARNEL_CACHE="$TEST_ROOT/odysseus-cache"
   export PATH="$PREFIX/bin:$PATH"
-  local ubuntu_root="$TEST_ROOT/odysseus-ubuntu"
+  export ODYSSEUS_TEST_UBUNTU_ROOT="$TEST_ROOT/odysseus-ubuntu"
+  local ubuntu_root="$ODYSSEUS_TEST_UBUNTU_ROOT"
   mkdir -p "$HOME" "$PREFIX/bin" "$KARNEL_CACHE" "$ubuntu_root/root/odysseus"
   import() { :; }
   log_info() { :; }
@@ -295,7 +302,7 @@ assert_odysseus_ownership() (
   loading() { shift; "$@"; }
   # shellcheck source=../karnel/tools/ai/odysseus/install.sh
   source "$ROOT_DIR/karnel/tools/ai/odysseus/install.sh"
-  _odysseus_detect_ubuntu_root() { printf '%s\n' "$ubuntu_root"; }
+  _odysseus_detect_ubuntu_root() { printf '%s\n' "$ODYSSEUS_TEST_UBUNTU_ROOT"; }
   _odysseus_dependencies() { return 1; }
 
   if install_odysseus; then return 1; fi
@@ -313,8 +320,7 @@ assert_odysseus_ownership() (
   uninstall_odysseus
   [[ -f "$PREFIX/bin/odysseus" && -d "$ODYSSEUS_DATA_DIR" && -d "$ubuntu_root/root/odysseus" ]]
 )
-assert_odysseus_ownership
-((pass += 1))
+run_test "Odysseus ownership" assert_odysseus_ownership
 
 assert_downloaded_games_and_network_installers() (
   export PREFIX="$TEST_ROOT/downloaded-python-prefix"
@@ -391,7 +397,7 @@ assert_downloaded_games_and_network_installers() (
     rm -rf "$PREFIX/bin/$tool" "${runtime_payload%/*}"
   done
 )
-assert_downloaded_games_and_network_installers
-((pass += 1))
+run_test "downloaded games and network installers" assert_downloaded_games_and_network_installers
 
-printf 'Tool installer contracts: %d passed\n' "$pass"
+printf 'Tool installer contracts: %d passed, %d failed\n' "$pass" "$failed"
+(( failed == 0 ))
