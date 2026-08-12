@@ -57,42 +57,44 @@ assert_cursor_and_railway_ownership() (
   export HOME="$TEST_ROOT/owned-home"
   export PREFIX="$TEST_ROOT/owned-prefix"
   export KARNEL_CACHE="$TEST_ROOT/cache"
-  mkdir -p "$HOME/.local/share/karnel-data/cursor" "$HOME/.local/share/karnel-data/railway" "$PREFIX/bin" "$KARNEL_CACHE"
+  export KARNEL_DATA="$HOME/.local/share/karnel-data"
+  local railway_data="$KARNEL_DATA/deploy/railway"
+  mkdir -p "$KARNEL_DATA/cursor" "$railway_data" "$PREFIX/bin" "$KARNEL_CACHE"
   import() { :; }
   log_warn() { :; }
 
   printf 'external cursor\n' >"$PREFIX/bin/cursor"
   printf 'external cursor-agent\n' >"$PREFIX/bin/cursor-agent"
-  printf 'external data\n' >"$HOME/.local/share/karnel-data/cursor/data"
+  printf 'external data\n' >"$KARNEL_DATA/cursor/data"
   source "$ROOT_DIR/karnel/tools/ai/cursor-cli/install.sh"
   uninstall_cursor_cli || [[ $? -eq 2 ]]
   [[ -f "$PREFIX/bin/cursor" && -f "$PREFIX/bin/cursor-agent" ]]
-  [[ -f "$HOME/.local/share/karnel-data/cursor/data" ]]
+  [[ -f "$KARNEL_DATA/cursor/data" ]]
 
-  rm -rf "$PREFIX/bin" "$HOME/.local/share/karnel-data/cursor"
-  mkdir -p "$PREFIX/bin" "$HOME/.local/share/karnel-data/cursor"
-  printf 'payload\n' >"$HOME/.local/share/karnel-data/cursor/data"
+  rm -rf "$PREFIX/bin" "$KARNEL_DATA/cursor"
+  mkdir -p "$PREFIX/bin" "$KARNEL_DATA/cursor"
+  printf 'payload\n' >"$KARNEL_DATA/cursor/data"
   _cursor_write_data_metadata
   _create_cursor_wrapper
   uninstall_cursor_cli
   [[ ! -e "$PREFIX/bin/cursor" && ! -e "$PREFIX/bin/cursor-agent" ]]
-  [[ ! -e "$HOME/.local/share/karnel-data/cursor" ]]
+  [[ ! -e "$KARNEL_DATA/cursor" ]]
 
   printf 'external railway\n' >"$PREFIX/bin/railway"
-  printf 'external data\n' >"$HOME/.local/share/karnel-data/railway/data"
+  printf 'external data\n' >"$railway_data/data"
   npm() { return 99; }
   source "$ROOT_DIR/karnel/tools/deploy/railway/install.sh"
   uninstall_railway
-  [[ -f "$PREFIX/bin/railway" && -f "$HOME/.local/share/karnel-data/railway/data" ]]
+  [[ -f "$PREFIX/bin/railway" && -f "$railway_data/data" ]]
 
-  rm -rf "$PREFIX/bin" "$HOME/.local/share/karnel-data/railway"
-  mkdir -p "$PREFIX/bin" "$HOME/.local/share/karnel-data/railway"
+  rm -rf "$PREFIX/bin" "$railway_data"
+  mkdir -p "$PREFIX/bin" "$railway_data"
   printf 'karnel railway\n' >"$PREFIX/bin/railway"
-  printf 'payload\n' >"$HOME/.local/share/karnel-data/railway/data"
+  printf 'payload\n' >"$railway_data/data"
   _railway_mark_install
   npm() { [[ "$1" == uninstall ]]; rm -f "$PREFIX/bin/railway"; }
   uninstall_railway
-  [[ ! -e "$PREFIX/bin/railway" && ! -e "$HOME/.local/share/karnel-data/railway" ]]
+  [[ ! -e "$PREFIX/bin/railway" && ! -e "$railway_data" ]]
 )
 assert_cursor_and_railway_ownership
 
