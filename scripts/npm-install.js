@@ -16,6 +16,7 @@ const { execSync, execFileSync } = require('child_process');
 const packageVersion = require('../package.json').version;
 
 const isTermux = () => {
+  if (process.env.KARNEL_TEST_TERMUX === '1') return true;
   return (
     process.env.PREFIX &&
     process.env.PREFIX.includes('/com.termux') &&

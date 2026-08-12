@@ -22,6 +22,7 @@ chmod +x "$FAKE_BIN/npm" "$FAKE_BIN/bash"
 PATH="$FAKE_BIN:$PATH" \
 PREFIX="$PREFIX" \
 NPM_POSTINSTALL_ARGS="$ARGS_FILE" \
+KARNEL_TEST_TERMUX=1 \
 node "$ROOT_DIR/scripts/npm-install.js" >/dev/null
 
 expected_version=$(node -p "require('$ROOT_DIR/package.json').version")

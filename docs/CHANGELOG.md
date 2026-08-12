@@ -1,14 +1,5 @@
 # Documentation Changelog
 
-## 4.13.13 - 2026-08-10
-
-- Corrected the portable npm postinstall fixture used by release validation.
-
-## 4.13.12 - 2026-08-10
-
-- Fixed the npm postinstall release contract so it runs on GitHub Actions and
-  Termux using the active Bash interpreter.
-
 ## 4.13.11 - 2026-08-10
 
 - Hardened installers to preserve user-managed commands and data, with atomic
@@ -18,6 +9,7 @@
 - Added Android-compatible Railway installation through Ubuntu Proot and
   verified Railway and Netlify CLI installation on Termux.
 - Synchronized CLI, GitHub README, npm metadata, and site documentation.
+- Corrected the portable npm postinstall fixture used by release validation.
 
 ## 4.13.10 - 2026-08-06
 
