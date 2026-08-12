@@ -4,6 +4,8 @@ set -euo pipefail
 ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 TEST_ROOT=$(mktemp -d)
 trap 'rm -rf "$TEST_ROOT"' EXIT
+SYSTEM_RM=$(command -v rm)
+SYSTEM_CHMOD=$(command -v chmod)
 
 pass=0
 
@@ -18,11 +20,11 @@ assert_keelcode_lifecycle() (
   log_success() { :; }
   log_error() { :; }
   tail() { :; }
-  rm() { /data/data/com.termux/files/usr/bin/rm "$@"; }
+  rm() { "$SYSTEM_RM" "$@"; }
   npm() {
     case "$1" in
-    install) printf '#!/usr/bin/env bash\nexit 0\n' >"$TEST_ROOT/prefix/bin/keelcode"; /data/data/com.termux/files/usr/bin/chmod +x "$TEST_ROOT/prefix/bin/keelcode" ;;
-    uninstall) /data/data/com.termux/files/usr/bin/rm -f "$TEST_ROOT/prefix/bin/keelcode" ;;
+    install) printf '#!/usr/bin/env bash\nexit 0\n' >"$TEST_ROOT/prefix/bin/keelcode"; "$SYSTEM_CHMOD" +x "$TEST_ROOT/prefix/bin/keelcode" ;;
+    uninstall) "$SYSTEM_RM" -f "$TEST_ROOT/prefix/bin/keelcode" ;;
     update) : ;;
     esac
   }
