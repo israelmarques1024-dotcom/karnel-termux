@@ -110,7 +110,7 @@ karnel_help() {
   echo
   log_info "Use with: karnel install|update|reinstall|uninstall <target> [--tool...]"
   echo
-  printf "    ${D_GREEN}%-10s${NC} %s\n" "ai" "41 AI tools (OpenCode, Claude, KeelCode, Ollama, Copilot-Termux, Goose, etc.)"
+  printf "    ${D_GREEN}%-10s${NC} %s\n" "ai" "43 AI tools (OpenCode, Cactus, Hugging Face, Claude, Ollama, Goose, etc.)"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "auto" "Automation (n8n)"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "db" "PostgreSQL, MariaDB, SQLite, MongoDB, Redis"
   printf "    ${D_GREEN}%-10s${NC} %s\n" "deploy" "Vercel, Railway, Netlify, Supabase CLIs"
@@ -370,7 +370,7 @@ _tui_list_menu() {
   local modules="ai db lang dev editor npm shell ui auto deploy games network utils osint voice plugin security"
   local choice
   choice=$(_dialog_menu "List Tools" "Select a module to list:" \
-    "ai" "AI Agents (41)" \
+    "ai" "AI Tools (43)" \
     "db" "Databases" \
     "lang" "Programming Languages" \
     "editor" "Code Editors" \
@@ -760,49 +760,13 @@ _tui_install_checklist() {
       )
       ;;
     ai)
-      opts=(
-        "qwen-code" "Qwen Code" OFF
-        "gemini-cli" "Gemini CLI" OFF
-        "claude-code" "Claude Code" OFF
-        "mistral-vibe" "Mistral Vibe" OFF
-        "openclaude" "OpenClaude" OFF
-        "openclaw" "OpenClaw" OFF
-        "ollama" "Ollama" OFF
-        "codex" "Codex CLI" OFF
-        "opencode" "OpenCode" OFF
-        "mimocode" "MiMo Code" OFF
-        "engram" "Engram" OFF
-        "codegraph" "CodeGraph" OFF
-        "pi" "Pi" OFF
-        "antigravity-cli" "Antigravity CLI" OFF
-        "gentle-ai" "Gentle AI" OFF
-        "minimax-cli" "Minimax CLI" OFF
-        "gga" "GGA" OFF
-        "hermes-agent" "Hermes Agent" OFF
-        "kimi-code" "Kimi Code" OFF
-        "command-code" "Command Code" OFF
-        "codebuff" "Codebuff" OFF
-        "freebuff" "Freebuff" OFF
-        "crush" "Crush CLI" OFF
-        "odysseus" "Odysseus" OFF
-        "kilocode-cli" "Kilo Code CLI" OFF
-        "kiro" "Kiro CLI" OFF
-        "cline" "Cline CLI" OFF
-        "kimchi-code" "Kimchi CLI" OFF
-        "omni-route" "omniRoute" OFF
-        "ctx7" "Context7 Docs" OFF
-        "openspec" "OpenSpec SDD" OFF
-        "supercode-cli" "Supercode CLI" OFF
-        "puter" "Puter CLI" OFF
-        "keelcode" "KeelCode" OFF
-        "copilot-termux" "Copilot-Termux" OFF
-        "qoder" "Qoder" OFF
-        "ampcode" "AMP Code CLI" OFF
-        "cursor-cli" "Cursor CLI" OFF
-        "oh-my-pi" "Oh-My-Pi" OFF
-        "goose" "Goose CLI" OFF
-        "droid" "Factory Droid" OFF
-      )
+      import "@/tools/ai/all"
+      opts=()
+      local entry id name binaries
+      for entry in "${AI_TOOLS_REGISTRY[@]}"; do
+        IFS=':' read -r id name binaries <<< "$entry"
+        opts+=("$id" "$name" OFF)
+      done
       ;;
     dev)
       opts=(

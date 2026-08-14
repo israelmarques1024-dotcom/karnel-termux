@@ -72,7 +72,7 @@ uninstall_openclaw() {
   log_info "Uninstalling OpenClaw..."
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  loading "Removing OpenClaw" _uninstall_openclaw_impl
+  loading "Removing OpenClaw" _uninstall_openclaw_impl || return 1
 
   log_success "OpenClaw uninstalled"
   return 0

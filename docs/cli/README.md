@@ -22,7 +22,7 @@ karnel install <module> --tool1 --tool2  # Install specific tools only
 |-----------|-------------|
 | `lang`    | Node.js, Python, Go, Rust, C/C++, PHP, Perl, Bun |
 | `db`      | PostgreSQL, MariaDB, SQLite, MongoDB, Redis |
-| `ai`      | 41 AI agents (OpenCode, Claude Code, KeelCode, Codebuff, Freebuff, Qoder, AMP Code, Cursor CLI, Oh-My-Pi, Goose, Factory Droid, Puter, Ollama, etc.) |
+| `ai`      | 43 AI tools (OpenCode, Cactus, Hugging Face, Claude Code, KeelCode, Goose, Factory Droid, Ollama, etc.) |
 | `editor`  | code-server (VS Code in browser), Neovim, NvChad |
 | `dev`     | gh, curl, fzf, bat, lsd, jq, tmux, openssh, snyk (22 tools) |
 | `npm`     | TypeScript, NestJS CLI, Prettier, Vercel CLI, etc. |
@@ -42,7 +42,7 @@ karnel install <module> --tool1 --tool2  # Install specific tools only
 
 | Module    | Flags |
 |-----------|-------|
-| `ai`      | `--qwen-code`, `--gemini-cli`, `--claude-code`, `--mistral-vibe`, `--openclaude`, `--openclaw`, `--ollama`, `--codex`, `--opencode`, `--mimocode`, `--engram`, `--codegraph`, `--pi`, `--antigravity-cli`, `--minimax-cli`, `--gentle-ai`, `--gga`, `--hermes-agent`, `--kimi-code`, `--command-code`, `--codebuff`, `--freebuff`, `--kilocode-cli`, `--kiro`, `--crush`, `--cline`, `--odysseus`, `--kimchi-code`, `--omni-route`, `--ctx7`, `--openspec`, `--supercode-cli`, `--puter`, `--keelcode`, `--copilot-termux`, `--qoder`, `--ampcode`, `--cursor-cli`, `--oh-my-pi`, `--goose`, `--droid` |
+| `ai`      | `--qwen-code`, `--gemini-cli`, `--claude-code`, `--mistral-vibe`, `--openclaude`, `--openclaw`, `--ollama`, `--codex`, `--opencode`, `--mimocode`, `--engram`, `--codegraph`, `--pi`, `--antigravity-cli`, `--minimax-cli`, `--gentle-ai`, `--gga`, `--hermes-agent`, `--kimi-code`, `--command-code`, `--codebuff`, `--freebuff`, `--kilocode-cli`, `--kiro`, `--crush`, `--cline`, `--odysseus`, `--kimchi-code`, `--omni-route`, `--ctx7`, `--openspec`, `--supercode-cli`, `--puter`, `--keelcode`, `--copilot-termux`, `--qoder`, `--ampcode`, `--cursor-cli`, `--oh-my-pi`, `--goose`, `--droid`, `--cactus`, `--hugging-face` |
 | `db`      | `--postgresql`, `--mariadb`, `--sqlite`, `--mongodb`, `--redis` |
 | `dev`     | `--gh`, `--wget`, `--curl`, `--lsd`, `--bat`, `--proot`, `--ncurses`, `--tmate`, `--openssh`, `--tmux`, `--cloudflared`, `--translate`, `--html2text`, `--jq`, `--bc`, `--tree`, `--fzf`, `--imagemagick`, `--shfmt`, `--make`, `--udocker`, `--snyk` |
 | `lang`    | `--bun`, `--nodejs`, `--python`, `--perl`, `--php`, `--rust`, `--clang`, `--golang` |
@@ -136,7 +136,7 @@ binary/command name, and current install status.
 |-----------|-------|
 | `lang`    | 8 languages |
 | `db`      | 5 databases |
-| `ai`      | 41 AI agents |
+| `ai`      | 43 AI tools |
 | `editor`  | 3 editor components |
 | `dev`     | 22 development tools |
 | `npm`     | 11 npm global modules |

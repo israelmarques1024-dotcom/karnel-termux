@@ -67,7 +67,7 @@ uninstall_codex() {
 	log_info "Uninstalling Codex CLI..."
 	mkdir -p "$(dirname "$LOG_FILE")"
 
-	loading "Removing Codex CLI" _uninstall_codex_impl
+	loading "Removing Codex CLI" _uninstall_codex_impl || return 1
 
 	log_success "Codex CLI uninstalled"
 	return 0

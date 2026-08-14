@@ -188,9 +188,7 @@ _install_specific_tools() {
     local failed_count=0
     local skipped_count=0
 
-    # These entries MUST stay in sync with AI_TOOLS_REGISTRY in karnel/tools/ai/all.sh
-    # To add a new tool: 1) create install.sh 2) add to AI_TOOLS_REGISTRY 3) add case here
-    # Import the registry for _validate_tool_installed
+    # The registry is authoritative for accepted flags and post-install binaries.
     local -A _tool_binaries=()
     local _entry _id _name _bins
     for _entry in "${AI_TOOLS_REGISTRY[@]}"; do
@@ -200,7 +198,12 @@ _install_specific_tools() {
 
     for tool in "${tools[@]}"; do
       local func_name="install_${tool//-/_}"
-      local tool_display="${tool//-/_}"
+
+      if [[ -z "${_tool_binaries[$tool]+registered}" ]]; then
+        log_warn "Unknown AI tool: --$tool"
+        ((failed_count++))
+        continue
+      fi
 
       if declare -f "$func_name" &>/dev/null; then
         "$func_name"

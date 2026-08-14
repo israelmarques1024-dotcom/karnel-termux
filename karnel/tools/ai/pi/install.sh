@@ -67,7 +67,7 @@ uninstall_pi() {
   log_info "Uninstalling Pi Coding Agent..."
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  loading "Removing Pi Coding Agent" _uninstall_pi_impl
+  loading "Removing Pi Coding Agent" _uninstall_pi_impl || return 1
 
   log_success "Pi uninstalled"
   return 0

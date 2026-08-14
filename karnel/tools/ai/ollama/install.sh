@@ -41,7 +41,7 @@ uninstall_ollama() {
   log_info "Uninstalling Ollama..."
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  loading "Removing Ollama" _uninstall_ollama_impl
+  loading "Removing Ollama" _uninstall_ollama_impl || return 1
 
   log_success "Ollama uninstalled"
   return 0

@@ -13,7 +13,14 @@ _batch_tool_action() {
 
   for tool in "${tools[@]}"; do
     local func_name="${action}_${tool//-/_}"
-    if declare -f "$func_name" &>/dev/null; then
+    if [[ "$module" == "ai" ]] && declare -f _run_ai_tool_action &>/dev/null; then
+      _run_ai_tool_action "$action" "$tool"
+      case $? in
+        0) ((success_count++));;
+        2) ((skipped_count++));;
+        *) ((failed_count++));;
+      esac
+    elif declare -f "$func_name" &>/dev/null; then
       "$func_name"
       case $? in
         0) ((success_count++));;

@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux">
-    <img src="https://img.shields.io/badge/version-4.13.11-0078D4?style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/badge/version-4.14.0-0078D4?style=for-the-badge" alt="Version">
   </a>
   <a href="https://www.npmjs.com/package/karnel-termux">
     <img src="https://img.shields.io/npm/v/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
@@ -33,7 +33,7 @@
 
 Created by **Israel Marques**.
 
-- **41 AI agents** for coding — Claude, Gemini, OpenCode, KeelCode, Qoder, Ollama, Goose, Factory Droid, Cline, Puter, OmniRoute and more
+- **43 AI tools** — Claude, Gemini, OpenCode, Cactus, Hugging Face, Ollama, KeelCode, Goose, Factory Droid and more
 - **8 languages** — Node.js, Python, Go, Rust, C/C++, PHP, Perl, Bun
 - **5 databases** — PostgreSQL, MariaDB, SQLite, MongoDB, Redis
 - **22 dev tools** — gh, curl, fzf, bat, lsd, jq, tmux, openssh, snyk and more
@@ -115,7 +115,7 @@ karnel
 |--------|-------------|--------------|
 | `lang` | Node.js, Python, Go, Rust, C/C++, PHP, Perl, Bun | `karnel install lang` |
 | `db` | PostgreSQL, MariaDB, SQLite, MongoDB, Redis | `karnel install db` |
-| `ai` | 41 AI agents for coding, including KeelCode | `karnel install ai` |
+| `ai` | 43 AI tools, agents, and local inference clients | `karnel install ai` |
 | `editor` | code-server (VS Code in browser), Neovim, NvChad | `karnel install editor` |
 | `dev` | gh, curl, fzf, bat, lsd, jq and more | `karnel install dev` |
 | `npm` | TypeScript, NestJS CLI, Prettier and more | `karnel install npm` |
@@ -259,7 +259,7 @@ See the bundled reference with `karnel show osint --robin`.
 
 ---
 
-## AI Agents (41)
+## AI Tools (43)
 
 ```bash
 karnel install ai                             # Install all
@@ -278,6 +278,8 @@ karnel install ai --opencode --ollama         # Install specific agents
 | **OpenClaude** | `--openclaude` | Open source Claude Code alternative |
 | **OpenClaw** | `--openclaw` | Personal AI assistant |
 | **Ollama** | `--ollama` | Run open source LLMs locally |
+| **Cactus** | `--cactus` | On-device ARM64 inference through an isolated Ubuntu runtime |
+| **Hugging Face** | `--hugging-face` | Official Hugging Face Hub CLI (`hf`) |
 | **Codex CLI** | `--codex` | OpenAI coding agent |
 | **OpenCode** | `--opencode` | Open source terminal agent |
 | **MiMoCode** | `--mimocode` | Fast open source AI agent |
@@ -545,7 +547,7 @@ karnel/
 │   │   └── karnel.sh    # Main CLI (with TUI)
 │   ├── modules/       # Module orchestrators
 │   ├── tools/         # Tool installers
-│   │   ├── ai/        # 41 AI agents
+│   │   ├── ai/        # 43 AI tools
 │   │   ├── lang/      # 8 languages
 │   │   ├── db/        # 5 databases
 │   │   ├── dev/       # 22 dev tools

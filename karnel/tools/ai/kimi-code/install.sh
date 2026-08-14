@@ -69,7 +69,7 @@ uninstall_kimi_code() {
   log_info "Uninstalling Kimi Code..."
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  loading "Removing Kimi Code" _uninstall_kimi_code_impl
+  loading "Removing Kimi Code" _uninstall_kimi_code_impl || return 1
 
   log_success "Kimi Code uninstalled successfully"
   return 0

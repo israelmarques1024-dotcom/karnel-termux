@@ -6,6 +6,7 @@ cd "$ROOT_DIR"
 
 bash tests/check-syntax.sh
 bash tests/smoke.sh
+bash tests/ai-registry.sh
 bash tests/version.sh
 bash tests/cli-lifecycle.sh
 bash tests/installer.sh

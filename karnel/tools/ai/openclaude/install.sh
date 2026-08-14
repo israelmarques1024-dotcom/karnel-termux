@@ -70,7 +70,7 @@ uninstall_openclaude() {
   log_info "Uninstalling OpenClaude..."
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  loading "Removing OpenClaude" _uninstall_openclaude_impl
+  loading "Removing OpenClaude" _uninstall_openclaude_impl || return 1
 
   log_success "OpenClaude uninstalled"
   return 0

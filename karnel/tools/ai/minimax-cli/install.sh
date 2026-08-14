@@ -69,7 +69,7 @@ uninstall_minimax_cli() {
   log_info "Uninstalling MiniMax CLI..."
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  loading "Removing MiniMax CLI" _uninstall_minimax_cli_impl
+  loading "Removing MiniMax CLI" _uninstall_minimax_cli_impl || return 1
 
   log_success "MiniMax CLI uninstalled successfully"
   return 0

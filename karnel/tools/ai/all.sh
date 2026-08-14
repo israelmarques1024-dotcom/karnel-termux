@@ -69,6 +69,8 @@ AI_TOOLS_REGISTRY=(
   "oh-my-pi:Oh-My-Pi:omp"
   "goose:Goose CLI:goose"
   "droid:Factory Droid:droid"
+  "cactus:Cactus:cactus"
+  "hugging-face:Hugging Face:hf"
 )
 
 # ---- IMPORTAR TODOS OS SCRIPTS INDIVIDUAIS ----
@@ -115,6 +117,41 @@ _validate_tool_installed() {
 
 # ---- FUNÇÕES DE LOTE ----
 
+_ai_tool_registered() {
+  local wanted="$1"
+  local entry id
+  for entry in "${AI_TOOLS_REGISTRY[@]}"; do
+    id="${entry%%:*}"
+    [[ "$id" == "$wanted" ]] && return 0
+  done
+  return 1
+}
+
+_run_ai_tool_action() {
+  local action="$1"
+  local id="$2"
+  local func_name="${action}_${id//-/_}"
+
+  _ai_tool_registered "$id" || return 127
+
+  if [[ "$action" != "reinstall" ]]; then
+    declare -f "$func_name" &>/dev/null || return 127
+    "$func_name"
+    return $?
+  fi
+
+  local uninstall_fn="uninstall_${id//-/_}"
+  local install_fn="install_${id//-/_}"
+  declare -f "$uninstall_fn" &>/dev/null && declare -f "$install_fn" &>/dev/null || return 127
+
+  "$uninstall_fn"
+  local uninstall_rc=$?
+  if [[ $uninstall_rc -ne 0 && $uninstall_rc -ne 2 ]]; then
+    return "$uninstall_rc"
+  fi
+  "$install_fn"
+}
+
 _all_ai_tools_action() {
   local action="$1"        # install, uninstall, update, reinstall
   local action_label="$2"  # Instalando, Removendo, Atualizando, Reinstalando
@@ -128,15 +165,12 @@ _all_ai_tools_action() {
 
   for entry in "${AI_TOOLS_REGISTRY[@]}"; do
     IFS=':' read -r id name binaries <<< "$entry"
-    local func_name="${action}_${id//-/_}"
-
     ((current++))
 
-    if declare -f "$func_name" &>/dev/null; then
-      "$func_name"
-      local rc=$?
+    _run_ai_tool_action "$action" "$id"
+    local rc=$?
 
-      case $rc in
+    case $rc in
         0)
           # Pós-validação apenas para install
           if [[ "$action" == "install" ]]; then
@@ -161,11 +195,11 @@ _all_ai_tools_action() {
         2)
           ((skipped_count++))
           ;;
-      esac
-    else
-      log_warn "Função não encontrada: $func_name"
-      ((failed_count++))
-    fi
+        *)
+          log_warn "$name: ${action}_${id//-/_} returned status $rc"
+          ((failed_count++))
+          ;;
+    esac
 
     progress_update "$current" "$total"
   done

@@ -142,7 +142,7 @@ uninstall_codegraph() {
 	log_info "Uninstalling CodeGraph..."
 	mkdir -p "$(dirname "$LOG_FILE")"
 
-	loading "Removing CodeGraph" _uninstall_codegraph_impl
+	loading "Removing CodeGraph" _uninstall_codegraph_impl || return 1
 
 	log_success "CodeGraph uninstalled"
 	return 0

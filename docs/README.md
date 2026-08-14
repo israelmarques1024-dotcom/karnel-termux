@@ -14,7 +14,7 @@
 ## What is Karnel?
 
 Karnel Termux transforms your Android device into a complete development workstation.
-With a single CLI (`karnel`), you can install and manage 41 AI agents, 8 languages,
+With a single CLI (`karnel`), you can install and manage 43 AI tools, 8 languages,
 5 databases, 22 dev tools, 12 utility tools, 2 network tools, 6 games, responsible OSINT, and more.
 
 ## Sections

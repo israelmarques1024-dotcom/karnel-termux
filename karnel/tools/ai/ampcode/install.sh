@@ -214,9 +214,9 @@ uninstall_ampcode() {
   mkdir -p "$(dirname "$LOG_FILE")"
   if [ ! -f "$PREFIX/bin/amp" ]; then
     log_warn "AMP Code CLI is not installed"
-    return 1
+    return 2
   fi
-  loading "Uninstalling AMP Code CLI" _uninstall_ampcode_impl
+  loading "Uninstalling AMP Code CLI" _uninstall_ampcode_impl || return 1
 }
 
 _uninstall_ampcode_impl() {

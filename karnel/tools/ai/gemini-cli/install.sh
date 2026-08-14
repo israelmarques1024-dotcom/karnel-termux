@@ -71,7 +71,7 @@ uninstall_gemini_cli() {
   log_info "Uninstalling Gemini CLI..."
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  loading "Removing Gemini CLI" _uninstall_gemini_cli_impl
+  loading "Removing Gemini CLI" _uninstall_gemini_cli_impl || return 1
 
   log_success "Gemini CLI uninstalled"
   return 0

@@ -85,7 +85,7 @@ uninstall_engram() {
   log_info "Uninstalling Engram..."
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  loading "Removing Engram" _uninstall_engram_impl
+  loading "Removing Engram" _uninstall_engram_impl || return 1
 
   log_success "Engram uninstalled"
   return 0

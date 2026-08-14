@@ -38,14 +38,17 @@ install_ai() {
   echo
 
   # Mostra apenas ferramentas que foram realmente instaladas (command -v)
-  local _reg_entry _id _name _bins
+  local _reg_entry _id _name _bins _bin
+  local -a _registered_bins
   for _reg_entry in "${AI_TOOLS_REGISTRY[@]}"; do
     IFS=':' read -r _id _name _bins <<< "$_reg_entry"
-    # Pega o primeiro binario da lista (separado por virgula)
-    local _first_bin="${_bins%%,*}"
-    if command -v "$_first_bin" &>/dev/null; then
-      list_item "$_name ${GRAY}(${D_GREEN}$_first_bin${GRAY})"
-    fi
+    IFS=',' read -ra _registered_bins <<< "$_bins"
+    for _bin in "${_registered_bins[@]}"; do
+      if command -v "$_bin" &>/dev/null; then
+        list_item "$_name ${GRAY}(${D_GREEN}$_bin${GRAY})"
+        break
+      fi
+    done
   done
 
   echo
@@ -117,17 +120,6 @@ reinstall_ai() {
   local rc=0
   import "@/tools/ai/all"
   reinstall_all_ai_tools || rc=$?
-  echo
-  log_info "Reinstalled tools:"
-  echo
-
-  local _reg_entry _id _name _bins
-  for _reg_entry in "${AI_TOOLS_REGISTRY[@]}"; do
-    IFS=':' read -r _id _name _bins <<< "$_reg_entry"
-    list_item "$_name"
-  done
-  echo
-
   if [ "$rc" -eq 0 ]; then
     log_success "AI tools reinstalled successfully"
   else

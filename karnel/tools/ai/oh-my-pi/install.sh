@@ -226,10 +226,10 @@ _omp_is_proot() {
 uninstall_oh_my_pi() {
   mkdir -p "$(dirname "$LOG_FILE")"
   if _omp_is_native; then
-    loading "Uninstalling Oh-My-Pi (native)" _uninstall_omp_native_impl
+    loading "Uninstalling Oh-My-Pi (native)" _uninstall_omp_native_impl || return 1
     log_success "Oh-My-Pi (native) uninstalled"
   elif _omp_is_proot; then
-    loading "Uninstalling Oh-My-Pi (proot-distro)" _uninstall_omp_proot_impl
+    loading "Uninstalling Oh-My-Pi (proot-distro)" _uninstall_omp_proot_impl || return 1
     log_success "Oh-My-Pi (proot-distro) uninstalled"
   else
     log_info "Oh-My-Pi is not installed"

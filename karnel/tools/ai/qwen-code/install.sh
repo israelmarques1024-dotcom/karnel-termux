@@ -71,7 +71,7 @@ uninstall_qwen_code() {
   log_info "Uninstalling Qwen Code..."
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  loading "Removing Qwen Code" _uninstall_qwen_code_impl
+  loading "Removing Qwen Code" _uninstall_qwen_code_impl || return 1
 
   log_success "Qwen Code uninstalled"
   return 0

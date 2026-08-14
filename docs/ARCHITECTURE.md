@@ -27,7 +27,7 @@ karnel-termux/
 │   │       ├── dev.sh          # Dev tools installer
 │   │       └── ...
 │   ├── tools/                  # Individual tool installers
-│   │   ├── ai/                 # 41 AI agents
+│   │   ├── ai/                 # 43 AI tools
 │   │   ├── lang/               # 8 languages
 │   │   ├── db/                 # 5 databases
 │   │   ├── dev/                # 22 dev tools

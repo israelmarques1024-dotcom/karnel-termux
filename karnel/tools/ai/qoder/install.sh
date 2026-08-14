@@ -259,10 +259,10 @@ uninstall_qoder() {
 
   if [ ! -f "$PREFIX/bin/qodercli" ]; then
     log_warn "Qoder is not installed"
-    return 1
+    return 2
   fi
 
-  loading "Uninstalling Qoder" _uninstall_qoder_impl
+  loading "Uninstalling Qoder" _uninstall_qoder_impl || return 1
 }
 
 _uninstall_qoder_impl() {

@@ -441,8 +441,12 @@ ia_routes() {
 
 	local -a routes=()
 
-	# Collect all available AI CLIs (em sincronia com AI_TOOLS_REGISTRY em tools/ai/all.sh)
-	for cmd in qwen gemini claude vibe openclaude openclaw ollama codex opencode mimo engram codegraph pi agy mmx gentle-ai gga hermes kimi command-code codebuff freebuff kilocode kiro cline crush odysseus kimchi omni-route ctx7 openspec copilot amp cursor omp goose droid supercode puter; do
+	import "@/tools/ai/all"
+	local entry binaries cmd
+	for entry in "${AI_TOOLS_REGISTRY[@]}"; do
+		binaries="${entry##*:}"
+		IFS=',' read -ra route_commands <<< "$binaries"
+		for cmd in "${route_commands[@]}"; do
 		if command -v "$cmd" &>/dev/null; then
 			local path
 			path=$(command -v "$cmd")
@@ -450,12 +454,8 @@ ia_routes() {
 		else
 			routes+=("$cmd|not installed|missing")
 		fi
+		done
 	done
-
-	if [[ ${#routes[@]} -eq 0 ]]; then
-		log_warn "No AI CLIs found"
-		return 0
-	fi
 
 	table_start "CLI" "Path" "Status"
 	for route in "${routes[@]}"; do

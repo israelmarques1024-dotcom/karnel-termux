@@ -79,7 +79,7 @@ uninstall_mistral_vibe() {
   log_info "Uninstalling Mistral Vibe..."
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  loading "Removing Mistral Vibe" _uninstall_mistral_vibe_impl
+  loading "Removing Mistral Vibe" _uninstall_mistral_vibe_impl || return 1
 
   log_success "Mistral Vibe uninstalled"
   return 0

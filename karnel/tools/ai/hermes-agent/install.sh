@@ -86,7 +86,7 @@ uninstall_hermes_agent() {
   log_info "Uninstalling Hermes Agent..."
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  loading "Removing Hermes Agent" _uninstall_hermes_agent_impl
+  loading "Removing Hermes Agent" _uninstall_hermes_agent_impl || return 1
 
   log_success "Hermes Agent uninstalled successfully"
   return 0

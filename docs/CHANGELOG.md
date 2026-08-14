@@ -1,5 +1,17 @@
 # Documentation Changelog
 
+## 4.14.0 - 2026-08-14
+
+- Added tested Cactus 2.0.1 support on ARM64 through Ubuntu Proot with an
+  isolated compatible Python runtime.
+- Added the official Hugging Face `hf` CLI in an isolated native Termux
+  environment, using HTTP transport when the optional Xet Android wheel is
+  unavailable.
+- Made the AI registry authoritative for TUI selection, route discovery, and
+  lifecycle dispatch, with contracts covering all 43 registered tools.
+- Fixed AI reinstall and uninstall error propagation, unknown status handling,
+  binary alias summaries, ownership checks, and stale tool counts.
+
 ## 4.13.11 - 2026-08-10
 
 - Hardened installers to preserve user-managed commands and data, with atomic

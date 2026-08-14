@@ -122,7 +122,7 @@ uninstall_command_code() {
   log_info "Uninstalling Command Code..."
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  loading "Removing Command Code files" _uninstall_command_code_impl
+  loading "Removing Command Code files" _uninstall_command_code_impl || return 1
 
   log_success "Command Code uninstalled"
   return 0

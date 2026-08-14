@@ -195,10 +195,10 @@ uninstall_kilocode_cli() {
 
   if ! _kilocode_wrapper_owned && ! _kilocode_alias_owned && ! _kilocode_data_owned; then
     log_warn "Kilo Code CLI is not installed"
-    return 1
+    return 2
   fi
 
-  loading "Uninstalling Kilo Code CLI" _uninstall_kilocode_cli_impl
+  loading "Uninstalling Kilo Code CLI" _uninstall_kilocode_cli_impl || return 1
 }
 
 _uninstall_kilocode_cli_impl() {
@@ -213,6 +213,6 @@ update_kilocode_cli() {
 }
 
 reinstall_kilocode_cli() {
-  uninstall_kilocode_cli
+  uninstall_kilocode_cli || [[ $? -eq 2 ]] || return 1
   install_kilocode_cli
 }
