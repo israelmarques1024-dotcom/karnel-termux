@@ -461,6 +461,26 @@ test_active_operation_lock_prevents_removal() {
   [[ ! -e "$PLUGINS_DIR/removal-plugin" ]]
 }
 
+test_stale_operation_locks_are_recovered() {
+  reset_state
+  local lock start lock_case
+
+  for lock_case in empty orphan reused; do
+    lock="$PLUGINS_DIR/.karnel-lock-stale-plugin"
+    mkdir "$lock"
+    case "$lock_case" in
+      orphan) printf '%s\n' 99999999 >"$lock/pid" ;;
+      reused)
+        printf '%s\n' "${BASHPID:-$$}" >"$lock/pid"
+        start="$(_karnel_process_start_time "${BASHPID:-$$}")" || return 1
+        printf '%s\n' "$((start + 1))" >"$lock/start"
+        ;;
+    esac
+    _plugin_acquire_plugin_lock stale-plugin || return 1
+    _plugin_release_plugin_lock || return 1
+  done
+}
+
 test_create_and_legacy_module_do_not_install_false_plugin() {
   reset_state
   local output
@@ -638,6 +658,7 @@ run_test "schema, integrity, compatibility, handlers, symlinks and native collis
 run_test "interrupted replacement and legacy reinstall recover safely" test_interrupted_replacement_and_legacy_reinstall_are_recovered
 run_test "active operation lock prevents concurrent activation" test_active_operation_lock_prevents_concurrent_activation
 run_test "active operation lock prevents concurrent removal" test_active_operation_lock_prevents_removal
+run_test "stale operation locks are recovered" test_stale_operation_locks_are_recovered
 run_test "create works and legacy module does not clone Karnel" test_create_and_legacy_module_do_not_install_false_plugin
 run_test "path traversal is rejected" test_path_traversal_is_rejected
 run_test "plugin command collisions are blocked" test_command_collisions_are_blocked

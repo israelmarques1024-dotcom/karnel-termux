@@ -7,6 +7,7 @@ import "@/utils/uninstall"
 ZSH_PLUGINS_DIR="$HOME/.zsh-plugins"
 OH_MY_ZSH_DIR="$HOME/.oh-my-zsh"
 LOG_FILE="$KARNEL_CACHE/install_shell.log"
+OH_MY_ZSH_REF="b54a71977574cfcf659cc2f15a5e6422f17a8da7"
 
 install_termux_packages() {
 	log_info "Installing dependencies..."
@@ -20,7 +21,7 @@ install_termux_packages() {
 	fi
 }
 
-install_oh_my_zsh() {
+install_oh_my_zsh() (
 	if [[ -d "$OH_MY_ZSH_DIR" ]]; then
 		log_warn "Oh My Zsh already installed"
 		return 0
@@ -30,21 +31,37 @@ install_oh_my_zsh() {
 	log_info "When prompted, enter (Y/n) to set ZSH as your default shell"
 	echo
 
-	local temp_dir="${PREFIX:-/tmp}/tmp"
-	mkdir -p "$temp_dir"
-	local temp_file="$temp_dir/omz_install.sh"
+	local temp_base temp_dir temp_file
+	temp_base="${TMPDIR:-${PREFIX:-/tmp}/tmp}"
+	mkdir -p "$temp_base" || return 1
+	temp_dir=$(mktemp -d "$temp_base/karnel-omz.XXXXXX") || {
+		log_error "Failed to create private Oh My Zsh temporary directory"
+		return 1
+	}
+	trap 'rm -rf "$temp_dir"' EXIT
+	temp_file="$temp_dir/install.sh"
 
-	if curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -o "$temp_file" &>>"$LOG_FILE"; then
-		sed -i '/exec zsh -l/s/^/#/' "$temp_file"
-		sh "$temp_file" &>>"$LOG_FILE"
-		rm "$temp_file"
+	if curl -fsSL "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/$OH_MY_ZSH_REF/tools/install.sh" -o "$temp_file" &>>"$LOG_FILE"; then
+		# Keep the reviewed installer behavior, but fetch and check out the reviewed commit.
+		sed -i "s|git fetch --depth=1 origin|git fetch --depth=1 origin $OH_MY_ZSH_REF|" "$temp_file"
+		# shellcheck disable=SC2016
+		sed -i 's|git checkout -b "$BRANCH" "origin/$BRANCH"|git checkout --detach FETCH_HEAD|' "$temp_file"
+		if ! grep -qF "git fetch --depth=1 origin $OH_MY_ZSH_REF" "$temp_file" ||
+			! grep -qF 'git checkout --detach FETCH_HEAD' "$temp_file"; then
+			log_error "Unable to pin the Oh My Zsh clone"
+			return 1
+		fi
+		if ! CHSH=no RUNZSH=no BRANCH="$OH_MY_ZSH_REF" sh "$temp_file" &>>"$LOG_FILE"; then
+			log_error "Failed to install Oh My Zsh"
+			return 1
+		fi
 		log_success "Oh My Zsh installed successfully"
 		return 0
 	else
 		log_error "Failed to download Oh My Zsh"
 		return 1
 	fi
-}
+)
 
 add_to_zshrc() {
 	local line="$1"

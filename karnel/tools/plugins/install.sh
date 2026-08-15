@@ -993,27 +993,10 @@ _plugin_recover_all_interrupted_replacements() {
 _plugin_acquire_plugin_lock() {
   local name="$1"
   local lock="$PLUGINS_DIR/.karnel-lock-$name"
-  local owner=""
-  local current_pid="${BASHPID:-$$}"
 
-  if mkdir -- "$lock"; then
-    if ! printf '%s\n' "$current_pid" >"$lock/pid"; then
-      rmdir -- "$lock"
-      log_error "Failed to initialize plugin lock for '$name'."
-      return 1
-    fi
+  if _karnel_acquire_lock "$lock"; then
     PLUGIN_OPERATION_LOCK="$lock"
     return 0
-  fi
-
-  if [[ -f "$lock/pid" ]] && IFS= read -r owner <"$lock/pid" && [[ "$owner" =~ ^[0-9]+$ ]] && ! kill -0 "$owner" 2>/dev/null; then
-    if [[ ! -L "$lock" ]] && _plugin_path_is_inside "$PLUGINS_DIR" "$lock" >/dev/null; then
-      if ! _plugin_safe_remove_path "$lock"; then
-        return 1
-      fi
-      _plugin_acquire_plugin_lock "$name"
-      return $?
-    fi
   fi
 
   log_error "Another operation is already changing plugin '$name'."
@@ -1024,7 +1007,7 @@ _plugin_release_plugin_lock() {
   local lock="${PLUGIN_OPERATION_LOCK:-}"
 
   [[ -n "$lock" ]] || return 0
-  if ! rm -f -- "$lock/pid" || ! rmdir -- "$lock"; then
+  if ! _karnel_release_lock "$lock"; then
     log_error "Failed to release plugin operation lock: $lock"
     return 1
   fi
@@ -1461,7 +1444,7 @@ _plugin_repo_from_remote() {
 }
 
 update_all_plugins() {
-  local plugin_dir name failures=0
+  local plugin_dir name rc failures=0 skipped=0
 
   _plugin_prepare_plugins_dir || return 1
   _plugin_recover_all_interrupted_replacements || return 1
@@ -1469,11 +1452,16 @@ update_all_plugins() {
     [[ -d "$plugin_dir" ]] || continue
     name="${plugin_dir##*/}"
     _plugin_name_is_valid "$name" || continue
-    if ! update_plugin "$name"; then
-      failures=$((failures + 1))
-    fi
+    update_plugin "$name"
+    rc=$?
+    case $rc in
+      0) ;;
+      2) skipped=$((skipped + 1)) ;;
+      *) failures=$((failures + 1)) ;;
+    esac
   done
 
+  ((skipped == 0)) || log_info "$skipped plugin update(s) skipped."
   if ((failures > 0)); then
     log_error "$failures plugin update(s) failed."
     return 1
@@ -1482,7 +1470,7 @@ update_all_plugins() {
 
 reinstall_all_plugins() {
   local unsafe_flag="${1:-}"
-  local plugin_dir name failures=0
+  local plugin_dir name rc failures=0 skipped=0
 
   if [[ -n "$unsafe_flag" && "$unsafe_flag" != "--unsafe" ]]; then
     log_error "Unknown reinstall option: $unsafe_flag"
@@ -1495,11 +1483,16 @@ reinstall_all_plugins() {
     [[ -d "$plugin_dir" ]] || continue
     name="${plugin_dir##*/}"
     _plugin_name_is_valid "$name" || continue
-    if ! reinstall_plugin "$name" "$unsafe_flag"; then
-      failures=$((failures + 1))
-    fi
+    reinstall_plugin "$name" "$unsafe_flag"
+    rc=$?
+    case $rc in
+      0) ;;
+      2) skipped=$((skipped + 1)) ;;
+      *) failures=$((failures + 1)) ;;
+    esac
   done
 
+  ((skipped == 0)) || log_info "$skipped plugin reinstall(s) skipped."
   if ((failures > 0)); then
     log_error "$failures plugin reinstall(s) failed."
     return 1

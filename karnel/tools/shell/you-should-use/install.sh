@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/install"
 import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_shell.log"
 ZSH_PLUGINS_DIR="$HOME/.zsh-plugins"
+YOU_SHOULD_USE_COMMIT="5f3d129864ee4505043d88c3486224f1d75b692e"
+YOU_SHOULD_USE_REPO="https://github.com/MichaelAquilina/zsh-you-should-use.git"
 
 _you_should_use_dependencies() {
   declare -A DEPS=(
@@ -34,7 +37,7 @@ _install_you_should_use_git() {
 
 _install_you_should_use_git_impl() {
   mkdir -p "$(dirname "$LOG_FILE")"
-  if ! git clone --depth=1 "https://github.com/MichaelAquilina/zsh-you-should-use.git" "$ZSH_PLUGINS_DIR/zsh-you-should-use" &>>"$LOG_FILE"; then
+  if ! install_pinned_git_repo "$YOU_SHOULD_USE_REPO" "$YOU_SHOULD_USE_COMMIT" "$ZSH_PLUGINS_DIR/zsh-you-should-use"; then
     log_error "Failed to install zsh-you-should-use"
     return 1
   fi
@@ -47,7 +50,7 @@ install_you_should_use() {
     return 0
   fi
 
-  _you_should_use_dependencies
+  _you_should_use_dependencies || return 1
 
   _install_you_should_use_git || return 1
   log_success "Installed"
@@ -79,11 +82,11 @@ _update_you_should_use_impl() {
     return 0
   fi
 
-  git -C "$ZSH_PLUGINS_DIR/zsh-you-should-use" pull &>>"$LOG_FILE"
+  install_pinned_git_repo "$YOU_SHOULD_USE_REPO" "$YOU_SHOULD_USE_COMMIT" "$ZSH_PLUGINS_DIR/zsh-you-should-use"
 }
 
 update_you_should_use() {
-  _check_update_needed "zsh-you-should-use" "$(_get_installed_git_version "$ZSH_PLUGINS_DIR/zsh-you-should-use")" "$(_get_remote_github_version MichaelAquilina/zsh-you-should-use)" _update_you_should_use_impl
+  _update_you_should_use_impl
 }
 
 reinstall_you_should_use() {

@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/install"
 import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
+ENGRAM_REPO="https://github.com/Gentleman-Programming/engram.git"
+ENGRAM_COMMIT="1dafc0f63051b2214100f7bd801357e4aab61c26"
 
 _engram_dependencies() {
   loading "Installing dependencies" _engram_dependencies_impl
@@ -35,7 +38,7 @@ _clone_engram_repo() {
 }
 
 _clone_engram_repo_impl() {
-  if ! git clone --quiet https://github.com/Gentleman-Programming/engram "$KARNEL_DATA/engram" &>>"$LOG_FILE"; then
+  if ! install_pinned_git_repo "$ENGRAM_REPO" "$ENGRAM_COMMIT" "$KARNEL_DATA/engram"; then
     log_error "Failed to clone engram repository"
     return 1
   fi
@@ -104,7 +107,7 @@ _uninstall_engram_impl() {
 }
 
 update_engram() {
-  _check_update_needed "Engram" "$(_get_installed_git_version "$KARNEL_DATA/engram")" "$(_get_remote_github_version Gentleman-Programming/engram)" _update_engram_impl
+  _update_engram_impl
 }
 
 _update_engram_impl() {
@@ -112,8 +115,8 @@ _update_engram_impl() {
 	export GOCACHE="$HOME/.cache/go"
 	export GOMODCACHE="$GOPATH/pkg/mod"
 
-	if ! git -C "$KARNEL_DATA/engram" pull &>>"$LOG_FILE"; then
-		log_error "Failed to pull engram repository"
+	if ! install_pinned_git_repo "$ENGRAM_REPO" "$ENGRAM_COMMIT" "$KARNEL_DATA/engram"; then
+		log_error "Failed to install pinned engram repository"
 		return 1
 	fi
 	if ! go build -C "$KARNEL_DATA/engram/cmd/engram" -o "$PREFIX/bin/engram" &>>"$LOG_FILE"; then

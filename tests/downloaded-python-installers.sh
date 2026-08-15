@@ -70,8 +70,12 @@ for spec in \
   [[ "$installer" == karnel/tools/utils/* || ! -e "$source_payload" ]]
   payload_before=$(<"$runtime_payload")
   curl_failure=1
-  if "$update_function"; then exit 1; fi
-  [[ "$payload_before" == "$(<"$runtime_payload")" ]]
+  if [[ -f "$source_payload" ]]; then
+    "$update_function"
+  else
+    if "$update_function"; then exit 1; fi
+    [[ "$payload_before" == "$(<"$runtime_payload")" ]]
+  fi
   curl_failure=0
   "$uninstall_function"
   [[ ! -e "$PREFIX/bin/$tool" && ! -e "${runtime_payload%/*}" ]]
@@ -84,4 +88,17 @@ for spec in \
   rm -rf "$PREFIX/bin/$tool" "${runtime_payload%/*}"
 done
 
-printf 'Downloaded Python installer contracts: 17 passed\n'
+atomic_dir="$KARNEL_DATA/atomic/tool"
+curl_failure=0
+_downloaded_python_install atomic "$atomic_dir" https://example.invalid/atomic.py
+atomic_before=$(<"$atomic_dir/atomic.py")
+mv() {
+  if [[ "${1:-}" == *'/atomic' && "${2:-}" == "$PREFIX/bin/atomic" ]]; then return 1; fi
+  command mv "$@"
+}
+if _downloaded_python_install atomic "$atomic_dir" https://example.invalid/atomic.py force; then exit 1; fi
+unset -f mv
+[[ "$atomic_before" == "$(<"$atomic_dir/atomic.py")" ]]
+_downloaded_python_owned atomic "$atomic_dir"
+
+printf 'Downloaded Python installer contracts: 18 passed\n'

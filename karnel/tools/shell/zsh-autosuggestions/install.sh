@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/install"
 import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_shell.log"
 ZSH_PLUGINS_DIR="$HOME/.zsh-plugins"
+ZSH_AUTOSUGGESTIONS_COMMIT="85919cd1ffa7d2d5412f6d3fe437ebdbeeec4fc5"
+ZSH_AUTOSUGGESTIONS_REPO="https://github.com/zsh-users/zsh-autosuggestions.git"
 
 _zsh_autosuggestions_dependencies() {
   declare -A DEPS=(
@@ -34,7 +37,7 @@ _install_zsh_autosuggestions_git() {
 
 _install_zsh_autosuggestions_git_impl() {
   mkdir -p "$(dirname "$LOG_FILE")"
-  if ! git clone --depth=1 "https://github.com/zsh-users/zsh-autosuggestions.git" "$ZSH_PLUGINS_DIR/zsh-autosuggestions" &>>"$LOG_FILE"; then
+  if ! install_pinned_git_repo "$ZSH_AUTOSUGGESTIONS_REPO" "$ZSH_AUTOSUGGESTIONS_COMMIT" "$ZSH_PLUGINS_DIR/zsh-autosuggestions"; then
     log_error "Failed to install zsh-autosuggestions"
     return 1
   fi
@@ -47,7 +50,7 @@ install_zsh_autosuggestions() {
     return 0
   fi
 
-  _zsh_autosuggestions_dependencies
+  _zsh_autosuggestions_dependencies || return 1
 
   _install_zsh_autosuggestions_git || return 1
   log_success "Installed"
@@ -79,11 +82,11 @@ _update_zsh_autosuggestions_impl() {
     return 0
   fi
 
-  git -C "$ZSH_PLUGINS_DIR/zsh-autosuggestions" pull &>>"$LOG_FILE"
+  install_pinned_git_repo "$ZSH_AUTOSUGGESTIONS_REPO" "$ZSH_AUTOSUGGESTIONS_COMMIT" "$ZSH_PLUGINS_DIR/zsh-autosuggestions"
 }
 
 update_zsh_autosuggestions() {
-  _check_update_needed "zsh-autosuggestions" "$(_get_installed_git_version "$ZSH_PLUGINS_DIR/zsh-autosuggestions")" "$(_get_remote_github_version zsh-users/zsh-autosuggestions)" _update_zsh_autosuggestions_impl
+  _update_zsh_autosuggestions_impl
 }
 
 reinstall_zsh_autosuggestions() {

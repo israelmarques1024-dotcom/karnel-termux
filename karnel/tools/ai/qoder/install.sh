@@ -3,10 +3,14 @@
 import "@/utils/log"
 import "@/utils/colors"
 import "@/utils/version"
+import "@/utils/install"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 QODER_DATA_DIR="$HOME/.local/share/karnel-data/qoder"
 QODER_MANIFEST_URL="https://qoder-ide.oss-accelerate.aliyuncs.com/qodercli/channels/manifest.json"
+QODER_MARKER=".karnel-managed"
+QODER_WRAPPER_MARKER="$QODER_DATA_DIR/.karnel-wrapper"
+QODER_PROOT_MARKER="$PREFIX/share/karnel-installers/qoder"
 
 _qoder_detect_ubuntu_root() {
   local root
@@ -41,6 +45,14 @@ _get_qoder_download_url() {
   printf '%s' "$manifest" | tr -d '\n\r\t ' | sed 's/},{/}\n{/g' |
     grep -F '"os":"linux"' | grep -F "\"arch\":\"$arch\"" | head -n1 |
     sed -n 's/.*"url"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p'
+}
+
+_get_qoder_download_sha256() {
+  local arch="${1:-arm64}" manifest
+  manifest="$(curl -fsSL "$QODER_MANIFEST_URL")"
+  printf '%s' "$manifest" | tr -d '\n\r\t ' | sed 's/},{/}\n{/g' |
+    grep -F '"os":"linux"' | grep -F "\"arch\":\"$arch\"" | head -n1 |
+    sed -n 's/.*"sha256":"\([0-9a-f]*\)".*/\1/p'
 }
 
 _qoder_install_deps_native() {
@@ -91,7 +103,11 @@ _download_qoder_binary() {
 }
 
 _download_qoder_binary_impl() {
-  local latest_version
+  local latest_version expected actual staging_dir
+  case "$(uname -m)" in
+    aarch64|arm64) ;;
+    *) log_error "Qoder Linux ARM64 asset is unavailable for architecture: $(uname -m)"; return 1 ;;
+  esac
   latest_version=$(_get_latest_qoder_version)
   if [ -z "$latest_version" ]; then
     log_error "Failed to fetch latest Qoder version"
@@ -105,30 +121,39 @@ _download_qoder_binary_impl() {
     return 1
   fi
 
-  mkdir -p "$QODER_DATA_DIR"
+  mkdir -p "$(dirname "$QODER_DATA_DIR")"
+  staging_dir=$(mktemp -d "$(dirname "$QODER_DATA_DIR")/.qoder.XXXXXX") || return 1
 
   local archive_filename
   archive_filename=$(basename "$download_url")
 
-  if ! curl -fsSL "$download_url" -o "$QODER_DATA_DIR/$archive_filename" &>>"$LOG_FILE"; then
+  if ! curl -fsSL "$download_url" -o "$staging_dir/$archive_filename" &>>"$LOG_FILE"; then
+    rm -rf "$staging_dir"
     log_error "Failed to download Qoder binary"
     return 1
   fi
 
-  if ! tar -zxf "$QODER_DATA_DIR/$archive_filename" -C "$QODER_DATA_DIR" &>>"$LOG_FILE"; then
-    log_error "Failed to extract Qoder binary"
+  expected=$(_get_qoder_download_sha256 arm64)
+  actual=$(sha256sum "$staging_dir/$archive_filename" 2>>"$LOG_FILE") || { rm -rf "$staging_dir"; return 1; }
+  if [[ ! "$expected" =~ ^[0-9a-f]{64}$ || "${actual%% *}" != "$expected" ]]; then
+    rm -rf "$staging_dir"
+    log_error "Qoder archive has no valid matching SHA-256 in the official manifest"
     return 1
   fi
 
-  rm -f "$QODER_DATA_DIR/$archive_filename"
+  if ! extract_tarball "$staging_dir/$archive_filename" "$staging_dir"; then
+    rm -rf "$staging_dir"
+    return 1
+  fi
 
-  if [ ! -f "$QODER_DATA_DIR/qodercli" ]; then
+  if [ ! -f "$staging_dir/qodercli" ]; then
+    rm -rf "$staging_dir"
     log_error "Qoder binary not found after extraction"
     return 1
   fi
 
-  chmod +x "$QODER_DATA_DIR/qodercli"
-  return 0
+  chmod +x "$staging_dir/qodercli"
+  replace_managed_directory "$staging_dir" "$QODER_DATA_DIR" "$QODER_MARKER"
 }
 
 _compile_qoder_helper() {
@@ -142,13 +167,17 @@ _compile_qoder_helper_impl() {
     return 1
   fi
 
-  if ! cc -O2 -o "$PREFIX/bin/qodercli" "$HELPER_SRC" &>>"$LOG_FILE"; then
+  local staged_wrapper
+  staged_wrapper=$(mktemp "$PREFIX/bin/.qodercli.XXXXXX") || return 1
+  if ! cc -O2 -o "$staged_wrapper" "$HELPER_SRC" &>>"$LOG_FILE"; then
+    rm -f "$staged_wrapper"
     log_error "Failed to compile qoder helper"
     return 1
   fi
 
-  chmod +x "$PREFIX/bin/qodercli"
-  return 0
+  chmod +x "$staged_wrapper"
+  mv "$staged_wrapper" "$PREFIX/bin/qodercli" || return 1
+  record_managed_file "$PREFIX/bin/qodercli" "$QODER_WRAPPER_MARKER"
 }
 
 _install_qoder_native() {
@@ -164,6 +193,10 @@ _install_qoder_proot() {
 }
 
 _install_qoder_proot_impl() {
+  case "$(uname -m)" in
+    aarch64|arm64) ;;
+    *) log_error "Qoder Linux ARM64 asset is unavailable for architecture: $(uname -m)"; return 1 ;;
+  esac
   mkdir -p "$(dirname "$LOG_FILE")"
 
   if ! command -v proot-distro &>/dev/null; then
@@ -192,7 +225,11 @@ _install_qoder_proot_impl() {
     return 1
   fi
 
-  local qoder_dir="$ubuntu_root/root/.qodercli"
+  local qoder_dir="$ubuntu_root/root/.local/share/karnel/qoder"
+  if [ -e "$qoder_dir" ]; then
+    log_error "Refusing to replace Qoder Proot data not owned by Karnel"
+    return 1
+  fi
   mkdir -p "$qoder_dir"
 
   local archive_filename
@@ -203,12 +240,17 @@ _install_qoder_proot_impl() {
     return 1
   fi
 
-  if ! tar -zxf "$qoder_dir/$archive_filename" -C "$qoder_dir" &>>"$LOG_FILE"; then
-    log_error "Failed to extract Qoder binary"
+  local expected actual
+  expected=$(_get_qoder_download_sha256 arm64)
+  actual=$(sha256sum "$qoder_dir/$archive_filename" 2>>"$LOG_FILE") || return 1
+  if [[ ! "$expected" =~ ^[0-9a-f]{64}$ || "${actual%% *}" != "$expected" ]]; then
+    rm -f "$qoder_dir/$archive_filename"
+    log_error "Qoder archive has no valid matching SHA-256 in the official manifest"
     return 1
   fi
-
-  rm -f "$qoder_dir/$archive_filename"
+  if ! extract_tarball "$qoder_dir/$archive_filename" "$qoder_dir"; then
+    return 1
+  fi
 
   if [ ! -f "$qoder_dir/qodercli" ]; then
     log_error "Qoder binary not found after extraction"
@@ -216,18 +258,17 @@ _install_qoder_proot_impl() {
   fi
 
   chmod +x "$qoder_dir/qodercli"
+  printf '%s\n' 'karnel-managed-v1' >"$qoder_dir/.karnel-managed"
 
   local wrapper_src="$KARNEL_PATH/tools/ai/qoder/bin/qodercli"
   if [ ! -f "$wrapper_src" ]; then
     log_error "Wrapper template not found at $wrapper_src"
     return 1
   fi
-  sed "s|__UBUNTU_ROOTFS__|$ubuntu_root|g" "$wrapper_src" >"$PREFIX/bin/qodercli"
+  sed -e "s|__UBUNTU_ROOTFS__|$ubuntu_root|g" -e "s|__QODER_DIR__|$qoder_dir|g" \
+    "$wrapper_src" >"$PREFIX/bin/qodercli"
   chmod +x "$PREFIX/bin/qodercli"
-
-  if ! grep -q '.qodercli' "$ubuntu_root/root/.bashrc" 2>/dev/null; then
-    printf '\n# qoder\nexport PATH=/root/.qodercli:$PATH\n' >>"$ubuntu_root/root/.bashrc"
-  fi
+  record_managed_file "$PREFIX/bin/qodercli" "$QODER_PROOT_MARKER" || return 1
 
   return 0
 }
@@ -236,6 +277,10 @@ install_qoder() {
   if command -v qodercli &>/dev/null; then
     log_info "Qoder is already installed"
     return 2
+  fi
+  if [ -e "$PREFIX/bin/qodercli" ]; then
+    log_error "Refusing to replace an existing Qoder wrapper not owned by Karnel"
+    return 1
   fi
 
   log_info "Select installation method for Qoder:"
@@ -266,23 +311,25 @@ uninstall_qoder() {
 }
 
 _uninstall_qoder_impl() {
-  if [ -f "$QODER_DATA_DIR/qodercli" ]; then
+  if [ -f "$QODER_DATA_DIR/$QODER_MARKER" ] && managed_file_matches "$PREFIX/bin/qodercli" "$QODER_WRAPPER_MARKER"; then
     rm -f "$PREFIX/bin/qodercli"
     rm -rf "$QODER_DATA_DIR"
     log_success "Qoder (native) uninstalled"
     return 0
   fi
 
-  _qoder_proot_ubuntu /bin/bash -c 'rm -rf /root/.qodercli' &>>"$LOG_FILE"
-
-  local ubuntu_bashrc
-  ubuntu_bashrc="$(_qoder_detect_ubuntu_root)/root/.bashrc"
-
-  if [ -f "$ubuntu_bashrc" ]; then
-    sed -i '/# qoder/d; /export PATH=\/root\/.qodercli:/d' "$ubuntu_bashrc"
+  if ! managed_file_matches "$PREFIX/bin/qodercli" "$QODER_PROOT_MARKER"; then
+    log_error "Refusing to remove a Qoder installation not owned by Karnel"
+    return 1
   fi
 
+  local qoder_dir
+  qoder_dir="$(_qoder_detect_ubuntu_root)/root/.local/share/karnel/qoder"
+  [ -f "$qoder_dir/.karnel-managed" ] || return 1
+  rm -rf "$qoder_dir"
+
   if rm -f "$PREFIX/bin/qodercli" &>>"$LOG_FILE"; then
+    rm -f "$QODER_PROOT_MARKER"
     log_success "Qoder (proot-distro) uninstalled"
     return 0
   else
@@ -323,8 +370,6 @@ _update_qoder_proot_impl() {
     return 1
   fi
 
-  rm -rf "$ubuntu_root/root/.qodercli"
-
   local download_url
   download_url=$(_get_qoder_download_url "arm64")
   if [ -z "$download_url" ]; then
@@ -332,36 +377,56 @@ _update_qoder_proot_impl() {
     return 1
   fi
 
-  local qoder_dir="$ubuntu_root/root/.qodercli"
-  mkdir -p "$qoder_dir"
+  local qoder_dir="$ubuntu_root/root/.local/share/karnel/qoder" staging_dir
+  if [ ! -f "$qoder_dir/.karnel-managed" ]; then
+    log_error "Refusing to update Qoder Proot data not owned by Karnel"
+    return 1
+  fi
+  staging_dir=$(mktemp -d "$ubuntu_root/root/.local/share/karnel/.qoder.XXXXXX") || return 1
 
   local archive_filename
   archive_filename=$(basename "$download_url")
 
-  if ! curl -fsSL "$download_url" -o "$qoder_dir/$archive_filename" &>>"$LOG_FILE"; then
+  if ! curl -fsSL "$download_url" -o "$staging_dir/$archive_filename" &>>"$LOG_FILE"; then
+    rm -rf "$staging_dir"
     log_error "Failed to download Qoder binary"
     return 1
   fi
 
-  if ! tar -zxf "$qoder_dir/$archive_filename" -C "$qoder_dir" &>>"$LOG_FILE"; then
-    log_error "Failed to extract Qoder binary"
+  local expected actual old_dir
+  expected=$(_get_qoder_download_sha256 arm64)
+  actual=$(sha256sum "$staging_dir/$archive_filename" 2>>"$LOG_FILE") || { rm -rf "$staging_dir"; return 1; }
+  if [[ ! "$expected" =~ ^[0-9a-f]{64}$ || "${actual%% *}" != "$expected" ]] ||
+    ! extract_tarball "$staging_dir/$archive_filename" "$staging_dir"; then
+    rm -rf "$staging_dir"
+    log_error "Qoder update archive failed integrity validation"
     return 1
   fi
 
-  rm -f "$qoder_dir/$archive_filename"
-
-  if [ ! -f "$qoder_dir/qodercli" ]; then
+  if [ ! -f "$staging_dir/qodercli" ]; then
+    rm -rf "$staging_dir"
     log_error "Qoder binary not found after extraction"
     return 1
   fi
 
-  chmod +x "$qoder_dir/qodercli"
+  chmod +x "$staging_dir/qodercli"
+  printf '%s\n' 'karnel-managed-v1' >"$staging_dir/.karnel-managed"
+  old_dir="${qoder_dir}.previous.$$"
+  if ! mv "$qoder_dir" "$old_dir" || ! mv "$staging_dir" "$qoder_dir"; then
+    [[ ! -d "$old_dir" ]] || mv "$old_dir" "$qoder_dir"
+    rm -rf "$staging_dir"
+    return 1
+  fi
+  rm -rf "$old_dir"
 
   log_success "Qoder (proot-distro) updated"
   return 0
 }
 
 reinstall_qoder() {
-  uninstall_qoder
-  install_qoder
+  if command -v qodercli &>/dev/null; then
+    _update_qoder_impl
+  else
+    install_qoder
+  fi
 }

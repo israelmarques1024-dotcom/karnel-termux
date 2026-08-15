@@ -182,6 +182,13 @@ _install_specific_tools() {
   local failed_count=0
 
   case "$module" in
+    db|dev|games|npm|lang|shell|editor|ui|auto|deploy)
+      _batch_tool_action "$module" install "${tools[@]}"
+      return $?
+      ;;
+  esac
+
+  case "$module" in
   ai)
     import "@/tools/ai/all"
     local installed_count=0
@@ -272,7 +279,7 @@ _install_specific_tools() {
       case "$tool" in
       postgresql)
         install_postgresql
-        case $? in 0) ((installed_count++));; 2) ((skipped_count++));; 1) ((failed_count++));; esac
+        case $? in 0) ((installed_count++));; 2) ((skipped_count++));; *) ((failed_count++));; esac
         ;;
       mariadb)
         install_mariadb

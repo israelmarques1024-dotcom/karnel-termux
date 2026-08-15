@@ -101,30 +101,12 @@ _download_cursor_binary() {
 }
 
 _download_cursor_binary_impl() {
-  local v
-  v=$(_get_latest_cursor_version_silent)
-  if [ -z "$v" ]; then
-    log_error "Failed to fetch latest Cursor CLI version"
-    return 1
-  fi
-  mkdir -p "$CURSOR_DATA_DIR"
-  local url="https://downloads.cursor.com/lab/$v/linux/arm64/agent-cli-package.tar.gz"
-  if ! curl -fsSL "$url" -o "$CURSOR_DATA_DIR/agent.tar.gz" &>>"$LOG_FILE"; then
-    log_error "Failed to download Cursor CLI"
-    return 1
-  fi
-  if ! tar -zxf "$CURSOR_DATA_DIR/agent.tar.gz" --strip-components=1 -C "$CURSOR_DATA_DIR" &>>"$LOG_FILE"; then
-    log_error "Failed to extract Cursor CLI"
-    return 1
-  fi
-  rm -f "$CURSOR_DATA_DIR/agent.tar.gz"
-  if [ ! -f "$CURSOR_DATA_DIR/cursor-agent" ]; then
-    log_error "cursor-agent not found after extraction"
-    return 1
-  fi
-  chmod +x "$CURSOR_DATA_DIR/cursor-agent" "$CURSOR_DATA_DIR/node" 2>/dev/null
-  _cursor_write_data_metadata || return 1
-  return 0
+  case "$(uname -m)" in
+    aarch64|arm64) ;;
+    *) log_error "Cursor CLI Linux ARM64 asset is unavailable for architecture: $(uname -m)"; return 1 ;;
+  esac
+  log_error "Cursor CLI upstream does not publish a verifiable checksum for its bundle; refusing install"
+  return 1
 }
 
 _create_cursor_wrapper() {
@@ -170,6 +152,10 @@ install_cursor_cli() {
     log_info "Cursor CLI is already installed"
     return 2
   fi
+  if [ -e "$PREFIX/bin/cursor" ] || [ -e "$PREFIX/bin/cursor-agent" ]; then
+    log_error "Refusing to replace existing Cursor CLI wrappers not owned by Karnel"
+    return 1
+  fi
 
   if [ -e "$CURSOR_DATA_DIR" ] && ! _cursor_data_is_karnel_owned; then
     log_warn "Keeping existing Cursor CLI data not managed by Karnel"
@@ -207,11 +193,15 @@ update_cursor_cli() {
 }
 
 _update_cursor_cli_impl() {
-  uninstall_cursor_cli || return $?
-  install_cursor_cli
+  _cursor_install_deps_native || return 1
+  _download_cursor_binary || return 1
+  _create_cursor_wrapper
 }
 
 reinstall_cursor_cli() {
-  uninstall_cursor_cli
-  install_cursor_cli
+  if command -v cursor &>/dev/null; then
+    _update_cursor_cli_impl
+  else
+    install_cursor_cli
+  fi
 }

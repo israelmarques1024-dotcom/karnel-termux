@@ -13,7 +13,7 @@ Provider-agnostic AI code review on every commit
 
 GGA (Gentleman Guardian Angel) is a provider-agnostic AI code review tool that runs on every commit. It validates staged files against your `AGENTS.md` rules using any LLM provider (Claude, Gemini, Codex, OpenCode, Ollama, LM Studio, GitHub Models). Pure Bash, zero dependencies, works as a standard pre-commit git hook.
 
-The Termux fork adapts the installer/uninstaller for Android environments (Termux detects `$PREFIX` and installs to `$PREFIX/bin` and `$PREFIX/share/gga/lib`).
+Karnel stages the official source with a Termux-compatible Bash path and installs the command and libraries into Karnel-managed locations.
 
 ## Dependencies
 
@@ -40,9 +40,9 @@ karnel update ai --gga
 
 ## Notes
 
-- Source cloned to `$KARNEL_DATA/gga-termux/` (`~/.local/share/karnel-data/gga-termux/`)
+- Pinned official source stored in `$KARNEL_DATA/gga-termux/`
+- Runtime libraries stored in `$KARNEL_DATA/gga-runtime/`
 - Binary installed to `$PREFIX/bin/gga`
-- Libraries installed to `$PREFIX/share/gga/lib/`
-- Clones the Termux-compatible fork and runs its bundled `install.sh` / `uninstall.sh`
-- Repository is updated via `git pull` on `karnel update ai --gga`
-- Requires the gga repo to be present at runtime only during install/update (can be safely removed afterward)
+- Karnel verifies ownership before replacing or removing source, runtime, or command files
+- `karnel update ai --gga` reapplies the immutable source revision shipped by the current Karnel release
+- The source repository is required only during install/update and can be safely removed afterward

@@ -31,7 +31,8 @@ _install_markserv_npm_impl() {
 
 install_markserv() {
   if command -v markserv &>/dev/null; then
-    return 0
+    log_info "Markserv is already installed"
+    return 2
   fi
   log_info "Installing Markserv..."
 

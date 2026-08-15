@@ -1,27 +1,81 @@
 #!/usr/bin/env node
 
 const { execFileSync } = require("node:child_process");
+const { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } = require("node:fs");
+const { tmpdir } = require("node:os");
+const path = require("node:path");
 
-const output = execFileSync(
-  "npm",
-  ["pack", "--dry-run", "--json", "--ignore-scripts"],
-  { encoding: "utf8" },
-);
+const packageRoot = path.resolve(process.argv[2] || path.join(__dirname, ".."));
+const packDirectory = mkdtempSync(path.join(tmpdir(), "karnel-package-"));
+const stagingRoot = path.join(packDirectory, "source");
+const releaseCommitPath = path.join(stagingRoot, "karnel", "RELEASE_COMMIT");
+let repositoryHead = "";
+process.on("exit", () => {
+  rmSync(packDirectory, { recursive: true, force: true });
+});
+try {
+  repositoryHead = execFileSync("git", ["-C", packageRoot, "rev-parse", "HEAD"], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "ignore"],
+  }).trim();
+} catch {
+  // Package fixtures may not be Git repositories and must provide their marker.
+}
+cpSync(packageRoot, stagingRoot, {
+  recursive: true,
+  filter: (source) => {
+    const relative = path.relative(packageRoot, source);
+    return relative === "" || !relative.split(path.sep).some((part) => part === ".git" || part === "node_modules");
+  },
+});
+if (!existsSync(releaseCommitPath)) {
+  if (!/^[0-9a-f]{40}$/.test(repositoryHead)) {
+    throw new Error("Required package file is missing: karnel/RELEASE_COMMIT");
+  }
+  writeFileSync(releaseCommitPath, `${repositoryHead}\n`, { flag: "wx", mode: 0o600 });
+}
+let output;
+try {
+  output = execFileSync(
+    "npm",
+    ["pack", stagingRoot, "--json", "--ignore-scripts", "--pack-destination", packDirectory],
+    { encoding: "utf8" },
+  );
+} catch (error) {
+  rmSync(packDirectory, { recursive: true, force: true });
+  throw error;
+}
 const reports = JSON.parse(output);
 if (!Array.isArray(reports) || reports.length !== 1) {
+  rmSync(packDirectory, { recursive: true, force: true });
   throw new Error("npm pack returned an unexpected report");
 }
 
 const report = reports[0];
-const paths = report.files.map((file) => file.path);
+const tarball = path.join(packDirectory, report.filename);
+const extractDirectory = path.join(packDirectory, "extracted");
+mkdirSync(extractDirectory);
+const previousUmask = process.umask(0);
+try {
+  execFileSync("tar", ["-xzf", tarball, "-C", extractDirectory]);
+} finally {
+  process.umask(previousUmask);
+}
+const archiveEntries = execFileSync("tar", ["-tzf", tarball], { encoding: "utf8" })
+  .trim()
+  .split("\n")
+  .filter((entry) => entry && !entry.endsWith("/"));
+const paths = archiveEntries.map((entry) => entry.replace(/^package\//, ""));
 const forbidden = paths.filter((path) =>
-  /(^|\/)(__pycache__|\.git|\.github)(\/|$)|\.(pyc|pyo|log)$/i.test(path),
+  /(^|\/)(__pycache__|\.git|\.github)(\/|$)|(^|\/)\.env(?:\.[^/]*)?$|(^|\/)(?:[^/]*(?:secret|credential|private[-_.]?key|api[-_.]?key|access[-_.]?token)[^/]*)$|\.(?:pyc|pyo|log|pem|key|p12|pfx|jks|keystore)$/i.test(path),
 );
 if (forbidden.length > 0) {
   throw new Error(`Forbidden package artifacts:\n${forbidden.join("\n")}`);
 }
 
 const required = [
+  "assets/fonts/font.ttf",
+  "karnel/RELEASE_COMMIT",
   "karnel/cli/commands/robin.sh",
   "karnel/modules/osint.sh",
   "karnel/tools/osint/robin/common.sh",
@@ -31,15 +85,38 @@ const required = [
 ];
 for (const path of required) {
   if (!paths.includes(path)) {
+    rmSync(packDirectory, { recursive: true, force: true });
     throw new Error(`Required package file is missing: ${path}`);
   }
 }
 
-const packageVersion = require("../package.json").version;
+const releaseCommit = execFileSync(
+  "tar",
+  ["-xOzf", tarball, "package/karnel/RELEASE_COMMIT"],
+  { encoding: "utf8" },
+).trim();
+if (!/^[0-9a-f]{40}$/.test(releaseCommit)) {
+  rmSync(packDirectory, { recursive: true, force: true });
+  throw new Error("Packed RELEASE_COMMIT is not a full commit SHA");
+}
+if (repositoryHead && releaseCommit !== repositoryHead) {
+  throw new Error(`Packed RELEASE_COMMIT ${releaseCommit} does not match HEAD ${repositoryHead}`);
+}
+
+for (const packedPath of ["assets/fonts/font.ttf", "karnel/tools/ai/gentle-ai/termux-patches.go"]) {
+  const mode = statSync(path.join(extractDirectory, "package", packedPath)).mode & 0o777;
+  if (mode !== 0o644) {
+    throw new Error(`Packed file must use mode 0644: ${packedPath}`);
+  }
+}
+
+const packageVersion = JSON.parse(readFileSync(path.join(packageRoot, "package.json"), "utf8")).version;
 if (report.version !== packageVersion) {
+  rmSync(packDirectory, { recursive: true, force: true });
   throw new Error(`Packed version ${report.version} does not match ${packageVersion}`);
 }
 
 console.log(
-  `Package: ${report.entryCount} files, ${report.size} bytes, version ${report.version}, no forbidden artifacts`,
+  `Package: ${paths.length} files, ${report.size} bytes, version ${report.version}, commit ${releaseCommit}, no forbidden artifacts`,
 );
+rmSync(packDirectory, { recursive: true, force: true });

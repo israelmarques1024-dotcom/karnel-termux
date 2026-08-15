@@ -83,6 +83,11 @@ import "@/cli/commands/doctor/code"
 
 The `@` symbol is replaced with `$KARNEL_PATH`. This avoids hardcoded paths.
 
+`import()` is not an idempotent module loader: it calls `source` on every import
+and does not track files already loaded. Top-level assignments and other side
+effects therefore run again when the same file is imported more than once;
+imported files must tolerate repeated evaluation where callers can repeat them.
+
 ### Critical Scope Implication
 
 Because `import()` calls `source` from within a function, any `declare` statement

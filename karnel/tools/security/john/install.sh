@@ -24,8 +24,13 @@ uninstall_john() {
 }
 
 update_john() {
-  log_info "$_TOOL atualizado via gerenciador de pacotes"
-  return 2
+  log_info "Atualizando john..."
+  if pkg install -y john 2>/dev/null || apt install -y john 2>/dev/null; then
+    log_success "john atualizado"
+    return 0
+  fi
+  log_error "Falha ao atualizar john"
+  return 1
 }
 
 reinstall_john() {

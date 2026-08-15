@@ -24,8 +24,13 @@ uninstall_aircrack_ng() {
 }
 
 update_aircrack_ng() {
-  log_info "$_TOOL atualizado via gerenciador de pacotes"
-  return 2
+  log_info "Atualizando aircrack-ng..."
+  if pkg install -y aircrack-ng 2>/dev/null || apt install -y aircrack-ng 2>/dev/null; then
+    log_success "aircrack-ng atualizado"
+    return 0
+  fi
+  log_error "Falha ao atualizar aircrack-ng"
+  return 1
 }
 
 reinstall_aircrack_ng() {

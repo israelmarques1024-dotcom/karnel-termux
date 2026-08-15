@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 _WHATWEB_DIR="$PREFIX/share/whatweb"
+_WHATWEB_REPO="https://github.com/urbanadventurer/WhatWeb.git"
+_WHATWEB_COMMIT="d279d93042d034f3fd29d5a893d44ccc0595d3f8"
 
 install_whatweb() {
   if command -v whatweb &>/dev/null; then
@@ -12,7 +14,7 @@ install_whatweb() {
     log_success "whatweb instalado"
     return 0
   fi
-  if git clone --depth 1 https://github.com/urbanadventurer/WhatWeb "$_WHATWEB_DIR" 2>/dev/null; then
+  if install_pinned_git_repo "$_WHATWEB_REPO" "$_WHATWEB_COMMIT" "$_WHATWEB_DIR"; then
     ln -sf "$_WHATWEB_DIR/whatweb" "$PREFIX/bin/whatweb"
     chmod +x "$PREFIX/bin/whatweb"
     : > "$_WHATWEB_DIR/.karnel-wrapper"
@@ -34,7 +36,10 @@ uninstall_whatweb() {
 
 update_whatweb() {
   if [ -d "$_WHATWEB_DIR" ]; then
-    git -C "$_WHATWEB_DIR" pull
+    _pinned_git_repo_owned "$_WHATWEB_DIR" "$_WHATWEB_REPO" ||
+      { [ -f "$_WHATWEB_DIR/.karnel-wrapper" ] && _adopt_pinned_git_repo "$_WHATWEB_DIR" "$_WHATWEB_REPO"; } || return 1
+    install_pinned_git_repo "$_WHATWEB_REPO" "$_WHATWEB_COMMIT" "$_WHATWEB_DIR" || return 1
+    : > "$_WHATWEB_DIR/.karnel-wrapper"
     log_success "whatweb atualizado"
     return 0
   fi

@@ -31,7 +31,8 @@ _install_vercel_npm_impl() {
 
 install_vercel() {
   if command -v vercel &>/dev/null; then
-    return 0
+    log_info "Vercel CLI is already installed"
+    return 2
   fi
   log_info "Installing Vercel CLI..."
 

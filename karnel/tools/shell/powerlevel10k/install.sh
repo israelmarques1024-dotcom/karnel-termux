@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/install"
 import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_shell.log"
 ZSH_PLUGINS_DIR="$HOME/.zsh-plugins"
+POWERLEVEL10K_COMMIT="9253fb1c5034410c43a0c681ff8294181c54016c"
+POWERLEVEL10K_REPO="https://github.com/romkatv/powerlevel10k.git"
 
 _powerlevel10k_dependencies() {
   declare -A DEPS=(
@@ -34,7 +37,7 @@ _install_powerlevel10k_git() {
 
 _install_powerlevel10k_git_impl() {
   mkdir -p "$(dirname "$LOG_FILE")"
-  if ! git clone --depth=1 "https://github.com/romkatv/powerlevel10k.git" "$ZSH_PLUGINS_DIR/powerlevel10k" &>>"$LOG_FILE"; then
+  if ! install_pinned_git_repo "$POWERLEVEL10K_REPO" "$POWERLEVEL10K_COMMIT" "$ZSH_PLUGINS_DIR/powerlevel10k"; then
     log_error "Failed to install powerlevel10k"
     return 1
   fi
@@ -47,7 +50,7 @@ install_powerlevel10k() {
     return 0
   fi
 
-  _powerlevel10k_dependencies
+  _powerlevel10k_dependencies || return 1
 
   _install_powerlevel10k_git || return 1
   log_success "Installed"
@@ -79,11 +82,11 @@ _update_powerlevel10k_impl() {
     return 0
   fi
 
-  git -C "$ZSH_PLUGINS_DIR/powerlevel10k" pull &>>"$LOG_FILE"
+  install_pinned_git_repo "$POWERLEVEL10K_REPO" "$POWERLEVEL10K_COMMIT" "$ZSH_PLUGINS_DIR/powerlevel10k"
 }
 
 update_powerlevel10k() {
-  _check_update_needed "powerlevel10k" "$(_get_installed_git_version "$ZSH_PLUGINS_DIR/powerlevel10k")" "$(_get_remote_github_version romkatv/powerlevel10k)" _update_powerlevel10k_impl
+  _update_powerlevel10k_impl
 }
 
 reinstall_powerlevel10k() {

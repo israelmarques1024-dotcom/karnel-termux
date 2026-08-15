@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/tools"
+declare -f _run_tool_lifecycle_action &>/dev/null || source "$(dirname "${BASH_SOURCE[0]}")/../../utils/tools.sh"
 
 NETWORK_TOOLS=(
   "dark"
@@ -11,6 +13,7 @@ for _tool in "${NETWORK_TOOLS[@]}"; do
   source "$(dirname "${BASH_SOURCE[0]}")/$_tool/install.sh"
 done
 unset _tool
+_register_safe_reinstall_handlers network "${NETWORK_TOOLS[@]}"
 
 _batch_network() {
   local action="$1"
@@ -21,23 +24,18 @@ _batch_network() {
   local skipped=0
   local total=${#NETWORK_TOOLS[@]}
   local current=0
-  local func_name
+  local rc
 
   progress_start "$total" "${action_past}ing network tools..."
 
   for tool in "${NETWORK_TOOLS[@]}"; do
-    func_name="${action}_${tool//-/_}"
-    if declare -f "$func_name" &>/dev/null; then
-      loading "${action_past^}ing ${tool}" "$func_name"
-      case $? in
-        0) ((count++)) ;;
-        2) ((skipped++)) ;;
-        *) ((failed++)) ;;
-      esac
-    else
-      log_error "Missing network action: $func_name"
-      ((failed++))
-    fi
+    loading "${action_past^}ing ${tool}" _run_tool_lifecycle_action network "$action" "$tool"
+    rc=$?
+    case $rc in
+      0) ((count++)) ;;
+      2) ((skipped++)) ;;
+      *) ((failed++)) ;;
+    esac
     ((current++))
     progress_update "$current" "$total"
   done

@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/install"
 import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_shell.log"
 ZSH_PLUGINS_DIR="$HOME/.zsh-plugins"
+HISTORY_SUBSTRING_COMMIT="14c8d2e0ffaee98f2df9850b19944f32546fdea5"
+HISTORY_SUBSTRING_REPO="https://github.com/zsh-users/zsh-history-substring-search.git"
 
 _history_substring_dependencies() {
   declare -A DEPS=(
@@ -34,7 +37,7 @@ _install_history_substring_git() {
 
 _install_history_substring_git_impl() {
   mkdir -p "$(dirname "$LOG_FILE")"
-  if ! git clone --depth=1 "https://github.com/zsh-users/zsh-history-substring-search.git" "$ZSH_PLUGINS_DIR/zsh-history-substring-search" &>>"$LOG_FILE"; then
+  if ! install_pinned_git_repo "$HISTORY_SUBSTRING_REPO" "$HISTORY_SUBSTRING_COMMIT" "$ZSH_PLUGINS_DIR/zsh-history-substring-search"; then
     log_error "Failed to install zsh-history-substring-search"
     return 1
   fi
@@ -47,7 +50,7 @@ install_history_substring() {
     return 0
   fi
 
-  _history_substring_dependencies
+  _history_substring_dependencies || return 1
 
   _install_history_substring_git || return 1
   log_success "Installed"
@@ -79,11 +82,11 @@ _update_history_substring_impl() {
     return 0
   fi
 
-  git -C "$ZSH_PLUGINS_DIR/zsh-history-substring-search" pull &>>"$LOG_FILE"
+  install_pinned_git_repo "$HISTORY_SUBSTRING_REPO" "$HISTORY_SUBSTRING_COMMIT" "$ZSH_PLUGINS_DIR/zsh-history-substring-search"
 }
 
 update_history_substring() {
-  _check_update_needed "zsh-history-substring-search" "$(_get_installed_git_version "$ZSH_PLUGINS_DIR/zsh-history-substring-search")" "$(_get_remote_github_version zsh-users/zsh-history-substring-search)" _update_history_substring_impl
+  _update_history_substring_impl
 }
 
 reinstall_history_substring() {

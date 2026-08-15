@@ -20,6 +20,11 @@ KARNEL_PATH="$(cd "$BIN_DIR/.." 2>/dev/null && pwd)" || {
 # cargar bootstrap
 source "$KARNEL_PATH/utils/bootstrap.sh"
 
+# Informational flags must not initialize user state or trigger update checks.
+case "${1:-}" in
+  --help|-h|--version|help|version|list|show) KARNEL_READ_ONLY=1 ;;
+esac
+
 # cargar entorno
 import "@/utils/env"
 
@@ -28,10 +33,15 @@ _semver_gt() {
   [[ "$(printf '%s\n%s' "$1" "$2" | sort -V | tail -1)" == "$1" ]] && [[ "$1" != "$2" ]]
 }
 
+_valid_semver() {
+  [[ "$1" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?$ ]]
+}
+
 # ===== CHECK UPDATES =====
 check_for_updates() {
   local version_file="$KARNEL_CACHE/last_version_check"
-  local current_time=$(date +%s)
+  local current_time
+  current_time=$(date +%s)
   local check_interval=86400  # 24 horas en segundos
   local last_check=0
 
@@ -39,26 +49,54 @@ check_for_updates() {
     last_check=$(cat "$version_file" 2>/dev/null | head -1)
   fi
 
-  if (( current_time - last_check < check_interval )); then
+  if [[ "$last_check" =~ ^[0-9]+$ ]] && (( current_time - last_check < check_interval )); then
     return 0
   fi
 
-  mkdir -p "$KARNEL_CACHE"
-  echo "$current_time" > "$version_file"
-
   (
-    local remote_version
-    remote_version=$(timeout 5 npm view karnel-termux version 2>/dev/null | tail -1)
-    if [[ -z "$remote_version" ]]; then
-      remote_version=$(curl -fsSL --max-time 5 "https://raw.githubusercontent.com/israelmarques1024-dotcom/karnel-termux/main/karnel/utils/env.sh" 2>/dev/null | grep "KARNEL_VERSION=" | cut -d'"' -f2)
+    local lock_dir="$KARNEL_CACHE/.version_check.lock"
+    local remote_output remote_version timestamp_tmp
+
+    _karnel_acquire_lock "$lock_dir" || return 0
+    _cleanup_version_lock() { _karnel_release_lock "$lock_dir" 2>/dev/null || true; }
+    trap _cleanup_version_lock EXIT
+
+    last_check=0
+    if [[ -f "$version_file" ]]; then
+      read -r last_check < "$version_file" || last_check=0
     fi
+    if [[ "$last_check" =~ ^[0-9]+$ ]] && (( current_time - last_check < check_interval )); then
+      return 0
+    fi
+
+    remote_version=""
+    if remote_output=$(timeout 5 npm view karnel-termux version 2>/dev/null); then
+      remote_version=$(printf '%s\n' "$remote_output" | tail -1)
+    fi
+    if ! _valid_semver "$remote_version"; then
+      remote_version=""
+      if remote_output=$(curl -fsSL --max-time 5 "https://raw.githubusercontent.com/israelmarques1024-dotcom/karnel-termux/main/package.json" 2>/dev/null); then
+        remote_version=$(printf '%s\n' "$remote_output" | sed -nE 's/^[[:space:]]*"version":[[:space:]]*"([^"]+)".*/\1/p' | head -1)
+      fi
+    fi
+    _valid_semver "$remote_version" || return 0
+
     local local_version="$KARNEL_VERSION"
-    if [[ -n "$remote_version" ]] && _semver_gt "$remote_version" "$local_version"; then
+    if _semver_gt "$remote_version" "$local_version"; then
       echo "$remote_version" > "$KARNEL_CACHE/new_version"
     else
       rm -f "$KARNEL_CACHE/new_version"
     fi
+
+    timestamp_tmp=$(mktemp "$KARNEL_CACHE/.last_version_check.XXXXXX") || return 0
+    if ! printf '%s\n' "$current_time" > "$timestamp_tmp" || ! mv -f "$timestamp_tmp" "$version_file"; then
+      rm -f "$timestamp_tmp"
+    fi
   ) &>/dev/null &
+  local check_pid=$!
+  if [[ "${KARNEL_UPDATE_CHECK_WAIT:-0}" == "1" ]]; then
+    wait "$check_pid"
+  fi
 }
 
 show_update_notification() {
@@ -80,7 +118,7 @@ show_update_notification() {
   fi
 }
 
-if [[ "$1" != "update" ]] && [[ "$1" != "uninstall" ]] && [[ "$1" != "reinstall" ]]; then
+if [[ "${KARNEL_READ_ONLY:-0}" != "1" ]] && [[ "${1:-}" != "update" ]] && [[ "${1:-}" != "uninstall" ]] && [[ "${1:-}" != "reinstall" ]]; then
   check_for_updates
   import "@/utils/log"
   import "@/utils/colors"

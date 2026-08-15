@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC1091,SC2329
 set -euo pipefail
 
 ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
@@ -9,8 +10,10 @@ assert_secure_download_install() (
   local tool="$1" installer="$2"
   export PREFIX="$TEST_ROOT/$tool-prefix"
   export TMPDIR="$TEST_ROOT/$tool-tmp"
+  export KARNEL_CACHE="$TEST_ROOT/$tool-cache"
+  export LOG_FILE="$KARNEL_CACHE/install.log"
   export PATH="$PREFIX/bin:$PATH"
-  mkdir -p "$PREFIX/bin" "$TMPDIR"
+  mkdir -p "$PREFIX/bin" "$TMPDIR" "$KARNEL_CACHE"
 
   log_info() { :; }
   log_success() { :; }
@@ -26,6 +29,8 @@ assert_secure_download_install() (
     [[ "$1" == "-v" ]] && return 1
     builtin command "$@"
   }
+  # shellcheck source=../karnel/utils/install.sh
+  source "$ROOT_DIR/karnel/utils/install.sh"
   curl() {
     local arg output="" previous=""
     for arg in "$@"; do
@@ -38,23 +43,18 @@ assert_secure_download_install() (
       printf '%s' '{"tag_name":"v1.0.0"}'
     fi
   }
-  tar() {
-    local arg destination="" previous=""
-    for arg in "$@"; do
-      [[ "$previous" == "-C" ]] && destination="$arg"
-      previous="$arg"
-    done
+  verify_sha256() { :; }
+  safe_extract_tar() {
+    local destination="$2"
+    mkdir -p "$destination"
     case "$tool" in
       zap) mkdir -p "$destination/ZAP_2.16.1"; printf '#!/usr/bin/env bash\n' >"$destination/ZAP_2.16.1/zap.sh"; chmod +x "$destination/ZAP_2.16.1/zap.sh" ;;
       *) printf '#!/usr/bin/env bash\n' >"$destination/$tool" ;;
     esac
   }
-  unzip() {
-    local arg destination="" previous=""
-    for arg in "$@"; do
-      [[ "$previous" == "-d" ]] && destination="$arg"
-      previous="$arg"
-    done
+  safe_extract_zip() {
+    local destination="$2"
+    mkdir -p "$destination"
     if [[ "$tool" == "amass" ]]; then
       mkdir -p "$destination/release"
       printf '#!/usr/bin/env bash\n' >"$destination/release/amass"

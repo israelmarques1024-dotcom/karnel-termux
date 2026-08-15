@@ -3,10 +3,13 @@
 import "@/utils/log"
 import "@/utils/version"
 import "@/utils/colors"
+import "@/utils/install"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 MIMOCODE_DATA_DIR="$HOME/.local/share/karnel-data/mimocode"
 MIMOCODE_VERSION="v0.1.0"
+MIMOCODE_MARKER=".karnel-managed"
+MIMOCODE_WRAPPER_MARKER="$MIMOCODE_DATA_DIR/.karnel-wrapper"
 
 _get_latest_mimocode_version() {
   curl -fsSL https://api.github.com/repos/XiaomiMiMo/MiMo-Code/releases/latest |
@@ -57,38 +60,43 @@ _download_mimocode_binary() {
 }
 
 _download_mimocode_binary_impl() {
-  local latest_version
+  local latest_version staging_dir tarball download_url
+  case "$(uname -m)" in
+    aarch64|arm64) ;;
+    *) log_error "MiMo Code Linux ARM64 asset is unavailable for architecture: $(uname -m)"; return 1 ;;
+  esac
   latest_version=$(_get_latest_mimocode_version)
   if [ -z "$latest_version" ]; then
     log_error "Failed to fetch latest mimocode version, falling back to $MIMOCODE_VERSION"
     latest_version="$MIMOCODE_VERSION"
   fi
 
-  mkdir -p "$MIMOCODE_DATA_DIR"
+  mkdir -p "$(dirname "$MIMOCODE_DATA_DIR")"
+  staging_dir=$(mktemp -d "$(dirname "$MIMOCODE_DATA_DIR")/.mimocode.XXXXXX") || return 1
+  tarball="mimocode-linux-arm64.tar.gz"
+  download_url="https://github.com/XiaomiMiMo/MiMo-Code/releases/download/$latest_version/$tarball"
 
-  local tarball="mimocode-linux-arm64.tar.gz"
-  local download_url="https://github.com/XiaomiMiMo/MiMo-Code/releases/download/$latest_version/$tarball"
-
-  if ! curl -fsSL "$download_url" -o "$MIMOCODE_DATA_DIR/$tarball" &>>"$LOG_FILE"; then
+  if ! curl -fsSL "$download_url" -o "$staging_dir/$tarball" &>>"$LOG_FILE"; then
+    rm -rf "$staging_dir"
     log_error "Failed to download mimocode binary"
     return 1
   fi
 
-  if ! tar -zxf "$MIMOCODE_DATA_DIR/$tarball" -C "$MIMOCODE_DATA_DIR" &>>"$LOG_FILE"; then
-    log_error "Failed to extract mimocode binary"
+  if ! verify_github_release_asset XiaomiMiMo/MiMo-Code "$latest_version" "$tarball" "$staging_dir/$tarball" ||
+    ! extract_tarball "$staging_dir/$tarball" "$staging_dir"; then
+    rm -rf "$staging_dir"
     return 1
   fi
 
-  rm -f "$MIMOCODE_DATA_DIR/$tarball"
-
-  if [ ! -f "$MIMOCODE_DATA_DIR/mimo" ]; then
+  if [ ! -f "$staging_dir/mimo" ]; then
+    rm -rf "$staging_dir"
     log_error "mimocode binary not found after extraction"
     return 1
   fi
 
-  mv "$MIMOCODE_DATA_DIR/mimo" "$MIMOCODE_DATA_DIR/mimocode"
-  chmod +x "$MIMOCODE_DATA_DIR/mimocode"
-  return 0
+  mv "$staging_dir/mimo" "$staging_dir/mimocode"
+  chmod +x "$staging_dir/mimocode"
+  replace_managed_directory "$staging_dir" "$MIMOCODE_DATA_DIR" "$MIMOCODE_MARKER"
 }
 
 _compile_mimocode_helper() {
@@ -102,13 +110,17 @@ _compile_mimocode_helper_impl() {
     return 1
   fi
 
-  if ! cc -O2 -o "$PREFIX/bin/mimo" "$HELPER_SRC" &>>"$LOG_FILE"; then
+  local staged_wrapper
+  staged_wrapper=$(mktemp "$PREFIX/bin/.mimo.XXXXXX") || return 1
+  if ! cc -O2 -o "$staged_wrapper" "$HELPER_SRC" &>>"$LOG_FILE"; then
+    rm -f "$staged_wrapper"
     log_error "Failed to compile mimocode helper"
     return 1
   fi
 
-  chmod +x "$PREFIX/bin/mimo"
-  return 0
+  chmod +x "$staged_wrapper"
+  mv "$staged_wrapper" "$PREFIX/bin/mimo" || return 1
+  record_managed_file "$PREFIX/bin/mimo" "$MIMOCODE_WRAPPER_MARKER"
 }
 
 _mimocode_detect_ubuntu_root() {
@@ -144,62 +156,18 @@ _install_mimocode_proot() {
 }
 
 _install_mimocode_proot_impl() {
-  mkdir -p "$(dirname "$LOG_FILE")"
-
-  if ! command -v proot-distro &>/dev/null; then
-    pkg install proot-distro -y &>>"$LOG_FILE"
-  fi
-
-  if [ ! -d "$(_mimocode_detect_ubuntu_root)" ]; then
-    proot-distro install ubuntu:24.04 &>>"$LOG_FILE"
-  fi
-
-  _mimocode_proot_ubuntu /bin/bash -c \
-    'apt-get update && apt-get upgrade -y && apt-get install -y curl ca-certificates' \
-    &>>"$LOG_FILE"
-
-  _mimocode_proot_ubuntu /bin/bash -c '
-    export SHELL=/bin/bash
-    export TMPDIR=/tmp
-    export HOME=/root
-    echo "MiMo Code Proot installation is unavailable because upstream does not publish a verifiable artifact." >&2
-    exit 1
-  ' &>>"$LOG_FILE"
-
-  local ubuntu_root
-  ubuntu_root="$(_mimocode_detect_ubuntu_root)"
-
-  if [ -z "$ubuntu_root" ]; then
-    log_error "Ubuntu rootfs not found"
-    return 1
-  fi
-
-  local mimo_bin="$ubuntu_root/root/.mimocode/bin/mimo"
-
-  if [ ! -f "$mimo_bin" ]; then
-    log_error "mimocode binary not found after install"
-    return 1
-  fi
-
-  local wrapper_src="$KARNEL_PATH/tools/ai/mimocode/bin/mimo"
-  if [ ! -f "$wrapper_src" ]; then
-    log_error "Wrapper template not found at $wrapper_src"
-    return 1
-  fi
-  sed "s|__UBUNTU_ROOTFS__|$ubuntu_root|g" "$wrapper_src" >"$PREFIX/bin/mimo"
-  chmod +x "$PREFIX/bin/mimo"
-
-  if ! grep -q '.mimocode/bin' "$ubuntu_root/root/.bashrc" 2>/dev/null; then
-    printf '\n# mimocode\nexport PATH=/root/.mimocode/bin:$PATH\n' >>"$ubuntu_root/root/.bashrc"
-  fi
-
-  return 0
+  log_error "MiMo Code Proot installation is unavailable: upstream publishes no supported Proot contract"
+  return 1
 }
 
 install_mimocode() {
   if command -v mimo &>/dev/null; then
     log_info "mimocode is already installed"
     return 2
+  fi
+  if [ -e "$PREFIX/bin/mimo" ]; then
+    log_error "Refusing to replace an existing mimocode wrapper not owned by Karnel"
+    return 1
   fi
 
   log_info "Select installation method for mimocode:"
@@ -227,29 +195,15 @@ uninstall_mimocode() {
     return 1
   fi
 
-  if [ -f "$MIMOCODE_DATA_DIR/mimocode" ]; then
+  if [ -f "$MIMOCODE_DATA_DIR/$MIMOCODE_MARKER" ] && managed_file_matches "$PREFIX/bin/mimo" "$MIMOCODE_WRAPPER_MARKER"; then
     rm -f "$PREFIX/bin/mimo"
     rm -rf "$MIMOCODE_DATA_DIR"
     log_success "mimocode (native) uninstalled"
     return 0
   fi
 
-  _mimocode_proot_ubuntu /bin/bash -c 'rm -rf /root/.mimocode' &>>"$LOG_FILE"
-
-  local ubuntu_bashrc
-  ubuntu_bashrc="$(_mimocode_detect_ubuntu_root)/root/.bashrc"
-
-  if [ -f "$ubuntu_bashrc" ]; then
-    sed -i '/# mimocode/d; /export PATH=\/root\/.mimocode\/bin/d' "$ubuntu_bashrc"
-  fi
-
-  if rm -f "$PREFIX/bin/mimo" &>>"$LOG_FILE"; then
-    log_success "mimocode (proot-distro) uninstalled"
-    return 0
-  else
-    log_error "Failed to uninstall mimocode"
-    return 1
-  fi
+  log_error "Refusing to remove a mimocode installation not owned by Karnel"
+  return 1
 }
 
 update_mimocode() {
@@ -262,29 +216,14 @@ _do_update_mimocode() {
     return $?
   fi
 
-  _mimocode_proot_ubuntu /bin/bash -c 'rm -rf /root/.mimocode' &>>"$LOG_FILE"
-
-  _mimocode_proot_ubuntu /bin/bash -c '
-    export SHELL=/bin/bash
-    export TMPDIR=/tmp
-    export HOME=/root
-    echo "MiMo Code Proot update is unavailable because upstream does not publish a verifiable artifact." >&2
-    exit 1
-  ' &>>"$LOG_FILE"
-
-  local ubuntu_root
-  ubuntu_root="$(_mimocode_detect_ubuntu_root)"
-  local mimo_bin="$ubuntu_root/root/.mimocode/bin/mimo"
-
-  if [ ! -f "$mimo_bin" ]; then
-    log_error "mimocode binary not found after update"
-    return 1
-  fi
-
-  return 0
+  log_error "MiMo Code update is unavailable for installations not owned by Karnel"
+  return 1
 }
 
 reinstall_mimocode() {
-  uninstall_mimocode
-  install_mimocode
+  if command -v mimo &>/dev/null; then
+    _do_update_mimocode
+  else
+    install_mimocode
+  fi
 }

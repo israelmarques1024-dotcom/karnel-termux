@@ -3,9 +3,12 @@
 import "@/utils/log"
 import "@/utils/colors"
 import "@/utils/version"
+import "@/utils/install"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 AMP_DATA_DIR="$HOME/.local/share/karnel-data/ampcode"
+AMP_MARKER=".karnel-managed"
+AMP_WRAPPER_MARKER="$AMP_DATA_DIR/.karnel-wrapper"
 
 _amp_detect_ubuntu_root() {
   local root
@@ -38,6 +41,11 @@ _get_latest_amp_version_silent() {
   local raw
   raw=$(curl -fsSL "https://registry.npmjs.org/@ampcode/cli-linux-arm64/latest" 2>/dev/null)
   echo "$raw" | python3 -c "import json,sys; print(json.load(sys.stdin).get('version',''))" 2>/dev/null
+}
+
+_get_latest_amp_integrity() {
+  curl -fsSL "https://registry.npmjs.org/@ampcode/cli-linux-arm64/latest" 2>/dev/null |
+    python3 -c "import json,sys; print(json.load(sys.stdin).get('dist',{}).get('integrity',''))" 2>/dev/null
 }
 
 _amp_install_deps_native() {
@@ -81,40 +89,48 @@ _download_amp_binary() {
 }
 
 _download_amp_binary_impl() {
-  local latest_version
+  local latest_version expected actual staging_dir tarball download_url
+  case "$(uname -m)" in
+    aarch64|arm64) ;;
+    *) log_error "AMP Code Linux ARM64 package is unavailable for architecture: $(uname -m)"; return 1 ;;
+  esac
   latest_version=$(_get_latest_amp_version_silent)
   if [ -z "$latest_version" ]; then
     log_error "Failed to fetch latest AMP Code CLI version"
     return 1
   fi
-  mkdir -p "$AMP_DATA_DIR"
-  local tarball="cli-linux-arm64-$latest_version.tgz"
-  local download_url="https://registry.npmjs.org/@ampcode%2fcli-linux-arm64/-/cli-linux-arm64-$latest_version.tgz"
-  if ! curl -fsSL "$download_url" -o "$AMP_DATA_DIR/$tarball" &>>"$LOG_FILE"; then
+  mkdir -p "$(dirname "$AMP_DATA_DIR")"
+  staging_dir=$(mktemp -d "$(dirname "$AMP_DATA_DIR")/.ampcode.XXXXXX") || return 1
+  tarball="cli-linux-arm64-$latest_version.tgz"
+  download_url="https://registry.npmjs.org/@ampcode%2fcli-linux-arm64/-/cli-linux-arm64-$latest_version.tgz"
+  if ! curl -fsSL "$download_url" -o "$staging_dir/$tarball" &>>"$LOG_FILE"; then
+    rm -rf "$staging_dir"
     log_error "Failed to download AMP Code CLI binary"
     return 1
   fi
-  if ! tar -zxf "$AMP_DATA_DIR/$tarball" -C "$AMP_DATA_DIR" &>>"$LOG_FILE"; then
-    log_error "Failed to extract AMP Code CLI binary"
+  expected=$(_get_latest_amp_integrity)
+  actual=$(python3 -c 'import base64,hashlib,sys; print("sha512-" + base64.b64encode(hashlib.sha512(open(sys.argv[1], "rb").read()).digest()).decode())' "$staging_dir/$tarball" 2>>"$LOG_FILE") || { rm -rf "$staging_dir"; return 1; }
+  if [[ "$expected" != sha512-* || "$actual" != "$expected" ]] ||
+    ! extract_tarball "$staging_dir/$tarball" "$staging_dir"; then
+    rm -rf "$staging_dir"
+    log_error "AMP Code package failed npm registry integrity validation"
     return 1
   fi
-  rm -f "$AMP_DATA_DIR/$tarball"
-  if [ -f "$AMP_DATA_DIR/package/amp" ]; then
-    mv "$AMP_DATA_DIR/package/amp" "$AMP_DATA_DIR/amp"
-    rm -rf "$AMP_DATA_DIR/package"
-  elif [ -f "$AMP_DATA_DIR/package/bin/amp.exe" ]; then
-    mv "$AMP_DATA_DIR/package/bin/amp.exe" "$AMP_DATA_DIR/amp"
-    rm -rf "$AMP_DATA_DIR/package"
-  elif [ -f "$AMP_DATA_DIR/package/amp.exe" ]; then
-    mv "$AMP_DATA_DIR/package/amp.exe" "$AMP_DATA_DIR/amp"
-    rm -rf "$AMP_DATA_DIR/package"
+  if [ -f "$staging_dir/package/amp" ]; then
+    mv "$staging_dir/package/amp" "$staging_dir/amp"
+  elif [ -f "$staging_dir/package/bin/amp.exe" ]; then
+    mv "$staging_dir/package/bin/amp.exe" "$staging_dir/amp"
+  elif [ -f "$staging_dir/package/amp.exe" ]; then
+    mv "$staging_dir/package/amp.exe" "$staging_dir/amp"
   fi
-  if [ ! -f "$AMP_DATA_DIR/amp" ]; then
+  rm -rf "$staging_dir/package"
+  if [ ! -f "$staging_dir/amp" ]; then
+    rm -rf "$staging_dir"
     log_error "AMP Code CLI binary not found after extraction"
     return 1
   fi
-  chmod +x "$AMP_DATA_DIR/amp"
-  return 0
+  chmod +x "$staging_dir/amp"
+  replace_managed_directory "$staging_dir" "$AMP_DATA_DIR" "$AMP_MARKER"
 }
 
 _compile_amp_helper() {
@@ -127,12 +143,16 @@ _compile_amp_helper_impl() {
     log_error "Helper source not found at $HELPER_SRC"
     return 1
   fi
-  if ! clang -O2 -o "$PREFIX/bin/amp" "$HELPER_SRC" &>>"$LOG_FILE"; then
+  local staged_wrapper
+  staged_wrapper=$(mktemp "$PREFIX/bin/.amp.XXXXXX") || return 1
+  if ! clang -O2 -o "$staged_wrapper" "$HELPER_SRC" &>>"$LOG_FILE"; then
+    rm -f "$staged_wrapper"
     log_error "Failed to compile amp helper"
     return 1
   fi
-  chmod +x "$PREFIX/bin/amp"
-  return 0
+  chmod +x "$staged_wrapper"
+  mv "$staged_wrapper" "$PREFIX/bin/amp" || return 1
+  record_managed_file "$PREFIX/bin/amp" "$AMP_WRAPPER_MARKER"
 }
 
 _install_amp_native() {
@@ -148,57 +168,22 @@ _install_amp_proot() {
 }
 
 _install_amp_proot_impl() {
-  mkdir -p "$(dirname "$LOG_FILE")"
-  if ! command -v proot-distro &>/dev/null; then
-    yes | pkg install proot-distro &>>"$LOG_FILE"
-  fi
-  if [ ! -d "$(_amp_detect_ubuntu_root)" ]; then
-    proot-distro install ubuntu:24.04 &>>"$LOG_FILE"
-  fi
-  _amp_proot_ubuntu /bin/bash -c \
-    'apt-get update && apt-get upgrade -y && apt-get install -y curl ca-certificates' \
-    &>>"$LOG_FILE"
-  local latest_version
-  latest_version=$(_get_latest_amp_version_silent)
-  if [ -z "$latest_version" ]; then
-    log_error "Failed to fetch latest AMP Code CLI version"
-    return 1
-  fi
-  local download_url="https://registry.npmjs.org/@ampcode%2fcli-linux-arm64/-/cli-linux-arm64-$latest_version.tgz"
-  _amp_proot_ubuntu /bin/bash -c "
-    mkdir -p /tmp/amp-install &&
-    curl -fsSL '$download_url' -o /tmp/amp-install/amp.tgz &&
-    tar -zxf /tmp/amp-install/amp.tgz -C /tmp/amp-install &&
-    mkdir -p /usr/local/bin &&
-    mv /tmp/amp-install/package/amp /usr/local/bin/amp &&
-    chmod +x /usr/local/bin/amp &&
-    rm -rf /tmp/amp-install
-  " &>>"$LOG_FILE"
-  local ubuntu_root
-  ubuntu_root="$(_amp_detect_ubuntu_root)"
-  if [ -z "$ubuntu_root" ]; then
-    log_error "Ubuntu rootfs not found"
-    return 1
-  fi
-  local amp_bin="$ubuntu_root/usr/local/bin/amp"
-  if [ ! -f "$amp_bin" ]; then
-    log_error "AMP Code CLI binary not found after install"
-    return 1
-  fi
-  local wrapper_src="$KARNEL_PATH/tools/ai/ampcode/bin/amp"
-  if [ ! -f "$wrapper_src" ]; then
-    log_error "Wrapper template not found at $wrapper_src"
-    return 1
-  fi
-  sed "s|__UBUNTU_ROOTFS__|$ubuntu_root|g" "$wrapper_src" >"$PREFIX/bin/amp"
-  chmod +x "$PREFIX/bin/amp"
-  return 0
+  case "$(uname -m)" in
+    aarch64|arm64) ;;
+    *) log_error "AMP Code Linux ARM64 package is unavailable for architecture: $(uname -m)"; return 1 ;;
+  esac
+  log_error "AMP Code Proot install is disabled; use native mode with npm registry integrity verification"
+  return 1
 }
 
 install_ampcode() {
   if command -v amp &>/dev/null; then
     log_info "AMP Code CLI is already installed"
     return 2
+  fi
+  if [ -e "$PREFIX/bin/amp" ]; then
+    log_error "Refusing to replace an existing AMP Code wrapper not owned by Karnel"
+    return 1
   fi
   log_info "Select installation method for AMP Code CLI:"
   read_select "Installation method" SELECTED_METHOD \
@@ -220,25 +205,14 @@ uninstall_ampcode() {
 }
 
 _uninstall_ampcode_impl() {
-  if [ -f "$AMP_DATA_DIR/amp" ]; then
+  if [ -f "$AMP_DATA_DIR/$AMP_MARKER" ] && managed_file_matches "$PREFIX/bin/amp" "$AMP_WRAPPER_MARKER"; then
     rm -f "$PREFIX/bin/amp"
     rm -rf "$AMP_DATA_DIR"
     log_success "AMP Code CLI (native) uninstalled"
     return 0
   fi
-  _amp_proot_ubuntu /bin/bash -c 'rm -f /usr/local/bin/amp' &>>"$LOG_FILE"
-  local ubuntu_bashrc
-  ubuntu_bashrc="$(_amp_detect_ubuntu_root)/root/.bashrc"
-  if [ -f "$ubuntu_bashrc" ]; then
-    sed -i '/# amp/d; /export PATH=\/root\/.local\/bin/d' "$ubuntu_bashrc"
-  fi
-  if rm -f "$PREFIX/bin/amp" &>>"$LOG_FILE"; then
-    log_success "AMP Code CLI (proot-distro) uninstalled"
-    return 0
-  else
-    log_error "Failed to uninstall AMP Code CLI"
-    return 1
-  fi
+  log_error "Refusing to remove an AMP Code installation not owned by Karnel"
+  return 1
 }
 
 _update_ampcode() {
@@ -259,34 +233,14 @@ update_ampcode() {
 }
 
 _update_amp_proot_impl() {
-  local latest_version
-  latest_version=$(_get_latest_amp_version_silent)
-  if [ -z "$latest_version" ]; then
-    log_error "Failed to fetch latest AMP Code CLI version"
-    return 1
-  fi
-  local download_url="https://registry.npmjs.org/@ampcode%2fcli-linux-arm64/-/cli-linux-arm64-$latest_version.tgz"
-  _amp_proot_ubuntu /bin/bash -c "
-    rm -f /usr/local/bin/amp &&
-    mkdir -p /tmp/amp-install &&
-    curl -fsSL '$download_url' -o /tmp/amp-install/amp.tgz &&
-    tar -zxf /tmp/amp-install/amp.tgz -C /tmp/amp-install &&
-    mv /tmp/amp-install/package/amp /usr/local/bin/amp &&
-    chmod +x /usr/local/bin/amp &&
-    rm -rf /tmp/amp-install
-  " &>>"$LOG_FILE"
-  local ubuntu_root
-  ubuntu_root="$(_amp_detect_ubuntu_root)"
-  local amp_bin="$ubuntu_root/usr/local/bin/amp"
-  if [ ! -f "$amp_bin" ]; then
-    log_error "AMP Code CLI binary not found after update"
-    return 1
-  fi
-  log_success "AMP Code CLI (proot-distro) updated"
-  return 0
+  log_error "AMP Code Proot update is disabled; use native mode with npm registry integrity verification"
+  return 1
 }
 
 reinstall_ampcode() {
-  uninstall_ampcode
-  install_ampcode
+  if command -v amp &>/dev/null; then
+    _update_ampcode_impl
+  else
+    install_ampcode
+  fi
 }

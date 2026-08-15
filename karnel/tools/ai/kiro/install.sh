@@ -5,6 +5,17 @@ import "@/utils/colors"
 import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
+KIRO_DATA_DIR="${KARNEL_DATA:-${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data}/kiro"
+KIRO_MARKER="$KIRO_DATA_DIR/.karnel-binary"
+
+_kiro_owned() {
+  local recorded actual
+  [[ -f "$PREFIX/bin/kiro-cli" && -L "$PREFIX/bin/kiro" &&
+    "$(readlink "$PREFIX/bin/kiro")" == "$PREFIX/bin/kiro-cli" && -f "$KIRO_MARKER" ]] || return 1
+  read -r recorded _ <"$KIRO_MARKER" || return 1
+  actual=$(sha256sum "$PREFIX/bin/kiro-cli" 2>/dev/null | awk '{print $1}') || return 1
+  [[ "$recorded" == "$actual" ]]
+}
 
 _kiro_is_usable() {
   local binary
@@ -16,10 +27,22 @@ _kiro_is_usable() {
   return 1
 }
 
-install_kiro() {
+install_kiro() (
+  local force="${1:-}"
   if _kiro_is_usable; then
+    if ! _kiro_owned; then
+      log_error "Refusing to replace Kiro not managed by Karnel"
+      return 1
+    fi
+    if [[ "$force" == "force" ]]; then
+      log_info "Updating Kiro CLI..."
+    else
     log_info "Kiro is already installed"
     return 2
+    fi
+  elif [[ -e "$PREFIX/bin/kiro" || -L "$PREFIX/bin/kiro" || -e "$PREFIX/bin/kiro-cli" ]] && ! _kiro_owned; then
+    log_error "Refusing to replace unowned Kiro command"
+    return 1
   fi
 
   log_info "Installing Kiro CLI..."
@@ -32,25 +55,14 @@ install_kiro() {
     fi
   fi
 
-  # Try the official installer first
-  log_info "Running official Kiro installer..."
-  local install_script
-  install_script=$(curl -fsSL https://cli.kiro.dev/install 2>/dev/null)
-  if [[ -n "$install_script" ]]; then
-    if bash -s -- <<<"$install_script" 2>>"$LOG_FILE"; then
-      hash -r
-      if _kiro_is_usable; then
-        log_success "Kiro installed successfully"
-        return 0
-      fi
-    fi
-  fi
-
-  # Fallback: download directly from release server
-  log_warn "Official installer failed, trying direct download..."
-
-  local arch
+  local arch target
   arch=$(uname -m)
+  case "$arch" in
+    aarch64|arm64) target="aarch64" ;;
+    x86_64|amd64) target="x86_64" ;;
+    *) log_error "Unsupported architecture: $arch"; return 1 ;;
+  esac
+
   local manifest
   manifest=$(curl -fsSL "https://prod.download.cli.kiro.dev/stable/latest/manifest.json" 2>/dev/null)
 
@@ -59,62 +71,61 @@ install_kiro() {
     return 1
   fi
 
-  # Find the arm64 linux package (prefer musl for Termux compatibility)
-  local download_path
-  # Try musl first (statically linked, works without glibc)
-  download_path=$(echo "$manifest" | python3 -c "
-import json,sys
-d=json.load(sys.stdin)
-for p in d['packages']:
-    if p.get('architecture')=='aarch64' and p.get('os')=='linux' and 'tar' in p.get('fileType','').lower() and 'xz' not in p.get('fileType','').lower() and 'zst' not in p.get('fileType','').lower() and 'musl' in p.get('download',''):
-        print(p['download'])
-        break
-" 2>/dev/null)
-  # Fallback to glibc version
-  if [[ -z "$download_path" ]]; then
-    download_path=$(echo "$manifest" | python3 -c "
-import json,sys
-d=json.load(sys.stdin)
-for p in d['packages']:
-    if p.get('architecture')=='aarch64' and p.get('os')=='linux' and 'tar' in p.get('fileType','').lower() and 'xz' not in p.get('fileType','').lower() and 'zst' not in p.get('fileType','').lower() and 'musl' not in p.get('download',''):
-        print(p['download'])
-        break
-" 2>/dev/null)
-  fi
+  local version download_path expected
+  IFS=$'\t' read -r version download_path expected < <(printf '%s' "$manifest" | python3 -c '
+import json, re, sys
+target = sys.argv[1]
+data = json.load(sys.stdin)
+version = data.get("version", "")
+if not re.fullmatch(r"[0-9]+(?:\.[0-9]+)+(?:[-+][0-9A-Za-z.-]+)?", version):
+    raise SystemExit(1)
+packages = [p for p in data.get("packages", [])
+            if p.get("architecture") == target and p.get("os") == "linux"
+            and p.get("fileType") == "tarGz" and p.get("variant") == "headless"]
+packages.sort(key=lambda p: "musl" not in p.get("targetTriple", ""))
+if not packages:
+    raise SystemExit(1)
+package = packages[0]
+download = package.get("download", "")
+checksum = package.get("sha256", "")
+if not download.startswith(version + "/") or ".." in download or not re.fullmatch(r"[0-9A-Za-z._/+~-]+", download):
+    raise SystemExit(1)
+if not re.fullmatch(r"[0-9a-f]{64}", checksum):
+    raise SystemExit(1)
+print(version, download, checksum, sep="\t")
+' "$target" 2>/dev/null)
 
-  if [[ -z "$download_path" ]]; then
+  if [[ -z "$version" || -z "$download_path" || -z "$expected" ]]; then
     log_error "No compatible package found for $arch"
     return 1
   fi
 
-  local tmpdir
-  tmpdir=$(mktemp -d)
-  log_info "Downloading Kiro (this may take a while)..."
+  local tmpdir archive actual bin_path staged_bin="" staged_link_dir=""
+  tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/kiro.XXXXXX") || return 1
+  trap 'rm -rf "$tmpdir"; [[ -z "$staged_bin" ]] || rm -f "$staged_bin"; [[ -z "$staged_link_dir" ]] || rm -rf "$staged_link_dir"' EXIT
+  archive="$tmpdir/kiro.tar.gz"
+  log_info "Downloading Kiro v$version (this may take a while)..."
 
   if curl -fsSL --connect-timeout 15 --max-time 300 \
     "https://prod.download.cli.kiro.dev/stable/$download_path" \
-    -o "$tmpdir/kiro.tar.gz" 2>>"$LOG_FILE"; then
+    -o "$archive" 2>>"$LOG_FILE"; then
+    actual=$(sha256sum "$archive" 2>/dev/null | awk '{print $1}') || actual=""
+    if [[ "$actual" != "$expected" ]]; then
+      log_error "Kiro checksum verification failed"
+      return 1
+    fi
+    log_success "Checksum verified"
 
-    if tar xzf "$tmpdir/kiro.tar.gz" -C "$tmpdir" 2>>"$LOG_FILE"; then
-      local bin_path
+    if tar xzf "$archive" -C "$tmpdir" 2>>"$LOG_FILE"; then
       bin_path=$(find "$tmpdir" -name "kiro-cli" -type f -executable 2>/dev/null | head -1)
       if [[ -z "$bin_path" ]]; then
         bin_path=$(find "$tmpdir" -name "kiro*" -type f -executable 2>/dev/null | head -1)
       fi
       if [[ -n "$bin_path" ]]; then
-        rm -f "$PREFIX/bin/kiro" "$PREFIX/bin/kiro-cli"
-        cp "$bin_path" "$PREFIX/bin/kiro-cli"
-        chmod +x "$PREFIX/bin/kiro-cli"
-        # Create symlink for convenience
-        ln -sf "$PREFIX/bin/kiro-cli" "$PREFIX/bin/kiro"
-        rm -rf "$tmpdir"
-        hash -r
-        if _kiro_is_usable; then
-          log_success "Kiro installed from direct download"
-          return 0
-        fi
-        # Binary exists but can't execute (missing glibc)
-        if [[ -f "$PREFIX/bin/kiro-cli" ]]; then
+        mkdir -p "$PREFIX/bin" || return 1
+        staged_bin=$(mktemp "$PREFIX/bin/.kiro-cli.XXXXXX") || return 1
+        cp "$bin_path" "$staged_bin" && chmod +x "$staged_bin" || return 1
+        if ! "$staged_bin" --version &>/dev/null && [[ "$download_path" != *musl* ]]; then
           log_warn "Kiro binary needs glibc — installing..."
           if [[ ! -f $PREFIX/etc/apt/sources.list.d/glibc.list ]]; then
             yes | pkg install glibc-repo &>>"$LOG_FILE"
@@ -122,47 +133,60 @@ for p in d['packages']:
           if [[ ! -f $PREFIX/glibc/lib/libc.so.6 ]]; then
             yes | pkg install glibc &>>"$LOG_FILE"
           fi
-          if _kiro_is_usable; then
-            log_success "Kiro installed successfully after glibc install"
-            return 0
-          else
-            log_warn "Kiro binary installed but still cannot execute"
-            log_info "Try: ${D_CYAN}proot-distro install ubuntu${NC}"
-            return 1
-          fi
         fi
+        if ! "$staged_bin" --version &>/dev/null; then
+          log_warn "Verified Kiro binary cannot execute; existing installation was preserved"
+          log_info "Try: ${D_CYAN}proot-distro install ubuntu${NC}"
+          return 1
+        fi
+        mv -f "$staged_bin" "$PREFIX/bin/kiro-cli" || return 1
+        staged_bin=""
+        staged_link_dir=$(mktemp -d "$PREFIX/bin/.kiro-link.XXXXXX") || return 1
+        ln -s "$PREFIX/bin/kiro-cli" "$staged_link_dir/kiro" || return 1
+        mv -f "$staged_link_dir/kiro" "$PREFIX/bin/kiro" || return 1
+        rmdir "$staged_link_dir" || return 1
+        staged_link_dir=""
+        mkdir -p "$KIRO_DATA_DIR" || return 1
+        sha256sum "$PREFIX/bin/kiro-cli" >"$KIRO_MARKER" || return 1
+        hash -r
+        log_success "Kiro v$version installed from verified release"
+        return 0
       fi
     fi
   fi
 
-  rm -rf "$tmpdir"
   log_error "Failed to install Kiro"
   log_info "See the official Kiro CLI documentation for manual installation options."
   return 1
-}
+)
 
 uninstall_kiro() {
-  if ! command -v kiro &>/dev/null && ! command -v kiro-cli &>/dev/null; then
+  if [[ ! -e "$PREFIX/bin/kiro" && ! -L "$PREFIX/bin/kiro" && ! -e "$PREFIX/bin/kiro-cli" ]]; then
     log_info "Kiro is not installed"
-    return 0
+    return 2
+  fi
+  if ! _kiro_owned; then
+    log_warn "Preserving Kiro not managed by Karnel"
+    return 2
   fi
 
   log_info "Uninstalling Kiro..."
   rm -f "$PREFIX/bin/kiro" "$PREFIX/bin/kiro-cli"
+  rm -rf "$KIRO_DATA_DIR"
   log_success "Kiro uninstalled"
   return 0
 }
 
 update_kiro() {
-  _check_update_needed "Kiro CLI" "$(_get_installed_version kiro)" "$(_get_remote_github_version kiro-dev/kiro-cli)" _update_kiro_impl
+  _kiro_owned || { log_error "Kiro is not installed by Karnel"; return 1; }
+  _update_kiro_impl
 }
 
 _update_kiro_impl() {
-  uninstall_kiro
-  install_kiro
+  install_kiro force
 }
 
 reinstall_kiro() {
-  uninstall_kiro
+  uninstall_kiro || [[ $? -eq 2 ]] || return 1
   install_kiro
 }

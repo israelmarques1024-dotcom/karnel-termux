@@ -31,7 +31,8 @@ _install_nestjs_npm_impl() {
 
 install_nestjs() {
   if command -v nest &>/dev/null; then
-    return 0
+    log_info "NestJS CLI is already installed"
+    return 2
   fi
   log_info "Installing NestJS CLI..."
 

@@ -9,7 +9,7 @@ LOG_FILE="$KARNEL_CACHE/install_dev.log"
 install_treex() {
   local TOOL_DIR="$KARNEL_DATA/utils/treex"
   local BIN_NAME="treex"
-  local DOWNLOAD_URL="https://raw.githubusercontent.com/dedsec1121fk/DedSec/main/Scripts/Developer%20Base/Tree%20Explorer.py"
+  local DOWNLOAD_URL="https://raw.githubusercontent.com/dedsec1121fk/DedSec/87d69293f4b89b8ab114fa644074629e86313182/Scripts/Developer%20Base/Tree%20Explorer.py"
   log_info "Installing Tree Explorer..."
   mkdir -p "$(dirname "$LOG_FILE")" "$TOOL_DIR"
   if ! command -v python3 &>/dev/null; then pkg install python -y &>>"$LOG_FILE" || return 1; fi
@@ -30,7 +30,7 @@ uninstall_treex() {
 update_treex() {
   local TOOL_DIR="$KARNEL_DATA/utils/treex"
   local BIN_NAME="treex"
-  local DOWNLOAD_URL="https://raw.githubusercontent.com/dedsec1121fk/DedSec/main/Scripts/Developer%20Base/Tree%20Explorer.py"
+  local DOWNLOAD_URL="https://raw.githubusercontent.com/dedsec1121fk/DedSec/87d69293f4b89b8ab114fa644074629e86313182/Scripts/Developer%20Base/Tree%20Explorer.py"
   log_info "Updating Tree Explorer..."
   _downloaded_python_update "$BIN_NAME" "$TOOL_DIR" "$DOWNLOAD_URL" || return 1
   log_success "Tree Explorer updated"

@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/install"
 import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_shell.log"
 ZSH_PLUGINS_DIR="$HOME/.zsh-plugins"
+ZSH_AUTOPAIR_COMMIT="449a7c3d095bc8f3d78cf37b9549f8bb4c383f3d"
+ZSH_AUTOPAIR_REPO="https://github.com/hlissner/zsh-autopair.git"
 
 _zsh_autopair_dependencies() {
   declare -A DEPS=(
@@ -34,7 +37,7 @@ _install_zsh_autopair_git() {
 
 _install_zsh_autopair_git_impl() {
   mkdir -p "$(dirname "$LOG_FILE")"
-  if ! git clone --depth=1 "https://github.com/hlissner/zsh-autopair.git" "$ZSH_PLUGINS_DIR/zsh-autopair" &>>"$LOG_FILE"; then
+  if ! install_pinned_git_repo "$ZSH_AUTOPAIR_REPO" "$ZSH_AUTOPAIR_COMMIT" "$ZSH_PLUGINS_DIR/zsh-autopair"; then
     log_error "Failed to install zsh-autopair"
     return 1
   fi
@@ -47,7 +50,7 @@ install_zsh_autopair() {
     return 0
   fi
 
-  _zsh_autopair_dependencies
+  _zsh_autopair_dependencies || return 1
 
   _install_zsh_autopair_git || return 1
   log_success "Installed"
@@ -79,11 +82,11 @@ _update_zsh_autopair_impl() {
     return 0
   fi
 
-  git -C "$ZSH_PLUGINS_DIR/zsh-autopair" pull &>>"$LOG_FILE"
+  install_pinned_git_repo "$ZSH_AUTOPAIR_REPO" "$ZSH_AUTOPAIR_COMMIT" "$ZSH_PLUGINS_DIR/zsh-autopair"
 }
 
 update_zsh_autopair() {
-  _check_update_needed "zsh-autopair" "$(_get_installed_git_version "$ZSH_PLUGINS_DIR/zsh-autopair")" "$(_get_remote_github_version hlissner/zsh-autopair)" _update_zsh_autopair_impl
+  _update_zsh_autopair_impl
 }
 
 reinstall_zsh_autopair() {

@@ -29,6 +29,15 @@ The first model download can be large and inference performance depends on the
 device's RAM, storage, and thermal limits. Cactus is currently enabled only on
 ARM64 because that is the Linux wheel published by the upstream project.
 
+The upstream ARM64 wheel is compiled for ARMv8.1+ CPUs (LSE atomics, fp16 and
+dot-product extensions). On devices whose `/proc/cpuinfo` does not advertise
+these (`atomics`/`lse`, `fp16`/`asimdhp`, `dotprod`/`asimddp`), the prebuilt
+binary aborts with `SIGILL` (e.g. at `ldaddal` or `sdot`). On such CPUs Karnel
+installs `qemu-user` inside the container and runs the native inference binary
+under `qemu-aarch64 -cpu max`: the CLI still works, but inference is extremely
+slow (minutes per token), so a newer device is strongly recommended for usable
+performance.
+
 Karnel removes only its managed Python environment and wrapper. Model data
 created elsewhere is preserved. Cactus uses a source-available license with
 commercial-use restrictions; review the upstream license before use.

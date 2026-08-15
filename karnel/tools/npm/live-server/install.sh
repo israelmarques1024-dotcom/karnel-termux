@@ -31,7 +31,8 @@ _install_live_server_npm_impl() {
 
 install_live_server() {
   if command -v live-server &>/dev/null; then
-    return 0
+    log_info "Live Server is already installed"
+    return 2
   fi
 
   log_info "Installing Live Server..."

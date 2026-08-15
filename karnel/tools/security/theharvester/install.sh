@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 _THEHARVESTER_DIR="$PREFIX/share/theharvester"
+_THEHARVESTER_REPO="https://github.com/laramies/theHarvester.git"
+_THEHARVESTER_COMMIT="6c5f3a388489b66297c8abab67c31a8a9c5927bd"
 
 install_theharvester() {
   if command -v theharvester &>/dev/null; then
@@ -12,7 +14,7 @@ install_theharvester() {
     log_success "theharvester instalado"
     return 0
   fi
-  if git clone --depth 1 https://github.com/laramies/theHarvester "$_THEHARVESTER_DIR" 2>/dev/null; then
+  if install_pinned_git_repo "$_THEHARVESTER_REPO" "$_THEHARVESTER_COMMIT" "$_THEHARVESTER_DIR"; then
     pip install -r "$_THEHARVESTER_DIR/requirements/base.txt" 2>/dev/null
     chmod +x "$_THEHARVESTER_DIR/theHarvester.py"
     ln -sf "$_THEHARVESTER_DIR/theHarvester.py" "$PREFIX/bin/theharvester"
@@ -35,7 +37,10 @@ uninstall_theharvester() {
 
 update_theharvester() {
   if [ -d "$_THEHARVESTER_DIR" ]; then
-    git -C "$_THEHARVESTER_DIR" pull
+    _pinned_git_repo_owned "$_THEHARVESTER_DIR" "$_THEHARVESTER_REPO" ||
+      { [ -f "$_THEHARVESTER_DIR/.karnel-wrapper" ] && _adopt_pinned_git_repo "$_THEHARVESTER_DIR" "$_THEHARVESTER_REPO"; } || return 1
+    install_pinned_git_repo "$_THEHARVESTER_REPO" "$_THEHARVESTER_COMMIT" "$_THEHARVESTER_DIR" || return 1
+    : > "$_THEHARVESTER_DIR/.karnel-wrapper"
     pip install -r "$_THEHARVESTER_DIR/requirements/base.txt" 2>/dev/null
     log_success "theharvester atualizado"
     return 0

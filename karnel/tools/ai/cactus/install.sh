@@ -7,6 +7,7 @@ CACTUS_VERSION="2.0.1"
 CACTUS_DATA_DIR="$KARNEL_DATA/cactus"
 CACTUS_CONTAINER_DIR="/opt/karnel/cactus"
 CACTUS_WRAPPER="$PREFIX/bin/cactus"
+CACTUS_EMULATE=0
 
 _cactus_data_owned() {
   [[ -f "$CACTUS_DATA_DIR/.karnel-managed" ]]
@@ -48,7 +49,35 @@ _cactus_verify_ownership() {
   fi
 }
 
+_cactus_cpu_supported() {
+  local features
+  features="$(grep -m1 '^Features' /proc/cpuinfo 2>/dev/null || true)"
+  [[ "$features" == *atomics* || "$features" == *lse* ]] &&
+    [[ "$features" == *fp16* || "$features" == *asimdhp* ]] &&
+    [[ "$features" == *dotprod* || "$features" == *asimddp* ]]
+}
+
+_cactus_set_emulation() {
+  if _cactus_cpu_supported; then
+    CACTUS_EMULATE=0
+  else
+    CACTUS_EMULATE=1
+  fi
+}
+
+_cactus_wrapper_matches_emulation() {
+  if [[ "$CACTUS_EMULATE" == 1 ]]; then
+    grep -q "CACTUS_EMULATE=1" "$CACTUS_WRAPPER" 2>/dev/null
+  else
+    ! grep -q "CACTUS_EMULATE=1" "$CACTUS_WRAPPER" 2>/dev/null
+  fi
+}
+
 _cactus_ensure_ubuntu() {
+  _cactus_set_emulation
+  if [[ "$CACTUS_EMULATE" == 1 ]]; then
+    log_warn "This CPU lacks ARMv8.1+ features (LSE/fp16/dotprod); Cactus inference will run under qemu-aarch64 emulation and will be very slow"
+  fi
   case "$(uname -m)" in
     aarch64|arm64) ;;
     *)
@@ -68,6 +97,35 @@ _cactus_validate() {
   _cactus_proot "$CACTUS_CONTAINER_DIR/venv/bin/cactus" --help &>/dev/null
 }
 
+_cactus_apply_emulation_patch() {
+  [[ "$CACTUS_EMULATE" == 1 ]] || return 0
+  local patch_path patch_name rc
+  patch_path="$(mktemp "$PREFIX/tmp/.cactus-emu-patch.XXXXXX")" || return 1
+  patch_name="$(basename "$patch_path")"
+  cat >"$patch_path" <<'PY'
+import pathlib
+import cactus.cli.common as m
+p = pathlib.Path(m.__file__)
+src = p.read_text()
+if "CACTUS_EMULATE" in src:
+    raise SystemExit(0)
+old = "    return subprocess.run([str(binary), *(str(a) for a in args)]).returncode"
+new = (
+    "    cmd = [str(binary), *(str(a) for a in args)]\n"
+    '    if os.environ.get("CACTUS_EMULATE") == "1":\n'
+    '        cmd = ["/usr/bin/qemu-aarch64", "-cpu", "max", "-L", "/", *cmd]\n'
+    "    return subprocess.run(cmd).returncode"
+)
+if old not in src:
+    raise SystemExit(2)
+p.write_text(src.replace(old, new))
+PY
+  _cactus_proot "$CACTUS_CONTAINER_DIR/venv/bin/python" "/tmp/$patch_name"
+  rc=$?
+  rm -f "$patch_path"
+  return $rc
+}
+
 _install_cactus_inside_ubuntu() {
   _cactus_proot /bin/bash -c '
     set -e
@@ -78,8 +136,23 @@ _install_cactus_inside_ubuntu() {
       official_source=/etc/apt/sources.list
     fi
     apt_options=(-o "Dir::Etc::sourcelist=$official_source" -o "Dir::Etc::sourceparts=-")
+    features="$(grep -m1 -E "^Features" /proc/cpuinfo || true)"
+    emulate=0
+    case "$features" in
+      *atomics*|*lse*) ;;
+      *) emulate=1 ;;
+    esac
+    if [ "$emulate" = 0 ]; then
+      case "$features" in *fp16*|*asimdhp*) ;; *) emulate=1 ;; esac
+    fi
+    if [ "$emulate" = 0 ]; then
+      case "$features" in *dotprod*|*asimddp*) ;; *) emulate=1 ;; esac
+    fi
     apt-get "${apt_options[@]}" update -qq
     apt-get "${apt_options[@]}" install -y -qq ca-certificates python3 python3-pip python3-venv
+    if [ "$emulate" = 1 ]; then
+      apt-get "${apt_options[@]}" install -y -qq qemu-user
+    fi
     if [ -e /opt/karnel/cactus ] && [ ! -f /opt/karnel/cactus/.karnel-managed ]; then
       echo "Refusing to replace unowned /opt/karnel/cactus" >&2
       exit 1
@@ -106,32 +179,54 @@ _cactus_write_wrapper() {
   : >"$CACTUS_DATA_DIR/.karnel-managed" || return 1
   local temporary
   temporary="$(mktemp "$PREFIX/bin/.cactus.XXXXXX")" || return 1
-  cat >"$temporary" <<EOF
+  if [[ "$CACTUS_EMULATE" == 1 ]]; then
+    cat >"$temporary" <<EOF
+#!$PREFIX/bin/bash
+# Karnel-managed Cactus wrapper (qemu-aarch64 emulation)
+exec proot-distro login --shared-tmp ubuntu -- env CACTUS_EMULATE=1 $CACTUS_CONTAINER_DIR/venv/bin/cactus "\$@"
+EOF
+  else
+    cat >"$temporary" <<EOF
 #!$PREFIX/bin/bash
 # Karnel-managed Cactus wrapper
 exec proot-distro login --shared-tmp ubuntu -- $CACTUS_CONTAINER_DIR/venv/bin/cactus "\$@"
 EOF
+  fi
   chmod 755 "$temporary" || { rm -f "$temporary"; return 1; }
   mv -f "$temporary" "$CACTUS_WRAPPER" || return 1
   sha256sum "$CACTUS_WRAPPER" >"$CACTUS_DATA_DIR/.karnel-wrapper-cactus" || return 1
 }
 
 install_cactus() {
+  _cactus_set_emulation
   if _cactus_data_owned && _cactus_wrapper_owned && _cactus_container_owned && _cactus_validate; then
-    log_info "Cactus is already installed"
-    return 2
+    if _cactus_wrapper_matches_emulation; then
+      log_info "Cactus is already installed"
+      return 2
+    fi
+    _cactus_verify_ownership || return 1
+    _cactus_apply_emulation_patch || return 1
+    if ! _cactus_write_wrapper; then
+      log_error "Failed to update Cactus wrapper"
+      return 1
+    fi
+    log_info "Cactus installation updated for this CPU"
+    return 0
   fi
   _cactus_verify_ownership || return 1
 
   log_info "Installing Cactus $CACTUS_VERSION in Ubuntu (glibc compatibility)..."
   _cactus_ensure_ubuntu || return 1
-  if ! _install_cactus_inside_ubuntu || ! _cactus_write_wrapper || ! _cactus_validate; then
+  if ! _install_cactus_inside_ubuntu || ! _cactus_apply_emulation_patch || ! _cactus_write_wrapper || ! _cactus_validate; then
     _cactus_wrapper_owned && rm -f "$CACTUS_WRAPPER"
     _cactus_data_owned && rm -rf "$CACTUS_DATA_DIR"
     log_error "Failed to install Cactus"
     return 1
   fi
   log_success "Cactus installed"
+  if [[ "$CACTUS_EMULATE" == 1 ]]; then
+    log_warn "Inference runs through qemu-aarch64 emulation on this CPU; expect minutes per token"
+  fi
   log_info "Start with: cactus run Cactus-Compute/needle"
 }
 
@@ -155,12 +250,14 @@ uninstall_cactus() {
 }
 
 update_cactus() {
+  _cactus_set_emulation
   _cactus_data_owned && _cactus_wrapper_owned && _cactus_container_owned || {
     log_error "Cactus is not installed by Karnel"
     return 1
   }
   _cactus_verify_ownership || return 1
   _cactus_proot "$CACTUS_CONTAINER_DIR/venv/bin/python" -m pip install --upgrade 'cactus-compute>=2,<3' || return 1
+  _cactus_apply_emulation_patch || return 1
   _cactus_validate || return 1
   log_success "Cactus updated"
 }

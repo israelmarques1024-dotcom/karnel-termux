@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 _DNSRECON_DIR="$PREFIX/share/dnsrecon"
+_DNSRECON_REPO="https://github.com/darkoperator/dnsrecon.git"
+_DNSRECON_COMMIT="0cbe45aee8cc472c18a44c9c169508b6fee2009f"
 
 install_dnsrecon() {
   if command -v dnsrecon &>/dev/null; then
@@ -12,7 +14,7 @@ install_dnsrecon() {
     log_success "dnsrecon instalado"
     return 0
   fi
-  if git clone --depth 1 https://github.com/darkoperator/dnsrecon "$_DNSRECON_DIR" 2>/dev/null; then
+  if install_pinned_git_repo "$_DNSRECON_REPO" "$_DNSRECON_COMMIT" "$_DNSRECON_DIR"; then
     pip install -r "$_DNSRECON_DIR/requirements.txt" 2>/dev/null
     chmod +x "$_DNSRECON_DIR/dnsrecon.py"
     ln -sf "$_DNSRECON_DIR/dnsrecon.py" "$PREFIX/bin/dnsrecon"
@@ -35,7 +37,10 @@ uninstall_dnsrecon() {
 
 update_dnsrecon() {
   if [ -d "$_DNSRECON_DIR" ]; then
-    git -C "$_DNSRECON_DIR" pull
+    _pinned_git_repo_owned "$_DNSRECON_DIR" "$_DNSRECON_REPO" ||
+      { [ -f "$_DNSRECON_DIR/.karnel-wrapper" ] && _adopt_pinned_git_repo "$_DNSRECON_DIR" "$_DNSRECON_REPO"; } || return 1
+    install_pinned_git_repo "$_DNSRECON_REPO" "$_DNSRECON_COMMIT" "$_DNSRECON_DIR" || return 1
+    : > "$_DNSRECON_DIR/.karnel-wrapper"
     pip install -r "$_DNSRECON_DIR/requirements.txt" 2>/dev/null
     log_success "dnsrecon atualizado"
     return 0

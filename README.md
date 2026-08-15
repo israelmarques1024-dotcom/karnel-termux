@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux">
-    <img src="https://img.shields.io/badge/version-4.14.0-0078D4?style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/badge/version-4.15.0-0078D4?style=for-the-badge" alt="Version">
   </a>
   <a href="https://www.npmjs.com/package/karnel-termux">
     <img src="https://img.shields.io/npm/v/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
@@ -56,10 +56,15 @@ Created by **Israel Marques**.
 
 ## Installation
 
-### Via curl (recommended)
+### Via checksummed GitHub release (recommended)
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/israelmarques1024-dotcom/karnel-termux/main/install.sh)"
+version=4.15.0
+tmpdir=$(mktemp -d) && trap 'rm -rf "$tmpdir"' EXIT
+base="https://github.com/israelmarques1024-dotcom/karnel-termux/releases/download/v$version"
+curl -fsSL "$base/karnel-termux-install.sh" -o "$tmpdir/karnel-termux-install.sh"
+curl -fsSL "$base/karnel-termux-install.sh.sha256" -o "$tmpdir/karnel-termux-install.sh.sha256"
+(cd "$tmpdir" && sha256sum -c karnel-termux-install.sh.sha256) && bash "$tmpdir/karnel-termux-install.sh" --ref "v$version"
 ```
 
 ### Via npm
@@ -79,6 +84,10 @@ After installation, run:
 ```bash
 karnel
 ```
+
+In a terminal, running `karnel` without a command opens a curated menu for
+common workflows. The menu is not a complete inventory of CLI commands,
+aliases, or options; use `karnel help` and the CLI reference for the full set.
 
 ---
 
@@ -104,7 +113,7 @@ karnel
 | `karnel start editor` | Start code-server (VS Code in browser) |
 | `karnel pg` | PostgreSQL manager |
 | `karnel init <template>` | Initialize projects with templates |
-| `karnel deploy` | Deploy projects (Vercel, Railway, Netlify, Supabase) |
+| `karnel deploy` | Run Vercel, Railway, Netlify, or Supabase CLI commands |
 | `karnel supabase` | Manage the Supabase CLI and remote-project helpers |
 | `karnel robin` | Manage the Robin OSINT service |
 | `karnel --version` | Show installed version |
@@ -363,7 +372,9 @@ karnel brain sync                  # Sync with private GitHub
 
 ## karnel voice
 
-Capture audio from microphone, review in editor, copy to clipboard, and dispatch any AI agent with the transcribed prompt.
+Capture audio from the microphone, optionally review it in an editor, copy it
+to the clipboard, and dispatch an AI agent with the transcribed prompt. If an
+editor is unavailable or no TTY is attached, Karnel uses the raw transcript.
 
 ```bash
 karnel voice opencode              # Record -> edit -> opencode run
@@ -415,7 +426,7 @@ Microphone -> termux-speech-to-text -> editor (edit) -> clipboard -> AI agent
 
 - Termux:API: `pkg install termux-api`
 - App Termux:API: https://karneltermux.vercel.app/termux/api
-- Editor: `karnel install editor`
+- Editor (optional): `karnel install editor`; otherwise use `--raw` or the automatic raw fallback
 
 ---
 
@@ -467,7 +478,8 @@ karnel env ls                        # List variables
 
 ## karnel deploy
 
-Deploy your projects directly from terminal:
+Run an installed platform CLI through Karnel; arguments after the tool name are
+forwarded unchanged:
 
 ```bash
 karnel deploy vercel                  # Deploy to Vercel

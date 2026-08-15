@@ -24,8 +24,13 @@ uninstall_nmap() {
 }
 
 update_nmap() {
-  log_info "$_TOOL atualizado via gerenciador de pacotes"
-  return 2
+  log_info "Atualizando nmap..."
+  if pkg install -y nmap 2>/dev/null || apt install -y nmap 2>/dev/null; then
+    log_success "nmap atualizado"
+    return 0
+  fi
+  log_error "Falha ao atualizar nmap"
+  return 1
 }
 
 reinstall_nmap() {

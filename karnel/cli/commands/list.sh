@@ -4,6 +4,7 @@ import "@/utils/log"
 import "@/utils/colors"
 
 list_main() {
+  local status=0
 
   if [[ $# -eq 0 ]]; then
     echo
@@ -92,9 +93,11 @@ list_main() {
     *)
       log_warn "Unknown list target: $arg"
       echo "Run 'karnel list' to see available targets"
+      status=1
       ;;
     esac
   done
+  return "$status"
 }
 
 # ===== LIST DEPLOY =====

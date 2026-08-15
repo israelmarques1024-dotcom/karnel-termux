@@ -24,8 +24,13 @@ uninstall_hydra() {
 }
 
 update_hydra() {
-  log_info "$_TOOL atualizado via gerenciador de pacotes"
-  return 2
+  log_info "Atualizando hydra..."
+  if pkg install -y thc-hydra 2>/dev/null || apt install -y thc-hydra 2>/dev/null; then
+    log_success "hydra atualizado"
+    return 0
+  fi
+  log_error "Falha ao atualizar hydra"
+  return 1
 }
 
 reinstall_hydra() {

@@ -31,7 +31,8 @@ _install_ngrok_npm_impl() {
 
 install_ngrok() {
   if command -v ngrok &>/dev/null; then
-    return 0
+    log_info "Ngrok is already installed"
+    return 2
   fi
   log_info "Installing Ngrok..."
 

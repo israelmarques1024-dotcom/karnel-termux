@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 METASPLOIT_DIR="${KARNEL_DATA:-${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data}/tools/metasploit-framework"
+METASPLOIT_REPO="https://github.com/rapid7/metasploit-framework.git"
+METASPLOIT_COMMIT="9f74eb0a48ca7f8039c2618e359c2e80f998ac89"
 
 install_metasploit() {
   if command -v msfconsole &>/dev/null; then
@@ -16,13 +18,11 @@ install_metasploit() {
 
   pkg install -y ruby git curl autoconf bison flex openssl libxml2 libxslt libyaml ncurses zlib 2>/dev/null
 
-  if [ ! -d "$METASPLOIT_DIR" ]; then
-    mkdir -p "$(dirname "$METASPLOIT_DIR")" || return 1
-    git clone --depth 1 https://github.com/rapid7/metasploit-framework "$METASPLOIT_DIR" 2>/dev/null || {
-      log_error "Falha ao clonar Metasploit"
-      return 1
-    }
-  fi
+  mkdir -p "$(dirname "$METASPLOIT_DIR")" || return 1
+  install_pinned_git_repo "$METASPLOIT_REPO" "$METASPLOIT_COMMIT" "$METASPLOIT_DIR" || {
+    log_error "Falha ao instalar fonte fixada do Metasploit"
+    return 1
+  }
 
   cd "$METASPLOIT_DIR"
   gem install bundler 2>/dev/null
@@ -55,8 +55,14 @@ uninstall_metasploit() {
 
 update_metasploit() {
   if [ -d "$METASPLOIT_DIR" ]; then
-    git -C "$METASPLOIT_DIR" pull
+    _pinned_git_repo_owned "$METASPLOIT_DIR" "$METASPLOIT_REPO" ||
+      { [ -f "$METASPLOIT_DIR/.karnel-installed" ] && _adopt_pinned_git_repo "$METASPLOIT_DIR" "$METASPLOIT_REPO"; } || return 1
+    install_pinned_git_repo "$METASPLOIT_REPO" "$METASPLOIT_COMMIT" "$METASPLOIT_DIR" || return 1
     cd "$METASPLOIT_DIR" && bundle install --jobs 4 2>/dev/null
+    for bin in msfconsole msfvenom msfrpc msfrpcd msfdb; do
+      sha256sum "$PREFIX/bin/$bin" > "$METASPLOIT_DIR/.karnel-wrapper-$bin"
+    done
+    : > "$METASPLOIT_DIR/.karnel-installed"
     log_success "metasploit atualizado"
     return 0
   fi

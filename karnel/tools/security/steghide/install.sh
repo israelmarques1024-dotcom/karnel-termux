@@ -24,8 +24,13 @@ uninstall_steghide() {
 }
 
 update_steghide() {
-  log_info "$_TOOL atualizado via gerenciador de pacotes"
-  return 2
+  log_info "Atualizando steghide..."
+  if pkg install -y steghide 2>/dev/null || apt install -y steghide 2>/dev/null; then
+    log_success "steghide atualizado"
+    return 0
+  fi
+  log_error "Falha ao atualizar steghide"
+  return 1
 }
 
 reinstall_steghide() {

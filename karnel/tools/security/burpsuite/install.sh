@@ -2,45 +2,75 @@
 
 _BURP_DIR="$PREFIX/share/burpsuite"
 _BURP_JAR="burpsuite_community.jar"
+_BURP_VERSION="2026.7.3"
+_BURP_SHA256="c8262dc5426f38bedc490d66c5d21b6ff77d6dc6d85cefe6a66c882690134069"
 
-install_burpsuite() {
+_burpsuite_owned() {
+  installer_file_owned "$PREFIX/bin/burpsuite" "$_BURP_DIR/.karnel-wrapper"
+}
+
+install_burpsuite() (
   if command -v burpsuite &>/dev/null; then
-    log_info "burpsuite já está instalado"
-    return 2
+    if ! _burpsuite_owned; then
+      log_info "burpsuite já está instalado"
+      return 2
+    fi
   fi
   log_info "Instalando Burp Suite..."
 
-  if pkg install -y burpsuite 2>/dev/null || apt install -y burpsuite 2>/dev/null; then
+  if [ ! -f "$_BURP_DIR/.karnel-wrapper" ] &&
+    { pkg install -y burpsuite 2>/dev/null || apt install -y burpsuite 2>/dev/null; }; then
     log_success "burpsuite instalado"
     return 0
   fi
 
   pkg install -y curl openjdk-17 2>/dev/null
 
-  mkdir -p "$_BURP_DIR"
-
-  local url
-  url=$(curl -fsSL "https://portswigger.net/burp/releases/data/latest" 2>/dev/null | \
-    grep -oP '"communityDownloadUrl"\s*:\s*"[^"]+"' | head -1 | sed 's/.*"communityDownloadUrl"\s*:\s*"//;s/"//' 2>/dev/null)
-
-  if [ -n "$url" ]; then
-    curl -fsSL "$url" -o "$_BURP_DIR/$_BURP_JAR"
-  fi
-
-  if [ -f "$_BURP_DIR/$_BURP_JAR" ]; then
-    cat > "$PREFIX/bin/burpsuite" << 'SCRIPT'
+  local url tmpdir staged_dir wrapper old_dir wrapper_backup
+  url="https://portswigger.net/burp/releases/download?product=community&type=Jar&version=${_BURP_VERSION}"
+  tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/burpsuite.XXXXXX") || return 1
+  trap 'rm -rf "$tmpdir"' EXIT
+  staged_dir="$tmpdir/data"
+  mkdir -p "$staged_dir" "$PREFIX/bin" "$(dirname "$_BURP_DIR")" || return 1
+  curl -fsSL "$url" -o "$staged_dir/$_BURP_JAR" || return 1
+  verify_sha256 "$staged_dir/$_BURP_JAR" "$_BURP_SHA256" || return 1
+  wrapper="$tmpdir/burpsuite"
+  cat >"$wrapper" << 'SCRIPT'
 #!/usr/bin/env bash
 exec java -jar "$PREFIX/share/burpsuite/burpsuite_community.jar" "$@"
 SCRIPT
-    chmod +x "$PREFIX/bin/burpsuite"
-    sha256sum "$PREFIX/bin/burpsuite" > "$_BURP_DIR/.karnel-wrapper"
-    log_success "burpsuite instalado"
-    return 0
-  fi
+  chmod 755 "$wrapper" || return 1
 
-  log_error "Falha ao instalar burpsuite"
-  return 1
-}
+  old_dir="${_BURP_DIR}.previous.$$"
+  wrapper_backup=""
+  if [ -e "$_BURP_DIR" ]; then
+    _burpsuite_owned || { log_error "Instalação Burp Suite existente não pertence ao Karnel"; return 1; }
+    mv "$_BURP_DIR" "$old_dir" || return 1
+  fi
+  if [ -e "$PREFIX/bin/burpsuite" ]; then
+    wrapper_backup=$(mktemp "$PREFIX/bin/.burpsuite-backup.XXXXXX") || {
+      [ ! -e "$old_dir" ] || mv "$old_dir" "$_BURP_DIR"
+      return 1
+    }
+    if ! mv "$PREFIX/bin/burpsuite" "$wrapper_backup"; then
+      rm -f "$wrapper_backup"
+      [ ! -e "$old_dir" ] || mv "$old_dir" "$_BURP_DIR"
+      return 1
+    fi
+  fi
+  if ! mv "$staged_dir" "$_BURP_DIR" || ! mv "$wrapper" "$PREFIX/bin/burpsuite" ||
+    ! sha256sum "$PREFIX/bin/burpsuite" >"$_BURP_DIR/.karnel-wrapper"; then
+    rm -rf "$_BURP_DIR"
+    rm -f "$PREFIX/bin/burpsuite"
+    [ ! -e "$old_dir" ] || mv "$old_dir" "$_BURP_DIR"
+    [ -z "$wrapper_backup" ] || mv "$wrapper_backup" "$PREFIX/bin/burpsuite"
+    log_error "Falha ao instalar burpsuite"
+    return 1
+  fi
+  rm -rf "$old_dir"
+  [ -z "$wrapper_backup" ] || rm -f "$wrapper_backup"
+  log_success "burpsuite instalado"
+)
 
 uninstall_burpsuite() {
   log_info "Removendo Burp Suite..."
@@ -52,11 +82,9 @@ uninstall_burpsuite() {
 }
 
 update_burpsuite() {
-  uninstall_burpsuite
   install_burpsuite
 }
 
 reinstall_burpsuite() {
-  uninstall_burpsuite
   install_burpsuite
 }

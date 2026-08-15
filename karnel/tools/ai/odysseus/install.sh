@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/install"
 import "@/utils/version"
 import "@/utils/colors"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 ODYSSEUS_DATA_DIR="$HOME/.local/share/karnel-data/odysseus"
+ODYSSEUS_REPO="https://github.com/pewdiepie-archdaemon/odysseus.git"
+ODYSSEUS_COMMIT="f9235ebbf13f693a6fd29ce70b097f6ec83705bf"
 
 _odysseus_wrapper_owned() {
   local marker="$ODYSSEUS_DATA_DIR/.karnel-wrapper-odysseus"
@@ -22,7 +25,23 @@ _odysseus_repo_dir() {
 }
 
 _odysseus_repo_owned() {
-  [[ -f "$1/.karnel-managed" ]]
+  [[ -f "$1/.karnel-managed" ]] ||
+    { declare -F _pinned_git_repo_owned &>/dev/null && _pinned_git_repo_owned "$1" "$ODYSSEUS_REPO"; }
+}
+
+_odysseus_prepare_repo() {
+  local ubuntu_root="$1" repo_dir remote
+  repo_dir="$(_odysseus_repo_dir "$ubuntu_root")"
+  if _odysseus_repo_owned "$repo_dir" && ! _pinned_git_repo_owned "$repo_dir" "$ODYSSEUS_REPO"; then
+    remote=$(git -C "$repo_dir" remote get-url origin 2>/dev/null) || return 1
+    [[ "$remote" == "$ODYSSEUS_REPO" || "$remote" == "${ODYSSEUS_REPO%.git}" ]] || {
+      log_error "Refusing to adopt Odysseus repository with unexpected origin: $remote"
+      return 1
+    }
+    printf '%s\n%s\n' 'karnel-pinned-git-v1' "$ODYSSEUS_REPO" >"$repo_dir/.karnel-pinned-git" || return 1
+  fi
+  install_pinned_git_repo "$ODYSSEUS_REPO" "$ODYSSEUS_COMMIT" "$repo_dir" || return 1
+  : >"$repo_dir/.karnel-managed"
 }
 
 _odysseus_verify_ownership() {
@@ -112,6 +131,7 @@ _install_odysseus_impl() {
     return 1
   fi
   _odysseus_verify_ownership "$ubuntu_root" || return 1
+  _odysseus_prepare_repo "$ubuntu_root" || return 1
   if ! _odysseus_proot_ubuntu /bin/bash -c '
     export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     export DEBIAN_FRONTEND=noninteractive
@@ -132,15 +152,10 @@ _install_odysseus_impl() {
   if ! _odysseus_proot_ubuntu /bin/bash -c '
     export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-    if [ ! -d /root/odysseus ]; then
-      git clone --depth 1 https://github.com/pewdiepie-archdaemon/odysseus.git /root/odysseus
-    fi
-
     cd /root/odysseus
     if [ -f requirements.txt ]; then
       python3 -m pip install --break-system-packages -r requirements.txt 2>&1
     fi
-    : > /root/odysseus/.karnel-managed
   ' &>>"$LOG_FILE"; then
     log_error "Failed to install Odysseus repository"
     return 1
@@ -171,6 +186,7 @@ _install_odysseus_native() {
   local ubuntu_root
   ubuntu_root="$(_odysseus_detect_ubuntu_root)"
   _odysseus_verify_ownership "$ubuntu_root" || return 1
+  _odysseus_prepare_repo "$ubuntu_root" || return 1
 
   if ! command -v glibc-repo &>/dev/null && ! command -v glibc &>/dev/null; then
     pkg install glibc-repo glibc clang curl git tar -y &>>"$LOG_FILE" || true
@@ -180,15 +196,10 @@ _install_odysseus_native() {
     export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     export DEBIAN_FRONTEND=noninteractive
 
-    if [ ! -d /root/odysseus ]; then
-      git clone --depth 1 https://github.com/pewdiepie-archdaemon/odysseus.git /root/odysseus
-    fi
-
     cd /root/odysseus
     if [ -f requirements.txt ]; then
       python3 -m pip install --break-system-packages -r requirements.txt 2>&1
     fi
-    : > /root/odysseus/.karnel-managed
   ' &>>"$LOG_FILE"; then
     log_error "Failed to install Odysseus repository"
     return 1
@@ -255,16 +266,17 @@ uninstall_odysseus() {
 }
 
 update_odysseus() {
-  _check_update_needed "Odysseus" "$(_get_installed_git_version "$KARNEL_DATA/odysseus")" "$(_get_remote_github_version pewdiepie-archdaemon/odysseus)" _do_update_odysseus
+  _do_update_odysseus
 }
 
 _do_update_odysseus() {
-  _odysseus_proot_ubuntu /bin/bash -c '
-    cd /root/odysseus && git pull
-  ' &>>"$LOG_FILE" || {
+  local ubuntu_root
+  ubuntu_root="$(_odysseus_detect_ubuntu_root)"
+  _odysseus_verify_ownership "$ubuntu_root" || return 1
+  if [[ -z "$ubuntu_root" ]] || ! _odysseus_prepare_repo "$ubuntu_root"; then
     log_error "Failed to update Odysseus"
     return 1
-  }
+  fi
 }
 
 reinstall_odysseus() {

@@ -5,36 +5,138 @@ ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 TEST_ROOT=$(mktemp -d)
 trap 'rm -rf "$TEST_ROOT"' EXIT
 
-assert_release_ref_checkout() (
+ORIGIN="$TEST_ROOT/origin"
+mkdir -p "$ORIGIN/karnel/bin" "$ORIGIN/scripts"
+git -C "$ORIGIN" init -q
+printf '#!/usr/bin/env bash\nprintf "v1\\n"\n' >"$ORIGIN/karnel/bin/karnel"
+printf 'complete v1\n' >"$ORIGIN/scripts/completion.bash"
+printf 'complete v1\n' >"$ORIGIN/scripts/completion.zsh"
+chmod +x "$ORIGIN/karnel/bin/karnel"
+git -C "$ORIGIN" add .
+git -C "$ORIGIN" -c user.name=Test -c user.email=test@example.invalid commit -qm v1
+V1_COMMIT=$(git -C "$ORIGIN" rev-parse HEAD)
+git -C "$ORIGIN" tag v4.14.0
+
+printf '#!/usr/bin/env bash\nprintf "v2\\n"\n' >"$ORIGIN/karnel/bin/karnel"
+git -C "$ORIGIN" add .
+git -C "$ORIGIN" -c user.name=Test -c user.email=test@example.invalid commit -qm v2
+SECOND_COMMIT=$(git -C "$ORIGIN" rev-parse HEAD)
+git -C "$ORIGIN" tag v4.14.1
+
+prepare_installer() {
+  # shellcheck source=../install.sh
   source "$ROOT_DIR/install.sh"
   progress_bar() { :; }
   log_step() { :; }
   log_ok() { :; }
   log_fail() { :; }
   log_info() { :; }
+  INSTALL_SCRIPT_DIR="$TEST_ROOT/not-a-checkout"
+  REPO="$ORIGIN"
+  mkdir -p "$INSTALL_SCRIPT_DIR"
+}
 
-  KARNEL_REPO="$ROOT_DIR"
-  BRANCH="v4.14.0"
-  RELEASE_REF="$BRANCH"
-  PREFIX="$TEST_ROOT/prefix"
-  mkdir -p "$PREFIX/share/zsh/site-functions"
-  GIT_LOG="$TEST_ROOT/git.log"
-  git() { printf '%s\n' "$*" >>"$GIT_LOG"; }
+assert_release_installs_from_staging() (
+  prepare_installer
+  KARNEL_REPO="$TEST_ROOT/release-repo"
+  PREFIX="$TEST_ROOT/release-prefix"
+  BRANCH=v4.14.0
+  RELEASE_REF=$BRANCH
+  RELEASE_COMMIT=$V1_COMMIT
+  mkdir -p "$PREFIX/bin" "$PREFIX/share/zsh/site-functions"
+  local source_hash
+  source_hash=$(sha256sum "$ORIGIN/karnel/bin/karnel")
 
   clone_repo
-  grep -Fx -- "-C $ROOT_DIR fetch --depth=1 origin refs/tags/v4.14.0" "$GIT_LOG" >/dev/null
-  grep -Fx -- "-C $ROOT_DIR checkout --detach FETCH_HEAD" "$GIT_LOG" >/dev/null
-  ! grep -Fqx -- "-C $ROOT_DIR pull origin main" "$GIT_LOG"
+  create_symlink
+  _finish_install
+
+  [[ "$(git -C "$KARNEL_REPO" rev-parse HEAD)" == "$V1_COMMIT" ]]
+  [[ -z "$(git -C "$KARNEL_REPO" status --porcelain --untracked-files=all)" ]]
+  [[ "$(readlink "$PREFIX/bin/karnel")" == "$KARNEL_REPO/karnel/bin/karnel" ]]
+  [[ "$(sha256sum "$ORIGIN/karnel/bin/karnel")" == "$source_hash" ]]
+  ! compgen -G "$TEST_ROOT/.karnel-staging.*" >/dev/null
 )
 
-if ! assert_release_ref_checkout; then
-  printf 'FAIL: release ref did not use an immutable tag checkout\n' >&2
-  exit 1
-fi
+assert_dirty_release_is_preserved() (
+  prepare_installer
+  KARNEL_REPO="$TEST_ROOT/dirty-repo"
+  PREFIX="$TEST_ROOT/dirty-prefix"
+  BRANCH=v4.14.1
+  RELEASE_REF=$BRANCH
+  RELEASE_COMMIT=$SECOND_COMMIT
+  git -c advice.detachedHead=false clone -q --branch v4.14.0 "$ORIGIN" "$KARNEL_REPO"
+  printf 'local change\n' >>"$KARNEL_REPO/karnel/bin/karnel"
+
+  if clone_repo; then
+    return 1
+  fi
+  grep -qF 'local change' "$KARNEL_REPO/karnel/bin/karnel"
+  [[ "$(git -C "$KARNEL_REPO" rev-parse HEAD)" == "$(git -C "$ORIGIN" rev-list -n 1 v4.14.0)" ]]
+)
+
+assert_preexisting_directory_is_preserved() (
+  prepare_installer
+  KARNEL_REPO="$TEST_ROOT/preexisting"
+  PREFIX="$TEST_ROOT/preexisting-prefix"
+  mkdir -p "$KARNEL_REPO"
+  printf 'user data\n' >"$KARNEL_REPO/keep"
+
+  if clone_repo; then
+    return 1
+  fi
+  [[ "$(<"$KARNEL_REPO/keep")" == 'user data' ]]
+)
+
+assert_mismatched_release_is_not_activated() (
+  prepare_installer
+  KARNEL_REPO="$TEST_ROOT/mismatch-repo"
+  PREFIX="$TEST_ROOT/mismatch-prefix"
+  BRANCH=v4.14.0
+  RELEASE_REF=$BRANCH
+  RELEASE_COMMIT=0123456789abcdef0123456789abcdef01234567
+
+  if clone_repo; then
+    return 1
+  fi
+  [[ ! -e "$KARNEL_REPO" ]]
+)
+
+assert_failure_rolls_back_repo_and_symlink() {
+  local repo="$TEST_ROOT/rollback-repo"
+  local prefix="$TEST_ROOT/rollback-prefix"
+  local old_target="$TEST_ROOT/original-karnel"
+  git -c advice.detachedHead=false clone -q --branch v4.14.0 "$ORIGIN" "$repo"
+  mkdir -p "$prefix/bin" "$prefix/share/zsh/site-functions"
+  printf '#!/usr/bin/env bash\n' >"$old_target"
+  ln -s "$old_target" "$prefix/bin/karnel"
+
+  if (
+    prepare_installer
+    KARNEL_REPO="$repo"
+    PREFIX="$prefix"
+    BRANCH=v4.14.1
+    RELEASE_REF=$BRANCH
+    RELEASE_COMMIT=$SECOND_COMMIT
+    clone_repo
+    create_symlink
+    _cleanup_failed
+  ) >/dev/null 2>&1; then
+    return 1
+  fi
+  [[ "$(git -C "$repo" rev-parse HEAD)" == "$V1_COMMIT" ]]
+  [[ "$(readlink "$prefix/bin/karnel")" == "$old_target" ]]
+}
+
+assert_release_installs_from_staging
+assert_dirty_release_is_preserved
+assert_preexisting_directory_is_preserved
+assert_mismatched_release_is_not_activated
+assert_failure_rolls_back_repo_and_symlink
 
 if bash "$ROOT_DIR/install.sh" --ref main >/dev/null 2>&1; then
   printf 'FAIL: mutable release ref was accepted\n' >&2
   exit 1
 fi
 
-printf 'Installer contracts: 2 passed\n'
+printf 'Installer contracts: 6 passed\n'

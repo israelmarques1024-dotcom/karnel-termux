@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/install"
 import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_shell.log"
 ZSH_PLUGINS_DIR="$HOME/.zsh-plugins"
+ZSH_SYNTAX_HIGHLIGHTING_COMMIT="c4d95591843d49838b7ad30081e7aba3135a6703"
+ZSH_SYNTAX_HIGHLIGHTING_REPO="https://github.com/zsh-users/zsh-syntax-highlighting.git"
 
 _zsh_syntax_highlighting_dependencies() {
   if command -v git &>/dev/null && command -v zsh &>/dev/null; then
@@ -21,7 +24,7 @@ _install_zsh_syntax_highlighting_git() {
 
 _install_zsh_syntax_highlighting_git_impl() {
   mkdir -p "$(dirname "$LOG_FILE")"
-  if ! git clone --depth=1 "https://github.com/zsh-users/zsh-syntax-highlighting.git" "$ZSH_PLUGINS_DIR/zsh-syntax-highlighting" &>>"$LOG_FILE"; then
+  if ! install_pinned_git_repo "$ZSH_SYNTAX_HIGHLIGHTING_REPO" "$ZSH_SYNTAX_HIGHLIGHTING_COMMIT" "$ZSH_PLUGINS_DIR/zsh-syntax-highlighting"; then
     log_error "Failed to install zsh-syntax-highlighting"
     return 1
   fi
@@ -34,7 +37,7 @@ install_zsh_syntax_highlighting() {
     return 0
   fi
 
-  _zsh_syntax_highlighting_dependencies
+  _zsh_syntax_highlighting_dependencies || return 1
 
   _install_zsh_syntax_highlighting_git || return 1
   log_success "Installed"
@@ -66,11 +69,11 @@ _update_zsh_syntax_highlighting_impl() {
     return 0
   fi
 
-  git -C "$ZSH_PLUGINS_DIR/zsh-syntax-highlighting" pull &>>"$LOG_FILE"
+  install_pinned_git_repo "$ZSH_SYNTAX_HIGHLIGHTING_REPO" "$ZSH_SYNTAX_HIGHLIGHTING_COMMIT" "$ZSH_PLUGINS_DIR/zsh-syntax-highlighting"
 }
 
 update_zsh_syntax_highlighting() {
-  _check_update_needed "zsh-syntax-highlighting" "$(_get_installed_git_version "$ZSH_PLUGINS_DIR/zsh-syntax-highlighting")" "$(_get_remote_github_version zsh-users/zsh-syntax-highlighting)" _update_zsh_syntax_highlighting_impl
+  _update_zsh_syntax_highlighting_impl
 }
 
 reinstall_zsh_syntax_highlighting() {

@@ -133,19 +133,21 @@ _show_backup_docs() {
 
   separator_section "backup - Full Termux Backup"
   echo
-  list_item "karnel backup                   Salva tudo (configs + pacotes + tools)"
+  list_item "karnel backup                   Salva configs selecionadas + metadados de pacotes"
   list_item "karnel backup --cloud           Salva + upload Google Drive"
   echo
   log_info "O backup inclui:"
   list_item "Lista de todos os pacotes (dpkg --get-selections)"
-  list_item "Manifest das ferramentas Karnel instaladas"
+  list_item "Catálogo dos instaladores Karnel (informativo)"
   list_item "Configs do shell (.bashrc, .zshrc, .profile)"
   list_item "Configurações do Termux (fontes, cores, propriedades)"
-  list_item "Chaves SSH"
-  list_item "Configs de apps (~/.config)"
+  list_item "Configuração e chaves públicas SSH (chaves privadas são excluídas)"
+  list_item "Configs de apps (~/.config), sem .env/credenciais conhecidas"
   list_item "Repositórios APT"
+  list_item "Lista de pacotes embutida no arquivo"
+  log_info "Backup e snapshot usam a mesma filtragem; tokens, .env e chaves privadas não são exportados."
   echo
-  log_info "Cloud: usa rclone (open-source) — Google Drive, Dropbox, etc."
+  log_info "Cloud: envia o arquivo e o checksum via rclone."
   list_item "Configure: rclone config  (nomeie o remote como 'karnel')"
   echo
 }
@@ -162,7 +164,7 @@ _show_restore_docs() {
 
   separator_section "restore - Full Termux Restore"
   echo
-  list_item "karnel restore                  Restaura o backup mais recente"
+  list_item "karnel restore                  Restaura o backup mais recente com rollback"
   list_item "karnel restore <arquivo>        Restaura um arquivo específico"
   list_item "karnel restore --cloud          Restaura do Google Drive"
   echo
