@@ -30,6 +30,7 @@ start_main() {
   *)
     log_warn "Unknown start target: $target"
     log_info "Run 'karnel start' to see available targets"
+    return 1
     ;;
   esac
 }

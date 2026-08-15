@@ -2,11 +2,14 @@
 
 import "@/utils/log"
 import "@/utils/colors"
+import "@/utils/install"
 
 LOG_FILE="$KARNEL_CACHE/install_npm.log"
 TURBO_DATA_DIR="${KARNEL_DATA:-${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data}/node-glibc"
 NODE_VERSION="22.14.0"
 NODE_URL="https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-arm64.tar.xz"
+NODE_SHASUMS_URL="https://nodejs.org/dist/v${NODE_VERSION}/SHASUMS256.txt"
+NODE_SHA256="08bfbf538bad0e8cbb0269f0173cca28d705874a67a22f60b57d99dc99e30050"
 GLIBC_LIBDIR="/data/data/com.termux/files/usr/glibc/lib"
 
 _has_glibc_node() {
@@ -41,11 +44,20 @@ _install_deps_impl() {
 
 _download() {
 	local staging_dir="$1"
-	local archive="$staging_dir/node-v${NODE_VERSION}-linux-arm64.tar.xz"
+	local asset="node-v${NODE_VERSION}-linux-arm64.tar.xz"
+	local archive="$staging_dir/$asset" shasums="$staging_dir/SHASUMS256.txt" manifest_hash
 
 	curl -fsSL "$NODE_URL" -o "$archive" || { log_error "download failed"; return 1; }
-	tar -xf "$archive" -C "$staging_dir" --strip-components=1 || { log_error "extract failed"; return 1; }
-	rm -f "$archive"
+	curl -fsSL "$NODE_SHASUMS_URL" -o "$shasums" || { log_error "SHASUMS256 download failed"; return 1; }
+	manifest_hash=$(awk -v asset="$asset" '$2 == asset { print $1 }' "$shasums")
+	[[ "$manifest_hash" == "$NODE_SHA256" ]] || { log_error "unexpected Node.js SHASUMS256 entry"; return 1; }
+	verify_sha256 "$archive" "$NODE_SHA256" || return 1
+	(
+		cd "$staging_dir" || exit 1
+		printf '%s  %s\n' "$manifest_hash" "$asset" | sha256sum -c -
+	) &>>"$LOG_FILE" || { log_error "Node.js SHASUMS256 verification failed"; return 1; }
+	safe_extract_tar "$archive" "$staging_dir" 1 || { log_error "extract failed"; return 1; }
+	rm -f "$archive" "$shasums"
 }
 
 _strip() {
@@ -119,10 +131,14 @@ _uninstall_wrappers() {
 }
 
 install_turbopack() {
+	case "$(uname -m)" in
+		aarch64|arm64) ;;
+		*) log_error "Turbopack glibc toolchain currently supports ARM64 only"; return 1 ;;
+	esac
 	if _has_glibc_node; then
 		log_info "Turbopack toolchain already installed"
 		read_confirm_default "Reinstall?" "n" REINSTALL
-		[[ "$REINSTALL" != "y" ]] && { log_warn "Skipped"; return 0; }
+		[[ "$REINSTALL" != "y" ]] && { log_warn "Skipped"; return 2; }
 	fi
 
 	_install_deps || return 1

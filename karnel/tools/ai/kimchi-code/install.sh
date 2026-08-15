@@ -5,6 +5,7 @@
 import "@/utils/log"
 import "@/utils/version"
 import "@/utils/colors"
+import "@/utils/install"
 
 export KARNEL_CACHE="${KARNEL_CACHE:-$HOME/.cache/karnel}"
 export PREFIX="${PREFIX:-/data/data/com.termux/files/usr}"
@@ -12,6 +13,8 @@ export PREFIX="${PREFIX:-/data/data/com.termux/files/usr}"
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 KIMCHI_DATA_DIR="$HOME/.local/share/karnel-data/kimchi"
 KIMCHI_BIN_PATH="$KIMCHI_DATA_DIR/kimchi"
+KIMCHI_MARKER=".karnel-managed"
+KIMCHI_WRAPPER_MARKER="$KIMCHI_DATA_DIR/.karnel-wrapper"
 
 _get_latest_kimchi_version() {
   curl -fsSL https://api.github.com/repos/getkimchi/kimchi/releases/latest 2>/dev/null |
@@ -23,14 +26,12 @@ _kimchi_download_binary() {
 }
 
 _kimchi_download_binary_impl() {
-  local latest_version
+  local latest_version staging_dir expected actual
   latest_version=$(_get_latest_kimchi_version)
   if [ -z "$latest_version" ]; then
     log_error "Failed to fetch latest Kimchi version"
     return 1
   fi
-
-  mkdir -p "$KIMCHI_DATA_DIR"
 
   local arch
   arch=$(uname -m)
@@ -38,30 +39,35 @@ _kimchi_download_binary_impl() {
   case "$arch" in
     aarch64|arm64) kimchi_arch="arm64" ;;
     x86_64) kimchi_arch="amd64" ;;
-    *) kimchi_arch="arm64" ;;
+    *) log_error "Unsupported Kimchi architecture: $arch"; return 1 ;;
   esac
 
   local tarball="kimchi_linux_${kimchi_arch}.tar.gz"
   local download_url="https://github.com/getkimchi/kimchi/releases/download/${latest_version}/${tarball}"
+  mkdir -p "$(dirname "$KIMCHI_DATA_DIR")"
+  staging_dir=$(mktemp -d "$(dirname "$KIMCHI_DATA_DIR")/.kimchi.XXXXXX") || return 1
 
-  if ! curl -fsSL "$download_url" -o "$KIMCHI_DATA_DIR/$tarball" &>>"$LOG_FILE"; then
+  if ! curl -fsSL "$download_url" -o "$staging_dir/$tarball" &>>"$LOG_FILE"; then
+    rm -rf "$staging_dir"
     log_error "Failed to download Kimchi binary"
     return 1
   fi
 
-  if ! tar -zxf "$KIMCHI_DATA_DIR/$tarball" -C "$KIMCHI_DATA_DIR" &>>"$LOG_FILE"; then
-    log_error "Failed to extract Kimchi binary"
+  expected=$(github_release_asset_sha256 getkimchi/kimchi "$latest_version" "$tarball") || expected=""
+  actual=$(sha256sum "$staging_dir/$tarball" 2>>"$LOG_FILE") || { rm -rf "$staging_dir"; return 1; }
+  if [[ ! "$expected" =~ ^[0-9a-f]{64}$ || "${actual%% *}" != "$expected" ]] ||
+    ! extract_tarball "$staging_dir/$tarball" "$staging_dir"; then
+    rm -rf "$staging_dir"
+    log_error "Kimchi archive failed official SHA-256 validation"
     return 1
   fi
 
-  rm -f "$KIMCHI_DATA_DIR/$tarball"
-
   # Find the kimchi binary (may be named kimchi or kimchi-linux-*)
   local kimchi_bin=""
-  if [ -f "$KIMCHI_BIN_PATH" ]; then
-    kimchi_bin="$KIMCHI_BIN_PATH"
+  if [ -f "$staging_dir/kimchi" ]; then
+    kimchi_bin="$staging_dir/kimchi"
   else
-    kimchi_bin=$(find "$KIMCHI_DATA_DIR" -name "kimchi*" -type f -executable 2>/dev/null | head -1)
+    kimchi_bin=$(find "$staging_dir" -name "kimchi*" -type f -executable 2>/dev/null | head -1)
   fi
 
   if [ -z "$kimchi_bin" ] || [ ! -f "$kimchi_bin" ]; then
@@ -70,19 +76,19 @@ _kimchi_download_binary_impl() {
   fi
 
   # Rename if needed
-  if [ "$kimchi_bin" != "$KIMCHI_BIN_PATH" ]; then
-    mv "$kimchi_bin" "$KIMCHI_BIN_PATH"
+  if [ "$kimchi_bin" != "$staging_dir/kimchi" ]; then
+    mv "$kimchi_bin" "$staging_dir/kimchi"
   fi
 
-  chmod +x "$KIMCHI_BIN_PATH"
+  chmod +x "$staging_dir/kimchi"
 
   # Validacao: confirma que o binario existe e e executavel
-  if [ ! -x "$KIMCHI_BIN_PATH" ]; then
+  if [ ! -x "$staging_dir/kimchi" ]; then
     log_error "Kimchi binary is not executable after setup"
     return 1
   fi
 
-  return 0
+  replace_managed_directory "$staging_dir" "$KIMCHI_DATA_DIR" "$KIMCHI_MARKER"
 }
 
 _install_kimchi_wrapper() {
@@ -91,67 +97,21 @@ _install_kimchi_wrapper() {
 
 _install_kimchi_wrapper_impl() {
   local wrapper_path="$PREFIX/bin/kimchi"
-
-  # Cria wrapper com CAMINHO ABSOLUTO para evitar depender de variaveis em runtime.
-  # O caminho e resolvido no momento da instalacao (KIMCHI_BIN_PATH = $HOME/.local/share/karnel-data/kimchi/kimchi).
-  cat > "$wrapper_path" << WRAPPER
-#!/data/data/com.termux/files/usr/bin/bash
-# Kimchi CLI wrapper — gerado pelo Karnel
-# Caminho absoluto do binario (resolvido na instalacao)
-KIMCHI_BIN="${KIMCHI_BIN_PATH}"
-
-if [ "\$#" -eq 0 ]; then
-  exec "\$KIMCHI_BIN"
-elif [ "\$1" = "-i" ] || [ "\$1" = "--interactive" ]; then
-  # Kimchi nao tem flag -i; modo interativo e o padrao
-  exec "\$KIMCHI_BIN"
-else
-  exec "\$KIMCHI_BIN" "\$@"
-fi
-WRAPPER
-  chmod +x "$wrapper_path"
-
-  # Valida que o wrapper foi criado corretamente
-  if [ ! -f "$wrapper_path" ]; then
-    log_error "Failed to create kimchi wrapper at $wrapper_path"
-    return 1
-  fi
-
-  # Verifica se o caminho no wrapper esta correto (nao pode ser "/kimchi" na raiz)
-  if grep -q 'KIMCHI_BIN="/kimchi"' "$wrapper_path" 2>/dev/null; then
-    log_error "Kimchi wrapper has invalid path (/kimchi) — KIMCHI_DATA_DIR was empty"
-    rm -f "$wrapper_path"
-    return 1
-  fi
+  local staged_wrapper
 
   # Kimchi é glibc — precisa rodar dentro do proot ubuntu no Termux
   if ! command -v proot-distro &>/dev/null; then
     pkg install proot-distro -y &>>"$LOG_FILE" || true
   fi
 
-  # Rewrite wrapper to use proot-distro
-  cat > "$wrapper_path" << 'PROOT_WRAPPER'
+  staged_wrapper=$(mktemp "$PREFIX/bin/.kimchi.XXXXXX") || return 1
+  cat > "$staged_wrapper" << PROOT_WRAPPER
 #!/data/data/com.termux/files/usr/bin/bash
-KIMCHI_DIR="/data/data/com.termux/files/home/.local/share/karnel-data/kimchi"
-KIMCHI_BIN="$KIMCHI_DIR/kimchi"
-
-ARGS=""
-sep=""
-for arg in "$@"; do
-  ARGS="$ARGS$sep$(printf '%q ' "$arg")"
-  sep=" "
-done
-
-exec proot-distro login ubuntu -- bash -c "
-  export HOME=/root
-  mkdir -p /root/.local/share/kimchi
-  cp -r $KIMCHI_DIR/share/kimchi/* /root/.local/share/kimchi/ 2>/dev/null || true
-  $KIMCHI_BIN $ARGS
-" 2>&1
+exec proot-distro login ubuntu -- env HOME=/root "$KIMCHI_BIN_PATH" "\$@"
 PROOT_WRAPPER
-  chmod +x "$wrapper_path"
-
-  return 0
+  chmod +x "$staged_wrapper"
+  mv "$staged_wrapper" "$wrapper_path" || return 1
+  record_managed_file "$wrapper_path" "$KIMCHI_WRAPPER_MARKER"
 }
 
 install_kimchi_code() {
@@ -160,29 +120,28 @@ install_kimchi_code() {
     log_info "Kimchi is already installed"
     return 2
   fi
+  if [ -e "$PREFIX/bin/kimchi" ]; then
+    log_error "Refusing to replace an existing Kimchi wrapper not owned by Karnel"
+    return 1
+  fi
 
   log_info "Installing Kimchi CLI..."
 
-  mkdir -p "$(dirname "$LOG_FILE")" "$KIMCHI_DATA_DIR"
+  mkdir -p "$(dirname "$LOG_FILE")"
 
   _kimchi_download_binary || return 1
   _install_kimchi_wrapper || return 1
 
-  # Validacao final: command -v + verificacao de que nao e stub
-  if command -v kimchi &>/dev/null; then
-    local bin_path
-    bin_path=$(command -v kimchi)
-    if [ -f "$bin_path" ] && grep -q "KIMCHI_BIN=" "$bin_path" 2>/dev/null; then
-      log_success "Kimchi CLI installed"
-      log_info "Usage: ${D_CYAN}kimchi${NC} to launch the interactive TUI"
-      log_info "Setup: ${D_CYAN}kimchi setup${NC} for first-time configuration"
-      log_info "Docs:  ${D_CYAN}https://docs.kimchi.dev${NC}"
-      return 0
-    fi
+  if managed_file_matches "$PREFIX/bin/kimchi" "$KIMCHI_WRAPPER_MARKER"; then
+    log_success "Kimchi CLI installed"
+    log_info "Usage: ${D_CYAN}kimchi${NC} to launch the interactive TUI"
+    log_info "Setup: ${D_CYAN}kimchi setup${NC} for first-time configuration"
+    log_info "Docs:  ${D_CYAN}https://docs.kimchi.dev${NC}"
+    return 0
   fi
 
   log_error "Kimchi CLI installation failed: binary not found or invalid"
-  rm -f "$PREFIX/bin/kimchi" 2>/dev/null
+  managed_file_matches "$PREFIX/bin/kimchi" "$KIMCHI_WRAPPER_MARKER" && rm -f "$PREFIX/bin/kimchi"
   return 1
 }
 
@@ -190,8 +149,12 @@ uninstall_kimchi_code() {
   log_info "Uninstalling Kimchi CLI..."
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  rm -f "$PREFIX/bin/kimchi" 2>/dev/null
-  rm -rf "$KIMCHI_DATA_DIR" 2>/dev/null
+  if ! managed_file_matches "$PREFIX/bin/kimchi" "$KIMCHI_WRAPPER_MARKER" || [ ! -f "$KIMCHI_DATA_DIR/$KIMCHI_MARKER" ]; then
+    log_error "Refusing to remove a Kimchi installation not owned by Karnel"
+    return 1
+  fi
+  rm -f "$PREFIX/bin/kimchi"
+  rm -rf "$KIMCHI_DATA_DIR"
 
   log_success "Kimchi CLI uninstalled"
   return 0
@@ -202,9 +165,6 @@ update_kimchi_code() {
 }
 
 _do_update_kimchi_code() {
-  rm -rf "$KIMCHI_DATA_DIR" 2>/dev/null
-  mkdir -p "$KIMCHI_DATA_DIR"
-
   _kimchi_download_binary || {
     log_error "Failed to update Kimchi CLI"
     return 1
@@ -219,6 +179,9 @@ _do_update_kimchi_code() {
 }
 
 reinstall_kimchi_code() {
-  uninstall_kimchi_code
-  install_kimchi_code
+  if command -v kimchi &>/dev/null; then
+    _do_update_kimchi_code
+  else
+    install_kimchi_code
+  fi
 }

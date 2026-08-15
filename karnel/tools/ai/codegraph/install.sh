@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 import "@/utils/log"
 import "@/utils/version"
+import "@/utils/install"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
+CODEGRAPH_DATA_DIR="$KARNEL_DATA/codegraph-linux-arm64"
+CODEGRAPH_MARKER="$CODEGRAPH_DATA_DIR/.karnel-managed"
+CODEGRAPH_WRAPPER_MARKER="$CODEGRAPH_DATA_DIR/.karnel-wrapper"
 
 _codegraph_dependencies() {
 	loading "Installing dependencies" _codegraph_dependencies_impl
@@ -40,6 +44,10 @@ _download_codegraph() {
 
 _download_codegraph_impl() {
 	local staging_dir old_dir
+	case "$(uname -m)" in
+		aarch64|arm64) ;;
+		*) log_error "CodeGraph Linux ARM64 asset is unavailable for architecture: $(uname -m)"; return 1 ;;
+	esac
 	LATEST_VERSION=$(curl -sI https://github.com/colbymchenry/codegraph/releases/latest | grep -i location | sed -E 's#.*/tag/([^[:space:]]+).*#\1#')
 	LATEST_VERSION="${LATEST_VERSION#v}"
 
@@ -56,21 +64,28 @@ _download_codegraph_impl() {
 	mkdir -p "$KARNEL_DATA"
 	staging_dir=$(mktemp -d "$KARNEL_DATA/.codegraph.XXXXXX") || return 1
 	local tarball="$staging_dir/codegraph.tar.gz"
+	local asset="codegraph-linux-arm64.tar.gz"
 
-	if ! curl -L "https://github.com/colbymchenry/codegraph/releases/download/v${LATEST_VERSION}/codegraph-linux-arm64.tar.gz" -o "$tarball" &>>"$LOG_FILE"; then
+	if ! curl -fsSL "https://github.com/colbymchenry/codegraph/releases/download/v${LATEST_VERSION}/$asset" -o "$tarball" &>>"$LOG_FILE"; then
 		log_error "Failed to download CodeGraph"
 		rm -rf "$staging_dir"
 		return 1
 	fi
 
-	if ! tar -xzf "$tarball" -C "$staging_dir" &>>"$LOG_FILE" ||
+	if ! verify_github_release_asset colbymchenry/codegraph "v${LATEST_VERSION}" "$asset" "$tarball" ||
+		! extract_tarball "$tarball" "$staging_dir" ||
 		[[ ! -f "$staging_dir/codegraph-linux-arm64/lib/dist/bin/codegraph.js" ]]; then
 		log_error "Failed to extract CodeGraph"
 		rm -rf "$staging_dir"
 		return 1
 	fi
 
-	rm -f "$tarball"
+	if [[ -d "$CODEGRAPH_DATA_DIR" && ! -f "$CODEGRAPH_MARKER" ]]; then
+		log_error "Refusing to replace CodeGraph data not owned by Karnel"
+		rm -rf "$staging_dir"
+		return 1
+	fi
+	printf '%s\n' 'karnel-managed-v1' >"$staging_dir/codegraph-linux-arm64/.karnel-managed"
 	old_dir="$KARNEL_DATA/.codegraph-linux-arm64.previous.$$"
 	if [ -d "$KARNEL_DATA/codegraph-linux-arm64" ] && ! mv "$KARNEL_DATA/codegraph-linux-arm64" "$old_dir"; then
 		rm -rf "$staging_dir"
@@ -113,6 +128,7 @@ _write_codegraph_wrapper_impl() {
 		return 1
 	fi
 	rm -f "$old_wrapper"
+	record_managed_file "$PREFIX/bin/codegraph" "$CODEGRAPH_WRAPPER_MARKER"
 
 	return 0
 }
@@ -121,6 +137,10 @@ install_codegraph() {
 	if command -v codegraph &>/dev/null; then
 		log_info "CodeGraph is already installed"
 		return 2
+	fi
+	if [ -e "$PREFIX/bin/codegraph" ]; then
+		log_error "Refusing to replace an existing CodeGraph wrapper not owned by Karnel"
+		return 1
 	fi
 	log_info "Installing CodeGraph..."
 
@@ -135,7 +155,7 @@ install_codegraph() {
 }
 
 uninstall_codegraph() {
-	if ! command -v codegraph &>/dev/null; then
+	if [ ! -f "$CODEGRAPH_MARKER" ] && ! managed_file_matches "$PREFIX/bin/codegraph" "$CODEGRAPH_WRAPPER_MARKER"; then
 		log_info "CodeGraph is not installed"
 		return 2
 	fi
@@ -149,10 +169,11 @@ uninstall_codegraph() {
 }
 
 _uninstall_codegraph_impl() {
-	if [[ -n "$KARNEL_DATA" && -d "$KARNEL_DATA/codegraph-linux-arm64" ]]; then
-	  rm -rf "$KARNEL_DATA/codegraph-linux-arm64"
+	if [ ! -f "$CODEGRAPH_MARKER" ] || ! managed_file_matches "$PREFIX/bin/codegraph" "$CODEGRAPH_WRAPPER_MARKER"; then
+		log_error "Refusing to remove a CodeGraph installation not owned by Karnel"
+		return 1
 	fi
-	if rm -f "$PREFIX/bin/codegraph" &>>"$LOG_FILE"; then
+	if rm -f "$PREFIX/bin/codegraph" &>>"$LOG_FILE" && rm -rf "$CODEGRAPH_DATA_DIR"; then
 		return 0
 	else
 		log_error "Failed to remove old CodeGraph installation"
@@ -171,21 +192,10 @@ _do_update_codegraph() {
   return 0
 }
 
-_update_codegraph_remove_impl() {
-	if [[ -n "$KARNEL_DATA" && -d "$KARNEL_DATA/codegraph-linux-arm64" ]]; then
-	  rm -rf "$KARNEL_DATA/codegraph-linux-arm64" &>>"$LOG_FILE"
-	fi
-
-
-	if ! rm -f "$PREFIX/bin/codegraph" &>>"$LOG_FILE"; then
-		log_error "Failed to remove old CodeGraph wrapper"
-		return 1
-	fi
-
-	return 0
-}
-
 reinstall_codegraph() {
-	uninstall_codegraph
-	install_codegraph
+	if command -v codegraph &>/dev/null; then
+		_do_update_codegraph
+	else
+		install_codegraph
+	fi
 }

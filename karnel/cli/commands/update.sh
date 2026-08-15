@@ -254,7 +254,7 @@ _update_try_curl() {
 
   if bash "$installer" --ref "$tag"; then
     rm -f "$installer"
-    log_success "Karnel-Termux updated via curl (v$tag)"
+    log_success "Karnel-Termux updated via curl ($tag)"
     return 0
   fi
 
@@ -360,7 +360,7 @@ _update_try_pnpm() {
 _update_show_manual() {
   log_info "Update manually with one of these:"
   echo
-  echo '  bash -c "$(curl -fsSL https://raw.githubusercontent.com/israelmarques1024-dotcom/karnel-termux/main/install.sh)"'
+  echo "  Follow the checksum-verified release procedure in README.md"
   echo "  npm install -g karnel-termux@latest"
   echo "  pnpm add -g karnel-termux@latest"
   echo

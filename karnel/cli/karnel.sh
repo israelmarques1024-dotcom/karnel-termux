@@ -4,7 +4,29 @@ import "@/utils/log"
 import "@/utils/colors"
 
 karnel_main() {
-  local cmd="$1"
+  local cmd="${1:-}"
+  case "$cmd" in
+    install|uninstall|update|upgrade|reinstall|cleanup|plugin|backup|restore)
+      if [[ "${KARNEL_LIFECYCLE_LOCK_HELD:-0}" != 1 ]]; then
+        (
+          local lifecycle_lock="$KARNEL_RUN/lifecycle.lock"
+          if ! _karnel_acquire_lock "$lifecycle_lock"; then
+            log_error "Another Karnel mutable operation is already running"
+            exit 75
+          fi
+          KARNEL_LIFECYCLE_LOCK_HELD=1
+          trap '_karnel_release_lock "$lifecycle_lock" 2>/dev/null || true' EXIT
+          _karnel_dispatch "$@"
+        )
+        return $?
+      fi
+      ;;
+  esac
+  _karnel_dispatch "$@"
+}
+
+_karnel_dispatch() {
+  local cmd="${1:-}"
   shift || true
 
   # si no se pasa comando
@@ -69,7 +91,7 @@ karnel_help() {
   separator_section "Available Commands"
   echo
   printf "    ${D_CYAN}%-18s${NC} %s\n" "--version" "Show current version"
-  printf "    ${D_CYAN}%-18s${NC} %s\n" "backup [--cron,--cloud,snapshot,list]" "Backup all Termux configs + tools"
+  printf "    ${D_CYAN}%-18s${NC} %s\n" "backup [--cron,--cloud,snapshot,list]" "Backup selected Termux configs + package metadata"
   printf "    ${D_CYAN}%-18s${NC} %s\n" "brain [subcommand]" "Second brain (run 'karnel brain --help' for commands)"
   printf "    ${D_CYAN}%-18s${NC} %s\n" "cleanup" "Clean caches, logs, and temp files"
   printf "    ${D_CYAN}%-18s${NC} %s\n" "deploy [vercel,railway,netlify,supabase]" "Deploy projects to Vercel, Railway, Netlify, Supabase"
@@ -102,8 +124,8 @@ karnel_help() {
   list_item "Run: ${D_CYAN}karnel${NC} to see available commands"
   list_item "Run: ${D_CYAN}karnel open karnel${NC} for official documentation"
   list_item "Run: ${D_CYAN}karnel install <module>${NC} to install modules"
-  list_item "Run: ${D_CYAN}karnel backup${NC} to save all configs"
-  list_item "Run: ${D_CYAN}karnel restore${NC} to restore"
+  list_item "Run: ${D_CYAN}karnel backup${NC} to save selected configs without private keys or .env files"
+  list_item "Run: ${D_CYAN}karnel restore${NC} for a verified transactional restore"
   list_item "Run: ${D_CYAN}karnel brain init${NC} to start your second brain"
   echo
   separator_section "Install / Update / Reinstall / Uninstall Targets"
@@ -1002,7 +1024,7 @@ karnel_fallback_tui() {
       6) karnel_main "voice" ;;
       7) karnel_main "ia" ;;
       8) karnel_main "doctor" ;;
-      9) karnel_main "update" ;;
+      9) karnel_main "update" "karnel" ;;
       10) karnel_help ;;
       11|q|exit) break ;;
       *) log_warn "Invalid option. Please try again." ;;

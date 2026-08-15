@@ -1,5 +1,28 @@
 # Documentation Changelog
 
+## 4.15.0 - 2026-08-14
+
+- Replaced the unavailable GGA fork with the official Gentleman Guardian
+  Angel v2.10.1, pinned by commit, with Termux-safe staging, ownership
+  verification, rollback, and non-destructive uninstall.
+- Made backup/restore transactional: staged configs, ancestor symlink
+  rejection, signal-safe rollback, concurrent backup isolation, validated
+  snapshot names, and explicit package/configuration phase separation.
+- Hardened lifecycle ownership so pre-existing installs are never adopted,
+  arbitrary handler exit codes are treated as failures, and stale or empty
+  locks are recovered safely.
+- Pinned release/npm/installer together: the npm package carries a validated
+  `RELEASE_COMMIT`, the release workflow is serialized per tag and refuses
+  divergent partial publications, and the installer activates only a verified,
+  clean checkout.
+- Authenticated security and AI installers with fixed versions and official
+  SHA-256 checksums, safe archive extraction, staging, and rollback; unverifiable
+  upstream assets now fail closed instead of executing unauthenticated bytes.
+- Fixed the npm postinstall to distinguish the npm bin symlink from a complete
+  managed installation, and removed the deprecated `curl | bash` guidance.
+- Updated ShellCheck/syntax/test gates to 294 scripts and added regression
+  suites for backup, lifecycle, installer integrity, and AI installer hardening.
+
 ## 4.14.0 - 2026-08-14
 
 - Added tested Cactus 2.0.1 support on ARM64 through Ubuntu Proot with an

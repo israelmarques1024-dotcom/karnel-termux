@@ -22,6 +22,6 @@ update_all_voice_components() {
 }
 
 reinstall_all_voice_components() {
-  uninstall_all_voice_components
+  uninstall_all_voice_components || return $?
   install_all_voice_components
 }

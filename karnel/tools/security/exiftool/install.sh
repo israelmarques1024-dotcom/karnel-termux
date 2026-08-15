@@ -24,8 +24,13 @@ uninstall_exiftool() {
 }
 
 update_exiftool() {
-  log_info "$_TOOL atualizado via gerenciador de pacotes"
-  return 2
+  log_info "Atualizando exiftool..."
+  if pkg install -y exiftool 2>/dev/null || apt install -y exiftool 2>/dev/null; then
+    log_success "exiftool atualizado"
+    return 0
+  fi
+  log_error "Falha ao atualizar exiftool"
+  return 1
 }
 
 reinstall_exiftool() {

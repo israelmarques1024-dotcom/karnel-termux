@@ -31,7 +31,8 @@ _install_psqlformat_npm_impl() {
 
 install_psqlformat() {
   if command -v psqlformat &>/dev/null; then
-    return 0
+    log_info "PSQL Format is already installed"
+    return 2
   fi
   log_info "Installing PSQL Format..."
 

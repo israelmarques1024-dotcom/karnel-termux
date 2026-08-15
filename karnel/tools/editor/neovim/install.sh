@@ -19,7 +19,7 @@ _install_neovim_impl() {
 install_neovim() {
   if command -v nvim &>/dev/null; then
     log_info "Neovim is already installed"
-    return 0
+    return 2
   fi
   log_info "Installing Neovim..."
   loading "Installing Neovim" _install_neovim_impl

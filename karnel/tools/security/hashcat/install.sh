@@ -24,8 +24,13 @@ uninstall_hashcat() {
 }
 
 update_hashcat() {
-  log_info "$_TOOL atualizado via gerenciador de pacotes"
-  return 2
+  log_info "Atualizando hashcat..."
+  if pkg install -y hashcat 2>/dev/null || apt install -y hashcat 2>/dev/null; then
+    log_success "hashcat atualizado"
+    return 0
+  fi
+  log_error "Falha ao atualizar hashcat"
+  return 1
 }
 
 reinstall_hashcat() {

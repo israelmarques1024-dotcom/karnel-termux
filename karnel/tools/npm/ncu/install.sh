@@ -31,7 +31,8 @@ _install_ncu_npm_impl() {
 
 install_ncu() {
   if command -v ncu &>/dev/null; then
-    return 0
+    log_info "NPM Check Updates is already installed"
+    return 2
   fi
   log_info "Installing NPM Check Updates..."
 

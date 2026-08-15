@@ -73,6 +73,18 @@ AI_TOOLS_REGISTRY=(
   "hugging-face:Hugging Face:hf"
 )
 
+# Only tools with a documented, non-interactive version contract are executed.
+declare -A AI_TOOL_PROBES=(
+  [claude-code]='claude --version'
+  [qoder]='qodercli --version'
+  [codebuff]='codebuff --version'
+  [ampcode]='amp --version'
+  [mimocode]='mimo --version'
+  [goose]='goose --version'
+  [codegraph]='codegraph --version'
+  [crush]='crush --version'
+)
+
 # ---- IMPORTAR TODOS OS SCRIPTS INDIVIDUAIS ----
 # Cada tool/***/install.sh define install_*, uninstall_*, update_*, reinstall_*
 _import_all_ai_tools() {
@@ -92,6 +104,7 @@ unset -f _import_all_ai_tools
 _validate_tool_installed() {
   local binaries="$1"
   local tool_name="$2"
+  local tool_id="${3:-}"
   IFS=',' read -ra bins <<< "$binaries"
   for bin in "${bins[@]}"; do
     if command -v "$bin" &>/dev/null; then
@@ -107,6 +120,15 @@ _validate_tool_installed() {
             log_warn "$tool_name: instalado como stub offline (instalação real indisponível)"
             return 2
           fi
+        fi
+      fi
+      local probe="${AI_TOOL_PROBES[$tool_id]:-}"
+      if [[ -n "$probe" ]]; then
+        local probe_bin=${probe%% *}
+        local probe_arg=${probe#* }
+        if ! "$probe_bin" "$probe_arg" </dev/null >/dev/null 2>&1; then
+          log_warn "$tool_name: non-interactive post-install probe failed"
+          return 1
         fi
       fi
       return 0
@@ -136,6 +158,11 @@ _run_ai_tool_action() {
 
   if [[ "$action" != "reinstall" ]]; then
     declare -f "$func_name" &>/dev/null || return 127
+    "$func_name"
+    return $?
+  fi
+
+  if declare -f "$func_name" &>/dev/null; then
     "$func_name"
     return $?
   fi
@@ -174,7 +201,7 @@ _all_ai_tools_action() {
         0)
           # Pós-validação apenas para install
           if [[ "$action" == "install" ]]; then
-            _validate_tool_installed "$binaries" "$name"
+            _validate_tool_installed "$binaries" "$name" "$id"
             local validate_rc=$?
             if [[ $validate_rc -eq 0 ]]; then
               ((success_count++))

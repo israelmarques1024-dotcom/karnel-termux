@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/install"
 import "@/utils/version"
 import "@/utils/colors"
 
@@ -10,6 +11,8 @@ import "@/utils/colors"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 GENTLE_AI_DATA_DIR="${GENTLE_AI_DATA_DIR:-$HOME/.local/share/karnel-data/gentle-ai}"
+GENTLE_AI_REPO="https://github.com/Gentleman-Programming/gentle-ai.git"
+GENTLE_AI_COMMIT="4004a0825d03a3d123a3c4f67bf375cb16fd6d8c"
 
 _gentle_ai_dependencies() {
   loading "Installing dependencies" _gentle_ai_dependencies_impl
@@ -78,30 +81,7 @@ _clone_or_update_repo() {
 }
 
 _clone_or_update_repo_impl() {
-  local repo_url="https://github.com/Gentleman-Programming/gentle-ai.git"
-
-  if [ -d "$GENTLE_AI_DATA_DIR/.git" ]; then
-    git -C "$GENTLE_AI_DATA_DIR" remote set-url origin "$repo_url" &>>"$LOG_FILE"
-    git -C "$GENTLE_AI_DATA_DIR" stash --include-untracked &>>"$LOG_FILE" || true
-    if ! git -C "$GENTLE_AI_DATA_DIR" fetch origin &>>"$LOG_FILE"; then
-      log_error "Failed to fetch from remote"
-      return 1
-    fi
-    if ! git -C "$GENTLE_AI_DATA_DIR" reset --hard origin/main &>>"$LOG_FILE"; then
-      log_error "Failed to reset to origin/main"
-      return 1
-    fi
-  else
-    if [ -d "$GENTLE_AI_DATA_DIR" ]; then
-      rm -rf "$GENTLE_AI_DATA_DIR"
-    fi
-    if ! git clone "$repo_url" "$GENTLE_AI_DATA_DIR" &>>"$LOG_FILE"; then
-      log_error "Failed to clone gentle-ai repo"
-      return 1
-    fi
-  fi
-
-  return 0
+  install_pinned_git_repo "$GENTLE_AI_REPO" "$GENTLE_AI_COMMIT" "$GENTLE_AI_DATA_DIR"
 }
 
 _build_and_apply_patches() {
@@ -235,7 +215,7 @@ uninstall_gentle_ai() {
 }
 
 update_gentle_ai() {
-  _check_update_needed "gentle-ai" "$(_get_installed_git_version "$GENTLE_AI_DATA_DIR")" "$(_get_remote_github_version Gentleman-Programming/gentle-ai)" _do_update_gentle_ai
+  _do_update_gentle_ai
 }
 
 _do_update_gentle_ai() {

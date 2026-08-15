@@ -24,8 +24,13 @@ uninstall_foremost() {
 }
 
 update_foremost() {
-  log_info "$_TOOL atualizado via gerenciador de pacotes"
-  return 2
+  log_info "Atualizando foremost..."
+  if pkg install -y foremost 2>/dev/null || apt install -y foremost 2>/dev/null; then
+    log_success "foremost atualizado"
+    return 0
+  fi
+  log_error "Falha ao atualizar foremost"
+  return 1
 }
 
 reinstall_foremost() {

@@ -2,6 +2,7 @@
 
 import "@/utils/log"
 import "@/utils/colors"
+import "@/utils/backup"
 import "@/tools/osint/robin/common"
 
 BACKUP_DIR="${KARNEL_DATA}/backups"
@@ -18,7 +19,7 @@ backup_main() {
     snapshot)       backup_snapshot "$@" ;;
     --cron)         backup_cron ;;
     --cloud)        backup_run true ;;
-    restore)        backup_restore "$@" ;;
+    restore)        import "@/cli/commands/restore"; restore_main "$@" ;;
     *)              backup_run false ;;
   esac
 }
@@ -52,84 +53,60 @@ backup_run() {
   local cloud="${1:-false}"
   local ts
   ts=$(date +%Y%m%d_%H%M%S)
-  local file="$BACKUP_DIR/termux-$ts.tar.gz"
+  _backup_reserve_output "$BACKUP_DIR" "termux-$ts" ".tar.gz" || return 1
+  local file="$BACKUP_RESERVED_FILE" lock="$BACKUP_RESERVED_LOCK"
 
   echo
   box "Karnel Backup"
   echo
 
-  # Package list
-  dpkg --get-selections > "$BACKUP_DIR/packages-$ts.list" 2>/dev/null
+  local tmp archive_tmp checksum_tmp
+  tmp=$(mktemp -d) || { _backup_release_output; return 1; }
+  archive_tmp="$BACKUP_DIR/.$(basename "$file").$$.tmp"
+  checksum_tmp="$archive_tmp.sha256"
+  if ! _backup_collect_payload "$tmp"; then
+    rm -rf -- "$tmp" "$archive_tmp" "$checksum_tmp"
+    rmdir -- "$lock" 2>/dev/null || true
+    BACKUP_RESERVED_LOCK=""
+    log_error "Failed to collect backup data"
+    return 1
+  fi
   local pkgs
-  pkgs=$(wc -l < "$BACKUP_DIR/packages-$ts.list")
+  pkgs=$(wc -l <"$tmp/metadata/packages.list")
   log_success "Saved $pkgs installed packages"
+  log_success "Saved $BACKUP_TOOL_COUNT catalog entries"
 
-  # Karnel tool manifest
-  local -a tools=()
-  for m in "$KARNEL_PATH/tools/"*/; do
-    local mod
-    mod=$(basename "${m%/}")
-    for t in "$m"*/; do
-      local tool
-      tool=$(basename "${t%/}")
-      [[ "$tool" == "all.sh" ]] && continue
-      local found=false
-      for f in "$t"/*.sh; do
-        [[ -f "$f" ]] && found=true && break
-      done
-      $found && tools+=("$mod:$tool")
-    done
-  done
-  printf "%s\n" "${tools[@]}" > "$BACKUP_DIR/manifest-$ts.list"
-  log_success "Saved ${#tools[@]} Karnel tools"
-
-  # Configs
-  local tmp
-  tmp=$(mktemp -d)
-  mkdir -p "$tmp/config"/{home,termux,ssh,config,prefix-etc,env}
-
-  for f in .bashrc .zshrc .profile .zshenv .inputrc; do
-    [[ -f "$HOME/$f" ]] && cp "$HOME/$f" "$tmp/config/home/"
-  done
-  [[ -d "$HOME/.termux" ]] && cp -r "$HOME/.termux" "$tmp/config/termux/" 2>/dev/null
-  if [[ -d "$HOME/.ssh" ]]; then
-    log_warn "Including SSH keys in backup — these are sensitive!"
-    mkdir -p "$tmp/config/ssh"
-    cp "$HOME/.ssh/id_"* "$HOME/.ssh/config" "$HOME/.ssh/known_hosts" "$tmp/config/ssh/" 2>/dev/null
+  if ! tar -czf "$archive_tmp" -C "$tmp" . 2>/dev/null; then
+    rm -rf -- "$tmp" "$archive_tmp" "$checksum_tmp"
+    rmdir -- "$lock" 2>/dev/null || true
+    BACKUP_RESERVED_LOCK=""
+    log_error "Failed to create backup archive"
+    return 1
   fi
-
-  # Karnel env vars
-  env | grep -E '^(KARNEL_|OPENAI_|ANTHROPIC_|GEMINI_|GROQ_)' > "$tmp/config/env/karnel.env" 2>/dev/null
-  log_info "Saved environment variables"
-
-  for d in "$HOME/.config"/*; do
-    if [[ -d "$d" ]]; then
-      local base; base=$(basename "$d")
-      if [[ "$base" != "github-copilot" && "$base" != "nvm" && "$base" != "coc" && "$base" != "Code" && "$base" != "yarn" ]]; then
-        cp -r "$d" "$tmp/config/config/" 2>/dev/null
-      fi
-    fi
-  done
-
-  if [[ "$ROBIN_CONFIG_DIR" == "$HOME/.config/"* ]]; then
-    local robin_config_relative="${ROBIN_CONFIG_DIR#"$HOME/.config/"}"
-    rm -f "$tmp/config/config/$robin_config_relative"/.env* 2>/dev/null
-  fi
-  find "$tmp/config/config" -type f -path '*/karnel/robin/.env*' -delete 2>/dev/null
-  [[ -f "$PREFIX/etc/apt/sources.list" ]] && cp "$PREFIX/etc/apt/sources.list" "$tmp/config/prefix-etc/" 2>/dev/null
-
-  tar -czf "$file" -C "$tmp" . 2>/dev/null
-  rm -rf "$tmp"
+  rm -rf -- "$tmp"
 
   local size checksum
+  checksum=$(sha256sum "$archive_tmp" 2>/dev/null) || { rm -f -- "$archive_tmp"; _backup_release_output; return 1; }
+  checksum=${checksum%% *}
+  if ! printf '%s  %s\n' "$checksum" "$(basename "$file")" >"$checksum_tmp" ||
+     ! mv -- "$archive_tmp" "$file" || ! mv -- "$checksum_tmp" "$file.sha256"; then
+    rm -f -- "$archive_tmp" "$checksum_tmp" "$file" "$file.sha256"
+    _backup_release_output
+    log_error "Failed to publish backup"
+    return 1
+  fi
+  _backup_release_output
   size=$(du -h "$file" | awk '{print $1}')
-  checksum=$(sha256sum "$file" | awk '{print $1}')
-  echo "$checksum" > "$file.sha256"
   log_success "Backup: $(basename "$file") ($size)"
   log_success "Checksum (SHA256): ${checksum:0:16}...${checksum: -16}"
 
   if $cloud; then
-    _backup_cloud "$file"
+    if [[ "${KARNEL_ALLOW_PLAINTEXT_CLOUD_BACKUP:-0}" != "1" ]]; then
+      log_error "Cloud backup is disabled because archives are not encrypted or signed"
+      log_info "Set KARNEL_ALLOW_PLAINTEXT_CLOUD_BACKUP=1 only if you accept this risk"
+      return 1
+    fi
+    _backup_cloud "$file" "$file.sha256" || return 1
   fi
 
   echo
@@ -139,39 +116,111 @@ backup_run() {
 
 backup_snapshot() {
   local name="${1:-manual}"
-  local file="$BACKUP_DIR/snapshot-$name.tar.gz"
+  if [[ ! "$name" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$ || "$name" == "." || "$name" == ".." ]]; then
+    log_error "Invalid snapshot name; use 1-64 letters, numbers, dots, underscores, or hyphens"
+    return 1
+  fi
   local ts
   ts=$(date +%Y%m%d_%H%M%S)
+  _backup_reserve_output "$BACKUP_DIR" "snapshot-$name-$ts" ".tar.gz" || return 1
+  local file="$BACKUP_RESERVED_FILE" lock="$BACKUP_RESERVED_LOCK"
 
   echo
   box "Karnel Snapshot: $name"
   echo
 
-  local tmp
-  tmp=$(mktemp -d)
-  mkdir -p "$tmp/config"/{home,termux,config}
-
-  for f in .bashrc .zshrc .profile; do
-    [[ -f "$HOME/$f" ]] && cp "$HOME/$f" "$tmp/config/home/"
-  done
-  [[ -d "$HOME/.termux" ]] && cp -r "$HOME/.termux" "$tmp/config/termux/" 2>/dev/null
-  for d in "$HOME/.config"/*; do
-    [[ -d "$d" ]] && cp -r "$d" "$tmp/config/config/" 2>/dev/null
-  done
-
-  echo "$ts" > "$tmp/meta-snapshot.txt"
-  echo "$name" >> "$tmp/meta-snapshot.txt"
-
-  dpkg --get-selections > "$tmp/packages.list" 2>/dev/null
-  log_info "Snapshot includes $(wc -l < "$tmp/packages.list") packages"
-
-  tar -czf "$file" -C "$tmp" . 2>/dev/null
-  rm -rf "$tmp"
-
-  local checksum
-  checksum=$(sha256sum "$file" | awk '{print $1}')
-  echo "$checksum" > "$file.sha256"
+  local tmp archive_tmp checksum_tmp checksum
+  tmp=$(mktemp -d) || { _backup_release_output; return 1; }
+  archive_tmp="$BACKUP_DIR/.$(basename "$file").$$.tmp"
+  checksum_tmp="$archive_tmp.sha256"
+  if ! _backup_collect_payload "$tmp" ||
+     ! printf '%s\n%s\n' "$ts" "$name" >"$tmp/metadata/snapshot" ||
+     ! tar -czf "$archive_tmp" -C "$tmp" . 2>/dev/null; then
+    rm -rf -- "$tmp" "$archive_tmp" "$checksum_tmp"
+    rmdir -- "$lock" 2>/dev/null || true
+    BACKUP_RESERVED_LOCK=""
+    log_error "Failed to create snapshot"
+    return 1
+  fi
+  rm -rf -- "$tmp"
+  checksum=$(sha256sum "$archive_tmp" 2>/dev/null) || { rm -f -- "$archive_tmp"; _backup_release_output; return 1; }
+  checksum=${checksum%% *}
+  if ! printf '%s  %s\n' "$checksum" "$(basename "$file")" >"$checksum_tmp" ||
+     ! mv -- "$archive_tmp" "$file" || ! mv -- "$checksum_tmp" "$file.sha256"; then
+    rm -f -- "$archive_tmp" "$checksum_tmp" "$file" "$file.sha256"
+    _backup_release_output
+    log_error "Failed to publish snapshot"
+    return 1
+  fi
+  _backup_release_output
   log_success "Snapshot '$name' saved ($(du -h "$file" | awk '{print $1}'))"
+}
+
+_backup_collect_payload() {
+  local destination="$1" source base file module tool found
+  local -a tools=() ssh_files=()
+  mkdir -p "$destination/config"/{home,termux,ssh,config,prefix-etc} "$destination/metadata" || return 1
+  dpkg --get-selections >"$destination/metadata/packages.list" 2>/dev/null || return 1
+
+  for source in \
+    "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile" "$HOME/.zshenv" "$HOME/.inputrc" \
+    "$HOME/.termux" "$HOME/.ssh" "$HOME/.config" "$PREFIX/etc/apt/sources.list"; do
+    _backup_path_components_safe "$source" || return 1
+  done
+
+  for module in "$KARNEL_PATH/tools/"*/; do
+    [[ -d "$module" ]] || continue
+    for tool in "$module"*/; do
+      [[ -d "$tool" ]] || continue
+      found=false
+      for file in "$tool"/*.sh; do [[ -f "$file" ]] && found=true && break; done
+      $found && tools+=("$(basename "${module%/}"):$(basename "${tool%/}")")
+    done
+  done
+  printf '%s\n' "${tools[@]}" >"$destination/metadata/tool-catalog.list" || return 1
+  BACKUP_TOOL_COUNT=${#tools[@]}
+
+  for file in .bashrc .zshrc .profile .zshenv .inputrc; do
+    [[ ! -f "$HOME/$file" ]] || {
+      _backup_path_components_safe "$HOME/$file" &&
+        cp -a -- "$HOME/$file" "$destination/config/home/"
+    } || return 1
+  done
+  if [[ -d "$HOME/.termux" ]]; then
+    _backup_path_components_safe "$HOME/.termux" || return 1
+    cp -a -- "$HOME/.termux/." "$destination/config/termux/" || return 1
+  fi
+  if [[ -d "$HOME/.ssh" ]]; then
+    for source in "$HOME/.ssh"/*.pub "$HOME/.ssh/config" "$HOME/.ssh/known_hosts" "$HOME/.ssh/authorized_keys"; do
+      [[ -e "$source" || -L "$source" ]] || continue
+      _backup_path_components_safe "$source" || return 1
+      [[ -f "$source" ]] && ssh_files+=("$source")
+    done
+    if ((${#ssh_files[@]} > 0)); then
+      for source in "${ssh_files[@]}"; do
+        _backup_path_components_safe "$source" || return 1
+      done
+      cp -a -- "${ssh_files[@]}" "$destination/config/ssh/" || return 1
+    fi
+  fi
+
+  for source in "$HOME/.config"/*; do
+    [[ -e "$source" || -L "$source" ]] || continue
+    _backup_path_components_safe "$source" || return 1
+    [[ -d "$source" ]] || continue
+    base=$(basename "$source")
+    case "$base" in github-copilot|nvm|coc|Code|yarn) continue ;; esac
+    cp -a -- "$source" "$destination/config/config/" || return 1
+  done
+  find "$destination/config/config" -type f \( -name '.env' -o -name '.env.*' -o \
+    -name 'credentials' -o -name 'credentials.*' -o -name 'auth.json' -o \
+    -name 'token' -o -name 'token.*' -o -name 'tokens.json' \) -delete || return 1
+  # Do not follow or archive links that could expose files outside the selected trees.
+  find "$destination/config" -type l -delete || return 1
+  if [[ -f "$PREFIX/etc/apt/sources.list" ]]; then
+    _backup_path_components_safe "$PREFIX/etc/apt/sources.list" || return 1
+    cp -a -- "$PREFIX/etc/apt/sources.list" "$destination/config/prefix-etc/" || return 1
+  fi
 }
 
 backup_list() {
@@ -206,7 +255,7 @@ backup_info() {
   local file="${1:-}"
   if [[ -z "$file" ]]; then
     # Find latest
-    file=$(ls -t "$BACKUP_DIR"/termux-*.tar.gz 2>/dev/null | head -1)
+    file=$(_backup_latest "$BACKUP_DIR" 'termux-*.tar.gz')
     [[ -z "$file" ]] && log_error "No backups found" && return 1
   fi
   [[ "$file" != /* ]] && file="$BACKUP_DIR/$file"
@@ -223,93 +272,55 @@ backup_info() {
   tar -tzf "$file" 2>/dev/null | head -40
   local total
   total=$(tar -tzf "$file" 2>/dev/null | wc -l)
-  [[ "$total" -gt 40 ]] && echo "  ... and $(($total - 40)) more files"
+  [[ "$total" -gt 40 ]] && echo "  ... and $((total - 40)) more files"
   echo
   log_info "Total: $total files"
 }
 
 backup_cron() {
-  local cron_job="0 3 * * * ${KARNEL_BIN:-karnel} backup"
-  if crontab -l 2>/dev/null | grep -q "karnel backup"; then
+  local configured="${KARNEL_BIN:-$KARNEL_PATH/bin/karnel}" executable quoted cron_job current line
+  executable="$configured"
+  [[ -d "$executable" ]] && executable="$executable/karnel"
+  [[ -f "$executable" ]] || { log_error "Karnel executable not found: $executable"; return 1; }
+  printf -v quoted '%q' "$executable"
+  cron_job="0 3 * * * $quoted backup"
+  current=$(crontab -l 2>/dev/null || true)
+  if printf '%s\n' "$current" | grep -Fqx "$cron_job"; then
     log_info "Cron backup already configured"
     return 0
   fi
-  (crontab -l 2>/dev/null; echo "$cron_job") | crontab -
+  (
+    while IFS= read -r line; do
+      [[ -n "$line" ]] || continue
+      [[ "$line" == *"karnel backup"* || "$line" == *"$configured backup"* ]] && continue
+      printf '%s\n' "$line"
+    done <<<"$current"
+    printf '%s\n' "$cron_job"
+  ) | crontab - || {
+    log_error "Failed to install cron entry"
+    return 1
+  }
   log_success "Daily backup scheduled at 3:00 AM"
   echo "  Edit with: crontab -e"
 }
 
-backup_restore() {
-  local file="${1:-}"
-  if [[ -z "$file" ]]; then
-    file=$(ls -t "$BACKUP_DIR"/termux-*.tar.gz 2>/dev/null | head -1)
-    [[ -z "$file" ]] && log_error "No backups found to restore" && return 1
-    log_info "Restoring latest backup: $(basename "$file")"
-  else
-    [[ "$file" != /* ]] && file="$BACKUP_DIR/$file"
-    [[ ! -f "$file" ]] && log_error "Backup not found: $file" && return 1
-  fi
-
-  echo
-  box "Restore"
-  echo
-  log_warn "This will overwrite your current configuration files!"
-  echo "  Backup: $(basename "$file")"
-  echo "  Size: $(du -h "$file" | awk '{print $1}')"
-  echo "  Date: $(date -r "$file" "+%Y-%m-%d %H:%M:%S" 2>/dev/null)"
-  echo
-
-  # Verify checksum
-  local expected actual
-  if [[ -f "$file.sha256" ]]; then
-    expected=$(cat "$file.sha256")
-    actual=$(sha256sum "$file" | awk '{print $1}')
-    if [[ "$expected" != "$actual" ]]; then
-      log_error "Checksum mismatch! Backup may be corrupted."
-      log_info "Expected: $expected"
-      log_info "Actual:   $actual"
-      return 1
-    fi
-    log_success "Checksum verified"
-  fi
-
-  local tmp
-  tmp=$(mktemp -d)
-  tar -xzf "$file" -C "$tmp" 2>/dev/null
-  log_success "Extracted backup"
-
-  # Restore configs
-  [[ -d "$tmp/config/home" ]] && cp -r "$tmp/config/home/." "$HOME/" 2>/dev/null
-  [[ -d "$tmp/config/termux" ]] && cp -r "$tmp/config/termux/." "$HOME/.termux/" 2>/dev/null && termux-reload-settings 2>/dev/null || true
-  [[ -d "$tmp/config/ssh" ]] && cp -r "$tmp/config/ssh/." "$HOME/.ssh/" 2>/dev/null && chmod 600 "$HOME/.ssh/id_"* 2>/dev/null
-  for d in "$tmp/config/config"/*/; do
-    [[ -d "$d" ]] && cp -r "$d" "$HOME/.config/" 2>/dev/null
-  done
-  [[ -f "$tmp/config/prefix-etc/sources.list" ]] && cp "$tmp/config/prefix-etc/sources.list" "$PREFIX/etc/apt/sources.list" 2>/dev/null
-
-  # Restore env vars
-  if [[ -f "$tmp/config/env/karnel.env" ]]; then
-    local env_bak="$HOME/.karnel-env-backup"
-    cp "$tmp/config/env/karnel.env" "$env_bak" 2>/dev/null
-    log_info "Env vars saved to $env_bak — source it to restore: source $env_bak"
-  fi
-
-  rm -rf "$tmp"
-  log_success "Restore complete! Restart your terminal."
-  echo
-}
-
 _backup_cloud() {
-  local file="$1"
+  local -a files=("$@")
   if ! command -v rclone &>/dev/null; then
     pkg install rclone -y &>/dev/null || log_warn "Install rclone: pkg install rclone"
   fi
   if command -v rclone &>/dev/null; then
     if rclone listremotes 2>/dev/null | grep -q "^karnel:"; then
-      loading "Uploading" rclone copy "$file" "karnel:backups/"
-      log_success "Uploaded to cloud"
+      local file
+      for file in "${files[@]}"; do
+        loading "Uploading $(basename "$file")" rclone copy "$file" "karnel:backups/" || return 1
+      done
+      log_success "Uploaded archive and checksum to cloud"
     else
       log_warn "Run 'rclone config' and name the remote 'karnel'"
+      return 1
     fi
+  else
+    return 1
   fi
 }

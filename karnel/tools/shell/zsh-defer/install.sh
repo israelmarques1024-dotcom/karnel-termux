@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/install"
 import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_shell.log"
 ZSH_PLUGINS_DIR="$HOME/.zsh-plugins"
+ZSH_DEFER_COMMIT="53a26e287fbbe2dcebb3aa1801546c6de32416fa"
+ZSH_DEFER_REPO="https://github.com/romkatv/zsh-defer.git"
 
 _zsh_defer_dependencies() {
   declare -A DEPS=(
@@ -34,7 +37,7 @@ _install_zsh_defer_git() {
 
 _install_zsh_defer_git_impl() {
   mkdir -p "$(dirname "$LOG_FILE")"
-  if ! git clone --depth=1 "https://github.com/romkatv/zsh-defer.git" "$ZSH_PLUGINS_DIR/zsh-defer" &>>"$LOG_FILE"; then
+  if ! install_pinned_git_repo "$ZSH_DEFER_REPO" "$ZSH_DEFER_COMMIT" "$ZSH_PLUGINS_DIR/zsh-defer"; then
     log_error "Failed to install zsh-defer"
     return 1
   fi
@@ -47,7 +50,7 @@ install_zsh_defer() {
     return 0
   fi
 
-  _zsh_defer_dependencies
+  _zsh_defer_dependencies || return 1
 
   _install_zsh_defer_git || return 1
   log_success "Installed"
@@ -79,11 +82,11 @@ _update_zsh_defer_impl() {
     return 0
   fi
 
-  git -C "$ZSH_PLUGINS_DIR/zsh-defer" pull &>>"$LOG_FILE"
+  install_pinned_git_repo "$ZSH_DEFER_REPO" "$ZSH_DEFER_COMMIT" "$ZSH_PLUGINS_DIR/zsh-defer"
 }
 
 update_zsh_defer() {
-  _check_update_needed "zsh-defer" "$(_get_installed_git_version "$ZSH_PLUGINS_DIR/zsh-defer")" "$(_get_remote_github_version romkatv/zsh-defer)" _update_zsh_defer_impl
+  _update_zsh_defer_impl
 }
 
 reinstall_zsh_defer() {

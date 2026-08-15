@@ -9,7 +9,7 @@ LOG_FILE="$KARNEL_CACHE/install_notes.log"
 install_notes() {
   local TOOL_DIR="$KARNEL_DATA/utils/notes"
   local BIN_NAME="notes"
-  local DOWNLOAD_URL="https://raw.githubusercontent.com/dedsec1121fk/DedSec/main/Scripts/Developer%20Base/Smart%20Notes.py"
+  local DOWNLOAD_URL="https://raw.githubusercontent.com/dedsec1121fk/DedSec/87d69293f4b89b8ab114fa644074629e86313182/Scripts/Developer%20Base/Smart%20Notes.py"
   log_info "Installing Smart Notes..."
   mkdir -p "$(dirname "$LOG_FILE")" "$TOOL_DIR"
   if ! command -v python3 &>/dev/null; then pkg install python -y &>>"$LOG_FILE" || return 1; fi
@@ -30,7 +30,7 @@ uninstall_notes() {
 update_notes() {
   local TOOL_DIR="$KARNEL_DATA/utils/notes"
   local BIN_NAME="notes"
-  local DOWNLOAD_URL="https://raw.githubusercontent.com/dedsec1121fk/DedSec/main/Scripts/Developer%20Base/Smart%20Notes.py"
+  local DOWNLOAD_URL="https://raw.githubusercontent.com/dedsec1121fk/DedSec/87d69293f4b89b8ab114fa644074629e86313182/Scripts/Developer%20Base/Smart%20Notes.py"
   log_info "Updating Smart Notes..."
   _downloaded_python_update "$BIN_NAME" "$TOOL_DIR" "$DOWNLOAD_URL" || return 1
   log_success "Smart Notes updated"

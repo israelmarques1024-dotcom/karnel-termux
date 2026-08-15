@@ -8,7 +8,6 @@ test_*.sh
 tests/
 AGENTS.md
 opencode.jsonc
-assets/
 __pycache__/
 *.pyc
 *.pyo

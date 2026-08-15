@@ -1,12 +1,13 @@
 {
   "name": "karnel-termux",
-  "version": "4.14.0",
+  "version": "4.15.0",
   "description": "Modular Dev Environment for Termux — install languages, databases, AI agents, editors, and more with one command",
   "bin": {
     "karnel": "karnel/bin/karnel"
   },
   "files": [
     "karnel/",
+    "assets/fonts/font.ttf",
     "scripts/",
     "docs/",
     "install.sh",
@@ -16,13 +17,13 @@
   "scripts": {
     "check:syntax": "bash tests/check-syntax.sh",
     "lint:shell": "bash tests/check-shellcheck.sh",
-    "test": "bash tests/run.sh",
+    "test": "bash tests/run-isolated.sh",
     "pack:check": "node scripts/check-package.js",
     "ci": "npm run lint:shell && npm test && npm run pack:check",
     "postinstall": "node scripts/npm-install.js"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=16.7.0"
   },
   "repository": {
     "type": "git",

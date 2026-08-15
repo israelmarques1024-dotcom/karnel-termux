@@ -13,7 +13,7 @@ Abra uma [issue](https://github.com/israelmarques1024-dotcom/karnel-termux/issue
 - Versão do Karnel (`karnel --version`)
 - Passos para reproduzir
 - Comportamento esperado vs real
-- Logs de erro (`~/.cache/karnel/`)
+- Logs de erro (`~/.cache/karnel/logs/` por padrão, ou `$XDG_CACHE_HOME/karnel/logs/`)
 
 ### Sugerir Features
 
@@ -34,14 +34,18 @@ karnel/tools/<module>/<tool-name>/
 └── README.md         # Documentação (opcional, mas recomendado)
 ```
 
-O `install.sh` deve:
+O `install.sh` deve seguir o contrato de lifecycle:
 
-1. Detectar se já está instalado (`is_installed`)
-2. Instalar dependências se necessário
-3. Instalar o tool
-4. Chamar `log success` ao final
+1. Retornar `0` somente quando a operação foi executada com sucesso
+2. Retornar `2` quando a ferramenta já estiver instalada, sem criar ownership Karnel
+3. Retornar um valor diferente de `0` e `2` em qualquer falha
+4. Preservar instalações e dados que não tenham marcador de ownership Karnel
+5. Usar `log_success`, `log_info`, `log_warn` e `log_error` para feedback
 
-Veja exemplos reais em `karnel/tools/security/template.sh`.
+Ferramentas registradas devem ser incluídas no `all.sh` do módulo. Instaladores
+baseados em `pkg`, npm ou outro registry central precisam detectar o binário ou
+pacote existente antes de instalar. Veja `karnel/tools/security/template.sh` e
+os testes em `tests/lifecycle-orchestration.sh`.
 
 ### Adicionar um Módulo
 
@@ -49,17 +53,9 @@ Módulos orquestradores ficam em `karnel/modules/<module>.sh`.
 
 Eles importam `karnel/utils/*` e chamam os installers de `karnel/tools/<module>/`.
 
-```bash
-# Estrutura mínima de um módulo
-install_<module>() {
-    local tool="${1:-all}"
-    case "$tool" in
-        all)  install_tools "<module>" ;;
-        tool1) source "$KARNEL_DIR/tools/<module>/tool1/install.sh" ;;
-        *) log error "Tool '$tool' não encontrada no módulo <module>" ;;
-    esac
-}
-```
+Use `_batch_tool_action` ou `_run_tool_lifecycle_action` para preservar o
+contrato `0/2/falha`, a execução completa do lote e as regras de ownership. Não
+chame handlers específicos diretamente em novos fluxos de lifecycle.
 
 ### Criar um Plugin (para usuários)
 
@@ -149,26 +145,26 @@ antes de abrir o PR.
 
 ### Checklist do PR
 
-- [ ] Testei manualmente
+- [ ] Rodei `bash tests/run.sh` e os testes direcionados da mudança
+- [ ] Rodei `bash tests/check-shellcheck.sh`
 - [ ] Segue a estrutura de diretórios existente
-- [ ] Usa `log success` / `log error` para feedback
+- [ ] Usa os helpers `log_*` e respeita o contrato de status `0/2/falha`
 - [ ] Não quebra funcionalidades existentes
 - [ ] Atualizei o README se necessário
 
 ## Estrutura do Projeto
 
 ```
-karnel/
-├── karnel/
-│   ├── bin/karnel              # Entrypoint
-│   ├── cli/commands/           # Comandos do CLI
-│   ├── modules/                # Orquestradores de módulo
-│   ├── tools/                  # Installers de ferramentas
-│   └── utils/                  # Utilitários compartilhados
-├── install.sh                  # Instalação curl
+karnel-termux/
+├── karnel/bin/karnel           # Entrypoint
+├── karnel/cli/commands/        # Comandos do CLI
+├── karnel/modules/             # Orquestradores de módulo
+├── karnel/tools/               # Instaladores de ferramentas
+├── karnel/utils/               # Utilitários compartilhados
+├── tests/                      # Testes shell
+├── install.sh                  # Instalador de release
 ├── package.json                # Publicação npm
-├── scripts/                    # Scripts auxiliares
-└── .github/                    # CI/CD e templates
+└── scripts/                    # Scripts auxiliares
 ```
 
 ## Ambiente de Desenvolvimento
@@ -179,6 +175,8 @@ cd karnel-termux
 chmod +x karnel/bin/karnel
 export PATH="$PWD/karnel/bin:$PATH"
 karnel doctor
+bash tests/run.sh
+bash tests/check-shellcheck.sh
 ```
 
 ## Dúvidas

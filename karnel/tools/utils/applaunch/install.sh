@@ -9,7 +9,7 @@ LOG_FILE="$KARNEL_CACHE/install_dev.log"
 install_applaunch() {
   local TOOL_DIR="$KARNEL_DATA/utils/applaunch"
   local BIN_NAME="applaunch"
-  local DOWNLOAD_URL="https://raw.githubusercontent.com/dedsec1121fk/DedSec/main/Scripts/Other%20Tools/Android%20App%20Launcher.py"
+  local DOWNLOAD_URL="https://raw.githubusercontent.com/dedsec1121fk/DedSec/87d69293f4b89b8ab114fa644074629e86313182/Scripts/Other%20Tools/Android%20App%20Launcher.py"
   log_info "Installing App Launcher..."
   mkdir -p "$(dirname "$LOG_FILE")" "$TOOL_DIR"
   if ! command -v python3 &>/dev/null; then pkg install python -y &>>"$LOG_FILE" || return 1; fi
@@ -31,7 +31,7 @@ uninstall_applaunch() {
 update_applaunch() {
   local TOOL_DIR="$KARNEL_DATA/utils/applaunch"
   local BIN_NAME="applaunch"
-  local DOWNLOAD_URL="https://raw.githubusercontent.com/dedsec1121fk/DedSec/main/Scripts/Other%20Tools/Android%20App%20Launcher.py"
+  local DOWNLOAD_URL="https://raw.githubusercontent.com/dedsec1121fk/DedSec/87d69293f4b89b8ab114fa644074629e86313182/Scripts/Other%20Tools/Android%20App%20Launcher.py"
   log_info "Updating App Launcher..."
   _downloaded_python_update "$BIN_NAME" "$TOOL_DIR" "$DOWNLOAD_URL" || return 1
   log_success "App Launcher updated"

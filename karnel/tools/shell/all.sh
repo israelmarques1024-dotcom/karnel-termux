@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/tools"
+declare -f _run_tool_lifecycle_action &>/dev/null || source "$(dirname "${BASH_SOURCE[0]}")/../../utils/tools.sh"
 import "@/utils/uninstall"
 
 LOG_FILE="$KARNEL_CACHE/install_shell.log"
@@ -23,6 +25,7 @@ for _tool in "${SHELL_PLUGINS[@]}"; do
   source "$(dirname "$BASH_SOURCE")/$_tool/install.sh"
 done
 unset _tool
+_register_safe_reinstall_handlers shell "${SHELL_PLUGINS[@]}"
 
 _batch_shell() {
   local action="$1"
@@ -32,27 +35,25 @@ _batch_shell() {
   local failed=0
   local total=${#SHELL_PLUGINS[@]}
   local current=0
-  local func_name
+  local rc
 
   progress_start "$total" "${action_past}ing shell plugins..."
 
   for tool in "${SHELL_PLUGINS[@]}"; do
-    func_name="${action}_${tool//-/_}"
-    if declare -f "$func_name" &>/dev/null; then
-      if [[ "$action" == "uninstall" ]]; then
-        "$func_name"
-      else
-        loading "${action_past^}ing ${tool}" "$func_name"
-      fi
-      case $? in 0) ((count++));; 1) ((failed++));; esac
+    if [[ "$action" == "uninstall" ]]; then
+      _run_tool_lifecycle_action shell "$action" "$tool"
+    else
+      loading "${action_past^}ing ${tool}" _run_tool_lifecycle_action shell "$action" "$tool"
     fi
+    rc=$?
+    case $rc in 0) ((count++));; 2) :;; *) ((failed++));; esac
     ((current++))
     progress_update "$current" "$total"
   done
 
   progress_done "$total"
   printf -v "$count_var" '%s' "$count"
-  return $failed
+  (( failed == 0 ))
 }
 
 install_all_shell_plugins() {

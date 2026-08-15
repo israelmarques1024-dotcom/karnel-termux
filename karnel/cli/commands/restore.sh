@@ -2,8 +2,22 @@
 
 import "@/utils/log"
 import "@/utils/colors"
+import "@/utils/backup"
 
 BACKUP_DIR="${KARNEL_DATA}/backups"
+
+_restore_interrupt() {
+  local status="$1"
+  trap - HUP INT TERM
+  if ! _backup_restore_rollback; then
+    log_error "Restore interrupted; rollback incomplete, recovery data preserved: $_RESTORE_TRANSACTION/original"
+    rm -rf -- "$_RESTORE_TMP"
+  else
+    rm -rf -- "$_RESTORE_TMP" "$_RESTORE_TRANSACTION"
+    log_error "Restore interrupted; previous configuration was restored"
+  fi
+  exit "$status"
+}
 
 restore_main() {
   local file=""
@@ -63,111 +77,138 @@ restore_main() {
   fi
 
   if $cloud; then
+    if [[ "${KARNEL_ALLOW_UNAUTHENTICATED_CLOUD_RESTORE:-0}" != "1" ]]; then
+      log_error "Cloud restore is disabled because a remote can replace both archive and checksum"
+      log_info "Set KARNEL_ALLOW_UNAUTHENTICATED_CLOUD_RESTORE=1 only if you trust the remote"
+      return 1
+    fi
     command -v rclone &>/dev/null || { log_error "Install rclone: pkg install rclone"; return 1; }
     rclone listremotes 2>/dev/null | grep -q "^karnel:" || { log_error "Run 'rclone config' and name remote 'karnel'"; return 1; }
     log_info "Downloading from cloud..."
-    rclone copy "karnel:backups/" "$BACKUP_DIR/" --include "termux-*.tar.gz" 2>/dev/null
+    mkdir -p "$BACKUP_DIR"
+    rclone copy "karnel:backups/" "$BACKUP_DIR/" \
+      --include "termux-*.tar.gz" --include "termux-*.tar.gz.sha256" 2>/dev/null || {
+      log_error "Failed to download cloud backup"
+      return 1
+    }
     log_success "Downloaded from cloud"
   fi
 
-  [[ -z "$file" ]] && file=$(ls -t "$BACKUP_DIR"/termux-*.tar.gz 2>/dev/null | head -1)
+  if [[ -z "$file" ]]; then
+    file=$(_backup_latest "$BACKUP_DIR" 'termux-*.tar.gz') || file=""
+  fi
   [[ -z "$file" || ! -f "$file" ]] && { log_error "No backup found. Run 'karnel backup' first"; return 1; }
 
   local ts
   ts=$(basename "$file" .tar.gz | sed 's/termux-//')
-  local pkgs="$BACKUP_DIR/packages-$ts.list"
-  local manifest="$BACKUP_DIR/manifest-$ts.list"
-
   echo
   box "Restore: $(basename "$file")"
   echo
   log_info "Size: $(du -h "$file" | awk '{print $1}')"
   log_info "Date: $(date -r "$file" "+%Y-%m-%d %H:%M:%S" 2>/dev/null)"
-  [[ -f "$manifest" ]] && log_info "$(wc -l < "$manifest") tools to reinstall"
-  [[ -f "$pkgs" ]] && log_info "$(wc -l < "$pkgs") packages to restore"
-
-  # Checksum
-  local checksum_file="$file.sha256"
-  if [[ -f "$checksum_file" ]]; then
-    if sha256sum -c "$checksum_file" &>/dev/null; then
-      log_success "Checksum verified"
-    else
-      log_error "Checksum mismatch! Backup may be corrupted"
-      read_confirm "Continue anyway?" confirm
-      [[ "$confirm" != "y" ]] && { log_info "Cancelled"; return 1; }
-    fi
+  if ! _backup_verify_checksum "$file"; then
+    log_error "Missing or invalid checksum; refusing to restore"
+    return 1
   fi
+  _backup_archive_safe "$file" || { log_error "Unsafe or corrupt backup archive"; return 1; }
+  log_success "Checksum verified"
 
+  local tmp transaction
+  tmp=$(mktemp -d) || return 1
+  if ! tar -xzf "$file" -C "$tmp" --no-same-owner --no-same-permissions 2>/dev/null; then
+    rm -rf "$tmp"
+    log_error "Failed to extract backup"
+    return 1
+  fi
+  local pkgs="$tmp/metadata/packages.list"
+  if [[ ! -f "$pkgs" && -f "$tmp/packages.list" ]]; then
+    pkgs="$tmp/packages.list"
+    log_warn "Using package selections from a legacy snapshot"
+  elif [[ ! -f "$pkgs" && -f "$BACKUP_DIR/packages-$ts.list" ]]; then
+    pkgs="$BACKUP_DIR/packages-$ts.list"
+    log_warn "Using legacy package-selection sidecar"
+  fi
+  [[ -f "$pkgs" ]] && log_info "$(wc -l <"$pkgs") packages to restore"
+
+  local confirm=""
   echo
   read_confirm "Proceed with restore?" confirm
-  [[ "$confirm" != "y" ]] && { log_info "Cancelled"; return 0; }
+  [[ "$confirm" != "y" ]] && { rm -rf "$tmp"; log_info "Cancelled"; return 0; }
 
-  local tmp
-  tmp=$(mktemp -d)
-  tar -xzf "$file" -C "$tmp" 2>/dev/null
-
-  # Configs
-  if [[ -d "$tmp/config/home" ]]; then
-    log_info "Restoring shell configs..."
-    for f in "$tmp/config/home/"*; do
-      [[ -f "$f" ]] && cp "$f" "$HOME/$(basename "$f")" 2>/dev/null
-    done
-    log_success "Shell configs restored"
+  transaction=$(mktemp -d "$HOME/.karnel-restore.XXXXXX") || { rm -rf "$tmp"; return 1; }
+  _backup_restore_reset
+  if ! _restore_prepare_configs "$tmp" "$transaction"; then
+    rm -rf -- "$tmp" "$transaction"
+    _backup_restore_reset
+    log_error "Failed to stage restore; no configuration was changed"
+    return 1
   fi
-
-  if [[ -d "$tmp/config/termux" ]]; then
-    log_info "Restoring Termux configs..."
-    cp -r "$tmp/config/termux/." "$HOME/.termux/" 2>/dev/null
-    termux-reload-settings 2>/dev/null || true
-    log_success "Termux configs restored"
+  _RESTORE_TMP=$tmp
+  _RESTORE_TRANSACTION=$transaction
+  trap '_restore_interrupt 129' HUP
+  trap '_restore_interrupt 130' INT
+  trap '_restore_interrupt 143' TERM
+  if ! _backup_restore_commit; then
+    trap - HUP INT TERM
+    rm -rf -- "$tmp"
+    if [[ $_BACKUP_RESTORE_ROLLBACK_FAILED == 1 ]]; then
+      log_error "Failed to apply and fully roll back restore; preserved recovery data: $transaction/original"
+      return 1
+    fi
+    rm -rf -- "$transaction"
+    _backup_restore_reset
+    log_error "Failed to apply restore; previous configuration was restored"
+    return 1
   fi
+  trap - HUP INT TERM
+  rm -rf -- "$transaction"
+  _backup_restore_reset
+  log_success "Configuration commit completed"
 
-  if [[ -d "$tmp/config/ssh" ]]; then
-    log_info "Restoring SSH keys..."
-    mkdir -p "$HOME/.ssh"
-    chmod 700 "$HOME/.ssh"
-    for f in "$tmp/config/ssh/"*; do
-      [[ -f "$f" ]] && cp "$f" "$HOME/.ssh/$(basename "$f")" 2>/dev/null
-    done
-    chmod 600 "$HOME/.ssh/id_"* 2>/dev/null
-    log_success "SSH keys restored"
-  fi
-
-  if [[ -d "$tmp/config/config" ]]; then
-    log_info "Restoring .config..."
-    cp -r "$tmp/config/config/"* "$HOME/.config/" 2>/dev/null
-    log_success ".config restored"
-  fi
-
-  if [[ -d "$tmp/config/prefix-etc" ]]; then
-    log_info "Restoring apt sources..."
-    cp "$tmp/config/prefix-etc/"* "$PREFIX/etc/apt/" 2>/dev/null
-    log_success "APT sources restored"
-  fi
-
-  rm -rf "$tmp"
-  log_success "Configs restored"
-
-  # Packages
+  # Package-manager transactions cannot be rolled back by the config transaction.
   if [[ -f "$pkgs" ]]; then
-    log_info "Restoring packages..."
-    dpkg --set-selections < "$pkgs" 2>/dev/null
-    apt-get dselect-upgrade -y &>/dev/null &
+    log_info "Restoring package selections after the configuration commit..."
+    if ! dpkg --set-selections <"$pkgs" 2>/dev/null || ! apt-get dselect-upgrade -y &>/dev/null; then
+      rm -rf -- "$tmp"
+      log_error "Package restoration failed or was partial; restored configuration remains committed"
+      return 1
+    fi
     log_success "Package list restored"
   fi
-
-  # Tools
-  if [[ -f "$manifest" ]]; then
-    log_info "Reinstalling tools..."
-    local ok=0 total=0
-    while IFS=: read -r mod tool; do
-      ((total++))
-      karnel install "$mod" "--$tool" &>/dev/null && ((ok++))
-    done < "$manifest"
-    log_success "$ok/$total tools reinstalled"
-  fi
+  rm -rf -- "$tmp"
+  termux-reload-settings 2>/dev/null || true
+  log_success "Configuration and package restoration completed"
 
   echo
   log_success "Done! Restart Termux or run: source ~/.zshrc"
   echo
+}
+
+_restore_prepare_configs() {
+  local extracted="$1" transaction="$2" file source base
+
+  for base in .bashrc .zshrc .profile .zshenv .inputrc; do
+    file="$extracted/config/home/$base"
+    [[ ! -f "$file" ]] || _backup_restore_prepare "$file" "$HOME/$base" "$transaction" || return 1
+  done
+
+  source="$extracted/config/termux"
+  # Backups created before the transactional format nested the .termux directory.
+  [[ -d "$source/.termux" ]] && source="$source/.termux"
+  [[ ! -d "$source" ]] || _backup_restore_prepare "$source" "$HOME/.termux" "$transaction" || return 1
+
+  source="$extracted/config/ssh"
+  if [[ -d "$source" ]]; then
+    _backup_restore_prepare "$source" "$HOME/.ssh" "$transaction" || return 1
+    chmod 700 "${_BACKUP_RESTORE_STAGED[${#_BACKUP_RESTORE_STAGED[@]} - 1]}" || return 1
+  fi
+
+  for source in "$extracted/config/config"/*; do
+    [[ -d "$source" ]] || continue
+    base=$(basename "$source")
+    _backup_restore_prepare "$source" "$HOME/.config/$base" "$transaction" || return 1
+  done
+
+  file="$extracted/config/prefix-etc/sources.list"
+  [[ ! -f "$file" ]] || _backup_restore_prepare "$file" "$PREFIX/etc/apt/sources.list" "$transaction" || return 1
 }

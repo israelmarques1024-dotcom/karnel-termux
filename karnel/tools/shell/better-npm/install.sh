@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/install"
 import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_shell.log"
 ZSH_PLUGINS_DIR="$HOME/.zsh-plugins"
+BETTER_NPM_COMMIT="02ca404a9b585b59788b15af53d4f46fac297153"
+BETTER_NPM_REPO="https://github.com/lukechilds/zsh-better-npm-completion.git"
 
 _better_npm_dependencies() {
   declare -A DEPS=(
@@ -34,7 +37,7 @@ _install_better_npm_git() {
 
 _install_better_npm_git_impl() {
   mkdir -p "$(dirname "$LOG_FILE")"
-  if ! git clone --depth=1 "https://github.com/lukechilds/zsh-better-npm-completion.git" "$ZSH_PLUGINS_DIR/zsh-better-npm-completion" &>>"$LOG_FILE"; then
+  if ! install_pinned_git_repo "$BETTER_NPM_REPO" "$BETTER_NPM_COMMIT" "$ZSH_PLUGINS_DIR/zsh-better-npm-completion"; then
     log_error "Failed to install zsh-better-npm-completion"
     return 1
   fi
@@ -47,7 +50,7 @@ install_better_npm() {
     return 0
   fi
 
-  _better_npm_dependencies
+  _better_npm_dependencies || return 1
 
   _install_better_npm_git || return 1
   log_success "Installed"
@@ -79,11 +82,11 @@ _update_better_npm_impl() {
     return 0
   fi
 
-  git -C "$ZSH_PLUGINS_DIR/zsh-better-npm-completion" pull &>>"$LOG_FILE"
+  install_pinned_git_repo "$BETTER_NPM_REPO" "$BETTER_NPM_COMMIT" "$ZSH_PLUGINS_DIR/zsh-better-npm-completion"
 }
 
 update_better_npm() {
-  _check_update_needed "zsh-better-npm-completion" "$(_get_installed_git_version "$ZSH_PLUGINS_DIR/zsh-better-npm-completion")" "$(_get_remote_github_version lukechilds/zsh-better-npm-completion)" _update_better_npm_impl
+  _update_better_npm_impl
 }
 
 reinstall_better_npm() {

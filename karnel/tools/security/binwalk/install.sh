@@ -24,8 +24,13 @@ uninstall_binwalk() {
 }
 
 update_binwalk() {
-  log_info "$_TOOL atualizado via gerenciador de pacotes"
-  return 2
+  log_info "Atualizando binwalk..."
+  if pkg install -y binwalk 2>/dev/null || apt install -y binwalk 2>/dev/null; then
+    log_success "binwalk atualizado"
+    return 0
+  fi
+  log_error "Falha ao atualizar binwalk"
+  return 1
 }
 
 reinstall_binwalk() {

@@ -66,10 +66,7 @@ env_set() {
 	local escaped_key
 	escaped_key=$(printf '%s\n' "$key" | sed 's/[\/&.*^$[]/\\&/g')
 	if grep -q "^export $escaped_key=" "$rc_file" 2>/dev/null; then
-		local current_value
-		current_value=$(grep "^export $escaped_key=" "$rc_file" | head -1 | sed 's/^export [^=]*=//')
 		echo
-		log_info "Current value: ${D_DIM}${current_value:0:40}${D_NC}"
 		log_warn "Variable $D_CYAN$key$D_YELLOW already exists in $(basename "$rc_file")"
 		read_confirm "Replace it?" confirm
 		if [[ "$confirm" != "y" ]]; then

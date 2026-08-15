@@ -24,8 +24,13 @@ uninstall_tcpdump() {
 }
 
 update_tcpdump() {
-  log_info "$_TOOL atualizado via gerenciador de pacotes"
-  return 2
+  log_info "Atualizando tcpdump..."
+  if pkg install -y tcpdump 2>/dev/null || apt install -y tcpdump 2>/dev/null; then
+    log_success "tcpdump atualizado"
+    return 0
+  fi
+  log_error "Falha ao atualizar tcpdump"
+  return 1
 }
 
 reinstall_tcpdump() {

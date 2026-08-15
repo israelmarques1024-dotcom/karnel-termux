@@ -24,8 +24,13 @@ uninstall_whois() {
 }
 
 update_whois() {
-  log_info "$_TOOL atualizado via gerenciador de pacotes"
-  return 2
+  log_info "Atualizando whois..."
+  if pkg install -y whois 2>/dev/null || apt install -y whois 2>/dev/null; then
+    log_success "whois atualizado"
+    return 0
+  fi
+  log_error "Falha ao atualizar whois"
+  return 1
 }
 
 reinstall_whois() {

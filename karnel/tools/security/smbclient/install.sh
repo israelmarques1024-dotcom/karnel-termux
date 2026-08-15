@@ -24,8 +24,13 @@ uninstall_smbclient() {
 }
 
 update_smbclient() {
-  log_info "$_TOOL atualizado via gerenciador de pacotes"
-  return 2
+  log_info "Atualizando smbclient..."
+  if pkg install -y smbclient 2>/dev/null || apt install -y smbclient 2>/dev/null; then
+    log_success "smbclient atualizado"
+    return 0
+  fi
+  log_error "Falha ao atualizar smbclient"
+  return 1
 }
 
 reinstall_smbclient() {

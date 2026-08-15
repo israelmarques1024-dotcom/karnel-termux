@@ -24,8 +24,13 @@ uninstall_netcat() {
 }
 
 update_netcat() {
-  log_info "netcat atualizado via gerenciador de pacotes"
-  return 2
+  log_info "Atualizando netcat..."
+  if pkg install -y netcat-openbsd 2>/dev/null || apt install -y netcat-openbsd 2>/dev/null; then
+    log_success "netcat atualizado"
+    return 0
+  fi
+  log_error "Falha ao atualizar netcat"
+  return 1
 }
 
 reinstall_netcat() {

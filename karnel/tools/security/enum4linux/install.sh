@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 _ENUM4LINUX_DIR="$PREFIX/share/enum4linux"
+_ENUM4LINUX_REPO="https://github.com/CiscoCXSecurity/enum4linux.git"
+_ENUM4LINUX_COMMIT="0a5b7d48a97bbda648aaf7ace47a9e4f736ef8d7"
 
 install_enum4linux() {
   if command -v enum4linux &>/dev/null; then
@@ -12,7 +14,7 @@ install_enum4linux() {
     log_success "enum4linux instalado"
     return 0
   fi
-  if git clone --depth 1 https://github.com/CiscoCXSecurity/enum4linux "$_ENUM4LINUX_DIR" 2>/dev/null; then
+  if install_pinned_git_repo "$_ENUM4LINUX_REPO" "$_ENUM4LINUX_COMMIT" "$_ENUM4LINUX_DIR"; then
     chmod +x "$_ENUM4LINUX_DIR/enum4linux.pl"
     ln -sf "$_ENUM4LINUX_DIR/enum4linux.pl" "$PREFIX/bin/enum4linux"
     : > "$_ENUM4LINUX_DIR/.karnel-wrapper"
@@ -34,7 +36,10 @@ uninstall_enum4linux() {
 
 update_enum4linux() {
   if [ -d "$_ENUM4LINUX_DIR" ]; then
-    git -C "$_ENUM4LINUX_DIR" pull
+    _pinned_git_repo_owned "$_ENUM4LINUX_DIR" "$_ENUM4LINUX_REPO" ||
+      { [ -f "$_ENUM4LINUX_DIR/.karnel-wrapper" ] && _adopt_pinned_git_repo "$_ENUM4LINUX_DIR" "$_ENUM4LINUX_REPO"; } || return 1
+    install_pinned_git_repo "$_ENUM4LINUX_REPO" "$_ENUM4LINUX_COMMIT" "$_ENUM4LINUX_DIR" || return 1
+    : > "$_ENUM4LINUX_DIR/.karnel-wrapper"
     log_success "enum4linux atualizado"
     return 0
   fi

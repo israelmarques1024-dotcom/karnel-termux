@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/install"
 import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_shell.log"
 ZSH_PLUGINS_DIR="$HOME/.zsh-plugins"
+ZSH_COMPLETIONS_COMMIT="2798b16c74f80cda2094cfed4516db8048d3e6ca"
+ZSH_COMPLETIONS_REPO="https://github.com/zsh-users/zsh-completions.git"
 
 _zsh_completions_dependencies() {
   declare -A DEPS=(
@@ -34,7 +37,7 @@ _install_zsh_completions_git() {
 
 _install_zsh_completions_git_impl() {
   mkdir -p "$(dirname "$LOG_FILE")"
-  if ! git clone --depth=1 "https://github.com/zsh-users/zsh-completions.git" "$ZSH_PLUGINS_DIR/zsh-completions" &>>"$LOG_FILE"; then
+  if ! install_pinned_git_repo "$ZSH_COMPLETIONS_REPO" "$ZSH_COMPLETIONS_COMMIT" "$ZSH_PLUGINS_DIR/zsh-completions"; then
     log_error "Failed to install zsh-completions"
     return 1
   fi
@@ -47,7 +50,7 @@ install_zsh_completions() {
     return 0
   fi
 
-  _zsh_completions_dependencies
+  _zsh_completions_dependencies || return 1
 
   _install_zsh_completions_git || return 1
   log_success "Installed"
@@ -79,11 +82,11 @@ _update_zsh_completions_impl() {
     return 0
   fi
 
-  git -C "$ZSH_PLUGINS_DIR/zsh-completions" pull &>>"$LOG_FILE"
+  install_pinned_git_repo "$ZSH_COMPLETIONS_REPO" "$ZSH_COMPLETIONS_COMMIT" "$ZSH_PLUGINS_DIR/zsh-completions"
 }
 
 update_zsh_completions() {
-  _check_update_needed "zsh-completions" "$(_get_installed_git_version "$ZSH_PLUGINS_DIR/zsh-completions")" "$(_get_remote_github_version zsh-users/zsh-completions)" _update_zsh_completions_impl
+  _update_zsh_completions_impl
 }
 
 reinstall_zsh_completions() {

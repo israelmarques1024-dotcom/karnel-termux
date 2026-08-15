@@ -4,8 +4,9 @@
 karnel <command> [arguments]
 ```
 
-With no command, Karnel opens its interactive interface (TUI) when a terminal is
-available and prints help in noninteractive contexts.
+With no command, Karnel opens a curated interactive menu (TUI) when a terminal
+is available and prints help in noninteractive contexts. The menu exposes common
+workflows, not every command, alias, or option documented below.
 
 ---
 
@@ -442,8 +443,9 @@ karnel env ls
 karnel voice [agent] [options]
 ```
 
-Captures audio via `termux-speech-to-text`, opens the transcript in `$EDITOR`,
-copies to clipboard, and dispatches the AI agent.
+Captures audio via `termux-speech-to-text`, optionally opens the transcript in
+`$EDITOR`, copies it to the clipboard, and dispatches the AI agent. If no editor
+is installed or no TTY is available, Karnel continues with the raw transcript.
 
 ### Agent targets
 
@@ -539,18 +541,21 @@ cd . && karnel init                   # Auto-detect
 
 ---
 
-## deploy — Deploy projects
+## deploy — Run deployment CLIs
 
 ```bash
 karnel deploy <tool> [args...]
 ```
 
-| Tool | Platform |
-|------|----------|
-| `vercel` | Vercel (passes remaining args to `vercel`) |
-| `railway` | Railway |
-| `netlify` | Netlify |
-| `supabase` | Supabase |
+`deploy` checks that the selected executable exists, then replaces Karnel with
+that CLI and forwards all remaining arguments.
+
+| Tool | Executable |
+|------|------------|
+| `vercel` | `vercel` |
+| `railway` | `railway` |
+| `netlify` | `netlify` |
+| `supabase` | `supabase`; this is a generic CLI pass-through, not a deployment action by itself |
 
 ```bash
 karnel deploy vercel
@@ -568,25 +573,62 @@ karnel deploy supabase
 karnel supabase <subcommand> [options]
 ```
 
-The top-level command manages Supabase CLI installation and remote-project
-workflows. It does not start the local Supabase stack on Termux; that requires
-Docker on a Linux host.
+The top-level command manages the pinned Supabase CLI installation and provides
+thin wrappers for linked-project workflows. It does not start the local Supabase
+stack on Termux; `supabase start` requires Docker on a Linux host.
 
 | Subcommand | Description |
 |------------|-------------|
-| `doctor` | Check CLI, project configuration, and API reachability |
-| `types` | Generate TypeScript types for a linked project |
-| `migrate` | Run `supabase db <args>` |
-| `link` | Run `supabase link <args>` |
-| `remote-start` / `remote` | Show the remote-development guide |
-| `remote-status` / `status` | Check Supabase status |
-| `install` / `uninstall` | Install or remove the Supabase CLI |
+| `doctor` | Check the CLI, `supabase/config.toml`, Docker expectations, and API reachability |
+| `types` | Run `supabase gen types typescript --linked`; extra arguments are not forwarded |
+| `migrate` | Forward arguments to `supabase db` |
+| `link` | Forward arguments to `supabase link` |
+| `remote-start` / `remote` | Print a guide for running the Docker-backed local stack on a Linux host |
+| `remote-status` / `status` | Run `supabase status`, which reports the local stack rather than hosted-project health |
+| `install` / `uninstall` | Install or remove Karnel's pinned Supabase CLI binary |
 
 ```bash
 karnel supabase install
 karnel supabase link --project-ref abcdef
 karnel supabase types
 karnel supabase migrate push
+```
+
+The downloaded Linux binary may still fail on Android because of unsupported
+system calls. The wrapper reports a `SIGSYS` failure and recommends PRoot or a
+Linux host; installation alone does not guarantee native Android compatibility.
+
+---
+
+## plugin — Plugin manager
+
+```bash
+karnel plugin <subcommand> [options]
+```
+
+| Subcommand | Description |
+|------------|-------------|
+| `search [query]` | Search the pinned approved registry snapshot |
+| `install <name>` | Install a plugin from that registry |
+| `install <owner/repo> --unsafe` | Install an unreviewed repository after confirmation |
+| `update <name>` | Atomically update an installed plugin |
+| `remove` / `uninstall <name>` | Remove an installed plugin |
+| `list` / `ls` | List installed plugins and their trust source |
+| `create` / `scaffold <name>` | Create and activate a validated local plugin scaffold |
+
+Search accepts `--command <name>`, `--compatible`, and `--capability <name>`.
+Capabilities are `network`, `filesystem-read`, `filesystem-write`, `process`,
+and `environment`. `--unsafe` applies only to `install` and `update`.
+
+Plugins are Bash code, run with the current user's permissions, and are not
+sandboxed. Registry review and manifest validation are not isolation boundaries.
+
+```bash
+karnel plugin search backup --compatible
+karnel plugin install karnel-hello
+karnel plugin install owner/repo --unsafe
+karnel plugin update karnel-hello
+karnel plugin remove karnel-hello
 ```
 
 ---
@@ -659,23 +701,29 @@ karnel backup restore [file]
 ```
 
 Creates `$KARNEL_DATA/backups/termux-<timestamp>.tar.gz` with SHA256 checksum.
+Concurrent runs reserve distinct names atomically instead of overwriting a
+backup created in the same second.
 
 ### Included in backup
 
-- All packages (`dpkg --get-selections`)
-- Karnel tool manifest
-- Shell configs (`.bashrc`, `.zshrc`, `.profile`)
+- Package selections embedded under `metadata/packages.list` (`dpkg --get-selections`)
+- A catalog snapshot of tool installer directories, not a record of which tools are installed
+- Selected shell configs (`.bashrc`, `.zshrc`, `.profile`, `.zshenv`, `.inputrc`)
 - Termux configs (fonts, colors, properties)
-- SSH keys
-- `~/.config` app configs
-- APT repositories
+- SSH configuration, known hosts, authorized keys, and public keys; private keys are excluded
+- Selected `~/.config` application directories; `github-copilot`, `nvm`, `coc`, `Code`, and `yarn` are excluded, as are symbolic links and all `.env`, credential, auth, and token files matched by the backup filter
+- `$PREFIX/etc/apt/sources.list` only; files under `sources.list.d` and APT keys are not included
+
+Backups are gzip-compressed, not encrypted. API environment variables and SSH
+private keys are not exported, but copied application configuration can still
+contain credentials. Protect local and cloud copies as sensitive plaintext data.
 
 ### Options
 
 | Flag | Description |
 |------|-------------|
-| `--cloud` | Upload via `rclone` (remote named `karnel`) |
-| `snapshot <name>` | Create a named snapshot |
+| `--cloud` | Legacy plaintext upload; requires explicit `KARNEL_ALLOW_PLAINTEXT_CLOUD_BACKUP=1` acknowledgement |
+| `snapshot <name>` | Create a timestamped named snapshot using the same contents and secret filter as a full backup; names accept 1-64 letters, numbers, dots, underscores, or hyphens |
 | `list` / `ls` | List full backups and snapshots |
 | `info` / `show [file]` | Show a backup's contents (latest if omitted) |
 | `--cron` | Schedule a daily backup at 3:00 AM |
@@ -689,6 +737,11 @@ karnel backup snapshot before-update
 karnel backup list
 ```
 
+Cloud backup is disabled by default because the archive is not encrypted or
+signed. The legacy opt-in uploads both archive and checksum, but they share the
+same remote trust boundary. Package selections and the informational tool
+catalog are embedded in the archive.
+
 ---
 
 ## restore — Full Termux restore
@@ -699,22 +752,28 @@ karnel restore [--cloud] [--list] [<file>]
 
 ### What it restores
 
-- Shell configs to `~/`
+- Selected shell configs to `~/`
 - Termux configs
-- SSH keys
-- `~/.config` directory
-- APT sources
-- Package list (via `dpkg --set-selections` + `apt-get dselect-upgrade`)
-- Karnel tools (from manifest)
+- SSH configuration and public keys (legacy archives may also contain private keys)
+- The selected `.config` directories present in the archive
+- `$PREFIX/etc/apt/sources.list` when present
+- Embedded package selections (via `dpkg --set-selections` + `apt-get dselect-upgrade`)
+- The tool catalog is retained as metadata only; Karnel does not incorrectly reinstall every tool in the source catalog
 
-Verifies SHA256 checksum automatically if available.
+Requires and verifies the SHA256 checksum before extraction. Restore rejects
+archives containing traversal paths, links, devices, or other unsafe entries.
+Configuration is first merged into staging so unrelated existing files remain
+in place, then committed with local backups. A copy, move, or package-restore
+failure rolls configuration back instead of reporting a partial success.
+Package-manager operations themselves are not transactionally reversible by
+Karnel if `apt-get` changes package state before returning an error.
 
 ### Options
 
 | Argument | Description |
 |----------|-------------|
 | `<file>` | Path to a specific backup file |
-| `--cloud` | Download and restore via the `karnel` rclone remote |
+| `--cloud` | Legacy unauthenticated cloud restore; requires `KARNEL_ALLOW_UNAUTHENTICATED_CLOUD_RESTORE=1` |
 | `--list`, `-l` | List available full backups and snapshots |
 | `--help`, `-h` | Show help |
 

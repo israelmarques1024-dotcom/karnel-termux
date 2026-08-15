@@ -14,12 +14,17 @@ readonly P_NC='\e[0m'
 REPO="https://github.com/israelmarques1024-dotcom/karnel-termux"
 BRANCH="main"
 RELEASE_REF=""
+INSTALL_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+RELEASE_COMMIT="${KARNEL_RELEASE_COMMIT:-}"
+if [[ -z "$RELEASE_COMMIT" && -f "$INSTALL_SCRIPT_DIR/karnel/RELEASE_COMMIT" ]]; then
+	read -r RELEASE_COMMIT <"$INSTALL_SCRIPT_DIR/karnel/RELEASE_COMMIT" || RELEASE_COMMIT=""
+fi
 KARNEL_DATA="${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data"
 KARNEL_REPO="${XDG_DATA_HOME:-$HOME/.local/share}/karnel"
 KARNEL_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/karnel"
 KARNEL_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/karnel"
 
-TOTAL_STEPS=6
+TOTAL_STEPS=4
 CURRENT_STEP=0
 
 _cols() {
@@ -66,24 +71,44 @@ log_info() {
 	echo -e "  ${P_BORDER}→${P_NC}  $1"
 }
 
-_INSTALL_CREATED_KARNEL_REPO=false
-_INSTALL_CREATED_KARNEL_SYMLINK=false
+_INSTALL_STAGING_ROOT=""
+_INSTALL_PREVIOUS_KARNEL_REPO=""
+_INSTALL_REPO_ACTIVATED=false
+_INSTALL_REPO_HAD_PREVIOUS=false
+_INSTALL_KARNEL_SYMLINK_CHANGED=false
 _INSTALL_PREVIOUS_KARNEL_SYMLINK=""
 
 _cleanup_failed() {
 	echo -e "\n  ${P_FAIL}✖${P_NC}  Installation failed at step ${CURRENT_STEP}. Cleaning up..."
-	if $_INSTALL_CREATED_KARNEL_REPO && [[ -d "$KARNEL_REPO" ]]; then
-		rm -rf "$KARNEL_REPO"
-	fi
-	if $_INSTALL_CREATED_KARNEL_SYMLINK && [[ -L "$PREFIX/bin/karnel" ]]; then
+	if $_INSTALL_KARNEL_SYMLINK_CHANGED; then
 		if [[ -n "$_INSTALL_PREVIOUS_KARNEL_SYMLINK" ]]; then
-			ln -sfn "$_INSTALL_PREVIOUS_KARNEL_SYMLINK" "$PREFIX/bin/karnel"
+			local rollback_link_dir
+			rollback_link_dir=$(mktemp -d "$PREFIX/bin/.karnel-rollback.XXXXXX")
+			ln -s "$_INSTALL_PREVIOUS_KARNEL_SYMLINK" "$rollback_link_dir/karnel"
+			mv -Tf "$rollback_link_dir/karnel" "$PREFIX/bin/karnel"
+			rmdir "$rollback_link_dir"
 		else
 			rm -f "$PREFIX/bin/karnel"
 		fi
 	fi
+	if $_INSTALL_REPO_ACTIVATED; then
+		rm -rf "$KARNEL_REPO"
+		if $_INSTALL_REPO_HAD_PREVIOUS && [[ -d "$_INSTALL_PREVIOUS_KARNEL_REPO" ]]; then
+			mv "$_INSTALL_PREVIOUS_KARNEL_REPO" "$KARNEL_REPO"
+		fi
+	fi
+	[[ -z "$_INSTALL_STAGING_ROOT" ]] || rm -rf "$_INSTALL_STAGING_ROOT"
 	echo -e "  ${P_DIM}Run install.sh again to retry${P_NC}"
 	exit 1
+}
+
+_finish_install() {
+	if $_INSTALL_REPO_HAD_PREVIOUS && [[ -d "$_INSTALL_PREVIOUS_KARNEL_REPO" ]]; then
+		rm -rf "$_INSTALL_PREVIOUS_KARNEL_REPO"
+	fi
+	[[ -z "$_INSTALL_STAGING_ROOT" ]] || rm -rf "$_INSTALL_STAGING_ROOT"
+	_INSTALL_REPO_ACTIVATED=false
+	_INSTALL_KARNEL_SYMLINK_CHANGED=false
 }
 
 separator() {
@@ -178,7 +203,21 @@ install_dependencies() {
 setup_directories() {
 	log_step 2 "Setting up directories"
 
-	mkdir -p "$KARNEL_REPO" "$KARNEL_DATA" "$KARNEL_CACHE" "$KARNEL_CONFIG"
+	umask 077
+	local directory
+	for directory in "$KARNEL_DATA" "$KARNEL_CACHE" "$KARNEL_CONFIG"; do
+		if [[ -L "$directory" ]]; then
+			log_fail "Refusing symlink directory: $directory"
+			return 1
+		fi
+		mkdir -p -m 700 "$directory" || return 1
+		chmod 700 "$directory" || return 1
+	done
+	if [[ -L "$KARNEL_REPO" ]]; then
+		log_fail "Refusing symlink directory: $KARNEL_REPO"
+		return 1
+	fi
+	mkdir -p -m 700 "$(dirname "$KARNEL_REPO")" || return 1
 
 	log_info "Repo    $KARNEL_REPO"
 	log_info "Data    $KARNEL_DATA"
@@ -190,11 +229,10 @@ setup_directories() {
 clone_repo() {
 	log_step 3 "Cloning repository"
 
-	local script_dir
-	script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+	local script_dir="$INSTALL_SCRIPT_DIR"
 	local is_dev_install=0
 
-	if [[ -d "$script_dir/.git" ]] && [[ "$script_dir" != "$KARNEL_REPO" ]]; then
+	if [[ "$script_dir" != "$KARNEL_REPO" ]] && git -C "$script_dir" rev-parse --is-inside-work-tree &>/dev/null; then
 		is_dev_install=1
 	fi
 
@@ -206,32 +244,38 @@ clone_repo() {
 		KARNEL_REPO="$script_dir"
 		log_info "Developer installation detected"
 		log_ok "Using local repository"
-	elif [[ -d "$KARNEL_REPO/.git" ]]; then
+	else
+		local existing_repo=0
+		if [[ -e "$KARNEL_REPO" ]]; then
+			if ! git -C "$KARNEL_REPO" rev-parse --is-inside-work-tree &>/dev/null; then
+				log_fail "Refusing to replace pre-existing non-repository: $KARNEL_REPO"
+				return 1
+			fi
+			existing_repo=1
+		fi
+
+		if [[ $existing_repo -eq 1 ]]; then
 		local origin_url
 		origin_url="$(git -C "$KARNEL_REPO" remote get-url origin 2>/dev/null)"
-		if [[ "$origin_url" != "$REPO" && "$origin_url" != "${REPO%.git}" ]]; then
+		if [[ "${origin_url%.git}" != "${REPO%.git}" ]]; then
 			log_fail "Existing Karnel repository has an unexpected origin"
 			return 1
 		fi
-		progress_bar 3 10
-		if [[ -n "$RELEASE_REF" ]]; then
-			if ! git -C "$KARNEL_REPO" fetch --depth=1 origin "refs/tags/$BRANCH" &>/dev/null ||
-				! git -C "$KARNEL_REPO" checkout --detach FETCH_HEAD &>/dev/null; then
-				log_fail "Failed to update existing repository"
-				return 1
-			fi
-		else
-			if ! git -c core.hooksPath=/dev/null -C "$KARNEL_REPO" pull origin "$BRANCH" &>/dev/null; then
-				log_fail "Failed to update existing repository"
-				return 1
-			fi
+		local worktree_status
+		if ! worktree_status=$(git -C "$KARNEL_REPO" status --porcelain --untracked-files=all); then
+			log_fail "Failed to inspect existing Karnel repository"
+			return 1
 		fi
-		progress_bar 10 10
-		echo
-		log_ok "Repository updated"
-	else
+		if [[ -n "$worktree_status" ]]; then
+			log_fail "Refusing to update a dirty Karnel repository"
+			return 1
+		fi
+		fi
+
+		_INSTALL_STAGING_ROOT=$(mktemp -d "$(dirname "$KARNEL_REPO")/.karnel-staging.XXXXXX")
+		local candidate_repo="$_INSTALL_STAGING_ROOT/repo"
 		progress_bar 0 10
-		git clone --depth=1 -b "$BRANCH" "$REPO" "$KARNEL_REPO" &>/dev/null &
+		git clone --depth=1 --branch "$BRANCH" "$REPO" "$candidate_repo" &>/dev/null &
 		local pid=$!
 		local dots=0
 		while kill -0 "$pid" 2>/dev/null; do
@@ -239,11 +283,42 @@ clone_repo() {
 			printf "\r  Cloning%s    " "$(printf '%*s' "$dots" '' | tr ' ' '.')"
 			sleep 0.5
 		done
-		wait "$pid" || { log_fail "Failed to clone repository"; _cleanup_failed; exit 1; }
-		_INSTALL_CREATED_KARNEL_REPO=true
+		if ! wait "$pid"; then
+			log_fail "Failed to clone repository"
+			return 1
+		fi
+		if [[ -n "$RELEASE_REF" ]]; then
+			local candidate_commit
+			candidate_commit=$(git -C "$candidate_repo" rev-parse HEAD 2>/dev/null) || return 1
+			if [[ "$candidate_commit" != "$RELEASE_COMMIT" ]]; then
+				log_fail "Release commit mismatch for $RELEASE_REF"
+				log_info "Expected $RELEASE_COMMIT, got $candidate_commit"
+				return 1
+			fi
+		fi
+
+		if [[ $existing_repo -eq 1 ]]; then
+			_INSTALL_PREVIOUS_KARNEL_REPO=$(mktemp -d "$(dirname "$KARNEL_REPO")/.karnel-previous.XXXXXX")
+			rmdir "$_INSTALL_PREVIOUS_KARNEL_REPO"
+			mv "$KARNEL_REPO" "$_INSTALL_PREVIOUS_KARNEL_REPO"
+			_INSTALL_REPO_HAD_PREVIOUS=true
+		fi
+		if ! mv "$candidate_repo" "$KARNEL_REPO"; then
+			if $_INSTALL_REPO_HAD_PREVIOUS; then
+				mv "$_INSTALL_PREVIOUS_KARNEL_REPO" "$KARNEL_REPO"
+				_INSTALL_REPO_HAD_PREVIOUS=false
+			fi
+			log_fail "Failed to activate repository"
+			return 1
+		fi
+		_INSTALL_REPO_ACTIVATED=true
 		progress_bar 10 10
 		echo
-		log_ok "Repository cloned"
+		if [[ $existing_repo -eq 1 ]]; then
+			log_ok "Repository updated"
+		else
+			log_ok "Repository cloned"
+		fi
 	fi
 
 	export KARNEL_REPO
@@ -263,38 +338,26 @@ create_symlink() {
 
 	[[ -z "$PREFIX" ]] && { log_fail "PREFIX is not set. Are you running in Termux?"; return 1; }
 
-	command -v termux-fix-shebang &>/dev/null && termux-fix-shebang "$KARNEL_REPO/karnel/bin/karnel" &>/dev/null
-
-	if [[ -e "$PREFIX/bin/karnel" && ! -L "$PREFIX/bin/karnel" ]]; then
+	if [[ ( -e "$PREFIX/bin/karnel" || -L "$PREFIX/bin/karnel" ) && ! -L "$PREFIX/bin/karnel" ]]; then
 		log_fail "Refusing to replace existing non-symlink: $PREFIX/bin/karnel"
 		return 1
 	fi
 	if [[ -L "$PREFIX/bin/karnel" ]]; then
 		_INSTALL_PREVIOUS_KARNEL_SYMLINK="$(readlink "$PREFIX/bin/karnel")"
 	fi
-	rm -f "$PREFIX/bin/karnel"
-	ln -sf "$KARNEL_REPO/karnel/bin/karnel" "$PREFIX/bin/karnel"
+	local link_staging
+	link_staging=$(mktemp -d "$PREFIX/bin/.karnel-link.XXXXXX")
+	ln -s "$KARNEL_REPO/karnel/bin/karnel" "$link_staging/karnel"
+	mv -Tf "$link_staging/karnel" "$PREFIX/bin/karnel"
+	rmdir "$link_staging"
+	_INSTALL_KARNEL_SYMLINK_CHANGED=true
 
 	if [[ -L "$PREFIX/bin/karnel" ]]; then
-		_INSTALL_CREATED_KARNEL_SYMLINK=true
 		log_ok "Symlink created: karnel → ${KARNEL_REPO}/karnel/bin/karnel"
 	else
 		log_fail "Failed to create symlink"
 		return 1
 	fi
-}
-
-save_config() {
-	log_step 5 "Saving configuration"
-
-	cat >"$KARNEL_CONFIG/config" <<EOF
-karnel_repo='$KARNEL_REPO'
-karnel_data='$KARNEL_DATA'
-karnel_cache='$KARNEL_CACHE'
-karnel_config='$KARNEL_CONFIG'
-EOF
-
-	log_ok "Configuration saved"
 }
 
 show_final_message() {
@@ -322,15 +385,33 @@ show_final_message() {
 }
 
 main() {
-	if [[ $# -eq 2 && "$1" == "--ref" ]]; then
-		if [[ ! "$2" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-			echo -e "\n  ${P_FAIL}✖${P_NC}  Invalid release ref: $2" >&2
-			return 1
-		fi
-		BRANCH="$2"
-		RELEASE_REF="$2"
-	elif [[ $# -ne 0 ]]; then
-		echo -e "\n  ${P_FAIL}✖${P_NC}  Usage: install.sh [--ref vX.Y.Z]" >&2
+	while [[ $# -gt 0 ]]; do
+		case "$1" in
+			--ref)
+				[[ $# -ge 2 && "$2" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
+					echo -e "\n  ${P_FAIL}✖${P_NC}  Invalid or missing release ref" >&2
+					return 1
+				}
+				BRANCH="$2"
+				RELEASE_REF="$2"
+				shift 2
+				;;
+			--commit)
+				[[ $# -ge 2 && "$2" =~ ^[0-9a-f]{40}$ ]] || {
+					echo -e "\n  ${P_FAIL}✖${P_NC}  Invalid or missing release commit" >&2
+					return 1
+				}
+				RELEASE_COMMIT="$2"
+				shift 2
+				;;
+			*)
+				echo -e "\n  ${P_FAIL}✖${P_NC}  Usage: install.sh [--ref vX.Y.Z --commit SHA]" >&2
+				return 1
+				;;
+		esac
+	done
+	if [[ -n "$RELEASE_REF" && ! "$RELEASE_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+		echo -e "\n  ${P_FAIL}✖${P_NC}  Release installation requires an immutable commit SHA" >&2
 		return 1
 	fi
 
@@ -346,7 +427,7 @@ main() {
   setup_directories
   clone_repo
   create_symlink
-  save_config
+  _finish_install
   show_final_message
 }
 

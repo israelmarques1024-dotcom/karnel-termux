@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/tools"
+declare -f _run_tool_lifecycle_action &>/dev/null || source "$(dirname "${BASH_SOURCE[0]}")/../../utils/tools.sh"
 
 OSINT_TOOLS=(
   "robin"
@@ -11,6 +13,7 @@ for _tool in "${OSINT_TOOLS[@]}"; do
   source "$(dirname "${BASH_SOURCE[0]}")/$_tool/install.sh"
 done
 unset _tool
+_register_safe_reinstall_handlers osint "${OSINT_TOOLS[@]}"
 
 _batch_osint() {
   local action="$1"
@@ -21,23 +24,18 @@ _batch_osint() {
   local skipped=0
   local total=${#OSINT_TOOLS[@]}
   local current=0
-  local func_name
+  local rc
 
   progress_start "$total" "${action_past}ing OSINT tools..."
 
   for tool in "${OSINT_TOOLS[@]}"; do
-    func_name="${action}_${tool//-/_}"
-    if declare -f "$func_name" &>/dev/null; then
-      loading "${action_past^}ing ${tool}" "$func_name"
-      case $? in
-        0) ((count++)) ;;
-        2) ((skipped++)) ;;
-        *) ((failed++)) ;;
-      esac
-    else
-      log_error "Missing OSINT action: $func_name"
-      ((failed++))
-    fi
+    loading "${action_past^}ing ${tool}" _run_tool_lifecycle_action osint "$action" "$tool"
+    rc=$?
+    case $rc in
+      0) ((count++)) ;;
+      2) ((skipped++)) ;;
+      *) ((failed++)) ;;
+    esac
     ((current++))
     progress_update "$current" "$total"
   done

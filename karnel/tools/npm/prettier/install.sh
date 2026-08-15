@@ -31,7 +31,8 @@ _install_prettier_npm_impl() {
 
 install_prettier() {
   if command -v prettier &>/dev/null; then
-    return 0
+    log_info "Prettier is already installed"
+    return 2
   fi
   log_info "Installing Prettier..."
 

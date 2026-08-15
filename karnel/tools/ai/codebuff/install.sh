@@ -3,9 +3,12 @@
 import "@/utils/log"
 import "@/utils/colors"
 import "@/utils/version"
+import "@/utils/install"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 CODEBUFF_DATA_DIR="$HOME/.local/share/karnel-data/codebuff"
+CODEBUFF_MARKER=".karnel-managed"
+CODEBUFF_WRAPPER_MARKER="$CODEBUFF_DATA_DIR/.karnel-wrapper"
 
 _codebuff_detect_ubuntu_root() {
   local root
@@ -28,8 +31,8 @@ _codebuff_proot_ubuntu() {
 }
 
 _get_latest_codebuff_version() {
-  curl -fsSL https://api.github.com/repos/CodebuffAI/codebuff-community/releases/latest |
-    grep '"tag_name":' | sed -E 's/.*"tag_name":\s*"v([0-9]+\.[0-9]+\.[0-9]+)".*/\1/'
+  curl -fsSL 'https://api.github.com/repos/CodebuffAI/codebuff-community/releases?per_page=20' |
+    sed -n 's/.*"tag_name": "v\([0-9][0-9.]*\)".*/\1/p' | head -1
 }
 
 _codebuff_install_deps_native() {
@@ -77,37 +80,42 @@ _download_codebuff_binary() {
 }
 
 _download_codebuff_binary_impl() {
-  local latest_version
+  local latest_version staging_dir tarball download_url
+  case "$(uname -m)" in
+    aarch64|arm64) ;;
+    *) log_error "Codebuff Linux ARM64 asset is unavailable for architecture: $(uname -m)"; return 1 ;;
+  esac
   latest_version=$(_get_latest_codebuff_version)
   if [ -z "$latest_version" ]; then
     log_error "Failed to fetch latest Codebuff version"
     return 1
   fi
 
-  mkdir -p "$CODEBUFF_DATA_DIR"
+  mkdir -p "$(dirname "$CODEBUFF_DATA_DIR")"
+  staging_dir=$(mktemp -d "$(dirname "$CODEBUFF_DATA_DIR")/.codebuff.XXXXXX") || return 1
+  tarball="codebuff-linux-arm64.tar.gz"
+  download_url="https://github.com/CodebuffAI/codebuff-community/releases/download/v${latest_version}/${tarball}"
 
-  local tarball="codebuff-linux-arm64.tar.gz"
-  local download_url="https://github.com/CodebuffAI/codebuff-community/releases/download/v${latest_version}/${tarball}"
-
-  if ! curl -fsSL "$download_url" -o "$CODEBUFF_DATA_DIR/$tarball" &>>"$LOG_FILE"; then
+  if ! curl -fsSL "$download_url" -o "$staging_dir/$tarball" &>>"$LOG_FILE"; then
+    rm -rf "$staging_dir"
     log_error "Failed to download Codebuff binary"
     return 1
   fi
 
-  if ! tar -zxf "$CODEBUFF_DATA_DIR/$tarball" -C "$CODEBUFF_DATA_DIR" &>>"$LOG_FILE"; then
-    log_error "Failed to extract Codebuff binary"
+  if ! verify_github_release_asset CodebuffAI/codebuff-community "v${latest_version}" "$tarball" "$staging_dir/$tarball" ||
+    ! extract_tarball "$staging_dir/$tarball" "$staging_dir"; then
+    rm -rf "$staging_dir"
     return 1
   fi
 
-  rm -f "$CODEBUFF_DATA_DIR/$tarball"
-
-  if [ ! -f "$CODEBUFF_DATA_DIR/codebuff" ]; then
+  if [ ! -f "$staging_dir/codebuff" ]; then
+    rm -rf "$staging_dir"
     log_error "Codebuff binary not found after extraction"
     return 1
   fi
 
-  chmod +x "$CODEBUFF_DATA_DIR/codebuff"
-  return 0
+  chmod +x "$staging_dir/codebuff"
+  replace_managed_directory "$staging_dir" "$CODEBUFF_DATA_DIR" "$CODEBUFF_MARKER"
 }
 
 _compile_codebuff_helper() {
@@ -121,13 +129,17 @@ _compile_codebuff_helper_impl() {
     return 1
   fi
 
-  if ! cc -O2 -o "$PREFIX/bin/codebuff" "$HELPER_SRC" &>>"$LOG_FILE"; then
+  local staged_wrapper
+  staged_wrapper=$(mktemp "$PREFIX/bin/.codebuff.XXXXXX") || return 1
+  if ! cc -O2 -o "$staged_wrapper" "$HELPER_SRC" &>>"$LOG_FILE"; then
+    rm -f "$staged_wrapper"
     log_error "Failed to compile codebuff helper"
     return 1
   fi
 
-  chmod +x "$PREFIX/bin/codebuff"
-  return 0
+  chmod +x "$staged_wrapper"
+  mv "$staged_wrapper" "$PREFIX/bin/codebuff" || return 1
+  record_managed_file "$PREFIX/bin/codebuff" "$CODEBUFF_WRAPPER_MARKER"
 }
 
 _install_codebuff_native() {
@@ -143,67 +155,22 @@ _install_codebuff_proot() {
 }
 
 _install_codebuff_proot_impl() {
-  mkdir -p "$(dirname "$LOG_FILE")"
-
-  if ! command -v proot-distro &>/dev/null; then
-    pkg install proot-distro -y &>>"$LOG_FILE"
-  fi
-
-  if [ ! -d "$(_codebuff_detect_ubuntu_root)" ]; then
-    proot-distro install ubuntu:24.04 &>>"$LOG_FILE"
-  fi
-
-  _codebuff_proot_ubuntu /bin/bash -c \
-    'apt-get update && apt-get upgrade -y && apt-get install -y curl ca-certificates tar' \
-    &>>"$LOG_FILE"
-
-  _codebuff_proot_ubuntu /bin/bash -c '
-    export SHELL=/bin/bash
-    export TMPDIR=/tmp
-    export HOME=/root
-    LATEST=$(curl -fsSL https://api.github.com/repos/CodebuffAI/codebuff-community/releases/latest | grep '"'"'tag_name'"'"' | sed -E '"'"'s/.*"tag_name":\s*"v([0-9]+\.[0-9]+\.[0-9]+)".*/\1/'"'"')
-    TARBALL=$(mktemp /tmp/codebuff.XXXXXX.tar.gz)
-    curl -fsSL "https://github.com/CodebuffAI/codebuff-community/releases/download/v${LATEST}/codebuff-linux-arm64.tar.gz" -o "$TARBALL"
-    mkdir -p /root/.codebuff
-    tar -zxf "$TARBALL" -C /root/.codebuff
-    rm -f "$TARBALL"
-    chmod +x /root/.codebuff/codebuff
-  ' &>>"$LOG_FILE"
-
-  local ubuntu_root
-  ubuntu_root="$(_codebuff_detect_ubuntu_root)"
-
-  if [ -z "$ubuntu_root" ]; then
-    log_error "Ubuntu rootfs not found"
-    return 1
-  fi
-
-  local codebuff_bin="$ubuntu_root/root/.codebuff/codebuff"
-
-  if [ ! -f "$codebuff_bin" ]; then
-    log_error "Codebuff binary not found after install"
-    return 1
-  fi
-
-  local wrapper_src="$KARNEL_PATH/tools/ai/codebuff/bin/codebuff"
-  if [ ! -f "$wrapper_src" ]; then
-    log_error "Wrapper template not found at $wrapper_src"
-    return 1
-  fi
-  sed "s|__UBUNTU_ROOTFS__|$ubuntu_root|g" "$wrapper_src" >"$PREFIX/bin/codebuff"
-  chmod +x "$PREFIX/bin/codebuff"
-
-  if ! grep -q '.codebuff' "$ubuntu_root/root/.bashrc" 2>/dev/null; then
-    printf '\n# codebuff\nexport PATH=/root/.codebuff:$PATH\n' >>"$ubuntu_root/root/.bashrc"
-  fi
-
-  return 0
+  case "$(uname -m)" in
+    aarch64|arm64) ;;
+    *) log_error "Codebuff Linux ARM64 asset is unavailable for architecture: $(uname -m)"; return 1 ;;
+  esac
+  log_error "Codebuff Proot install is disabled because upstream provides no authenticated Proot installer; use native mode"
+  return 1
 }
 
 install_codebuff() {
   if command -v codebuff &>/dev/null; then
     log_info "Codebuff is already installed"
     return 2
+  fi
+  if [ -e "$PREFIX/bin/codebuff" ]; then
+    log_error "Refusing to replace an existing Codebuff wrapper not owned by Karnel"
+    return 1
   fi
 
   log_info "Installing Codebuff..."
@@ -236,29 +203,15 @@ uninstall_codebuff() {
     return 1
   fi
 
-  if [ -f "$CODEBUFF_DATA_DIR/codebuff" ]; then
+  if [ -f "$CODEBUFF_DATA_DIR/$CODEBUFF_MARKER" ] && managed_file_matches "$PREFIX/bin/codebuff" "$CODEBUFF_WRAPPER_MARKER"; then
     rm -f "$PREFIX/bin/codebuff"
     rm -rf "$CODEBUFF_DATA_DIR"
     log_success "Codebuff (native) uninstalled"
     return 0
   fi
 
-  _codebuff_proot_ubuntu /bin/bash -c 'rm -rf /root/.codebuff' &>>"$LOG_FILE"
-
-  local ubuntu_bashrc
-  ubuntu_bashrc="$(_codebuff_detect_ubuntu_root)/root/.bashrc"
-
-  if [ -f "$ubuntu_bashrc" ]; then
-    sed -i '/# codebuff/d; /export PATH=\/root\/.codebuff/d' "$ubuntu_bashrc"
-  fi
-
-  if rm -f "$PREFIX/bin/codebuff" &>>"$LOG_FILE"; then
-    log_success "Codebuff (proot-distro) uninstalled"
-    return 0
-  else
-    log_error "Failed to uninstall Codebuff"
-    return 1
-  fi
+  log_error "Refusing to remove a Codebuff installation not owned by Karnel"
+  return 1
 }
 
 update_codebuff() {
@@ -271,35 +224,14 @@ _update_codebuff_impl() {
     return $?
   fi
 
-  _codebuff_proot_ubuntu /bin/bash -c 'rm -rf /root/.codebuff' &>>"$LOG_FILE"
-
-  _codebuff_proot_ubuntu /bin/bash -c '
-    export SHELL=/bin/bash
-    export TMPDIR=/tmp
-    export HOME=/root
-    LATEST=$(curl -fsSL https://api.github.com/repos/CodebuffAI/codebuff-community/releases/latest | grep '"'"'tag_name'"'"' | sed -E '"'"'s/.*"tag_name":\s*"v([0-9]+\.[0-9]+\.[0-9]+)".*/\1/'"'"')
-    TARBALL=$(mktemp /tmp/codebuff.XXXXXX.tar.gz)
-    curl -fsSL "https://github.com/CodebuffAI/codebuff-community/releases/download/v${LATEST}/codebuff-linux-arm64.tar.gz" -o "$TARBALL"
-    mkdir -p /root/.codebuff
-    tar -zxf "$TARBALL" -C /root/.codebuff
-    rm -f "$TARBALL"
-    chmod +x /root/.codebuff/codebuff
-  ' &>>"$LOG_FILE"
-
-  local ubuntu_root
-  ubuntu_root="$(_codebuff_detect_ubuntu_root)"
-  local codebuff_bin="$ubuntu_root/root/.codebuff/codebuff"
-
-  if [ ! -f "$codebuff_bin" ]; then
-    log_error "Codebuff binary not found after update"
-    return 1
-  fi
-
-  log_success "Codebuff (proot-distro) updated"
-  return 0
+  log_error "Refusing to remove a Codebuff installation not owned by Karnel"
+  return 1
 }
 
 reinstall_codebuff() {
-  uninstall_codebuff
-  install_codebuff
+  if command -v codebuff &>/dev/null; then
+    _update_codebuff_impl
+  else
+    install_codebuff
+  fi
 }

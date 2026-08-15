@@ -9,7 +9,7 @@ LOG_FILE="$KARNEL_CACHE/install_dev.log"
 install_websites() {
   local TOOL_DIR="$KARNEL_DATA/utils/websites"
   local BIN_NAME="websites"
-  local DOWNLOAD_URL="https://raw.githubusercontent.com/dedsec1121fk/DedSec/main/Scripts/Developer%20Base/Simple%20Websites%20Creator.py"
+  local DOWNLOAD_URL="https://raw.githubusercontent.com/dedsec1121fk/DedSec/87d69293f4b89b8ab114fa644074629e86313182/Scripts/Developer%20Base/Simple%20Websites%20Creator.py"
   log_info "Installing Websites Creator..."
   mkdir -p "$(dirname "$LOG_FILE")" "$TOOL_DIR"
   if ! command -v python3 &>/dev/null; then pkg install python -y &>>"$LOG_FILE" || return 1; fi
@@ -30,7 +30,7 @@ uninstall_websites() {
 update_websites() {
   local TOOL_DIR="$KARNEL_DATA/utils/websites"
   local BIN_NAME="websites"
-  local DOWNLOAD_URL="https://raw.githubusercontent.com/dedsec1121fk/DedSec/main/Scripts/Developer%20Base/Simple%20Websites%20Creator.py"
+  local DOWNLOAD_URL="https://raw.githubusercontent.com/dedsec1121fk/DedSec/87d69293f4b89b8ab114fa644074629e86313182/Scripts/Developer%20Base/Simple%20Websites%20Creator.py"
   log_info "Updating Websites Creator..."
   _downloaded_python_update "$BIN_NAME" "$TOOL_DIR" "$DOWNLOAD_URL" || return 1
   log_success "Websites Creator updated"

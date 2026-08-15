@@ -7,6 +7,7 @@ trap 'rm -rf "$TEST_ROOT"' EXIT
 
 export KARNEL_PATH="$ROOT_DIR/karnel"
 export KARNEL_CACHE="$TEST_ROOT/cache"
+export KARNEL_DATA="$TEST_ROOT/data"
 
 pass=0
 
@@ -170,6 +171,9 @@ assert_failure "upgrade stops when update fails" upgrade_main
 
 # shellcheck source=../karnel/cli/commands/install.sh
 source "$KARNEL_PATH/cli/commands/install.sh"
+# The production import above loads this helper; import() is stubbed in this fixture.
+# shellcheck source=../karnel/utils/tools.sh
+source "$KARNEL_PATH/utils/tools.sh"
 # shellcheck source=../karnel/cli/commands/uninstall.sh
 source "$KARNEL_PATH/cli/commands/uninstall.sh"
 assert_failure "unknown install target" install_main not-a-target
@@ -192,6 +196,28 @@ install_wget() { tool_attempts+=(install-wget); return 0; }
 assert_failure "install tool failure preserves batch failure" install_main dev --gh --wget
 if [[ "${tool_attempts[*]}" != "install-gh install-wget" ]]; then
   printf 'FAIL: install stopped after a tool failure: %s\n' "${tool_attempts[*]}" >&2
+  exit 1
+fi
+((pass += 1))
+
+tool_attempts=()
+install_gh() { tool_attempts+=(install-gh); return 9; }
+assert_failure "nonstandard install status is a batch failure" install_main dev --gh
+if [[ "${tool_attempts[*]}" != "install-gh" ]]; then
+  printf 'FAIL: nonstandard status handler was not called\n' >&2
+  exit 1
+fi
+((pass += 1))
+
+KARNEL_DATA="$TEST_ROOT/ownership"
+rm -rf "$KARNEL_DATA"
+install_gh() { return 2; }
+install_main dev --gh >/dev/null || {
+  printf 'FAIL: existing install status was not a successful skip\n' >&2
+  exit 1
+}
+if [[ -e "$KARNEL_DATA/ownership/dev/gh" ]]; then
+  printf 'FAIL: existing tool gained Karnel ownership\n' >&2
   exit 1
 fi
 ((pass += 1))

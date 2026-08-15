@@ -14,6 +14,7 @@ const fs = require('fs');
 const path = require('path');
 const { execSync, execFileSync } = require('child_process');
 const packageVersion = require('../package.json').version;
+const releaseCommitPath = path.resolve(__dirname, '../karnel/RELEASE_COMMIT');
 
 const isTermux = () => {
   if (process.env.KARNEL_TEST_TERMUX === '1') return true;
@@ -44,8 +45,9 @@ const isAlreadyInstalled = () => {
   try {
     const symlink = process.env.PREFIX + '/bin/karnel';
     const target = execFileSync('readlink', ['-f', symlink], { encoding: 'utf8' }).trim();
-    const ourTarget = path.resolve(__dirname, '..', 'karnel/bin/karnel');
-    return target === ourTarget;
+    const dataHome = process.env.XDG_DATA_HOME || path.join(process.env.HOME, '.local/share');
+    const installedTarget = path.join(dataHome, 'karnel', 'karnel/bin/karnel');
+    return target === installedTarget && fs.existsSync(path.join(dataHome, 'karnel', '.git'));
   } catch {
     return false;
   }
@@ -89,7 +91,11 @@ const main = () => {
   }
 
   try {
-    execFileSync('bash', ['install.sh', '--ref', `v${packageVersion}`], {
+    const releaseCommit = fs.readFileSync(releaseCommitPath, 'utf8').trim();
+    if (!/^[0-9a-f]{40}$/.test(releaseCommit)) {
+      throw new Error('package contains an invalid RELEASE_COMMIT');
+    }
+    execFileSync('bash', ['install.sh', '--ref', `v${packageVersion}`, '--commit', releaseCommit], {
       cwd: path.resolve(__dirname, '..'),
       stdio: 'inherit',
       env: process.env

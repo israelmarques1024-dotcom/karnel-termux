@@ -24,8 +24,13 @@ uninstall_dirb() {
 }
 
 update_dirb() {
-  log_info "$_TOOL atualizado via gerenciador de pacotes"
-  return 2
+  log_info "Atualizando dirb..."
+  if pkg install -y dirb 2>/dev/null || apt install -y dirb 2>/dev/null; then
+    log_success "dirb atualizado"
+    return 0
+  fi
+  log_error "Falha ao atualizar dirb"
+  return 1
 }
 
 reinstall_dirb() {

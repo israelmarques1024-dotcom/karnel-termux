@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/tools"
+declare -f _run_tool_lifecycle_action &>/dev/null || source "$(dirname "${BASH_SOURCE[0]}")/../../utils/tools.sh"
 
 LOG_FILE="$KARNEL_CACHE/install_ui.log"
 TERMUX_DIR="$HOME/.termux"
@@ -16,6 +18,7 @@ for _tool in "${UI_COMPONENTS[@]}"; do
   source "$(dirname "$BASH_SOURCE")/$_tool/install.sh"
 done
 unset _tool
+_register_safe_reinstall_handlers ui "${UI_COMPONENTS[@]}"
 
 _batch_ui() {
   local action="$1"
@@ -25,23 +28,21 @@ _batch_ui() {
   local failed=0
   local total=${#UI_COMPONENTS[@]}
   local current=0
-  local func_name
+  local rc
 
   progress_start "$total" "${action_past}ing UI components..."
 
   for tool in "${UI_COMPONENTS[@]}"; do
-    func_name="${action}_${tool//-/_}"
-    if declare -f "$func_name" &>/dev/null; then
-      loading "${action_past^}ing ${tool}" "$func_name"
-      case $? in 0) ((count++));; 1) ((failed++));; esac
-    fi
+    loading "${action_past^}ing ${tool}" _run_tool_lifecycle_action ui "$action" "$tool"
+    rc=$?
+    case $rc in 0) ((count++));; 2) :;; *) ((failed++));; esac
     ((current++))
     progress_update "$current" "$total"
   done
 
   progress_done "$total"
   printf -v "$count_var" '%s' "$count"
-  return $failed
+  (( failed == 0 ))
 }
 
 install_all_ui_components() {

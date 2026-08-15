@@ -38,13 +38,33 @@ KARNEL_PLUGINS="$KARNEL_DATA/plugins"
 # Crear directorios
 # -------------------------
 
-mkdir -p -m 700 \
-  "$KARNEL_CONFIG" \
-  "$KARNEL_CACHE" \
-  "$KARNEL_DATA" \
-  "$KARNEL_TOOLS" \
-  "$KARNEL_RUN" \
-  "$KARNEL_LOGS"
+_karnel_secure_directory() {
+  local directory="$1"
+
+  if [[ -L "$directory" ]]; then
+    printf 'karnel: refusing symlink directory: %s\n' "$directory" >&2
+    return 1
+  fi
+  mkdir -p -m 700 "$directory" || return 1
+  if [[ -L "$directory" ]]; then
+    printf 'karnel: refusing symlink directory: %s\n' "$directory" >&2
+    return 1
+  fi
+  chmod 700 "$directory"
+}
+
+if [[ "${KARNEL_READ_ONLY:-0}" != "1" ]]; then
+  for _karnel_directory in \
+    "$KARNEL_CONFIG" \
+    "$KARNEL_CACHE" \
+    "$KARNEL_DATA" \
+    "$KARNEL_TOOLS" \
+    "$KARNEL_RUN" \
+    "$KARNEL_LOGS"; do
+    _karnel_secure_directory "$_karnel_directory" || return 1
+  done
+  unset _karnel_directory
+fi
 
 # -------------------------
 # TUI Colors - Ruby & Obsidian

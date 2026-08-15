@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/install"
 import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_shell.log"
 ZSH_PLUGINS_DIR="$HOME/.zsh-plugins"
+FZF_TAB_COMMIT="24105b15714bfec37989ed5c5b6e60f572253019"
+FZF_TAB_REPO="https://github.com/Aloxaf/fzf-tab.git"
 
 _fzf_tab_dependencies() {
   declare -A DEPS=(
@@ -34,7 +37,7 @@ _install_fzf_tab_git() {
 
 _install_fzf_tab_git_impl() {
   mkdir -p "$(dirname "$LOG_FILE")"
-  if ! git clone --depth=1 "https://github.com/Aloxaf/fzf-tab.git" "$ZSH_PLUGINS_DIR/fzf-tab" &>>"$LOG_FILE"; then
+  if ! install_pinned_git_repo "$FZF_TAB_REPO" "$FZF_TAB_COMMIT" "$ZSH_PLUGINS_DIR/fzf-tab"; then
     log_error "Failed to install fzf-tab"
     return 1
   fi
@@ -47,7 +50,7 @@ install_fzf_tab() {
     return 0
   fi
 
-  _fzf_tab_dependencies
+  _fzf_tab_dependencies || return 1
 
   _install_fzf_tab_git || return 1
   log_success "Installed"
@@ -79,11 +82,11 @@ _update_fzf_tab_impl() {
     return 0
   fi
 
-  git -C "$ZSH_PLUGINS_DIR/fzf-tab" pull &>>"$LOG_FILE"
+  install_pinned_git_repo "$FZF_TAB_REPO" "$FZF_TAB_COMMIT" "$ZSH_PLUGINS_DIR/fzf-tab"
 }
 
 update_fzf_tab() {
-  _check_update_needed "fzf-tab" "$(_get_installed_git_version "$ZSH_PLUGINS_DIR/fzf-tab")" "$(_get_remote_github_version Aloxaf/fzf-tab)" _update_fzf_tab_impl
+  _update_fzf_tab_impl
 }
 
 reinstall_fzf_tab() {

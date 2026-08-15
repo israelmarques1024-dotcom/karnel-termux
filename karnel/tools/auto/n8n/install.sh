@@ -51,7 +51,7 @@ _install_n8n_impl() {
 install_n8n() {
   if command -v n8n &>/dev/null; then
     log_info "n8n is already installed"
-    return 0
+    return 2
   fi
   log_info "Installing n8n..."
   loading "Installing n8n" _install_n8n_impl

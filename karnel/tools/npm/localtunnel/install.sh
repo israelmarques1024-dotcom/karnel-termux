@@ -48,7 +48,8 @@ _install_localtunnel_npm_impl() {
 
 install_localtunnel() {
   if command -v lt &>/dev/null; then
-    return 0
+    log_info "Localtunnel is already installed"
+    return 2
   fi
   log_info "Installing Localtunnel..."
 

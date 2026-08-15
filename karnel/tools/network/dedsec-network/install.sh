@@ -5,7 +5,7 @@ import "@/utils/version"
 import "@/utils/downloaded-python"
 
 LOG_FILE="$KARNEL_CACHE/install_network.log"
-DOWNLOAD_URL="https://raw.githubusercontent.com/dedsec1121fk/DedSec/main/Scripts/Network%20Tools/DedSec%27s%20Network.py"
+DOWNLOAD_URL="https://raw.githubusercontent.com/dedsec1121fk/DedSec/87d69293f4b89b8ab114fa644074629e86313182/Scripts/Network%20Tools/DedSec%27s%20Network.py"
 
 install_dedsec_network() {
   local TOOL_DIR="$KARNEL_DATA/network/dedsec-network"

@@ -66,6 +66,10 @@ _compile_opencode_helper_impl() {
 }
 
 _install_opencode_native() {
+  case "$(uname -m)" in
+    aarch64|arm64) ;;
+    *) log_error "Native OpenCode installation currently supports ARM64 only"; return 1 ;;
+  esac
   _install_opencode_deps || return 1
   _download_opencode_binary || return 1
   _compile_opencode_helper || return 1

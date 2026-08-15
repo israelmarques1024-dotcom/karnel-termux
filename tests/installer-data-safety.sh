@@ -136,6 +136,7 @@ assert_zork_update_preserves_existing_data_on_download_failure() (
   export HOME="$TEST_ROOT/zork-home"
   export PREFIX="$TEST_ROOT/zork-prefix"
   export KARNEL_CACHE="$TEST_ROOT/zork-cache"
+  export KARNEL_DATA="$HOME/.local/share/karnel-data"
   mkdir -p "$HOME/.local/share/karnel-data/zork/DATA" "$PREFIX/bin" "$KARNEL_CACHE"
   printf 'existing zork data' >"$HOME/.local/share/karnel-data/zork/DATA/ZORK1.DAT"
   import() { :; }
@@ -156,6 +157,7 @@ assert_zork_preserves_unowned_install() (
   export HOME="$TEST_ROOT/zork-owned-home"
   export PREFIX="$TEST_ROOT/zork-owned-prefix"
   export KARNEL_CACHE="$TEST_ROOT/zork-owned-cache"
+  export KARNEL_DATA="$HOME/.local/share/karnel-data"
   mkdir -p "$HOME/.local/share/karnel-data/zork/DATA" "$PREFIX/bin" "$KARNEL_CACHE"
   printf 'external zork data' >"$HOME/.local/share/karnel-data/zork/DATA/ZORK1.DAT"
   printf '#!/usr/bin/env bash\nexit 99\n' >"$PREFIX/bin/zork"
@@ -239,6 +241,56 @@ assert_codegraph_update_preserves_existing_payload_on_download_failure() (
   [[ "$(<"$KARNEL_DATA/codegraph-linux-arm64/marker")" == 'existing codegraph data' ]]
 )
 
+assert_hermes_uninstall_preserves_user_home() (
+  export HOME="$TEST_ROOT/hermes-home"
+  export PREFIX="$TEST_ROOT/hermes-prefix"
+  export KARNEL_CACHE="$TEST_ROOT/hermes-cache"
+  export KARNEL_DATA="$TEST_ROOT/hermes-data"
+  mkdir -p "$HOME/.hermes" "$PREFIX/bin" "$KARNEL_DATA/hermes-agent"
+  printf 'secret\n' >"$HOME/.hermes/credentials.json"
+  printf '#!/usr/bin/env bash\n' >"$KARNEL_DATA/hermes-agent/hermes"
+  chmod +x "$KARNEL_DATA/hermes-agent/hermes"
+  printf '%s\n' 'karnel-hermes-agent-v1' >"$KARNEL_DATA/hermes-agent/.karnel-installed"
+  ln -s "$KARNEL_DATA/hermes-agent/hermes" "$PREFIX/bin/hermes"
+  import() { :; }
+  log_info() { :; }
+  log_success() { :; }
+  log_error() { :; }
+  loading() { "$2"; }
+  # shellcheck source=../karnel/tools/ai/hermes-agent/install.sh
+  source "$ROOT_DIR/karnel/tools/ai/hermes-agent/install.sh"
+
+  uninstall_hermes_agent
+  [[ "$(<"$HOME/.hermes/credentials.json")" == secret ]]
+  [[ ! -e "$KARNEL_DATA/hermes-agent" && ! -e "$PREFIX/bin/hermes" ]]
+)
+
+assert_nvchad_preserves_unowned_paths() (
+  export HOME="$TEST_ROOT/nvchad-home"
+  export KARNEL_CACHE="$TEST_ROOT/nvchad-cache"
+  export KARNEL_DATA="$TEST_ROOT/nvchad-data"
+  mkdir -p "$HOME/.config/nvim" "$HOME/.local/share/nvim" "$HOME/.local/state/nvim" \
+    "$KARNEL_DATA/nvchad-termux/.git" "$KARNEL_DATA/nvchad-termux/nvim" "$KARNEL_CACHE"
+  printf 'user config\n' >"$HOME/.config/nvim/init.lua"
+  printf 'user data\n' >"$HOME/.local/share/nvim/user-data"
+  printf '%s\n' 'karnel-nvchad-state-v1' >"$HOME/.local/state/nvim/.karnel-nvchad"
+  printf '%s\n' 'karnel-nvchad-source-v1' >"$KARNEL_DATA/nvchad-termux/.karnel-nvchad"
+  import() { :; }
+  log_info() { :; }
+  log_success() { :; }
+  log_warn() { :; }
+  log_error() { :; }
+  loading() { "$2"; }
+  # shellcheck source=../karnel/tools/editor/nvchad/install.sh
+  source "$ROOT_DIR/karnel/tools/editor/nvchad/install.sh"
+
+  if install_nvchad; then return 1; fi
+  uninstall_nvchad
+  [[ "$(<"$HOME/.config/nvim/init.lua")" == 'user config' ]]
+  [[ "$(<"$HOME/.local/share/nvim/user-data")" == 'user data' ]]
+  [[ ! -e "$HOME/.local/state/nvim" && ! -e "$KARNEL_DATA/nvchad-termux" ]]
+)
+
 assert_font_uninstall_preserves_custom_font
 assert_kiro_install_rejects_unusable_binary
 assert_code_server_install_preserves_configuration
@@ -249,4 +301,6 @@ assert_omp_native_update_preserves_existing_install_on_download_failure
 assert_codegraph_update_preserves_existing_payload_on_download_failure
 assert_ui_and_editor_status_are_karnel_owned
 assert_ui_uninstall_preserves_malformed_blocks
-printf 'Installer data-safety contracts: 10 passed\n'
+assert_hermes_uninstall_preserves_user_home
+assert_nvchad_preserves_unowned_paths
+printf 'Installer data-safety contracts: 12 passed\n'

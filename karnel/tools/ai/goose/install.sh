@@ -3,10 +3,13 @@
 import "@/utils/log"
 import "@/utils/colors"
 import "@/utils/version"
+import "@/utils/install"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 GOOSE_DATA_DIR="$HOME/.local/share/karnel-data/goose"
 GOOSE_BIN_PATH="$PREFIX/bin/goose"
+GOOSE_MARKER="$GOOSE_DATA_DIR/.karnel-managed"
+GOOSE_BIN_MARKER="$GOOSE_DATA_DIR/.karnel-binary"
 
 _get_latest_goose_version() {
   local raw
@@ -41,7 +44,7 @@ _goose_download_binary_impl() {
   case "$arch" in
     aarch64|arm64) arch_suffix="aarch64-unknown-linux-musl" ;;
     x86_64) arch_suffix="x86_64-unknown-linux-musl" ;;
-    *) arch_suffix="aarch64-unknown-linux-musl" ;;
+    *) log_error "Unsupported Goose architecture: $arch"; return 1 ;;
   esac
 
   local tarball="goose-${arch_suffix}.tar.gz"
@@ -51,19 +54,24 @@ _goose_download_binary_impl() {
   mkdir -p "$(dirname "$GOOSE_DATA_DIR")" "$(dirname "$GOOSE_BIN_PATH")"
   staging_dir=$(mktemp -d "$(dirname "$GOOSE_DATA_DIR")/.goose.XXXXXX") || return 1
 
+  if { [ -e "$GOOSE_DATA_DIR" ] || [ -e "$GOOSE_BIN_PATH" ]; } &&
+    { [ ! -f "$GOOSE_MARKER" ] || ! managed_file_matches "$GOOSE_BIN_PATH" "$GOOSE_BIN_MARKER"; }; then
+    rm -rf "$staging_dir"
+    log_error "Refusing to replace a Goose installation not owned by Karnel"
+    return 1
+  fi
+
   if ! curl -fsSL "$download_url" -o "$staging_dir/$tarball" &>>"$LOG_FILE"; then
     rm -rf "$staging_dir"
     log_error "Failed to download Goose CLI"
     return 1
   fi
 
-  if ! tar -xzf "$staging_dir/$tarball" -C "$staging_dir" &>>"$LOG_FILE"; then
-    log_error "Failed to extract Goose CLI"
+  if ! verify_github_release_asset aaif-goose/goose "v${latest_version}" "$tarball" "$staging_dir/$tarball" ||
+    ! extract_tarball "$staging_dir/$tarball" "$staging_dir"; then
     rm -rf "$staging_dir"
     return 1
   fi
-
-  rm -f "$staging_dir/$tarball"
 
   goose_bin=$(find "$staging_dir" -name "goose" -type f 2>/dev/null | head -1)
   if [ -z "$goose_bin" ]; then
@@ -74,6 +82,7 @@ _goose_download_binary_impl() {
 
   cp "$goose_bin" "$staging_dir/.goose-bin" || { rm -rf "$staging_dir"; return 1; }
   chmod +x "$staging_dir/.goose-bin"
+  printf '%s\n' 'karnel-managed-v1' >"$staging_dir/.karnel-managed"
 
   if [ ! -x "$staging_dir/.goose-bin" ]; then
     rm -rf "$staging_dir"
@@ -94,6 +103,7 @@ _goose_download_binary_impl() {
     return 1
   fi
   rm -rf "$old_data" "$old_bin"
+  record_managed_file "$GOOSE_BIN_PATH" "$GOOSE_BIN_MARKER" || return 1
 
   return 0
 }
@@ -102,6 +112,10 @@ install_goose() {
   if command -v goose &>/dev/null; then
     log_info "Goose CLI is already installed"
     return 2
+  fi
+  if [ -e "$GOOSE_BIN_PATH" ]; then
+    log_error "Refusing to replace an existing Goose binary not owned by Karnel"
+    return 1
   fi
 
   _goose_download_binary || return 1
@@ -123,7 +137,11 @@ uninstall_goose() {
     return 2
   fi
 
-  rm -f "$PREFIX/bin/goose"
+  if [ ! -f "$GOOSE_MARKER" ] || ! managed_file_matches "$GOOSE_BIN_PATH" "$GOOSE_BIN_MARKER"; then
+    log_error "Refusing to remove a Goose installation not owned by Karnel"
+    return 1
+  fi
+  rm -f "$GOOSE_BIN_PATH"
   rm -rf "$GOOSE_DATA_DIR"
 
   log_success "Goose CLI uninstalled"
@@ -142,6 +160,9 @@ _update_goose_impl() {
 }
 
 reinstall_goose() {
-  uninstall_goose
-  install_goose
+  if command -v goose &>/dev/null; then
+    _goose_download_binary_impl force
+  else
+    install_goose
+  fi
 }

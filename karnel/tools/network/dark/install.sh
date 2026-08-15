@@ -5,7 +5,7 @@ import "@/utils/version"
 import "@/utils/downloaded-python"
 
 LOG_FILE="$KARNEL_CACHE/install_network.log"
-DOWNLOAD_URL="https://raw.githubusercontent.com/dedsec1121fk/DedSec/main/Scripts/Network%20Tools/Dark.py"
+DOWNLOAD_URL="https://raw.githubusercontent.com/dedsec1121fk/DedSec/87d69293f4b89b8ab114fa644074629e86313182/Scripts/Network%20Tools/Dark.py"
 
 install_dark() {
   local TOOL_DIR="$KARNEL_DATA/network/dark"

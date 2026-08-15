@@ -1,5 +1,9 @@
 # shellcheck shell=bash
 
+import "@/utils/tools"
+import "@/utils/install"
+declare -f _run_tool_lifecycle_action &>/dev/null || source "$(dirname "${BASH_SOURCE[0]}")/../../utils/tools.sh"
+
 SECURITY_TOOLS=(
   "nmap"
   "hydra"
@@ -36,6 +40,8 @@ SECURITY_TOOLS=(
 for _tool in "${SECURITY_TOOLS[@]}"; do
   source "$(dirname "${BASH_SOURCE[0]}")/$_tool/install.sh"
 done
+unset _tool
+_register_safe_reinstall_handlers security "${SECURITY_TOOLS[@]}"
 
 _batch_security() {
   local action="$1"
@@ -46,11 +52,11 @@ _batch_security() {
   local count=0
   local skipped=0
   local failed=0
-  local func_name
+  local rc
   for tool in "${SECURITY_TOOLS[@]}"; do
-    func_name="${action}_${tool//-/_}"
-    loading "${action_past^}ing ${tool}" "$func_name"
-    case $? in
+    loading "${action_past^}ing ${tool}" _run_tool_lifecycle_action security "$action" "$tool"
+    rc=$?
+    case $rc in
       0) ((count += 1));;
       2) ((skipped += 1));;
       *) ((failed += 1));;

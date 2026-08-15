@@ -1,6 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
 UBUNTU_ROOTFS="__UBUNTU_ROOTFS__"
+QODER_DIR="__QODER_DIR__"
 
 EXCLUDE_REGEX="^(PATH|LD_PRELOAD|LD_LIBRARY_PATH|PREFIX|HOME|PWD|OLDPWD|SHELL|IFS|_|SHLVL|PROMPT_COMMAND|TERMCAP|LS_COLORS|TERM)="
 
@@ -22,7 +23,7 @@ proot-distro login \
 	"${ENV_ARGS[@]}" \
 	--termux-home \
 	--shared-tmp \
-	--bind "$UBUNTU_ROOTFS/root/.qodercli:/root/.qodercli" \
+	--bind "$QODER_DIR:/root/.local/share/karnel/qoder" \
 	--work-dir $PWD \
 	ubuntu \
-	-- /root/.qodercli/qodercli "$@"
+	-- /root/.local/share/karnel/qoder/qodercli "$@"

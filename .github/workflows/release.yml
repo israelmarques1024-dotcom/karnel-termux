@@ -15,6 +15,10 @@ permissions:
   contents: write
   id-token: write
 
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -24,6 +28,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           ref: ${{ inputs.tag || github.ref }}
+          fetch-depth: 0
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
@@ -34,35 +39,93 @@ jobs:
         run: |
           version=$(node -p "require('./package.json').version")
           test "$RELEASE_TAG" = "v$version"
+          test "$(git rev-list -n 1 "$RELEASE_TAG")" = "$(git rev-parse HEAD)"
           env_version=$(KARNEL_PATH="$PWD/karnel" bash -c 'source karnel/utils/env.sh; printf "%s" "$KARNEL_VERSION"')
           test "$env_version" = "$version"
+      - name: Bind package to release commit
+        run: git rev-parse HEAD > karnel/RELEASE_COMMIT
       - name: Validate release
         run: npm run ci
       - name: Build package artifact
-        run: npm pack --ignore-scripts
+        run: npm pack --ignore-scripts --json > package-report.json
       - name: Build installer assets
         run: |
           cp install.sh karnel-termux-install.sh
+          commit=$(cat karnel/RELEASE_COMMIT)
+          sed -i "s|^RELEASE_COMMIT=.*|RELEASE_COMMIT=\"$commit\"|" karnel-termux-install.sh
           sha256sum karnel-termux-install.sh > karnel-termux-install.sh.sha256
-      - name: Create GitHub release
+      - name: Validate existing publications
+        id: publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(node -p 'require("./package.json").version')
+          local_integrity=$(node -p 'require("./package-report.json")[0].integrity')
+          if remote_integrity=$(npm view "karnel-termux@$version" dist.integrity 2>&1); then
+            test -n "$remote_integrity"
+            if [[ "$remote_integrity" != "$local_integrity" ]]; then
+              echo "npm package integrity differs from the release artifact" >&2
+              exit 1
+            fi
+            echo "npm_exists=true" >> "$GITHUB_OUTPUT"
+          elif [[ "$remote_integrity" == *"E404"* ]]; then
+            echo "npm_exists=false" >> "$GITHUB_OUTPUT"
+          else
+            printf '%s\n' "$remote_integrity" >&2
+            exit 1
+          fi
+
+          artifact="karnel-termux-$version.tgz"
+          files=("$artifact" "karnel-termux-install.sh" "karnel-termux-install.sh.sha256")
+          release_draft=$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" \
+            --jq ".[] | select(.tag_name == \"$RELEASE_TAG\") | .draft")
+          if [[ "$release_draft" == "true" || "$release_draft" == "false" ]]; then
+            echo "github_exists=true" >> "$GITHUB_OUTPUT"
+            echo "github_draft=$release_draft" >> "$GITHUB_OUTPUT"
+            mkdir existing-assets
+            mapfile -t asset_names < <(gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name')
+            for file in "${files[@]}"; do
+              if printf '%s\n' "${asset_names[@]}" | grep -Fxq "$file"; then
+                gh release download "$RELEASE_TAG" --pattern "$file" --dir existing-assets
+                if ! cmp --silent "$file" "existing-assets/$file"; then
+                  echo "GitHub release asset differs: $file" >&2
+                  exit 1
+                fi
+              fi
+            done
+          elif [[ -z "$release_draft" ]]; then
+            echo "github_exists=false" >> "$GITHUB_OUTPUT"
+            echo "github_draft=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "multiple GitHub releases use tag $RELEASE_TAG" >&2
+            exit 1
+          fi
+      - name: Prepare GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           version=$(node -p 'require("./package.json").version')
           artifact="karnel-termux-$version.tgz"
           files=("$artifact" "karnel-termux-install.sh" "karnel-termux-install.sh.sha256")
-          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            gh release upload "$RELEASE_TAG" "${files[@]}" --clobber
+          if [[ "${{ steps.publication.outputs.github_exists }}" == "true" ]]; then
+            mapfile -t asset_names < <(gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name')
+            for file in "${files[@]}"; do
+              if ! printf '%s\n' "${asset_names[@]}" | grep -Fxq "$file"; then
+                gh release upload "$RELEASE_TAG" "$file"
+              fi
+            done
           else
-            gh release create "$RELEASE_TAG" --generate-notes "${files[@]}"
+            gh release create "$RELEASE_TAG" --draft --generate-notes "${files[@]}"
           fi
       - name: Publish npm package
+        if: steps.publication.outputs.npm_exists != 'true'
         run: |
           version=$(node -p 'require("./package.json").version')
-          if npm view "karnel-termux@$version" version >/dev/null 2>&1; then
-            echo "karnel-termux@$version is already published"
-          else
-            npm publish "karnel-termux-$version.tgz" --access public --provenance
-          fi
+          npm publish "karnel-termux-$version.tgz" --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish GitHub release
+        if: steps.publication.outputs.github_exists != 'true' || steps.publication.outputs.github_draft == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release edit "$RELEASE_TAG" --draft=false

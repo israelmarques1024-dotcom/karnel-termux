@@ -31,7 +31,8 @@ _install_typescript_npm_impl() {
 
 install_typescript() {
   if command -v tsc &>/dev/null; then
-    return 0
+    log_info "TypeScript is already installed"
+    return 2
   fi
   log_info "Installing TypeScript..."
 
