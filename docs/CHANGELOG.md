@@ -1,5 +1,13 @@
 # Documentation Changelog
 
+## 4.15.1 - 2026-08-15
+
+- Fixed the plugin registry pin: `PLUGIN_REGISTRY_COMMIT` now points to
+  `f19d3cd` (registry commit that pins reviewed plugin sources to commits/
+  tags instead of moving `main`), with the matching registry checksum
+  `ea82bf2f...`. Plugin updates previously failed with a "Checksum mismatch"
+  whenever a plugin repository advanced ahead of the stale registry snapshot.
+
 ## 4.15.0 - 2026-08-14
 
 - Replaced the unavailable GGA fork with the official Gentleman Guardian

@@ -1,8 +1,8 @@
 # shellcheck shell=bash
 
 PLUGINS_DIR="${KARNEL_DATA}/plugins"
-PLUGIN_REGISTRY_COMMIT="561780eb76b10ddac161fe5eeec6e5a4dd0db2f2"
-PLUGIN_REGISTRY_SHA256="a2fdad6519b5e6b979a7e6df21250bd348012df90c6cf79ccd946d1568edb40c"
+PLUGIN_REGISTRY_COMMIT="f19d3cdd87c67f0a8fa052565ab23c74aea4b27b"
+PLUGIN_REGISTRY_SHA256="ea82bf2f9182b5967c0ba9769882a92d8d1aa9ec430fbbbf0dcb21591907b620"
 PLUGIN_REGISTRY_URL="https://raw.githubusercontent.com/israelmarques1024-dotcom/karnel-plugins/${PLUGIN_REGISTRY_COMMIT}/registry.json"
 PLUGIN_DISPATCH_FOUND=0
 PLUGIN_SEMVER_RE='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(\.(0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*))?(\+([0-9A-Za-z-]+)(\.[0-9A-Za-z-]+)*)?$'
