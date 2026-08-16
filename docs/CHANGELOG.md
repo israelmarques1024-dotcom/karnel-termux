@@ -13,6 +13,10 @@
   date-prefixed basename. A shared `_brain_find_memory` helper now resolves the
   bare slug (falls back to `*_<slug>.md`) so the documented short form works.
 - Removed a duplicated `glow` rendering block in `karnel brain show`.
+- `karnel brain search` (and related memory search in `ask`/`save` suggestions and
+  `delete` relation clean-up) now falls back to `grep -r` when `ripgrep` is not
+  installed, instead of failing with "ripgrep not found". Environments without
+  `rg` (fresh minimal containers, CI runners) can now search memories.
 
 - Fixed the plugin registry pin: `PLUGIN_REGISTRY_COMMIT` now points to
   `f19d3cd` (registry commit that pins reviewed plugin sources to commits/
