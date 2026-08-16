@@ -54,6 +54,19 @@ _brain_title() {
 	fi
 }
 
+_brain_find_memory() {
+	local slug="$1"
+	if [[ -z "$slug" ]]; then
+		return 1
+	fi
+	local f
+	f=$(find "$BRAIN_DIR" -name "${slug}.md" 2>/dev/null | head -1)
+	if [[ -z "$f" ]]; then
+		f=$(find "$BRAIN_DIR" -name "*_${slug}.md" 2>/dev/null | head -1)
+	fi
+	[[ -n "$f" ]] && echo "$f"
+}
+
 _brain_slug_escape() {
 	printf '%s\n' "$1" | sed 's/[\/&]/\\&/g; s/\n/\\n/g'
 }
@@ -199,6 +212,7 @@ brain_help() {
 	echo
 	printf "    ${D_CYAN}%-12s${NC} %s\n" "init" "Initialize brain directory and GitHub repo"
 	printf "    ${D_CYAN}%-12s${NC} %s\n" "save" "Save a new memory interactively"
+	printf "    ${D_CYAN}%-12s${NC} %s\n" "add" "Quick non-interactive save"
 	printf "    ${D_CYAN}%-12s${NC} %s\n" "search" "Search memories by keywords or tags"
 	printf "    ${D_CYAN}%-12s${NC} %s\n" "ls" "List memories by category"
 	printf "    ${D_CYAN}%-12s${NC} %s\n" "edit" "Edit a memory in your \$EDITOR"
@@ -214,6 +228,7 @@ brain_help() {
 	echo
 	printf "    ${D_CYAN}karnel brain init${NC}              # Create local brain\n"
 	printf "    ${D_CYAN}karnel brain save${NC}              # Interactive save\n"
+	printf "    ${D_CYAN}karnel brain add TEXT${NC}          # Quick non-interactive save\n"
 	printf "    ${D_CYAN}karnel brain search react${NC}      # Search all memories\n"
 	printf "    ${D_CYAN}karnel brain ls${NC}                # List all categories\n"
 	printf "    ${D_CYAN}karnel brain ls react${NC}          # List react category\n"
@@ -445,6 +460,86 @@ brain_save() {
 	echo
 }
 
+# ── Add (non-interactive) ───────────────────────────────────
+
+brain_add() {
+	_brain_ensure || return 1
+
+	if [[ $# -lt 1 ]]; then
+		log_error "Usage: karnel brain add \"your text\" [--title T] [--category C] [--tags a,b]"
+		return 1
+	fi
+
+	local title="" category="" tags_input=""
+	local -a content_parts=()
+	while [[ $# -gt 0 ]]; do
+		case "$1" in
+		--title | -t)
+			title="$2"
+			shift 2
+			;;
+		--category | -c)
+			category="$2"
+			shift 2
+			;;
+		--tags)
+			tags_input="$2"
+			shift 2
+			;;
+		--)
+			shift
+			content_parts+=("$*")
+			break
+			;;
+		*)
+			content_parts+=("$1")
+			shift
+			;;
+		esac
+	done
+
+	local text
+	text=$(echo "${content_parts[*]}" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
+	if [[ -z "$text" ]]; then
+		log_error "Memory text cannot be empty"
+		return 1
+	fi
+
+	if [[ -z "$title" ]]; then
+		title=$(echo "$text" | head -1 | cut -c1-60)
+	fi
+	if [[ -z "$title" ]]; then
+		title="memory-$(date +%Y%m%d-%H%M%S)"
+	fi
+
+	if [[ -z "$category" ]]; then
+		category="general"
+	fi
+	category=$(_brain_slug "$category")
+
+	local tags_formatted=""
+	if [[ -n "$tags_input" ]]; then
+		tags_formatted=$(echo "$tags_input" | sed 's/, */, /g' | sed 's/^, \|, $//g')
+	fi
+
+	local slug date_prefix
+	slug=$(_brain_slug "$title")
+	date_prefix=$(date +%Y-%m-%d)
+
+	mkdir -p "$BRAIN_DIR/$category"
+	local filepath="$BRAIN_DIR/$category/${date_prefix}_${slug}.md"
+
+	{
+		_brain_frontmatter "$title" "$tags_formatted" "$category" ""
+		echo
+		echo "$text"
+	} >"$filepath"
+
+	echo
+	log_success "Memory saved to ${D_CYAN}$category/${date_prefix}_${slug}.md${D_NC}"
+	echo
+}
+
 # ── Search ──────────────────────────────────────────────────
 
 brain_search() {
@@ -632,8 +727,8 @@ brain_relate() {
 		file_b=$(_brain_pick_file "Second memory (# or name)")
 		[[ -z "$file_b" ]] && return 0
 	else
-		file_a=$(find "$BRAIN_DIR" -name "${slug_a}.md" 2>/dev/null | head -1)
-		file_b=$(find "$BRAIN_DIR" -name "${slug_b}.md" 2>/dev/null | head -1)
+		file_a=$(_brain_find_memory "$slug_a")
+		file_b=$(_brain_find_memory "$slug_b")
 
 		if [[ -z "$file_a" ]]; then
 			log_error "Memory not found: $slug_a"
@@ -687,7 +782,7 @@ brain_show() {
 	local file=""
 
 	if [[ -n "$slug" ]]; then
-		file=$(find "$BRAIN_DIR" -name "${slug}.md" 2>/dev/null | head -1)
+		file=$(_brain_find_memory "$slug")
 		if [[ -z "$file" ]]; then
 			log_error "Memory not found: $slug"
 			return 1
@@ -1077,7 +1172,7 @@ brain_edit() {
 	local file=""
 
 	if [[ -n "$slug" ]]; then
-		file=$(find "$BRAIN_DIR" -name "${slug}.md" 2>/dev/null | head -1)
+		file=$(_brain_find_memory "$slug")
 		if [[ -z "$file" ]]; then
 			log_error "Memory not found: $slug"
 			return 1
@@ -1132,7 +1227,7 @@ brain_delete() {
 	local file=""
 
 	if [[ -n "$slug" ]]; then
-		file=$(find "$BRAIN_DIR" -name "${slug}.md" 2>/dev/null | head -1)
+		file=$(_brain_find_memory "$slug")
 		if [[ -z "$file" ]]; then
 			log_error "Memory not found: $slug"
 			return 1
@@ -1528,6 +1623,9 @@ brain_main() {
 		;;
 	save)
 		brain_save
+		;;
+	add)
+		brain_add "$@"
 		;;
 	search)
 		brain_search "$@"
