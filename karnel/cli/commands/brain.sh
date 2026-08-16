@@ -67,6 +67,53 @@ _brain_find_memory() {
 	[[ -n "$f" ]] && echo "$f"
 }
 
+_brain_rg() {
+	local -a flags=()
+	local list=0
+	local pattern=""
+	while [[ $# -gt 0 ]]; do
+		case "$1" in
+		-i)
+			flags+=(-i)
+			shift
+			;;
+		-l)
+			list=1
+			shift
+			;;
+		--glob | --no-heading)
+			shift
+			;;
+		-e)
+			pattern="$2"
+			shift 2
+			;;
+		*)
+			pattern="$1"
+			shift
+			;;
+		esac
+	done
+
+	if [[ -z "$pattern" ]]; then
+		return 1
+	fi
+
+	if command -v rg &>/dev/null; then
+		if ((list)); then
+			rg "${flags[@]}" -l --glob '*.md' "$pattern" "$BRAIN_DIR" 2>/dev/null
+		else
+			rg "${flags[@]}" -n --no-heading --glob '*.md' "$pattern" "$BRAIN_DIR" 2>/dev/null
+		fi
+	else
+		if ((list)); then
+			grep -r -E "${flags[@]}" -l --include='*.md' "$pattern" "$BRAIN_DIR" 2>/dev/null
+		else
+			grep -r -E -n "${flags[@]}" --include='*.md' "$pattern" "$BRAIN_DIR" 2>/dev/null
+		fi
+	fi
+}
+
 _brain_slug_escape() {
 	printf '%s\n' "$1" | sed 's/[\/&]/\\&/g; s/\n/\\n/g'
 }
@@ -396,7 +443,7 @@ brain_save() {
 					done
 					$already || related_slugs+=("$match_slug")
 				fi
-			done < <(rg -l -i "tags:.*$tag" "$BRAIN_DIR" 2>/dev/null || true)
+			done < <(_brain_rg -i "tags:.*$tag" || true)
 		done
 		IFS=$' \t\n'
 
@@ -558,15 +605,10 @@ brain_search() {
 	separator
 	echo
 
-	if ! command -v rg &>/dev/null; then
-		log_error "ripgrep not found — this shouldn't happen"
-		return 1
-	fi
-
 	local -a results=()
 	while IFS=':' read -r file line content; do
 		results+=("$file|$line|$content")
-	done < <(rg -n -i "$query" "$BRAIN_DIR" --glob '*.md' --no-heading 2>/dev/null || true)
+	done < <(_brain_rg -i "$query" || true)
 
 	if [[ ${#results[@]} -eq 0 ]]; then
 		log_warn "No results for: $query"
@@ -1258,7 +1300,7 @@ brain_delete() {
 	file_slug=$(basename "$file" .md)
 	while IFS= read -r rfile; do
 		_brain_remove_related "$rfile" "$file_slug"
-	done < <(rg -l "$file_slug" "$BRAIN_DIR" --glob '*.md' 2>/dev/null || true)
+	done < <(_brain_rg "$file_slug" || true)
 
 	if [[ "$file" != "$BRAIN_DIR"/* ]]; then
 		log_error "Refusing to delete file outside brain directory"
@@ -1499,7 +1541,7 @@ EOF
 		if [[ -n "$f" ]]; then
 			matching_files+=("$f")
 		fi
-	done < <(rg -i -l "$clean_query" "$BRAIN_DIR" --glob '*.md' 2>/dev/null | head -n 5 || true)
+	done < <(_brain_rg -i "$clean_query" | head -n 5 || true)
 
 	if [[ ${#matching_files[@]} -eq 0 ]]; then
 		local -a words=($clean_query)
@@ -1518,7 +1560,7 @@ EOF
 				if [[ -n "$f" ]]; then
 					matching_files+=("$f")
 				fi
-			done < <(rg -i -l -e "$word_regex" "$BRAIN_DIR" --glob '*.md' 2>/dev/null | head -n 5 || true)
+			done < <(_brain_rg -i -e "$word_regex" | head -n 5 || true)
 		fi
 	fi
 
