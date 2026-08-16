@@ -8,6 +8,7 @@ bash tests/check-syntax.sh
 bash tests/smoke.sh
 bash tests/core-cli.sh
 bash tests/backup-restore.sh
+bash tests/brain.sh
 bash tests/ai-registry.sh
 bash tests/completion-catalog.sh
 bash tests/lifecycle-orchestration.sh

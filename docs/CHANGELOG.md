@@ -1,6 +1,22 @@
 # Documentation Changelog
 
-## 4.15.1 - 2026-08-15
+## 4.15.2 - 2026-08-16
+
+- Implemented the previously missing `karnel brain add "text"` subcommand.
+  `karnel brain save` (interactive) told non-interactive users to use
+  `karnel brain add` when a terminal was unavailable, but the subcommand did
+  not exist and fell through to "Unknown subcommand". `add` now saves a memory
+  non-interactively with optional `--title`, `--category` and `--tags`.
+- Fixed memory slug lookup in `karnel brain show/relate/edit/delete`. The help
+  documents `karnel brain show slug-name`, but stored memories use
+  `YYYY-MM-DD_<slug>.md` filenames and lookups required the exact, full,
+  date-prefixed basename. A shared `_brain_find_memory` helper now resolves the
+  bare slug (falls back to `*_<slug>.md`) so the documented short form works.
+- Removed a duplicated `glow` rendering block in `karnel brain show`.
+- `karnel brain search` (and related memory search in `ask`/`save` suggestions and
+  `delete` relation clean-up) now falls back to `grep -r` when `ripgrep` is not
+  installed, instead of failing with "ripgrep not found". Environments without
+  `rg` (fresh minimal containers, CI runners) can now search memories.
 
 - Fixed the plugin registry pin: `PLUGIN_REGISTRY_COMMIT` now points to
   `f19d3cd` (registry commit that pins reviewed plugin sources to commits/
