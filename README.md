@@ -25,6 +25,9 @@
   <a href="https://karneltermux.vercel.app">
     <img src="https://img.shields.io/badge/Site-karneltermux.vercel.app-0078D4?style=for-the-badge" alt="Website">
   </a>
+  <a href="https://www.youtube.com/@capideb">
+    <img src="https://img.shields.io/badge/YouTube-Capi.deb-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="YouTube — Capi.deb">
+  </a>
 </p>
 
 ---
@@ -625,8 +628,8 @@ contents. The official documentation site validates its catalog contracts,
 TypeScript, formatting, tests, and production build.
 
 These checks do not install every external tool or prove behavior on every Android
-device. Before relying on a new installer, test it in native Termux aarch64 with a
-disposable environment and verify network, storage, PRoot, and Termux:API behavior
+device. Before relying on a new installer, test it in native Termux aarch64 with
+a disposable environment and verify network, storage, PRoot, and Termux:API behavior
 for your device.
 
 ---
@@ -648,5 +651,8 @@ MIT © Israel Marques
 <p align="center">
   <a href="https://karneltermux.vercel.app">
     <img src="https://img.shields.io/badge/Full%20Documentation-0078D4?style=for-the-badge" alt="Documentation">
+  </a>
+  <a href="https://www.youtube.com/@capideb">
+    <img src="https://img.shields.io/badge/YouTube-Capi.deb-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="YouTube — Capi.deb">
   </a>
 </p>
