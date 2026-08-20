@@ -1,5 +1,24 @@
 # Documentation Changelog
 
+## 4.16.0 - 2026-08-20
+
+- Rebranded fully to Karnel: removed every remaining reference to DevCoreX and
+  core-termux across contributors, CLI `open` targets, completions, docs and
+  agent utilities.
+- `nvchad` editor tool now installs the official upstream `NvChad/starter`
+  (pinned to a reviewed commit) instead of a third-party fork.
+- Added the `karnel agent` subsystem (agent.sh, agent_actions.sh, agent_llm.sh,
+  agent_markdown.sh) with voice, markdown and LLM helper utilities.
+- Hardened AI installers: cursor-cli (atomic staging download + ownership
+  markers), walkie, codegraph (correct Termux shebang), engram, gentle-ai,
+  command-code, ctx7, openspec, freebuff, hermes-agent, mistral-vibe, openclaw
+  and hugging-face (pinned dependency).
+- Supply-chain tests now accept non-executable asset modes (644/660/664) so the
+  suite passes on Android shared storage, and the package checker handles the
+  npm >= 12 object-shaped pack report.
+- AI registry count updated to 45 verified tools; all 26 isolated test suites
+  pass.
+
 ## 4.15.2 - 2026-08-16
 
 - Implemented the previously missing `karnel brain add "text"` subcommand.
