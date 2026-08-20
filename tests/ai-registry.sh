@@ -42,7 +42,7 @@ for installer in "$ROOT_DIR"/karnel/tools/ai/*/install.sh; do
   }
 done
 
-[[ ${#AI_TOOLS_REGISTRY[@]} -eq 43 ]]
+[[ ${#AI_TOOLS_REGISTRY[@]} -eq 45 ]]
 [[ -n "${registered[cactus]+registered}" ]]
 [[ -n "${registered[hugging-face]+registered}" ]]
 verified_count=${#AI_TOOLS_REGISTRY[@]}

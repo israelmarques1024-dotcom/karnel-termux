@@ -17,7 +17,7 @@ _mistral_vibe_dependencies_impl() {
     ["rust"]="rust"
     ["libffi"]=""
     ["openssl"]=""
-    ["pkg-config"]=""
+    ["pkg-config"]="pkg-config"
     ["git"]="git"
     ["ripgrep"]="rg"
   )
@@ -26,6 +26,9 @@ _mistral_vibe_dependencies_impl() {
   for pkg_name in "${!DEPS[@]}"; do
     bin_name="${DEPS[$pkg_name]}"
     if [[ -n "$bin_name" ]] && command -v "$bin_name" &>/dev/null; then
+      continue
+    fi
+    if [[ -z "$bin_name" ]] && dpkg -s "$pkg_name" &>/dev/null; then
       continue
     fi
     if ! pkg install "$pkg_name" -y &>>"$LOG_FILE"; then

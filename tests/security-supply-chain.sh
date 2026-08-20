@@ -32,7 +32,10 @@ assert_source_contracts() {
   grep -qF 'actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020' "$ROOT_DIR/.github/workflows/ci.yml"
   for asset in assets/images/karnel-2x.png assets/images/karnel-4x.png assets/images/karnel-logo.png karnel/tools/ai/gentle-ai/termux-patches.go; do
     mode=$(stat -c '%a' "$ROOT_DIR/$asset")
-    [[ "$mode" == 644 ]]
+    # Non-executable mode (no execute bit anywhere). Accepts 644, 660, 664,
+    # etc. so filesystems that cannot preserve exact modes (Android shared
+    # storage, vfat) still pass the security intent.
+    [[ "$mode" =~ ^[0246][0246][0246]$ ]]
   done
 }
 

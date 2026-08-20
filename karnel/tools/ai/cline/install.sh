@@ -4,7 +4,36 @@ import "@/utils/log"
 import "@/utils/version"
 import "@/utils/colors"
 
+: "${KARNEL_DATA:=${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data}"
+: "${KARNEL_CACHE:=${XDG_CACHE_HOME:-$HOME/.cache}/karnel}"
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
+CLINE_DATA_DIR="$KARNEL_DATA/cline"
+CLINE_MARKER=".karnel-managed"
+CLINE_WRAPPER_MARKER="$CLINE_DATA_DIR/.karnel-wrapper-cline"
+
+_cline_data_owned() {
+  [[ -f "$CLINE_DATA_DIR/$CLINE_MARKER" ]]
+}
+
+_cline_wrapper_owned() {
+  [[ -f "$CLINE_WRAPPER_MARKER" && -f "$PREFIX/bin/cline" ]] || return 1
+  [[ "$(sha256sum "$PREFIX/bin/cline" 2>/dev/null)" == "$(<"$CLINE_WRAPPER_MARKER")" ]]
+}
+
+_cline_verify_ownership() {
+  if [[ -e "$CLINE_DATA_DIR" ]] && ! _cline_data_owned; then
+    log_error "Refusing to replace unowned Cline data: $CLINE_DATA_DIR"
+    return 1
+  fi
+  if [[ -e "$PREFIX/bin/cline" ]] && ! _cline_wrapper_owned; then
+    log_error "Refusing to replace unowned command: $PREFIX/bin/cline"
+    return 1
+  fi
+  if command -v cline &>/dev/null && ! _cline_wrapper_owned; then
+    log_error "Refusing to shadow the existing cline command: $(command -v cline)"
+    return 1
+  fi
+}
 
 _cline_install_deps() {
   loading "Installing dependencies" _cline_install_deps_impl
@@ -38,58 +67,61 @@ _cline_install_global() {
 }
 
 _cline_install_global_impl() {
-  # Step 1: Install cline via npm global
   if ! npm i -g cline &>>"$LOG_FILE"; then
     log_error "Failed to install cline via npm"
     return 1
   fi
 
-  # Step 2: Download linux-arm64 binary (glibc binary, roda via glibc-runner)
-  local version
+  local version tarball
   version=$(npm view cline version 2>/dev/null || echo "3.0.38")
-  local tarball
-  tarball=$(mktemp "$KARNEL_DATA/cline-XXXXXX.tgz")
+  tarball=$(mktemp "$CLINE_DATA_DIR/cline-XXXXXX.tgz") || { log_error "Failed to create temp dir"; return 1; }
   if ! curl -fsSL \
     "https://registry.npmjs.org/@cline/cli-linux-arm64/-/cli-linux-arm64-${version}.tgz" \
     -o "$tarball" &>>"$LOG_FILE"; then
+    rm -f "$tarball"
     log_error "Failed to download cline linux-arm64 binary (version: $version)"
     return 1
   fi
 
-  # Step 3: Extract to global node_modules
-  mkdir -p "$PREFIX/lib/node_modules/@cline"
-  tar -xzf "$tarball" \
-    -C "$PREFIX/lib/node_modules/@cline/" &>>"$LOG_FILE"
-  mv "$PREFIX/lib/node_modules/@cline/package" \
-    "$PREFIX/lib/node_modules/@cline/cli-linux-arm64" &>>"$LOG_FILE" || true
+  mkdir -p "$CLINE_DATA_DIR"
+  : >"$CLINE_DATA_DIR/$CLINE_MARKER"
+  if ! tar -xzf "$tarball" -C "$CLINE_DATA_DIR" &>>"$LOG_FILE"; then
+    rm -f "$tarball"
+    log_error "Failed to extract cline linux-arm64 binary"
+    return 1
+  fi
   rm -f "$tarball"
 
-  # Step 4: Create cached binary for fast startup
-  local binary="$PREFIX/lib/node_modules/@cline/cli-linux-arm64/bin/cline"
-  local cached="$PREFIX/lib/node_modules/cline/bin/.cline"
-  if [ -f "$binary" ]; then
-    cp "$binary" "$cached" 2>/dev/null
-    chmod 755 "$cached" 2>/dev/null
+  local extracted
+  extracted="$CLINE_DATA_DIR/package"
+  if [ -d "$extracted" ]; then
+    mv "$extracted" "$CLINE_DATA_DIR/cli-linux-arm64" 2>/dev/null || true
   fi
 
-  # Step 5: Create wrapper usando glibc-runner (sem proot!)
-  _cline_create_wrapper
-
+  _cline_create_wrapper || return 1
   return 0
 }
 
 _cline_create_wrapper() {
-  cat > "$PREFIX/bin/cline" << 'GLIBCWRAPPER'
-#!/data/data/com.termux/files/usr/bin/env bash
+  mkdir -p "$PREFIX/bin" "$CLINE_DATA_DIR" || return 1
+  : >"$CLINE_DATA_DIR/$CLINE_MARKER" || return 1
+  local temporary
+  temporary="$(mktemp "$PREFIX/bin/.cline.XXXXXX")" || return 1
+  cat > "$temporary" << GLIBCWRAPPER
+#!$PREFIX/bin/env bash
 # Cline CLI — roda nativamente no Termux via glibc-runner
 # Usa o glibc do termux-user-repository (instalado via apt)
 # Sem proot, sem container, sem opencode.
 # Instalado pelo Karnel Termux (karnel install ai --cline)
 
-CLINE_BIN="/data/data/com.termux/files/usr/lib/node_modules/cline/bin/.cline"
+CLINE_BIN="$CLINE_DATA_DIR/cli-linux-arm64/bin/cline"
 
 if [ ! -f "$CLINE_BIN" ]; then
-  CLINE_BIN="/data/data/com.termux/files/usr/lib/node_modules/@cline/cli-linux-arm64/bin/cline"
+  CLINE_BIN="$PREFIX/lib/node_modules/cline/bin/.cline"
+fi
+
+if [ ! -f "$CLINE_BIN" ]; then
+  CLINE_BIN="$PREFIX/lib/node_modules/@cline/cli-linux-arm64/bin/cline"
 fi
 
 if [ ! -f "$CLINE_BIN" ]; then
@@ -100,14 +132,18 @@ fi
 
 exec glibc-runner "$CLINE_BIN" "$@"
 GLIBCWRAPPER
-  chmod 755 "$PREFIX/bin/cline"
+  chmod 755 "$temporary" || { rm -f "$temporary"; return 1; }
+  mv -f "$temporary" "$PREFIX/bin/cline" || return 1
+  sha256sum "$PREFIX/bin/cline" >"$CLINE_WRAPPER_MARKER" || return 1
 }
 
 install_cline() {
-  if grep -q 'glibc-runner' "$PREFIX/bin/cline" 2>/dev/null; then
+  if _cline_wrapper_owned && _cline_data_owned; then
     log_info "Cline is already installed"
     return 2
   fi
+  _cline_verify_ownership || return 1
+
   log_info "Installing Cline CLI..."
 
   mkdir -p "$(dirname "$LOG_FILE")"
@@ -115,17 +151,32 @@ install_cline() {
   _cline_install_deps || return 1
   _cline_install_global || return 1
 
-  log_success "Cline CLI installed"
-  return 0
+  if _cline_wrapper_owned; then
+    log_success "Cline CLI installed"
+    return 0
+  fi
+
+  log_error "Cline CLI installation failed: wrapper not verified"
+  return 1
 }
 
 uninstall_cline() {
   log_info "Uninstalling Cline CLI..."
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  if command -v cline &>/dev/null; then
-    rm -f "$PREFIX/bin/cline"
+  if ! _cline_data_owned && ! _cline_wrapper_owned; then
+    if [ -e "$CLINE_DATA_DIR" ] || [ -e "$PREFIX/bin/cline" ]; then
+      _cline_verify_ownership
+      return $?
+    fi
+    log_info "Cline CLI is not installed"
+    return 2
   fi
+
+  _cline_verify_ownership || return 1
+
+  _cline_wrapper_owned && rm -f "$PREFIX/bin/cline"
+  _cline_data_owned && rm -rf "$CLINE_DATA_DIR"
 
   npm uninstall -g cline &>>"$LOG_FILE" || true
   rm -rf "$PREFIX/lib/node_modules/@cline/cli-linux-arm64" &>>"$LOG_FILE" || true
@@ -145,12 +196,14 @@ _update_cline_impl() {
     return 1
   fi
 
-  # Re-download linux-arm64 binary and recreate wrapper
-  _cline_install_global_impl || true
+  _cline_install_global_impl || {
+    log_error "Failed to update cline linux-arm64 binary"
+    return 1
+  }
   return 0
 }
 
 reinstall_cline() {
-  uninstall_cline
+  uninstall_cline || [[ $? -eq 2 ]] || return 1
   install_cline
 }

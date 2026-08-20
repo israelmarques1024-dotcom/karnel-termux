@@ -27,7 +27,7 @@ assert_keelcode_lifecycle() (
   export KARNEL_CACHE="$TEST_ROOT/cache"
   export KARNEL_DATA="$TEST_ROOT/data"
   mkdir -p "$KARNEL_CACHE" "$TEST_ROOT/prefix/bin"
-  export PATH="$TEST_ROOT/prefix/bin"
+  export PATH="$TEST_ROOT/prefix/bin:$PATH"
   import() { :; }
   log_info() { :; }
   log_success() { :; }
@@ -36,7 +36,7 @@ assert_keelcode_lifecycle() (
   rm() { "$SYSTEM_RM" "$@"; }
   npm() {
     case "$1" in
-    install) printf '#!/usr/bin/env bash\nexit 0\n' >"$TEST_ROOT/prefix/bin/keelcode"; "$SYSTEM_CHMOD" +x "$TEST_ROOT/prefix/bin/keelcode" ;;
+    install) printf '#!/usr/bin/env bash\n# Karnel KeelCode Termux wrapper\nexit 0\n' >"$TEST_ROOT/prefix/bin/keelcode"; "$SYSTEM_CHMOD" +x "$TEST_ROOT/prefix/bin/keelcode" ;;
     uninstall) "$SYSTEM_RM" -f "$TEST_ROOT/prefix/bin/keelcode" ;;
     update) : ;;
     esac

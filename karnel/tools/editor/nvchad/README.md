@@ -5,13 +5,13 @@ Modern Neovim configuration with preconfigured plugins
 **Package:** nvchad (configuration)  
 **Author:** israel  
 **Repository:** https://github.com/israelmarques1024-dotcom/karnel-termux
-**Official:** https://github.com/DevCoreXOfficial/nvchad-termux
+**Official:** https://github.com/NvChad/starter
 **Type:** Code editor configuration (git clone)  
 **License:** MIT
 
 ## Description
 
-NvChad is a modern Neovim configuration that provides a complete IDE-like experience out of the box. The Karnel-Termux version includes GitHub Copilot, CodeCompanion AI, preconfigured LSP support, syntax highlighting, file explorer, and much more.
+NvChad is a modern Neovim configuration that provides a complete IDE-like experience out of the box. This installer sets up the official NvChad starter configuration with preconfigured LSP support, syntax highlighting, file explorer, and much more.
 
 ## Dependencies
 
@@ -39,6 +39,6 @@ karnel update editor --nvchad
 ## Notes
 
 - Installs to `~/.config/nvim/`
-- Includes GitHub Copilot and CodeCompanion
+- Based on the official NvChad starter template
 - Preconfigured for TypeScript, JavaScript, Python, PHP, Perl, Rust, Lua
-- For detailed information: https://github.com/DevCoreXOfficial/nvchad-termux
+- For detailed information: https://github.com/NvChad/NvChad

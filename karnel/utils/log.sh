@@ -529,3 +529,9 @@ badge() {
   local color="${2:-D_CYAN}"
   echo -e "${!color}[ $text ]${NC}"
 }
+
+# ===== TIP =====
+
+log_tip() {
+	echo -e "    ${PURPLE}💡${D_PURPLE} $*${D_NC}"
+}

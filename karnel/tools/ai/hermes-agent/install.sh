@@ -53,6 +53,15 @@ _prebuild_c_exts() {
   done
 }
 
+_hermes_relax_python_requirement() {
+  local pyproject="$HERMES_DIR/pyproject.toml"
+  if ! grep -q '^requires-python' "$pyproject"; then
+    return 0
+  fi
+  sed -i -E 's/^requires-python\s*=.*/requires-python = ">=3.11,<3.15"/' "$pyproject"
+  return 0
+}
+
 _install_hermes_agent_impl() {
   local legacy_dir="$HERMES_HOME/hermes-agent" legacy_wrapper=0
   _hermes_legacy_wrapper && legacy_wrapper=1
@@ -77,7 +86,7 @@ _install_hermes_agent_impl() {
 
   install_pinned_git_repo "$HERMES_REPO" "$HERMES_COMMIT" "$HERMES_DIR" || return 1
 
-  sed -i 's/requires-python = ">=3\.11,<3\.14"/requires-python = ">=3.11,<3.15"/' "$HERMES_DIR/pyproject.toml" || return 1
+  _hermes_relax_python_requirement || return 1
   [[ -x "$HERMES_VENV/bin/python" ]] || python3 -m venv "$HERMES_VENV" || return 1
   _patch_psutil_for_termux || return 1
   _prebuild_c_exts || return 1
@@ -148,7 +157,7 @@ update_hermes_agent() {
 _update_hermes_agent_impl() {
   _hermes_owned || { log_error "Hermes Agent is not installed by Karnel"; return 1; }
   install_pinned_git_repo "$HERMES_REPO" "$HERMES_COMMIT" "$HERMES_DIR" || return 1
-  sed -i 's/requires-python = ">=3\.11,<3\.14"/requires-python = ">=3.11,<3.15"/' "$HERMES_DIR/pyproject.toml" || return 1
+  _hermes_relax_python_requirement || return 1
   "$HERMES_VENV/bin/python" -m pip install --no-build-isolation "$HERMES_DIR"
 }
 

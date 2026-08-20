@@ -38,7 +38,10 @@ _install_openclaw_npm_impl() {
   export GYP_DEFINES="android_ndk_path=''"
   export ANDROID_API_LEVEL=24
 
-  npm install -g @larksuiteoapi/node-sdk nostr-tools @slack/web-api @whiskeysockets/baileys &>>"$LOG_FILE"
+  npm install -g @larksuiteoapi/node-sdk nostr-tools @slack/web-api @whiskeysockets/baileys &>>"$LOG_FILE" || {
+    log_error "Failed to install OpenClaw dependencies"
+    return 1
+  }
 
   if ! npm install -g openclaw@latest &>>"$LOG_FILE"; then
     log_error "Failed to install OpenClaw"

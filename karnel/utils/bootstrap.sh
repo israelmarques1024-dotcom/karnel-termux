@@ -13,10 +13,11 @@ declare -A __KARNEL_IMPORTED
 import() {
 	local base="${KARNEL_PATH}"
 	local resolved="${1/@/$base}.sh"
-	local canonical
+	local canonical base_canonical
 	canonical="$(realpath "$resolved" 2>/dev/null || readlink -f "$resolved" 2>/dev/null || echo "$resolved")"
+	base_canonical="$(realpath "$base" 2>/dev/null || readlink -f "$base" 2>/dev/null || echo "$base")"
 
-	if [[ "$canonical" != "$base"/* ]]; then
+	if [[ "$canonical" != "$base_canonical"/* ]]; then
 		echo "karnel: import error: path traversal denied: $1" >&2
 		return 1
 	fi

@@ -210,6 +210,8 @@ _list_ai() {
   table_row "Goose CLI" "--goose" "goose" "$(_check_cmd "goose")"
   table_row "Factory Droid" "--droid" "droid" "$(_check_cmd "droid")"
   table_row "Cactus" "--cactus" "cactus" "$(_check_cmd "cactus")"
+  table_row "Cactus Needle" "--cactus-needle" "needle" "$(_check_cmd "needle")"
+  table_row "Walkie" "--walkie" "walkie" "$(_check_cmd "walkie")"
   table_row "Hugging Face" "--hugging-face" "hf" "$(_check_cmd "hf")"
   table_row "Copilot-Termux" "--copilot-termux" "copilot" "$(_check_cmd "copilot")"
   table_row "Supercode CLI" "--supercode-cli" "supercode" "$(_check_cmd "supercode")"

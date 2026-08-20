@@ -99,15 +99,33 @@ _download_kilocode_binary_impl() {
 
   mkdir -p "$(dirname "$KILOCODE_DATA_DIR")" || return 1
 
+  local arch
+  arch=$(uname -m)
+  local kilo_arch=""
+  case "$arch" in
+    aarch64|arm64) kilo_arch="arm64" ;;
+    x86_64) kilo_arch="amd64" ;;
+    *) log_error "Unsupported Kilo Code architecture: $arch"; return 1 ;;
+  esac
+
   local staging_dir
   staging_dir="$(mktemp -d "$(dirname "$KILOCODE_DATA_DIR")/.kilocode.XXXXXX")" || return 1
 
-  local tarball="kilo-linux-arm64.tar.gz"
+  local tarball="kilo-linux-${kilo_arch}.tar.gz"
   local download_url="https://github.com/Kilo-Org/kilocode/releases/download/$latest_version/$tarball"
 
   if ! curl -fsSL "$download_url" -o "$staging_dir/$tarball" &>>"$LOG_FILE"; then
     rm -rf "$staging_dir"
     log_error "Failed to download Kilo Code CLI binary"
+    return 1
+  fi
+
+  local expected actual
+  expected=$(github_release_asset_sha256 Kilo-Org/kilocode "$latest_version" "$tarball") || expected=""
+  actual=$(sha256sum "$staging_dir/$tarball" 2>/dev/null | awk '{print $1}')
+  if [[ ! "$expected" =~ ^[0-9a-f]{64}$ || "$actual" != "$expected" ]]; then
+    rm -rf "$staging_dir"
+    log_error "Kilo Code archive failed official SHA-256 validation"
     return 1
   fi
 

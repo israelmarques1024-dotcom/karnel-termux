@@ -5,15 +5,19 @@ import "@/utils/install"
 import "@/utils/version"
 import "@/utils/colors"
 
+: "${KARNEL_DATA:=${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data}"
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
-ODYSSEUS_DATA_DIR="$HOME/.local/share/karnel-data/odysseus"
+ODYSSEUS_DATA_DIR="$KARNEL_DATA/odysseus"
 ODYSSEUS_REPO="https://github.com/pewdiepie-archdaemon/odysseus.git"
 ODYSSEUS_COMMIT="f9235ebbf13f693a6fd29ce70b097f6ec83705bf"
+ODYSSEUS_WRAPPER="$PREFIX/bin/odysseus"
+ODYSSEUS_CLI_LOG_FILE="$LOG_FILE"
+ODYSSEUS_NATIVE_PYTHON="$PREFIX/glibc/bin/python"
 
 _odysseus_wrapper_owned() {
   local marker="$ODYSSEUS_DATA_DIR/.karnel-wrapper-odysseus"
-  [[ -f "$marker" && -f "$PREFIX/bin/odysseus" ]] || return 1
-  [[ "$(sha256sum "$PREFIX/bin/odysseus" 2>/dev/null)" == "$(<"$marker")" ]]
+  [[ -f "$marker" && -f "$ODYSSEUS_WRAPPER" ]] || return 1
+  [[ "$(sha256sum "$ODYSSEUS_WRAPPER" 2>/dev/null)" == "$(<"$marker")" ]]
 }
 
 _odysseus_data_owned() {
@@ -45,13 +49,17 @@ _odysseus_prepare_repo() {
 }
 
 _odysseus_verify_ownership() {
-  local ubuntu_root="$1" repo_dir
+  local ubuntu_root="${1:-}" repo_dir
   if [[ -e "$ODYSSEUS_DATA_DIR" ]] && ! _odysseus_data_owned; then
     log_error "Refusing to replace unowned Odysseus data: $ODYSSEUS_DATA_DIR"
     return 1
   fi
-  if [[ -e "$PREFIX/bin/odysseus" ]] && ! _odysseus_wrapper_owned; then
-    log_error "Refusing to replace unowned command: $PREFIX/bin/odysseus"
+  if [[ -e "$ODYSSEUS_WRAPPER" ]] && ! _odysseus_wrapper_owned; then
+    log_error "Refusing to replace unowned command: $ODYSSEUS_WRAPPER"
+    return 1
+  fi
+  if command -v odysseus &>/dev/null && ! _odysseus_wrapper_owned; then
+    log_error "Refusing to shadow the existing odysseus command: $(command -v odysseus)"
     return 1
   fi
   [[ -n "$ubuntu_root" ]] || return 0
@@ -62,6 +70,8 @@ _odysseus_verify_ownership() {
   fi
 }
 
+# ===== HOST DEPS (métodos sem proot-distro) =====
+
 _odysseus_dependencies() {
   loading "Installing dependencies" _odysseus_dependencies_impl
 }
@@ -70,7 +80,8 @@ _odysseus_dependencies_impl() {
   declare -A DEPS=(
     ["git"]="git"
     ["curl"]="curl"
-    ["proot-distro"]="proot-distro"
+    ["python"]="python"
+    ["python-glibc"]="python-glibc"
   )
 
   local pkg_name bin_name
@@ -101,17 +112,19 @@ _odysseus_detect_ubuntu_root() {
 }
 
 _odysseus_proot_ubuntu() {
-  proot-distro login \
-    --shared-tmp \
-    ubuntu \
-    -- "$@"
+  proot-distro login --shared-tmp ubuntu -- "$@"
 }
+
+# ===== INSTALL PRINCIPAL (proot-distro) =====
 
 _install_odysseus_impl() {
   mkdir -p "$(dirname "$LOG_FILE")"
 
   if ! command -v proot-distro &>/dev/null; then
-    pkg install proot-distro -y &>>"$LOG_FILE"
+    if ! pkg install proot-distro -y &>>"$LOG_FILE"; then
+      log_error "Failed to install proot-distro"
+      return 1
+    fi
   fi
 
   local ubuntu_root
@@ -136,7 +149,7 @@ _install_odysseus_impl() {
     export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     export DEBIAN_FRONTEND=noninteractive
 
-    apt-get update -qq && apt-get upgrade -y -qq && apt-get install -y -qq curl git python3-pip
+    apt-get update -qq && apt-get install -y -qq curl git python3-pip python3-venv
 
     python3 -m pip install --break-system-packages \
       fastapi uvicorn python-multipart python-dotenv httpx pydantic pydantic-settings \
@@ -161,18 +174,19 @@ _install_odysseus_impl() {
     return 1
   fi
 
-  local wrapper_path="$PREFIX/bin/odysseus"
+  local wrapper_path="$ODYSSEUS_WRAPPER"
   mkdir -p "$PREFIX/bin" "$ODYSSEUS_DATA_DIR" || return 1
   local temporary
   temporary="$(mktemp "$PREFIX/bin/.odysseus.XXXXXX")" || return 1
   cat > "$temporary" << WRAPPER
 #!$PREFIX/bin/bash
-exec proot-distro login --shared-tmp ubuntu -- bash -c 'cd /root/odysseus && exec python3 app.py "\$@"' bash "\$@"
+exec proot-distro login --shared-tmp ubuntu -- /bin/bash -c 'cd /root/odysseus && exec python3 app.py "\$@"' odysseus "\$@"
 WRAPPER
   chmod +x "$temporary"
   mv -f "$temporary" "$wrapper_path" || return 1
   sha256sum "$wrapper_path" >"$ODYSSEUS_DATA_DIR/.karnel-wrapper-odysseus" || return 1
   : >"$ODYSSEUS_DATA_DIR/.karnel-managed"
+  printf 'proot' >"$ODYSSEUS_DATA_DIR/.install-method"
 
   log_success "Odysseus installed (proot-distro)"
   echo
@@ -180,70 +194,184 @@ WRAPPER
   log_info "Web UI at: ${D_CYAN}http://localhost:7000${NC}"
 }
 
-_install_odysseus_native() {
-  mkdir -p "$(dirname "$LOG_FILE")"
+# ===== INSTALL NATIVO (python-glibc do Termux) =====
 
-  local ubuntu_root
-  ubuntu_root="$(_odysseus_detect_ubuntu_root)"
-  _odysseus_verify_ownership "$ubuntu_root" || return 1
-  _odysseus_prepare_repo "$ubuntu_root" || return 1
+_odysseus_native_glibc_run() {
+  glibc-runner -s "$ODYSSEUS_NATIVE_PYTHON" "$@"
+}
 
-  if ! command -v glibc-repo &>/dev/null && ! command -v glibc &>/dev/null; then
-    pkg install glibc-repo glibc clang curl git tar -y &>>"$LOG_FILE" || true
+_odysseus_install_deps_native_impl() {
+  if [[ ! -f $PREFIX/etc/apt/sources.list.d/glibc.list ]]; then
+    if ! yes | pkg install glibc-repo &>>"$LOG_FILE"; then
+      log_error "Failed to install glibc-repo"
+      return 1
+    fi
+  fi
+  if [[ ! -f $PREFIX/glibc/lib/libc.so.6 ]]; then
+    if ! yes | pkg install glibc &>>"$LOG_FILE"; then
+      log_error "Failed to install glibc"
+      return 1
+    fi
+  fi
+  if [[ ! -f $ODYSSEUS_NATIVE_PYTHON ]]; then
+    if ! yes | pkg install python-glibc &>>"$LOG_FILE"; then
+      log_error "Failed to install python-glibc"
+      return 1
+    fi
+  fi
+  if [[ ! -f $PREFIX/glibc/bin/pip ]]; then
+    if ! yes | pkg install python-pip-glibc &>>"$LOG_FILE"; then
+      log_error "Failed to install python-pip-glibc"
+      return 1
+    fi
+  fi
+  return 0
+}
+
+_odysseus_install_deps_native() {
+  loading "Installing glibc and Python dependencies" _odysseus_install_deps_native_impl
+}
+
+_odysseus_native_repo_dir() {
+  printf '%s/odysseus\n' "$ODYSSEUS_DATA_DIR"
+}
+
+_odysseus_install_pip_native_impl() {
+  local install_args=""
+  if [ "${1:-install}" = "update" ]; then
+    install_args="--upgrade"
   fi
 
-  if ! _odysseus_proot_ubuntu /bin/bash -c '
-    export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-    export DEBIAN_FRONTEND=noninteractive
-
-    cd /root/odysseus
-    if [ -f requirements.txt ]; then
-      python3 -m pip install --break-system-packages -r requirements.txt 2>&1
+  local req_file="$(_odysseus_native_repo_dir)/requirements.txt"
+  if [ -f "$req_file" ]; then
+    if ! _odysseus_native_glibc_run -m pip install $install_args -r "$req_file" &>>"$LOG_FILE"; then
+      log_error "Failed to install Odysseus Python dependencies (glibc)"
+      return 1
     fi
-  ' &>>"$LOG_FILE"; then
-    log_error "Failed to install Odysseus repository"
+  fi
+
+  local core_deps=(fastapi uvicorn python-multipart python-dotenv httpx pydantic pydantic-settings mcp bcrypt sqlalchemy aiosqlite jinja2 aiofiles python-dateutil pyotp qrcode croniter pypdf beautifulsoup4 charset-normalizer numpy chromadb-client fastembed youtube-transcript-api markdown nh3 icalendar caldav pytest pytest-asyncio)
+  if ! _odysseus_native_glibc_run -m pip install $install_args "${core_deps[@]}" &>>"$LOG_FILE"; then
+    log_error "Failed to install Odysseus core dependencies (glibc)"
     return 1
   fi
+  return 0
+}
 
+_odysseus_install_pip_native() {
+  log_info "This installs the Odysseus Python app and its dependencies into the glibc Python environment"
+  loading "Installing Odysseus (pip)" _odysseus_install_pip_native_impl "$@"
+}
+
+_odysseus_verify_native_impl() {
+  if ! { printf 'import fastapi, uvicorn\n' | timeout 300 glibc-runner -s "$ODYSSEUS_NATIVE_PYTHON" -; } &>>"$LOG_FILE"; then
+    log_error "Odysseus native install failed validation — your glibc setup cannot run it; use the proot-distro method"
+    rm -f "$ODYSSEUS_WRAPPER"
+    return 1
+  fi
+  return 0
+}
+
+_odysseus_verify_native() {
+  loading "Verifying Odysseus (glibc)" _odysseus_verify_native_impl
+}
+
+_odysseus_create_native_wrapper_impl() {
+  local repo_dir="$(_odysseus_native_repo_dir)"
   mkdir -p "$PREFIX/bin" "$ODYSSEUS_DATA_DIR" || return 1
-  local wrapper_path="$PREFIX/bin/odysseus"
   local temporary
   temporary="$(mktemp "$PREFIX/bin/.odysseus.XXXXXX")" || return 1
   cat > "$temporary" << WRAPPER
 #!$PREFIX/bin/bash
-exec proot-distro login --shared-tmp ubuntu -- bash -c 'cd /root/odysseus && exec python3 app.py "\$@"' bash "\$@"
+# Karnel-managed Odysseus wrapper (glibc native)
+cd "$repo_dir" || exit 1
+exec glibc-runner -s "$ODYSSEUS_NATIVE_PYTHON" app.py "\$@"
 WRAPPER
   chmod +x "$temporary"
-  mv -f "$temporary" "$wrapper_path" || return 1
-  sha256sum "$wrapper_path" >"$ODYSSEUS_DATA_DIR/.karnel-wrapper-odysseus" || return 1
-  : >"$ODYSSEUS_DATA_DIR/.karnel-managed"
+  mv -f "$temporary" "$ODYSSEUS_WRAPPER" || return 1
+  sha256sum "$ODYSSEUS_WRAPPER" >"$ODYSSEUS_DATA_DIR/.karnel-wrapper-odysseus" || return 1
+  return 0
+}
 
-  log_success "Odysseus installed (native glibc)"
+_odysseus_create_native_wrapper() {
+  loading "Creating wrapper" _odysseus_create_native_wrapper_impl
+}
+
+_install_odysseus_native() {
+  mkdir -p "$(dirname "$LOG_FILE")"
+
+  local repo_dir="$(_odysseus_native_repo_dir)"
+  install_pinned_git_repo "$ODYSSEUS_REPO" "$ODYSSEUS_COMMIT" "$repo_dir" || return 1
+  : >"$repo_dir/.karnel-managed"
+
+  _odysseus_install_deps_native || return 1
+  _odysseus_install_pip_native || return 1
+  _odysseus_verify_native || return 1
+  _odysseus_create_native_wrapper || return 1
+
+  mkdir -p "$ODYSSEUS_DATA_DIR"
+  : >"$ODYSSEUS_DATA_DIR/.karnel-managed"
+  printf 'native' >"$ODYSSEUS_DATA_DIR/.install-method"
+  log_success "Odysseus installed natively (python-glibc)"
   echo
   log_info "Start with: ${D_CYAN}odysseus${NC}"
   log_info "Web UI at: ${D_CYAN}http://localhost:7000${NC}"
+  return 0
+}
+
+# ===== MAIN INSTALL =====
+
+_odysseus_install_method() {
+  if [ -f "$ODYSSEUS_DATA_DIR/.install-method" ]; then
+    cat "$ODYSSEUS_DATA_DIR/.install-method"
+  elif _odysseus_data_owned && _odysseus_wrapper_owned && [ -d "$(_odysseus_native_repo_dir)" ]; then
+    echo "native"
+  elif _odysseus_data_owned && _odysseus_wrapper_owned && [ -n "$(_odysseus_detect_ubuntu_root)" ]; then
+    echo "proot"
+  else
+    echo ""
+  fi
 }
 
 install_odysseus() {
-  local ubuntu_root
-  ubuntu_root="$(_odysseus_detect_ubuntu_root)"
-  if _odysseus_wrapper_owned && _odysseus_data_owned; then
-    log_info "Odysseus is already installed"
-    return 2
+  local method
+  method="$(_odysseus_install_method)"
+  if [ -n "$method" ]; then
+    _do_update_odysseus
+    return $?
   fi
 
+  local ubuntu_root
+  ubuntu_root="$(_odysseus_detect_ubuntu_root)"
   _odysseus_verify_ownership "$ubuntu_root" || return 1
 
-  log_info "Installing Odysseus..."
+  log_info "Select installation method for Odysseus:"
 
-  mkdir -p "$(dirname "$LOG_FILE")"
+  local SELECTED_METHOD
+  read_select "Installation method" SELECTED_METHOD \
+    "proot-distro (ubuntu container, recommended)" \
+    "glibc native (Termux python-glibc)"
 
-  _odysseus_dependencies || return 1
-
-  log_info "Installing via proot-distro Ubuntu (Docker not available on Termux)..."
-  _install_odysseus_impl
+  case "$SELECTED_METHOD" in
+  *proot-distro*)
+    _odysseus_dependencies || return 1
+    _install_odysseus_impl || return 1
+    ;;
+  *glibc*)
+    _install_odysseus_native || return 1
+    ;;
+  esac
 
   log_success "Odysseus installed successfully"
+  return 0
+}
+
+# ===== UNINSTALL =====
+
+_uninstall_odysseus_native_impl() {
+  _odysseus_native_glibc_run -m pip uninstall -y -r "$(_odysseus_native_repo_dir)/requirements.txt" &>>"$LOG_FILE" || true
+  rm -f "$ODYSSEUS_WRAPPER"
+  rm -rf "$ODYSSEUS_DATA_DIR"
   return 0
 }
 
@@ -251,7 +379,35 @@ uninstall_odysseus() {
   log_info "Uninstalling Odysseus..."
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  _odysseus_wrapper_owned && rm -f "$PREFIX/bin/odysseus"
+  local method
+  method="$(_odysseus_install_method)"
+  if [ -z "$method" ]; then
+    if [ ! -e "$ODYSSEUS_DATA_DIR" ] && [ ! -e "$ODYSSEUS_WRAPPER" ]; then
+      log_info "Odysseus is not installed"
+      return 2
+    fi
+    _odysseus_verify_ownership || return 1
+    _odysseus_wrapper_owned && rm -f "$ODYSSEUS_WRAPPER"
+    _odysseus_data_owned && rm -rf "$ODYSSEUS_DATA_DIR"
+    local ubuntu_root repo_dir
+    ubuntu_root="$(_odysseus_detect_ubuntu_root)"
+    if [[ -n "$ubuntu_root" ]]; then
+      repo_dir="$(_odysseus_repo_dir "$ubuntu_root")"
+      _odysseus_repo_owned "$repo_dir" && rm -rf "$repo_dir"
+    fi
+    log_success "Odysseus uninstalled"
+    return 0
+  fi
+
+  _odysseus_verify_ownership || return 1
+
+  if [ "$method" = "native" ]; then
+    loading "Uninstalling Odysseus (glibc native)" _uninstall_odysseus_native_impl
+    log_success "Odysseus uninstalled"
+    return 0
+  fi
+
+  _odysseus_wrapper_owned && rm -f "$ODYSSEUS_WRAPPER"
   _odysseus_data_owned && rm -rf "$ODYSSEUS_DATA_DIR"
 
   local ubuntu_root repo_dir
@@ -265,19 +421,55 @@ uninstall_odysseus() {
   return 0
 }
 
-update_odysseus() {
-  _do_update_odysseus
-}
+# ===== UPDATE =====
 
-_do_update_odysseus() {
+_update_odysseus_proot_impl() {
   local ubuntu_root
   ubuntu_root="$(_odysseus_detect_ubuntu_root)"
   _odysseus_verify_ownership "$ubuntu_root" || return 1
   if [[ -z "$ubuntu_root" ]] || ! _odysseus_prepare_repo "$ubuntu_root"; then
-    log_error "Failed to update Odysseus"
+    log_error "Failed to update Odysseus repository"
     return 1
   fi
+  if ! _odysseus_proot_ubuntu /bin/bash -c '
+    export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    export DEBIAN_FRONTEND=noninteractive
+    cd /root/odysseus
+    if [ -f requirements.txt ]; then
+      python3 -m pip install --break-system-packages -r requirements.txt 2>&1
+    fi
+  ' &>>"$LOG_FILE"; then
+    log_error "Failed to update Odysseus dependencies"
+    return 1
+  fi
+  log_success "Odysseus updated (proot-distro)"
+  return 0
 }
+
+_do_update_odysseus() {
+  local method
+  method="$(_odysseus_install_method)"
+  case "$method" in
+  native)
+    _odysseus_install_pip_native update || return 1
+    _odysseus_verify_native || return 1
+    log_success "Odysseus updated (glibc native)"
+    return 0
+    ;;
+  proot)
+    loading "Updating Odysseus (proot-distro)" _update_odysseus_proot_impl
+    return $?
+    ;;
+  esac
+  log_warn "Could not detect Odysseus installation method"
+  return 1
+}
+
+update_odysseus() {
+  _do_update_odysseus
+}
+
+# ===== REINSTALL =====
 
 reinstall_odysseus() {
   uninstall_odysseus

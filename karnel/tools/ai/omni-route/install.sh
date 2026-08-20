@@ -3,19 +3,32 @@
 import "@/utils/log"
 import "@/utils/version"
 
+: "${KARNEL_DATA:=${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data}"
+: "${KARNEL_CACHE:=${XDG_CACHE_HOME:-$HOME/.cache}/karnel}"
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
+OMNI_ROUTE_DATA_DIR="$KARNEL_DATA/omni-route"
+OMNI_ROUTE_PKG="$OMNI_ROUTE_DATA_DIR/packages/karnelroute"
+OMNI_ROUTE_MARKER=".karnel-managed"
+OMNI_ROUTE_LOCAL_BIN="$OMNI_ROUTE_PKG/node_modules/karnelroute/bin/karnelroute.mjs"
 
-# Check if omni-route binary exists and works
+_omni_route_data_owned() {
+  [[ -f "$OMNI_ROUTE_DATA_DIR/$OMNI_ROUTE_MARKER" ]]
+}
+
 _omni_route_ok() {
   command -v omni-route &>/dev/null && omni-route --version &>/dev/null 2>&1
 }
 
 _omni_route_wrapper_is_karnel_owned() {
   local wrapper="$1"
-  [[ -f "$wrapper" ]] && {
-    grep -qF '# Karnel-managed omniRoute wrapper' "$wrapper" ||
-      grep -qF 'exec node "$HOME/.karnel/packages/karnelroute/node_modules/karnelroute/bin/karnelroute.mjs" "$@"' "$wrapper"
-  }
+  [[ -f "$wrapper" ]] && grep -qF '# Karnel-managed omniRoute wrapper' "$wrapper"
+}
+
+_omni_route_verify_ownership() {
+  if [[ -e "$OMNI_ROUTE_DATA_DIR" ]] && ! _omni_route_data_owned; then
+    log_error "Refusing to replace unowned omniRoute data: $OMNI_ROUTE_DATA_DIR"
+    return 1
+  fi
 }
 
 _omni_route_install_wrapper() {
@@ -24,12 +37,16 @@ _omni_route_install_wrapper() {
     log_warn "Keeping existing $cmd command not managed by Karnel"
     return 1
   fi
-  cat > "$wrapper" <<'WRAPPER'
-#!/data/data/com.termux/files/usr/bin/env bash
+  mkdir -p "$PREFIX/bin" || return 1
+  local temporary
+  temporary="$(mktemp "$PREFIX/bin/.$cmd.XXXXXX")" || return 1
+  cat > "$temporary" <<WRAPPER
+#!$PREFIX/bin/env bash
 # Karnel-managed omniRoute wrapper
-exec node "$HOME/.karnel/packages/karnelroute/node_modules/karnelroute/bin/karnelroute.mjs" "$@"
+exec node "$OMNI_ROUTE_LOCAL_BIN" "\$@"
 WRAPPER
-  chmod +x "$wrapper"
+  chmod +x "$temporary" || { rm -f "$temporary"; return 1; }
+  mv -f "$temporary" "$wrapper" || return 1
 }
 
 _omni_route_remove_wrapper() {
@@ -49,18 +66,6 @@ _omni_route_is_android() {
 }
 
 # Apply platform-specific fixes so omniRoute actually runs on Termux/Android.
-# Two real, root-cause issues are addressed here (no workarounds/masking):
-#   1. omniRoute bundles better-sqlite3 / sqlite-vec as prebuilt linux-x64 glibc
-#      native addons. On Android/Bionic (aarch64) those fail to load
-#      (dlopen: cannot locate symbol), so the database can never open and every
-#      HTTP request returns 500. We rebuild the native addons from source for the
-#      running Node/ABI. node-gyp mis-detects Termux as Android and demands
-#      android_ndk_path, which does not exist; we supply a dummy value so the
-#      Android gyp config resolves while Termux's own clang does the compile.
-#   2. Next.js registerInstrumentation() re-throws any error from omniRoute's
-#      (non-critical) instrumentation hook and that crash takes down the whole
-#      server. We make it log-and-continue so a transient hook error does not
-#      kill the gateway (the real application DB is unaffected).
 _omni_route_apply_platform_fixes() {
   local pkg_root="$1"
   [ -d "$pkg_root" ] || return 0
@@ -84,7 +89,6 @@ _omni_route_apply_platform_fixes() {
     log_warn "Native toolchain (node-gyp/clang) not found; cannot rebuild omniRoute native modules"
   fi
 
-  # Patch Next.js instrumentation so a non-critical hook error does not crash the server.
   local ig
   ig=$(find "$pkg_root/node_modules/karnelroute/dist/node_modules/next" -path '*router-utils/instrumentation-globals.external.js' 2>/dev/null | head -1)
   if [ -n "$ig" ] && grep -q "An error occurred while loading instrumentation hook" "$ig"; then
@@ -96,39 +100,37 @@ _omni_route_apply_platform_fixes() {
   fi
 }
 
+_omni_route_wrap_and_fix() {
+  for cmd in karnelroute omni-route; do
+    _omni_route_install_wrapper "$cmd" || true
+  done
+  _omni_route_apply_platform_fixes "$OMNI_ROUTE_PKG"
+  mkdir -p "$OMNI_ROUTE_DATA_DIR"
+  : >"$OMNI_ROUTE_DATA_DIR/$OMNI_ROUTE_MARKER"
+}
+
 install_omni_route() {
-  # Already working? Still ensure platform fixes are present (e.g. after an
-  # update re-fetched a broken prebuild) and return.
   if _omni_route_ok; then
     log_info "omniRoute already installed ($(omni-route --version 2>&1 | tail -1))"
-    _omni_route_apply_platform_fixes "$HOME/.karnel/packages/karnelroute"
+    _omni_route_apply_platform_fixes "$OMNI_ROUTE_PKG"
     return 2
   fi
 
-  # Try local install first (fast, no download)
-  local local_bin="$HOME/.karnel/packages/karnelroute/node_modules/karnelroute/bin/karnelroute.mjs"
-  if [ -f "$local_bin" ]; then
-    sed -i '1s|^#!/usr/bin/env node|#!/data/data/com.termux/files/usr/bin/node|' "$local_bin" 2>/dev/null
-    # Create commands only when they are absent or were previously created by Karnel.
-    for cmd in karnelroute omni-route; do
-      _omni_route_install_wrapper "$cmd" || true
-    done
-    _omni_route_apply_platform_fixes "$HOME/.karnel/packages/karnelroute"
+  _omni_route_verify_ownership || return 1
+
+  if [ -f "$OMNI_ROUTE_LOCAL_BIN" ]; then
+    sed -i '1s|^#!/usr/bin/env node|#!'"$PREFIX"'/bin/node|' "$OMNI_ROUTE_LOCAL_BIN" 2>/dev/null
+    _omni_route_wrap_and_fix
     if _omni_route_ok; then
       log_success "omniRoute restored from local install"
       return 0
     fi
   fi
 
-  # Install into the local prefix (self-contained; works offline after first download)
   log_info "Installing omniRoute (this may take a while)..."
-  mkdir -p "$HOME/.karnel/packages/karnelroute"
-  if command -v npm >/dev/null 2>&1 && npm i karnelroute --prefix "$HOME/.karnel/packages/karnelroute" 2>>"$LOG_FILE"; then
-    sed -i '1s|^#!/usr/bin/env node|#!/data/data/com.termux/files/usr/bin/node|' "$local_bin" 2>/dev/null
-    for cmd in karnelroute omni-route; do
-      _omni_route_install_wrapper "$cmd" || true
-    done
-    _omni_route_apply_platform_fixes "$HOME/.karnel/packages/karnelroute"
+  if command -v npm >/dev/null 2>&1 && npm i karnelroute --prefix "$OMNI_ROUTE_PKG" 2>>"$LOG_FILE"; then
+    sed -i '1s|^#!/usr/bin/env node|#!'"$PREFIX"'/bin/node|' "$OMNI_ROUTE_LOCAL_BIN" 2>/dev/null
+    _omni_route_wrap_and_fix
     if _omni_route_ok; then
       log_success "omniRoute installed"
       return 0
@@ -140,21 +142,31 @@ install_omni_route() {
 }
 
 uninstall_omni_route() {
-  if [[ ! -e "$PREFIX/bin/omni-route" && ! -d "$HOME/.karnel/packages/karnelroute" ]]; then
+  if [[ ! -e "$PREFIX/bin/omni-route" && ! -e "$PREFIX/bin/karnelroute" && ! -e "$OMNI_ROUTE_DATA_DIR" ]]; then
     log_info "omniRoute is not installed"
-    return 0
+    return 2
   fi
 
+  _omni_route_verify_ownership || return 1
+
   log_info "Uninstalling omniRoute..."
-  rm -rf "$HOME/.karnel/packages/karnelroute"
+  if _omni_route_data_owned; then
+    rm -rf "$OMNI_ROUTE_DATA_DIR"
+  fi
   _omni_route_remove_wrapper karnelroute
   _omni_route_remove_wrapper omni-route
   log_success "omniRoute uninstalled"
   return 0
 }
 
+_omni_route_installed_version() {
+  local v
+  v=$(npm ls karnelroute --prefix "$OMNI_ROUTE_PKG" --depth=0 2>/dev/null | grep 'karnelroute@' | sed 's/.*@//')
+  echo "$v"
+}
+
 update_omni_route() {
-  _check_update_needed "omniRoute" "$(_get_installed_npm_version karnelroute)" "$(_get_remote_npm_version karnelroute)" _do_update_omni_route
+  _check_update_needed "omniRoute" "$(_omni_route_installed_version)" "$(_get_remote_npm_version karnelroute)" _do_update_omni_route
 }
 
 _do_update_omni_route() {
@@ -163,8 +175,9 @@ _do_update_omni_route() {
     return $?
   fi
 
-  if npm i karnelroute@latest --prefix "$HOME/.karnel/packages/karnelroute" 2>>"$LOG_FILE"; then
-    _omni_route_apply_platform_fixes "$HOME/.karnel/packages/karnelroute"
+  if npm i karnelroute@latest --prefix "$OMNI_ROUTE_PKG" 2>>"$LOG_FILE"; then
+    sed -i '1s|^#!/usr/bin/env node|#!'"$PREFIX"'/bin/node|' "$OMNI_ROUTE_LOCAL_BIN" 2>/dev/null
+    _omni_route_wrap_and_fix
     if _omni_route_ok; then
       return 0
     fi
@@ -177,6 +190,6 @@ _do_update_omni_route() {
 }
 
 reinstall_omni_route() {
-  uninstall_omni_route
+  uninstall_omni_route || [[ $? -eq 2 ]] || return 1
   install_omni_route
 }

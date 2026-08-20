@@ -80,13 +80,31 @@ _install_command_code_wrappers() {
   loading "Creating command-code and cmdc wrappers" _install_command_code_wrappers_impl
 }
 
+_command_code_installed_version() {
+  if [ -f "$COMMAND_CODE_DATA_DIR/node_modules/command-code/package.json" ]; then
+    grep '"version"' "$COMMAND_CODE_DATA_DIR/node_modules/command-code/package.json" | head -1 | sed -E 's/.*"version": "([^"]+)".*/\1/'
+  fi
+}
+
 _install_command_code_wrappers_impl() {
+  if [[ -e "$PREFIX/bin/command-code" ]] && ! _command_code_wrapper_owned; then
+    log_error "Refusing to replace unowned command: $PREFIX/bin/command-code"
+    return 1
+  fi
+  if [[ -e "$PREFIX/bin/cmdc" || -L "$PREFIX/bin/cmdc" ]] && ! _command_code_alias_owned; then
+    log_error "Refusing to replace unowned command: $PREFIX/bin/cmdc"
+    return 1
+  fi
+
   local wrapper_content='#!'"$PREFIX"'/bin/bash
 
 exec node '"$COMMAND_CODE_DATA_DIR"'/node_modules/command-code/dist/index.mjs "$@"'
 
-  echo "$wrapper_content" >"$PREFIX/bin/command-code"
-  chmod +x "$PREFIX/bin/command-code"
+  local temporary
+  temporary=$(mktemp "$PREFIX/bin/.command-code.XXXXXX") || return 1
+  printf '%s\n' "$wrapper_content" >"$temporary" || { rm -f "$temporary"; return 1; }
+  chmod +x "$temporary" || { rm -f "$temporary"; return 1; }
+  mv -f "$temporary" "$PREFIX/bin/command-code" || return 1
 
   ln -sf "$PREFIX/bin/command-code" "$PREFIX/bin/cmdc"
 	sha256sum "$PREFIX/bin/command-code" >"$COMMAND_CODE_DATA_DIR/.karnel-wrapper-command-code" || return 1
@@ -136,7 +154,7 @@ _uninstall_command_code_impl() {
 }
 
 update_command_code() {
-  _check_update_needed "Command Code" "$(_get_installed_npm_version command-code)" "$(_get_remote_npm_version command-code)" _update_command_code_impl
+  _check_update_needed "Command Code" "$(_command_code_installed_version)" "$(_get_remote_npm_version command-code)" _update_command_code_impl
 }
 
 _update_command_code_impl() {

@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 
-KILOCODE_DATA_DIR="$HOME/.local/share/karnel-data/kilocode"
+KILOCODE_DATA_DIR="${KARNEL_DATA:-${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data}/kilocode"
 
 unset LD_PRELOAD
 unset LD_LIBRARY_PATH
 
 export GODEBUG="netdns=cgo"
-export SSL_CERT_FILE="/data/data/com.termux/files/usr/etc/tls/cert.pem"
+export SSL_CERT_FILE="$PREFIX/etc/tls/cert.pem"
 
-LOADER="/data/data/com.termux/files/usr/glibc/lib/ld-linux-aarch64.so.1"
+LOADER="$PREFIX/glibc/lib/ld-linux-aarch64.so.1"
 REAL_BIN="$KILOCODE_DATA_DIR/kilo"
-LIB_PATH="/data/data/com.termux/files/usr/glibc/lib"
+LIB_PATH="$PREFIX/glibc/lib"
 
 if [ ! -f "$REAL_BIN" ]; then
   echo "Error: Kilo Code CLI binary not found at $REAL_BIN" >&2

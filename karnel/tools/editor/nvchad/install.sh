@@ -6,8 +6,8 @@ import "@/utils/uninstall"
 import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_editor.log"
-NVCHAD_REPO="https://github.com/DevCoreXOfficial/nvchad-termux.git"
-NVCHAD_COMMIT="374710cfb4514719f53f4efc5a772547dbfe71d2"
+NVCHAD_REPO="https://github.com/NvChad/starter.git"
+NVCHAD_COMMIT="e3572e1f5e1c297212c3deeb17b7863139ce663e"
 NVCHAD_DIR="$KARNEL_DATA/nvchad-termux"
 NVCHAD_MARKER=".karnel-nvchad"
 
@@ -87,7 +87,7 @@ _install_nvchad_impl() {
   config_staging=$(mktemp -d "$HOME/.config/.nvchad-config.XXXXXX") || { rm -rf "$source_staging"; return 1; }
 
   if ! install_pinned_git_repo "$NVCHAD_REPO" "$NVCHAD_COMMIT" "$source_staging/repo" ||
-    ! cp -R "$source_staging/repo/nvim/." "$config_staging/" &>>"$LOG_FILE"; then
+    ! cp -R "$source_staging/repo/." "$config_staging/" &>>"$LOG_FILE"; then
     rm -rf "$source_staging" "$config_staging"
     log_error "Failed to install NvChad"
     return 1

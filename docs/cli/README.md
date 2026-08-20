@@ -104,7 +104,6 @@ Performs `uninstall` followed by `install` for the selected module or tools.
 karnel update <module>            # Update all tools in a module
 karnel update <module> --tool1    # Update specific tools
 karnel update karnel              # Update the Karnel-Termux package only
-karnel update core                # Same as karnel update karnel
 ```
 
 `karnel update karnel` first downloads and runs the official installer with

@@ -45,8 +45,11 @@ try {
   rmSync(packDirectory, { recursive: true, force: true });
   throw error;
 }
-const reports = JSON.parse(output);
-if (!Array.isArray(reports) || reports.length !== 1) {
+const parsed = JSON.parse(output);
+// npm < 12 returns an array of reports; npm >= 12 returns an object keyed
+// by package name. Normalize both into a single-entry array.
+const reports = Array.isArray(parsed) ? parsed : Object.values(parsed);
+if (reports.length !== 1) {
   rmSync(packDirectory, { recursive: true, force: true });
   throw new Error("npm pack returned an unexpected report");
 }

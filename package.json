@@ -38,6 +38,9 @@
     "developer-tools"
   ],
   "author": "israel marques",
+  "contributors": [
+    "israel marques"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/israelmarques1024-dotcom/karnel-termux/issues"

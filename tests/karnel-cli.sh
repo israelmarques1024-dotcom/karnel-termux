@@ -76,6 +76,7 @@ log_warn() { printf '%s\n' "$*"; }
 log_info() { printf '%s\n' "$*"; }
 log_success() { printf '%s\n' "$*"; }
 separator() { :; }
+separator_section() { :; }
 box() { :; }
 list_item() { :; }
 read_input() { printf -v "$2" '%s' 'API_TOKEN'; }
@@ -99,7 +100,7 @@ assert_failure "unknown start target" start_main missing
 assert_failure "unknown list target" list_main missing
 assert_failure "mixed list target" list_main lang missing
 
-# Fallback option 9 dispatches the Karnel-specific update target.
+# Fallback option dispatches the Karnel-specific update target.
 tui_root="$TEST_ROOT/tui-root"
 mkdir -p "$tui_root/utils"
 printf '%s\n' 'render_banner() { :; }' > "$tui_root/utils/banner.sh"
@@ -109,7 +110,7 @@ source "$ROOT_DIR/karnel/cli/karnel.sh"
 clear() { :; }
 tui_dispatch=""
 karnel_main() { tui_dispatch+="${1:-} ${2:-}"; }
-karnel_fallback_tui <<< $'9\n\n11' >/dev/null
+karnel_fallback_tui <<< $'10\n\n12' >/dev/null
 [[ "$tui_dispatch" == "update karnel" ]] || fail "fallback TUI dispatched '$tui_dispatch'"
 ((pass += 1))
 
@@ -247,4 +248,4 @@ assert_failure "symlink XDG directory" env \
   KARNEL_PATH="$ROOT_DIR/karnel" \
   bash -c 'source "$KARNEL_PATH/utils/env.sh"'
 
-printf 'Core CLI contracts: %d passed\n' "$pass"
+printf 'Karnel CLI contracts: %d passed\n' "$pass"

@@ -34,7 +34,7 @@ install_openspec() {
 uninstall_openspec() {
   if ! command -v openspec &>/dev/null; then
     log_info "openspec is not installed"
-    return 0
+    return 2
   fi
 
   log_info "Uninstalling openspec..."

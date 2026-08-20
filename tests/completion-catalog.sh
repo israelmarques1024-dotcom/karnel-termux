@@ -53,8 +53,8 @@ zsh_modules=$(sed -n '/^_karnel_modules()/,/^}/s/^    '\''\([^:]*\):.*$/\1/p' "$
 assert_same_words "Bash modules" "$expected_modules" "$bash_modules"
 assert_same_words "Zsh modules" "$expected_modules" "$zsh_modules"
 grep -qF 'local install_targets="$modules supabase"' "$BASH_COMPLETION"
-grep -qF 'local update_targets="$modules supabase karnel core"' "$BASH_COMPLETION"
-grep -qF 'compadd -- supabase karnel core' "$ZSH_COMPLETION"
+grep -qF 'local update_targets="$modules supabase karnel"' "$BASH_COMPLETION"
+grep -qF 'compadd -- supabase karnel' "$ZSH_COMPLETION"
 
 ai_ids=$(awk '
   /^AI_TOOLS_REGISTRY=\(/ { registry = 1; next }

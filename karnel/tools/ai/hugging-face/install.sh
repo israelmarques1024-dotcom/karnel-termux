@@ -43,7 +43,7 @@ _hugging_face_install_packages() {
     'packaging>=20.9' 'pyyaml>=5.1' shellingham 'tqdm>=4.42.1' \
     typer-slim 'typing-extensions>=3.7.4.3' || return 1
   # hf-xet has no Android wheel and its Rust bootstrap rejects the Android target.
-  "$python" -m pip install --upgrade --no-deps 'huggingface_hub>=1,<2'
+  "$python" -m pip install --upgrade --no-deps 'huggingface_hub==1.28.0' || return 1
 }
 
 _hugging_face_write_wrapper() {

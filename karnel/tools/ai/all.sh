@@ -70,6 +70,8 @@ AI_TOOLS_REGISTRY=(
   "goose:Goose CLI:goose"
   "droid:Factory Droid:droid"
   "cactus:Cactus:cactus"
+  "cactus-needle:Cactus Needle:needle"
+  "walkie:Walkie Agent:walkie"
   "hugging-face:Hugging Face:hf"
 )
 

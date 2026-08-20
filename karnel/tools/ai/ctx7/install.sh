@@ -34,7 +34,7 @@ install_ctx7() {
 uninstall_ctx7() {
   if ! command -v ctx7 &>/dev/null; then
     log_info "ctx7 is not installed"
-    return 0
+    return 2
   fi
 
   log_info "Uninstalling ctx7..."

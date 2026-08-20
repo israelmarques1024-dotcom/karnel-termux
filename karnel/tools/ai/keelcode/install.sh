@@ -5,51 +5,117 @@ import "@/utils/version"
 
 KEELCODE_PACKAGE="@keelcode-ai/keelcode"
 : "${KARNEL_DATA:=${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data}"
+: "${KARNEL_CACHE:=${XDG_CACHE_HOME:-$HOME/.cache}/karnel}"
+LOG_FILE="$KARNEL_CACHE/install_ai.log"
 KEELCODE_DATA_DIR="$KARNEL_DATA/keelcode"
+KEELCODE_MARKER=".karnel-managed"
 KEELCODE_WRAPPER_MARKER="Karnel KeelCode Termux wrapper"
 
+_keelcode_data_owned() {
+  [[ -f "$KEELCODE_DATA_DIR/$KEELCODE_MARKER" ]]
+}
+
+_keelcode_wrapper_owned() {
+  [[ -f "$PREFIX/bin/keelcode" ]] || return 1
+  grep -qF "$KEELCODE_WRAPPER_MARKER" "$PREFIX/bin/keelcode" 2>/dev/null
+}
+
+_keelcode_verify_ownership() {
+  if [[ -e "$KEELCODE_DATA_DIR" ]] && ! _keelcode_data_owned; then
+    log_error "Refusing to replace unowned KeelCode data: $KEELCODE_DATA_DIR"
+    return 1
+  fi
+  if [[ -e "$PREFIX/bin/keelcode" ]] && ! _keelcode_wrapper_owned; then
+    log_error "Refusing to replace unowned command: $PREFIX/bin/keelcode"
+    return 1
+  fi
+  if command -v keelcode &>/dev/null && ! _keelcode_wrapper_owned; then
+    log_error "Refusing to shadow the existing keelcode command: $(command -v keelcode)"
+    return 1
+  fi
+}
+
+_keelcode_get_integrity() {
+  curl -fsSL "https://registry.npmjs.org/@keelcode-ai/keelcode/latest" 2>/dev/null |
+    python3 -c "import json,sys; print(json.load(sys.stdin).get('dist',{}).get('integrity',''))" 2>/dev/null
+}
+
 _keelcode_install_termux_wrapper() {
-  local version staging archive native_dir wrapper
+  local version staging archive native_dir wrapper expected actual
   version="$(npm view "$KEELCODE_PACKAGE" version 2>/dev/null)" || return 1
   [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || return 1
 
   command -v grun &>/dev/null || pkg install glibc-runner -y || return 1
-  mkdir -p "$KARNEL_DATA" "$PREFIX/bin"
+  mkdir -p "$KARNEL_DATA" "$PREFIX/bin" "$(dirname "$LOG_FILE")"
   staging="$(mktemp -d "$KARNEL_DATA/.keelcode.XXXXXX")" || return 1
   archive="$staging/keelcode.tgz"
 
   if ! curl --fail --silent --show-error --location \
     "https://registry.npmjs.org/@keelcode-ai/keelcode/-/keelcode-${version}-linux-arm64.tgz" \
-    -o "$archive" || ! tar -xzf "$archive" -C "$staging" ||
-    [[ ! -x "$staging/package/bin/keelcode" || ! -x "$staging/package/bin/rg" ]]; then
+    -o "$archive"; then
     rm -rf "$staging"
     log_error "Failed to download the official KeelCode linux-arm64 binary"
     return 1
   fi
 
+  expected=$(_keelcode_get_integrity)
+  if [ -n "$expected" ] && [ "$expected" != "sha512-" ]; then
+    actual=$(python3 -c 'import base64,hashlib,sys; print("sha512-" + base64.b64encode(hashlib.sha512(open(sys.argv[1], "rb").read()).digest()).decode())' "$archive" 2>/dev/null)
+    if [ -z "$actual" ] || [ "$actual" != "$expected" ]; then
+      rm -rf "$staging"
+      log_error "KeelCode package failed npm registry integrity validation"
+      return 1
+    fi
+  fi
+
+  if ! tar -xzf "$archive" -C "$staging" ||
+    [[ ! -x "$staging/package/bin/keelcode" || ! -x "$staging/package/bin/rg" ]]; then
+    rm -rf "$staging"
+    log_error "Failed to extract the official KeelCode linux-arm64 binary"
+    return 1
+  fi
+
   native_dir="$KEELCODE_DATA_DIR/native"
-  rm -rf "$native_dir"
+  local previous="$KEELCODE_DATA_DIR/native.previous.$$"
+  if [ -d "$native_dir" ]; then
+    mv "$native_dir" "$previous" 2>/dev/null || true
+  fi
   mkdir -p "$KEELCODE_DATA_DIR"
-  mv "$staging/package" "$native_dir" || { rm -rf "$staging"; return 1; }
+  mv "$staging/package" "$native_dir" || {
+    [ -d "$previous" ] && mv "$previous" "$native_dir" 2>/dev/null || true
+    rm -rf "$staging"
+    return 1
+  }
   rm -rf "$staging"
+  : >"$KEELCODE_DATA_DIR/$KEELCODE_MARKER"
 
   wrapper="$PREFIX/bin/keelcode"
-  rm -f "$wrapper"
-  cat >"$wrapper" <<EOF
+  local temporary
+  temporary="$(mktemp "$PREFIX/bin/.keelcode.XXXXXX")" || return 1
+  cat >"$temporary" <<EOF
 #!$PREFIX/bin/bash
 # $KEELCODE_WRAPPER_MARKER
 export KEELCODE_RG_PATH="$native_dir/bin/rg"
 exec grun "$native_dir/bin/keelcode" "\$@"
 EOF
-  chmod 755 "$wrapper"
-  "$wrapper" --version >/dev/null || return 1
+  chmod 755 "$temporary"
+  if ! "$temporary" --version >/dev/null 2>&1; then
+    rm -f "$temporary"
+    [ -d "$previous" ] && rm -rf "$native_dir" && mv "$previous" "$native_dir" 2>/dev/null || true
+    log_error "KeelCode binary failed validation after install"
+    return 1
+  fi
+  mv -f "$temporary" "$wrapper"
+  [ -d "$previous" ] && rm -rf "$previous"
+  return 0
 }
 
 install_keelcode() {
-  if command -v keelcode &>/dev/null && keelcode --version >/dev/null 2>&1; then
+  if command -v keelcode &>/dev/null && keelcode --version >/dev/null 2>&1 && _keelcode_wrapper_owned; then
     log_info "KeelCode is already installed"
     return 2
   fi
+  _keelcode_verify_ownership || return 1
 
   log_info "Installing KeelCode..."
   local output rc
@@ -70,23 +136,31 @@ install_keelcode() {
 }
 
 uninstall_keelcode() {
-  if ! command -v keelcode &>/dev/null; then
+  if ! _keelcode_data_owned && ! _keelcode_wrapper_owned; then
+    if [ -e "$KEELCODE_DATA_DIR" ] || [ -e "$PREFIX/bin/keelcode" ]; then
+      _keelcode_verify_ownership
+      return $?
+    fi
     log_info "KeelCode is not installed"
     return 2
   fi
 
   log_info "Uninstalling KeelCode..."
-  if grep -qF "$KEELCODE_WRAPPER_MARKER" "$PREFIX/bin/keelcode" 2>/dev/null; then
+  _keelcode_verify_ownership || return 1
+
+  if _keelcode_wrapper_owned; then
     rm -f "$PREFIX/bin/keelcode"
   fi
-  rm -rf "$KEELCODE_DATA_DIR"
+  if _keelcode_data_owned; then
+    rm -rf "$KEELCODE_DATA_DIR"
+  fi
+
   local output rc
   output="$(npm uninstall -g "$KEELCODE_PACKAGE" 2>&1)"
   rc=$?
   printf '%s\n' "$output" | tail -3
   if ((rc != 0)); then
-    log_error "Failed to uninstall KeelCode"
-    return 1
+    log_warn "npm uninstall of $KEELCODE_PACKAGE reported a failure (may already be gone)"
   fi
   log_success "KeelCode uninstalled"
 }
@@ -107,7 +181,10 @@ _do_update_keelcode() {
     log_error "Failed to update KeelCode"
     return 1
   fi
-  _keelcode_install_termux_wrapper || return 1
+  _keelcode_install_termux_wrapper || {
+    log_error "Failed to update KeelCode linux-arm64 binary"
+    return 1
+  }
 }
 
 reinstall_keelcode() {

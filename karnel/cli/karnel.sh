@@ -3,6 +3,8 @@
 import "@/utils/log"
 import "@/utils/colors"
 
+: "${KARNEL_VERSION:=unknown}"
+
 karnel_main() {
   local cmd="${1:-}"
   case "$cmd" in
@@ -91,6 +93,7 @@ karnel_help() {
   separator_section "Available Commands"
   echo
   printf "    ${D_CYAN}%-18s${NC} %s\n" "--version" "Show current version"
+  printf "    ${D_CYAN}%-18s${NC} %s\n" "agent [ask,run,config,status]" "Local AI assistant & task agent"
   printf "    ${D_CYAN}%-18s${NC} %s\n" "backup [--cron,--cloud,snapshot,list]" "Backup selected Termux configs + package metadata"
   printf "    ${D_CYAN}%-18s${NC} %s\n" "brain [subcommand]" "Second brain (run 'karnel brain --help' for commands)"
   printf "    ${D_CYAN}%-18s${NC} %s\n" "cleanup" "Clean caches, logs, and temp files"
@@ -259,6 +262,7 @@ _tui_main_menu() {
     choice=$(_dialog_menu "Main Menu" "Select an action to perform:" \
       "install" "Install Packages/Modules" \
       "list" "List Available Tools" \
+      "agent" "Local AI Assistant & Task Agent" \
       "backup" "Backup & Restore" \
       "brain" "Second Brain Manager" \
       "plugin" "Plugin Manager" \
@@ -293,6 +297,12 @@ _tui_main_menu() {
     case "$choice" in
       install) _tui_install_menu ;;
       list) _tui_list_menu ;;
+      agent)
+        clear
+        karnel_main "agent"
+        echo
+        read -r -p "Press Enter to return to menu..." temp
+        ;;
       backup) _tui_backup_menu ;;
       brain) _tui_brain_menu ;;
       plugin) _tui_plugin_menu ;;
@@ -1002,31 +1012,33 @@ karnel_fallback_tui() {
     printf "    ${D_GREEN}%2d.${D_NC} %s\n" 1 "Second Brain Manager (brain)"
     printf "    ${D_GREEN}%2d.${D_NC} %s\n" 2 "Environment Variables Manager (env)"
     printf "    ${D_GREEN}%2d.${D_NC} %s\n" 3 "Install Packages/Modules (install)"
-    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 4 "PostgreSQL Database Manager (pg)"
-    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 5 "Project Initializer (init)"
-    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 6 "Speech-to-Agent (voice)"
-    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 7 "AI Agent Manager (ia)"
-    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 8 "Run Diagnostics (doctor)"
-    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 9 "Update Karnel (update)"
-    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 10 "Help & Documentation (help)"
-    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 11 "Exit"
+    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 4 "Local AI Assistant & Task Agent (agent)"
+    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 5 "PostgreSQL Database Manager (pg)"
+    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 6 "Project Initializer (init)"
+    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 7 "Speech-to-Agent (voice)"
+    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 8 "AI Agent Manager (ia)"
+    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 9 "Run Diagnostics (doctor)"
+    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 10 "Update Karnel (update)"
+    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 11 "Help & Documentation (help)"
+    printf "    ${D_GREEN}%2d.${D_NC} %s\n" 12 "Exit"
     echo
     
     local choice
-    read -r -p "  Enter choice (1-11): " choice
+    read -r -p "  Enter choice (1-12): " choice
     
     case "$choice" in
       1) karnel_main "brain" ;;
       2) karnel_main "env" ;;
       3) karnel_main "install" ;;
-      4) karnel_main "pg" ;;
-      5) karnel_main "init" ;;
-      6) karnel_main "voice" ;;
-      7) karnel_main "ia" ;;
-      8) karnel_main "doctor" ;;
-      9) karnel_main "update" "karnel" ;;
-      10) karnel_help ;;
-      11|q|exit) break ;;
+      4) karnel_main "agent" ;;
+      5) karnel_main "pg" ;;
+      6) karnel_main "init" ;;
+      7) karnel_main "voice" ;;
+      8) karnel_main "ia" ;;
+      9) karnel_main "doctor" ;;
+      10) karnel_main "update" "karnel" ;;
+      11) karnel_help ;;
+      12|q|exit) break ;;
       *) log_warn "Invalid option. Please try again." ;;
     esac
     echo

@@ -7,6 +7,7 @@ _karnel_add() {
 
 _karnel_commands() {
   local -a commands=(
+    'agent:Local AI assistant and task agent'
     'backup:Back up catalog metadata and selected configuration'
     'brain:Manage second-brain memories'
     'cleanup:Clean caches, logs, and temporary files'
@@ -63,7 +64,7 @@ _karnel_modules() {
 
 _karnel_tool_flags() {
   local module="$1"
-  local ai_tools="qwen-code gemini-cli claude-code mistral-vibe openclaude openclaw ollama codex opencode mimocode engram codegraph pi antigravity-cli minimax-cli gentle-ai gga hermes-agent kimi-code command-code codebuff freebuff kilocode-cli kiro crush cline odysseus kimchi-code omni-route ctx7 openspec supercode-cli puter keelcode copilot-termux qoder ampcode cursor-cli oh-my-pi goose droid cactus hugging-face"
+  local ai_tools="qwen-code gemini-cli claude-code mistral-vibe openclaude openclaw ollama codex opencode mimocode engram codegraph pi antigravity-cli minimax-cli gentle-ai gga hermes-agent kimi-code command-code codebuff freebuff kilocode-cli kiro crush cline odysseus kimchi-code omni-route ctx7 openspec supercode-cli puter keelcode copilot-termux qoder ampcode cursor-cli oh-my-pi goose droid cactus cactus-needle hugging-face walkie"
   local tools=""
 
   case "$module" in
@@ -105,7 +106,7 @@ _karnel() {
       if (( CURRENT == 3 )); then _karnel_modules; compadd -- supabase; else _karnel_tool_flags "${words[3]}"; fi
       ;;
     update)
-      if (( CURRENT == 3 )); then _karnel_modules; compadd -- supabase karnel core; else _karnel_tool_flags "${words[3]}"; fi
+      if (( CURRENT == 3 )); then _karnel_modules; compadd -- supabase karnel; else _karnel_tool_flags "${words[3]}"; fi
       ;;
     show)
       if (( CURRENT == 3 )); then _karnel_modules; compadd -- backup restore; else _karnel_tool_flags "${words[3]}"; fi
@@ -166,7 +167,7 @@ _karnel() {
       elif [[ "${words[3]}" == sessions ]]; then
         _karnel_add "--all"
       elif [[ "${words[3]}" == install ]]; then
-        local ai_tools="qwen-code gemini-cli claude-code mistral-vibe openclaude openclaw ollama codex opencode mimocode engram codegraph pi antigravity-cli minimax-cli gentle-ai gga hermes-agent kimi-code command-code codebuff freebuff kilocode-cli kiro crush cline odysseus kimchi-code omni-route ctx7 openspec supercode-cli puter keelcode copilot-termux qoder ampcode cursor-cli oh-my-pi goose droid cactus hugging-face"
+        local ai_tools="qwen-code gemini-cli claude-code mistral-vibe openclaude openclaw ollama codex opencode mimocode engram codegraph pi antigravity-cli minimax-cli gentle-ai gga hermes-agent kimi-code command-code codebuff freebuff kilocode-cli kiro crush cline odysseus kimchi-code omni-route ctx7 openspec supercode-cli puter keelcode copilot-termux qoder ampcode cursor-cli oh-my-pi goose droid cactus cactus-needle hugging-face walkie"
         _karnel_add "$ai_tools"
       fi
       ;;

@@ -2,7 +2,7 @@
 
 _karnel_tool_flags() {
   local module="$1"
-  local ai_tools="qwen-code gemini-cli claude-code mistral-vibe openclaude openclaw ollama codex opencode mimocode engram codegraph pi antigravity-cli minimax-cli gentle-ai gga hermes-agent kimi-code command-code codebuff freebuff kilocode-cli kiro crush cline odysseus kimchi-code omni-route ctx7 openspec supercode-cli puter keelcode copilot-termux qoder ampcode cursor-cli oh-my-pi goose droid cactus hugging-face"
+  local ai_tools="qwen-code gemini-cli claude-code mistral-vibe openclaude openclaw ollama codex opencode mimocode engram codegraph pi antigravity-cli minimax-cli gentle-ai gga hermes-agent kimi-code command-code codebuff freebuff kilocode-cli kiro crush cline odysseus kimchi-code omni-route ctx7 openspec supercode-cli puter keelcode copilot-termux qoder ampcode cursor-cli oh-my-pi goose droid cactus cactus-needle hugging-face walkie"
   local tools=""
 
   case "$module" in
@@ -35,13 +35,13 @@ _karnel_completions() {
   local cur prev words cword
   _init_completion || return
 
-  local commands="backup brain cleanup deploy doctor env help ia init install list open pg plugin reinstall restore robin search show start status supabase uninstall update upgrade version voice"
+  local commands="agent backup brain cleanup deploy doctor env help ia init install list open pg plugin reinstall restore robin search show start status supabase uninstall update upgrade version voice"
   local modules="ai auto db deploy dev editor games lang network npm osint plugin security shell ui utils voice"
   local install_targets="$modules supabase"
-  local update_targets="$modules supabase karnel core"
+  local update_targets="$modules supabase karnel"
   local show_targets="$modules backup restore"
   local open_targets="karnel help lang db ai editor dev npm shell ui auto deploy supabase games cleanup network utils voice plugin security osint robin"
-  local ai_tools="qwen-code gemini-cli claude-code mistral-vibe openclaude openclaw ollama codex opencode mimocode engram codegraph pi antigravity-cli minimax-cli gentle-ai gga hermes-agent kimi-code command-code codebuff freebuff kilocode-cli kiro crush cline odysseus kimchi-code omni-route ctx7 openspec supercode-cli puter keelcode copilot-termux qoder ampcode cursor-cli oh-my-pi goose droid cactus hugging-face"
+  local ai_tools="qwen-code gemini-cli claude-code mistral-vibe openclaude openclaw ollama codex opencode mimocode engram codegraph pi antigravity-cli minimax-cli gentle-ai gga hermes-agent kimi-code command-code codebuff freebuff kilocode-cli kiro crush cline odysseus kimchi-code omni-route ctx7 openspec supercode-cli puter keelcode copilot-termux qoder ampcode cursor-cli oh-my-pi goose droid cactus cactus-needle hugging-face walkie"
 
   if [[ $cword -eq 1 ]]; then
     COMPREPLY=($(compgen -W "$commands --help --version" -- "$cur"))

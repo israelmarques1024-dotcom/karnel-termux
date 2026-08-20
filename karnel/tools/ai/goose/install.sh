@@ -118,17 +118,99 @@ install_goose() {
     return 1
   fi
 
-  _goose_download_binary || return 1
+  local SELECTED_METHOD
+  read_select "Installation method" SELECTED_METHOD \
+    "Native (recommended) - Termux binary" \
+    "glibc + proot (bad system call)"
 
-  if command -v goose &>/dev/null; then
-    log_success "Goose CLI installed (native Termux)"
-    log_info "Run: ${D_CYAN}goose session${NC}"
-    log_info "First-time setup: ${D_CYAN}goose configure${NC}"
-    return 0
+  case "$SELECTED_METHOD" in
+  *Native*)
+    _goose_download_binary || return 1
+    if command -v goose &>/dev/null; then
+      log_success "Goose CLI installed (native Termux)"
+      log_info "Run: ${D_CYAN}goose session${NC}"
+      log_info "First-time setup: ${D_CYAN}goose configure${NC}"
+      return 0
+    fi
+    log_error "Goose CLI installation failed"
+    return 1
+    ;;
+  *proot*)
+    _install_goose_proot_glibc
+    return $?
+    ;;
+  esac
+}
+
+_install_goose_proot_glibc() {
+  if ! command -v proot &>/dev/null; then
+    if ! yes | pkg install proot &>>"$LOG_FILE"; then
+      log_error "Failed to install proot"
+      return 1
+    fi
+  fi
+  _goose_download_binary_proot || return 1
+
+  local wrapper_src="$KARNEL_PATH/tools/ai/goose/bin/goose.proot"
+  if [ ! -f "$wrapper_src" ]; then
+    log_error "Wrapper template not found at $wrapper_src"
+    return 1
+  fi
+  if [ -e "$GOOSE_BIN_PATH" ] && ! managed_file_matches "$GOOSE_BIN_PATH" "$GOOSE_BIN_MARKER"; then
+    log_error "Refusing to replace an existing Goose binary not owned by Karnel"
+    return 1
+  fi
+  sed "s|__DATA_DIR__|$GOOSE_DATA_DIR|g" "$wrapper_src" >"$GOOSE_BIN_PATH"
+  chmod +x "$GOOSE_BIN_PATH"
+  record_managed_file "$GOOSE_BIN_PATH" "$GOOSE_BIN_MARKER" || return 1
+  log_success "Goose CLI installed (glibc + proot)"
+  return 0
+}
+
+_goose_download_binary_proot() {
+  loading "Downloading Goose CLI" _goose_download_binary_proot_impl
+}
+
+_goose_download_binary_proot_impl() {
+  local latest_version
+  latest_version=$(_get_latest_goose_version_silent)
+  if [ -z "$latest_version" ]; then
+    log_error "Failed to fetch latest Goose version"
+    return 1
   fi
 
-  log_error "Goose CLI installation failed"
-  return 1
+  local arch
+  arch=$(uname -m)
+  local arch_suffix
+  case "$arch" in
+    aarch64|arm64) arch_suffix="aarch64-unknown-linux-musl" ;;
+    x86_64) arch_suffix="x86_64-unknown-linux-musl" ;;
+    *) log_error "Unsupported Goose architecture: $arch"; return 1 ;;
+  esac
+
+  local tarball="goose-${arch_suffix}.tar.gz"
+  local download_url="https://github.com/aaif-goose/goose/releases/download/v${latest_version}/${tarball}"
+
+  mkdir -p "$GOOSE_DATA_DIR"
+  if ! curl -fsSL "$download_url" -o "$GOOSE_DATA_DIR/$tarball" &>>"$LOG_FILE"; then
+    log_error "Failed to download Goose CLI"
+    return 1
+  fi
+  if ! tar -xzf "$GOOSE_DATA_DIR/$tarball" -C "$GOOSE_DATA_DIR" &>>"$LOG_FILE"; then
+    rm -f "$GOOSE_DATA_DIR/$tarball"
+    log_error "Failed to extract Goose CLI"
+    return 1
+  fi
+  rm -f "$GOOSE_DATA_DIR/$tarball"
+  local goose_bin
+  goose_bin=$(find "$GOOSE_DATA_DIR" -name "goose" -type f 2>/dev/null | head -1)
+  if [ -z "$goose_bin" ] || [ "$goose_bin" == "$GOOSE_DATA_DIR/goose" ]; then
+    log_error "Goose binary not found after extraction"
+    return 1
+  fi
+  mv "$goose_bin" "$GOOSE_DATA_DIR/goose"
+  chmod +x "$GOOSE_DATA_DIR/goose"
+  return 0
 }
 
 uninstall_goose() {

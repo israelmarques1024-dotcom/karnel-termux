@@ -62,6 +62,30 @@ ia_sessions() {
 		done < <(cat "$HOME/.local/state/opencode/prompt-history.jsonl" 2>/dev/null || true)
 	fi
 
+	# OpenCode real sessions (sqlite db via python3)
+	if [[ -f "$HOME/.local/share/opencode/opencode.db" ]] && command -v python3 &>/dev/null; then
+		while IFS=$'\t' read -r ts_epoch title; do
+			[[ -z "$ts_epoch" ]] && continue
+			local ts
+			ts=$(date -d "@$((ts_epoch / 1000))" +%Y%m%d_%H%M%S 2>/dev/null || echo "$ts_epoch")
+			local display="${title:0:60}"
+			display="${display//$'\n'/ }"
+			sessions+=("[opencode]|$ts|$display")
+		done < <(python3 - <<'PY' 2>/dev/null
+import sqlite3, sys, os
+db = os.path.expanduser("~/.local/share/opencode/opencode.db")
+try:
+    con = sqlite3.connect("file:%s?mode=ro" % db, uri=True)
+    cur = con.cursor()
+    for row in cur.execute("SELECT COALESCE(time_updated, time_created, 0), COALESCE(title, slug, 'session') FROM session WHERE time_archived IS NULL ORDER BY COALESCE(time_updated, time_created) DESC LIMIT 50").fetchall():
+        print("%s\t%s" % (row[0], row[1]))
+    con.close()
+except Exception:
+    pass
+PY
+)
+	fi
+
 	# Hermes sessions
 	if [[ -d "$HOME/.hermes/sessions" ]]; then
 		for f in "$HOME/.hermes/sessions"/*.json; do

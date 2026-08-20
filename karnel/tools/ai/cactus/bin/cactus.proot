@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# cactus wrapper - termux-glibc python + proot syscall emulation
+unset LD_PRELOAD
+# HF model downloads use the Xet backend, broken under Termux glibc
+# ("Reqwest error: builder error"); fall back to classic HTTP.
+export HF_HUB_DISABLE_XET=1
+
+GLIBC_LIB="$PREFIX/glibc/lib"
+GLIBC_PYTHON="$PREFIX/glibc/bin/python"
+GLIBC_CACTUS="$PREFIX/glibc/bin/cactus"
+CACTUS_LAUNCHER="$PREFIX/libexec/cactus.launcher.py"
+
+if [ ! -f "$GLIBC_PYTHON" ] || [ ! -x "$GLIBC_CACTUS" ]; then
+  echo "Error: termux-glibc or Cactus Engine CLI not found" >&2
+  echo "Run: pkg install glibc python-glibc python-pip-glibc" >&2
+  exit 1
+fi
+
+if [ ! -f "$CACTUS_LAUNCHER" ]; then
+  echo "Error: cactus launcher not found at $CACTUS_LAUNCHER" >&2
+  echo "Re-run: karnel install ai --cactus" >&2
+  exit 1
+fi
+
+# proot with host rootfs for syscall translation
+# Note: no -- separator, pass args directly after interpreter
+# The launcher patches bundle validation for sentencepiece bundles that
+# upstream publishes without tokenizer.json.
+exec proot -r / \
+  -b /dev:/dev -b /proc:/proc -b /sys:/sys \
+  -b "$GLIBC_LIB:/lib" \
+  -b "$PREFIX/bin:/bin" \
+  "$GLIBC_PYTHON" "$CACTUS_LAUNCHER" "$@"

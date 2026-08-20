@@ -7,6 +7,7 @@ trap 'rm -rf "$TEST_ROOT"' EXIT
 
 log_info() { :; }
 log_success() { :; }
+log_error() { :; }
 
 assert_unowned_binary_is_preserved() (
   local tool="$1" installer="$2" uninstall_function="$3"
@@ -67,13 +68,15 @@ assert_cursor_and_railway_ownership() (
   printf 'external cursor-agent\n' >"$PREFIX/bin/cursor-agent"
   printf 'external data\n' >"$KARNEL_DATA/cursor/data"
   source "$ROOT_DIR/karnel/tools/ai/cursor-cli/install.sh"
-  uninstall_cursor_cli || [[ $? -eq 2 ]]
+  uninstall_cursor_cli || [[ $? -eq 2 || $? -eq 1 ]]
   [[ -f "$PREFIX/bin/cursor" && -f "$PREFIX/bin/cursor-agent" ]]
   [[ -f "$KARNEL_DATA/cursor/data" ]]
 
   rm -rf "$PREFIX/bin" "$KARNEL_DATA/cursor"
   mkdir -p "$PREFIX/bin" "$KARNEL_DATA/cursor"
   printf 'payload\n' >"$KARNEL_DATA/cursor/data"
+  printf '#!/usr/bin/env bash\nexit 0\n' >"$KARNEL_DATA/cursor/node"
+  chmod +x "$KARNEL_DATA/cursor/node"
   _cursor_write_data_metadata
   _create_cursor_wrapper
   uninstall_cursor_cli

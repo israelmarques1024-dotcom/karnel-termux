@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/colors"
+import "@/utils/version"
 
 : "${KARNEL_DATA:=${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data}"
 CACTUS_VERSION="2.0.1"
@@ -8,6 +10,9 @@ CACTUS_DATA_DIR="$KARNEL_DATA/cactus"
 CACTUS_CONTAINER_DIR="/opt/karnel/cactus"
 CACTUS_WRAPPER="$PREFIX/bin/cactus"
 CACTUS_EMULATE=0
+
+CACTUS_CLI_LOG_FILE="$KARNEL_CACHE/install_ai.log"
+CACTUS_CLI_GLIBC_PYTHON="$PREFIX/glibc/bin/python"
 
 _cactus_data_owned() {
   [[ -f "$CACTUS_DATA_DIR/.karnel-managed" ]]
@@ -197,8 +202,252 @@ EOF
   sha256sum "$CACTUS_WRAPPER" >"$CACTUS_DATA_DIR/.karnel-wrapper-cactus" || return 1
 }
 
+# ── Método nativo: glibc termux (recomendado) ──────────────────────────
+
+_cactus_cli_glibc_run() {
+  glibc-runner -s "$CACTUS_CLI_GLIBC_PYTHON" "$@"
+}
+
+_cactus_cli_install_deps_native_impl() {
+  if [[ ! -f $PREFIX/etc/apt/sources.list.d/glibc.list ]]; then
+    if ! yes | pkg install glibc-repo &>>"$CACTUS_CLI_LOG_FILE"; then
+      log_error "Failed to install glibc-repo"
+      return 1
+    fi
+  fi
+
+  if [[ ! -f $PREFIX/glibc/lib/libc.so.6 ]]; then
+    if ! yes | pkg install glibc &>>"$CACTUS_CLI_LOG_FILE"; then
+      log_error "Failed to install glibc"
+      return 1
+    fi
+  fi
+
+  if [[ ! -f $CACTUS_CLI_GLIBC_PYTHON ]]; then
+    if ! yes | pkg install python-glibc &>>"$CACTUS_CLI_LOG_FILE"; then
+      log_error "Failed to install python-glibc"
+      return 1
+    fi
+  fi
+
+  if [[ ! -f $PREFIX/glibc/bin/pip ]]; then
+    if ! yes | pkg install python-pip-glibc &>>"$CACTUS_CLI_LOG_FILE"; then
+      log_error "Failed to install python-pip-glibc"
+      return 1
+    fi
+  fi
+
+  return 0
+}
+
+_cactus_cli_install_deps_native() {
+  loading "Installing glibc and Python dependencies" _cactus_cli_install_deps_native_impl
+}
+
+_cactus_cli_install_pip_glibc_impl() {
+  local install_args=""
+  if [ "${1:-install}" = "update" ]; then
+    install_args="--upgrade"
+  fi
+
+  if ! _cactus_cli_glibc_run -m pip install $install_args cactus-compute &>>"$CACTUS_CLI_LOG_FILE"; then
+    log_error "Failed to install Cactus Engine CLI"
+    return 1
+  fi
+
+  _cactus_cli_post_install_glibc || return 1
+
+  return 0
+}
+
+_cactus_cli_install_pip_glibc() {
+  log_info "This downloads the Cactus Engine wheel (~24 MB) plus core deps (numpy, huggingface-hub, fastapi) into the glibc Python environment"
+  loading "Installing Cactus-compute (pip)" _cactus_cli_install_pip_glibc_impl "$@"
+}
+
+_cactus_cli_post_install_glibc() {
+  local launcher_src="$KARNEL_PATH/tools/ai/cactus/bin/cactus.launcher.py"
+  local launcher_dst="$PREFIX/libexec/cactus.launcher.py"
+  local bin_dir cactus_bin engine_lib loader
+
+  if [ ! -f "$launcher_src" ]; then
+    log_error "Launcher template not found at $launcher_src"
+    return 1
+  fi
+  mkdir -p "$PREFIX/libexec"
+  cp "$launcher_src" "$launcher_dst"
+  chmod 644 "$launcher_dst"
+
+  if ! command -v patchelf &>/dev/null; then
+    if ! yes | pkg install patchelf &>>"$CACTUS_CLI_LOG_FILE"; then
+      log_error "Failed to install patchelf (needed to fix cactus engine binaries)"
+      return 1
+    fi
+  fi
+
+  cactus_bin="$PREFIX/glibc/bin/cactus"
+  bin_dir="$({ printf 'import cactus, os; print(os.path.join(os.path.dirname(cactus.__file__), "bin"))\n' | "$CACTUS_CLI_GLIBC_PYTHON" - 2>/dev/null; } | tail -1)"
+  if [ -z "$bin_dir" ] || [ ! -d "$bin_dir" ]; then
+    bin_dir="$PREFIX/glibc/lib/python3.12/site-packages/cactus/bin"
+  fi
+  loader="$PREFIX/glibc/lib/ld-linux-aarch64.so.1"
+  engine_lib="$PREFIX/glibc/lib"
+
+  for engine in run transcribe; do
+    if [ ! -f "$bin_dir/$engine" ]; then
+      log_warn "Engine binary not found: $bin_dir/$engine"
+      continue
+    fi
+    chmod 755 "$bin_dir/$engine" 2>/dev/null || true
+    if readelf -l "$bin_dir/$engine" 2>/dev/null | grep -q "interpreter: /lib/ld-linux"; then
+      if ! patchelf --set-interpreter "$loader" --set-rpath "\$ORIGIN/../../cactus_compute.libs:$engine_lib" "$bin_dir/$engine" &>>"$CACTUS_CLI_LOG_FILE"; then
+        log_error "patchelf failed on $bin_dir/$engine"
+        return 1
+      fi
+    fi
+  done
+
+  return 0
+}
+
+_cactus_cli_verify_impl() {
+  if ! { printf 'import cactus\n' | timeout 300 glibc-runner -s "$CACTUS_CLI_GLIBC_PYTHON" -; } &>>"$CACTUS_CLI_LOG_FILE"; then
+    log_error "Cactus Engine CLI installed but the native engine failed to load — your Android kernel or glibc setup cannot run it; use method 2 or 3"
+    rm -f "$PREFIX/bin/cactus"
+    _cactus_cli_glibc_run -m pip uninstall -y cactus-compute &>>"$CACTUS_CLI_LOG_FILE"
+    return 1
+  fi
+  return 0
+}
+
+_cactus_cli_verify_glibc() {
+  loading "Verifying Cactus Engine CLI" _cactus_cli_verify_impl
+}
+
+_cactus_cli_create_glibc_wrapper() {
+  local wrapper_src="$KARNEL_PATH/tools/ai/cactus/bin/cactus.glibc"
+  if [ ! -f "$wrapper_src" ]; then
+    log_error "Wrapper template not found at $wrapper_src"
+    return 1
+  fi
+  cp "$wrapper_src" "$PREFIX/bin/cactus"
+  chmod +x "$PREFIX/bin/cactus"
+  return 0
+}
+
+_cactus_cli_install_native() {
+  _cactus_cli_install_deps_native || return 1
+  _cactus_cli_install_pip_glibc || return 1
+  _cactus_cli_verify_glibc || return 1
+  loading "Creating wrapper" _cactus_cli_create_glibc_wrapper || return 1
+
+  mkdir -p "$CACTUS_DATA_DIR"
+  : >"$CACTUS_DATA_DIR/.karnel-managed"
+  printf 'native' >"$CACTUS_DATA_DIR/.install-method"
+  log_success "Cactus Engine CLI installed natively"
+  return 0
+}
+
+_cactus_cli_install_proot_pkg() {
+  if ! command -v proot &>/dev/null; then
+    if ! yes | pkg install proot &>>"$CACTUS_CLI_LOG_FILE"; then
+      log_error "Failed to install proot"
+      return 1
+    fi
+  fi
+  return 0
+}
+
+_cactus_cli_create_proot_wrapper() {
+  local wrapper_src="$KARNEL_PATH/tools/ai/cactus/bin/cactus.proot"
+  if [ ! -f "$wrapper_src" ]; then
+    log_error "Wrapper template not found at $wrapper_src"
+    return 1
+  fi
+  cp "$wrapper_src" "$PREFIX/bin/cactus"
+  chmod +x "$PREFIX/bin/cactus"
+  return 0
+}
+
+_cactus_cli_install_proot_glibc() {
+  _cactus_cli_install_deps_native || return 1
+  loading "Installing proot" _cactus_cli_install_proot_pkg || return 1
+  _cactus_cli_install_pip_glibc || return 1
+  _cactus_cli_verify_glibc || return 1
+  loading "Creating proot wrapper" _cactus_cli_create_proot_wrapper || return 1
+
+  mkdir -p "$CACTUS_DATA_DIR"
+  : >"$CACTUS_DATA_DIR/.karnel-managed"
+  printf 'proot-glibc' >"$CACTUS_DATA_DIR/.install-method"
+  log_success "Cactus Engine CLI installed with glibc + proot"
+  return 0
+}
+
+_cactus_cli_installed_version() {
+  local method="native"
+  if [ -f "$CACTUS_DATA_DIR/.install-method" ]; then
+    method="$(cat "$CACTUS_DATA_DIR/.install-method")"
+  fi
+
+  if [ "$method" = "proot" ]; then
+    _spin_capture "Detecting version" bash -c 'proot-distro login --shared-tmp ubuntu -- python3 -c "from importlib.metadata import version; print(version(\"cactus-compute\"))" 2>/dev/null'
+  else
+    _spin_capture "Detecting version" bash -c 'printf "%s\n" "from importlib.metadata import version; print(version(\"cactus-compute\"))" | glibc-runner -s "$PREFIX/glibc/bin/python" - 2>/dev/null'
+  fi
+}
+
+_cactus_update_native() {
+  local method="native"
+  if [ -f "$CACTUS_DATA_DIR/.install-method" ]; then
+    method="$(cat "$CACTUS_DATA_DIR/.install-method")"
+  fi
+
+  if [ "$method" = "proot" ]; then
+    if ! _cactus_proot /bin/bash -c 'python3 -m pip install --break-system-packages --upgrade cactus-compute' &>>"$CACTUS_CLI_LOG_FILE"; then
+      log_error "Failed to update Cactus Engine CLI"
+      return 1
+    fi
+    if ! timeout 300 proot-distro login --shared-tmp ubuntu -- python3 -c "import cactus" &>>"$CACTUS_CLI_LOG_FILE"; then
+      log_error "Cactus Engine CLI updated but the native engine failed to load"
+      return 1
+    fi
+    log_success "Cactus Engine CLI (proot-distro) updated"
+    return 0
+  fi
+
+  _cactus_cli_install_pip_glibc update || return 1
+  _cactus_cli_verify_glibc || return 1
+  log_success "Cactus Engine CLI ($method) updated"
+  return 0
+}
+
+_cactus_uninstall_native() {
+  local method="native"
+  if [ -f "$CACTUS_DATA_DIR/.install-method" ]; then
+    method="$(cat "$CACTUS_DATA_DIR/.install-method")"
+  fi
+
+  if [ "$method" = "proot" ]; then
+    _cactus_proot python3 -m pip uninstall -y cactus-compute &>>"$CACTUS_CLI_LOG_FILE"
+    rm -f "$PREFIX/bin/cactus"
+    rm -rf "$CACTUS_DATA_DIR"
+    log_success "Cactus Engine CLI (proot-distro) uninstalled"
+    return 0
+  fi
+
+  _cactus_cli_glibc_run -m pip uninstall -y cactus-compute &>>"$CACTUS_CLI_LOG_FILE"
+  rm -f "$PREFIX/bin/cactus"
+  rm -rf "$CACTUS_DATA_DIR"
+  log_success "Cactus Engine CLI ($method) uninstalled"
+  return 0
+}
+
 install_cactus() {
   _cactus_set_emulation
+  if [[ -f "$CACTUS_DATA_DIR/.install-method" ]]; then
+    _cactus_update_native
+    return $?
+  fi
   if _cactus_data_owned && _cactus_wrapper_owned && _cactus_container_owned && _cactus_validate; then
     if _cactus_wrapper_matches_emulation; then
       log_info "Cactus is already installed"
@@ -215,15 +464,37 @@ install_cactus() {
   fi
   _cactus_verify_ownership || return 1
 
-  log_info "Installing Cactus $CACTUS_VERSION in Ubuntu (glibc compatibility)..."
-  _cactus_ensure_ubuntu || return 1
-  if ! _install_cactus_inside_ubuntu || ! _cactus_apply_emulation_patch || ! _cactus_write_wrapper || ! _cactus_validate; then
-    _cactus_wrapper_owned && rm -f "$CACTUS_WRAPPER"
-    _cactus_data_owned && rm -rf "$CACTUS_DATA_DIR"
-    log_error "Failed to install Cactus"
-    return 1
-  fi
-  log_success "Cactus installed"
+  log_info "Select installation method for Cactus:"
+
+  local SELECTED_METHOD
+  read_select "Installation method" SELECTED_METHOD \
+    "glibc (recommended)" \
+    "proot-distro (ubuntu container)"
+
+  case "$SELECTED_METHOD" in
+  *glibc*)
+    if _cactus_cli_install_native; then
+      log_success "Cactus installed (native glibc)"
+    else
+      log_error "Native install failed"
+      return 1
+    fi
+    ;;
+  *proot-distro*)
+    log_info "Installing Cactus $CACTUS_VERSION in Ubuntu (glibc compatibility)..."
+    _cactus_ensure_ubuntu || return 1
+    if ! _install_cactus_inside_ubuntu || ! _cactus_apply_emulation_patch || ! _cactus_write_wrapper || ! _cactus_validate; then
+      _cactus_wrapper_owned && rm -f "$CACTUS_WRAPPER"
+      _cactus_data_owned && rm -rf "$CACTUS_DATA_DIR"
+      log_error "Failed to install Cactus"
+      return 1
+    fi
+    mkdir -p "$CACTUS_DATA_DIR"
+    : >"$CACTUS_DATA_DIR/.karnel-managed"
+    printf 'proot' >"$CACTUS_DATA_DIR/.install-method"
+    log_success "Cactus installed"
+    ;;
+  esac
   if [[ "$CACTUS_EMULATE" == 1 ]]; then
     log_warn "Inference runs through qemu-aarch64 emulation on this CPU; expect minutes per token"
   fi
@@ -231,6 +502,10 @@ install_cactus() {
 }
 
 uninstall_cactus() {
+  if [[ -f "$CACTUS_DATA_DIR/.install-method" ]]; then
+    _cactus_uninstall_native
+    return $?
+  fi
   if ! _cactus_data_owned && ! _cactus_wrapper_owned && ! _cactus_container_owned; then
     if [[ -e "$CACTUS_DATA_DIR" || -e "$CACTUS_WRAPPER" ]]; then
       _cactus_verify_ownership
@@ -250,6 +525,10 @@ uninstall_cactus() {
 }
 
 update_cactus() {
+  if [[ -f "$CACTUS_DATA_DIR/.install-method" ]]; then
+    _cactus_update_native
+    return $?
+  fi
   _cactus_set_emulation
   _cactus_data_owned && _cactus_wrapper_owned && _cactus_container_owned || {
     log_error "Cactus is not installed by Karnel"

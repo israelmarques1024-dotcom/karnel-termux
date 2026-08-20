@@ -13,6 +13,27 @@ LOG_FILE="$KARNEL_CACHE/install_ai.log"
 GENTLE_AI_DATA_DIR="${GENTLE_AI_DATA_DIR:-$HOME/.local/share/karnel-data/gentle-ai}"
 GENTLE_AI_REPO="https://github.com/Gentleman-Programming/gentle-ai.git"
 GENTLE_AI_COMMIT="4004a0825d03a3d123a3c4f67bf375cb16fd6d8c"
+GENTLE_AI_MARKER="$GENTLE_AI_DATA_DIR/.karnel-managed"
+GENTLE_AI_WRAPPER_MARKER="$GENTLE_AI_DATA_DIR/.karnel-wrapper"
+
+_gentle_ai_data_owned() {
+  [ -f "$GENTLE_AI_MARKER" ]
+}
+
+_gentle_ai_bin_owned() {
+  managed_file_matches "$PREFIX/bin/gentle-ai" "$GENTLE_AI_WRAPPER_MARKER"
+}
+
+_gentle_ai_verify_ownership() {
+  if [ -e "$PREFIX/bin/gentle-ai" ] && ! _gentle_ai_bin_owned; then
+    log_error "Refusing to replace unowned command: $PREFIX/bin/gentle-ai"
+    return 1
+  fi
+  if [ -d "$GENTLE_AI_DATA_DIR" ] && ! _gentle_ai_data_owned; then
+    log_error "Refusing to replace gentle-ai data not owned by Karnel: $GENTLE_AI_DATA_DIR"
+    return 1
+  fi
+}
 
 _gentle_ai_dependencies() {
   loading "Installing dependencies" _gentle_ai_dependencies_impl
@@ -81,7 +102,9 @@ _clone_or_update_repo() {
 }
 
 _clone_or_update_repo_impl() {
-  install_pinned_git_repo "$GENTLE_AI_REPO" "$GENTLE_AI_COMMIT" "$GENTLE_AI_DATA_DIR"
+  install_pinned_git_repo "$GENTLE_AI_REPO" "$GENTLE_AI_COMMIT" "$GENTLE_AI_DATA_DIR" || return 1
+  printf '%s\n' 'karnel-managed-v1' >"$GENTLE_AI_MARKER"
+  return 0
 }
 
 _build_and_apply_patches() {
@@ -165,20 +188,23 @@ _install_binary() {
 }
 
 _install_binary_impl() {
+  _gentle_ai_verify_ownership || return 1
   if ! cp "$GENTLE_AI_DATA_DIR/gentle-ai" "$PREFIX/bin/gentle-ai" &>>"$LOG_FILE"; then
     log_error "Failed to install binary to $PREFIX/bin/gentle-ai"
     return 1
   fi
 
   chmod +x "$PREFIX/bin/gentle-ai"
+  record_managed_file "$PREFIX/bin/gentle-ai" "$GENTLE_AI_WRAPPER_MARKER"
   return 0
 }
 
 install_gentle_ai() {
-  if command -v gentle-ai &>/dev/null; then
+  if command -v gentle-ai &>/dev/null && _gentle_ai_bin_owned; then
     log_info "gentle-ai is already installed"
     return 2
   fi
+  _gentle_ai_verify_ownership || return 1
 
   log_info "Installing gentle-ai..."
   mkdir -p "$(dirname "$LOG_FILE")" "$KARNEL_CACHE"
@@ -195,15 +221,27 @@ install_gentle_ai() {
 }
 
 uninstall_gentle_ai() {
-  if ! command -v gentle-ai &>/dev/null; then
+  if ! command -v gentle-ai &>/dev/null && [ ! -d "$GENTLE_AI_DATA_DIR" ]; then
     log_info "gentle-ai is not installed"
     return 2
+  fi
+  if [ -e "$PREFIX/bin/gentle-ai" ] && ! _gentle_ai_bin_owned; then
+    log_error "Refusing to remove unowned command: $PREFIX/bin/gentle-ai"
+    return 1
+  fi
+  if [ -d "$GENTLE_AI_DATA_DIR" ] && ! _gentle_ai_data_owned; then
+    log_error "Refusing to remove gentle-ai data not owned by Karnel: $GENTLE_AI_DATA_DIR"
+    return 1
   fi
   log_info "Uninstalling gentle-ai..."
   mkdir -p "$(dirname "$LOG_FILE")"
 
-  rm -f "$PREFIX/bin/gentle-ai"
-  rm -rf "$GENTLE_AI_DATA_DIR"
+  if _gentle_ai_bin_owned; then
+    rm -f "$PREFIX/bin/gentle-ai"
+  fi
+  if _gentle_ai_data_owned; then
+    rm -rf "$GENTLE_AI_DATA_DIR"
+  fi
 
   if [ ! -f "$PREFIX/bin/gentle-ai" ] && [ ! -d "$GENTLE_AI_DATA_DIR" ]; then
     log_success "gentle-ai uninstalled"

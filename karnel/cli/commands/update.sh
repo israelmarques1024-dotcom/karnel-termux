@@ -91,7 +91,7 @@ _update_full_module() {
   local target="$1"
 
   case "$target" in
-  core|karnel)
+  karnel)
     update_karnel
     ;;
   lang)
