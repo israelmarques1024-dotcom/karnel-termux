@@ -121,8 +121,14 @@ agent_models_url() {
 agent_check_server() {
 	local models
 	models=$(curl -fsS -m 6 "$(agent_models_url)" 2>/dev/null) || {
-		log_warn "Cannot reach endpoint: ${D_CYAN}$AGENT_ENDPOINT${D_NC}"
-		list_item "Start your server, e.g.: ${D_CYAN}cactus serve Cactus-Compute/gemma-4-E2B-it --host 127.0.0.1 --port 8000 --no-cloud-handoff${D_NC}"
+		if ! command -v cactus &>/dev/null; then
+			log_warn "Cannot reach endpoint: ${D_CYAN}$AGENT_ENDPOINT${D_NC} — Cactus is not installed"
+			list_item "Install it: ${D_CYAN}karnel install ai --cactus${D_NC}"
+			list_item "Or point to a running server: ${D_CYAN}karnel agent config endpoint <url>${D_NC}"
+		else
+			log_warn "Cannot reach endpoint: ${D_CYAN}$AGENT_ENDPOINT${D_NC}"
+			list_item "Start your server, e.g.: ${D_CYAN}$AGENT_SERVER_CMD${D_NC}"
+		fi
 		return 1
 	}
 	if command -v jq &>/dev/null && echo "$models" | jq -e '.data' &>/dev/null; then

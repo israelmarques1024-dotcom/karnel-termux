@@ -1142,9 +1142,22 @@ agent_server_ensure() {
 		return 0
 	fi
 	if ! command -v cactus &>/dev/null; then
-		log_warn "cactus not installed — start the server manually:"
-		list_item "${D_CYAN}$AGENT_SERVER_CMD${D_NC}"
-		return 1
+		echo
+		log_warn "Cactus (the local model server) is not installed"
+		if agent_confirm "Install Cactus now? (karnel install ai --cactus)" _agent_install_cactus; then
+			import "@/tools/ai/cactus/install"
+			if install_cactus; then
+				log_success "Cactus installed — starting the model server…"
+			else
+				log_error "Cactus installation failed — start the server manually:"
+				list_item "${D_CYAN}$AGENT_SERVER_CMD${D_NC}"
+				return 1
+			fi
+		else
+			log_info "Install it later with: ${D_CYAN}karnel install ai --cactus${D_NC}"
+			list_item "Or start the server manually: ${D_CYAN}$AGENT_SERVER_CMD${D_NC}"
+			return 1
+		fi
 	fi
 	echo
 	log_info "Starting the Cactus model server in the background…"

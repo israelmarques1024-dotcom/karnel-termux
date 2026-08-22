@@ -245,12 +245,16 @@ _cactus_cli_install_deps_native() {
 }
 
 _cactus_cli_install_pip_glibc_impl() {
+  local pkg_spec="cactus-compute==${CACTUS_VERSION}"
   local install_args=""
   if [ "${1:-install}" = "update" ]; then
+    pkg_spec='cactus-compute>=2,<3'
     install_args="--upgrade"
   fi
 
-  if ! _cactus_cli_glibc_run -m pip install $install_args cactus-compute &>>"$CACTUS_CLI_LOG_FILE"; then
+  _cactus_cli_glibc_run -m pip install $install_args "$pkg_spec" 2>&1 | tee -a "$CACTUS_CLI_LOG_FILE"
+  local pip_rc=${PIPESTATUS[0]}
+  if (( pip_rc != 0 )); then
     log_error "Failed to install Cactus Engine CLI"
     return 1
   fi
@@ -261,8 +265,10 @@ _cactus_cli_install_pip_glibc_impl() {
 }
 
 _cactus_cli_install_pip_glibc() {
-  log_info "This downloads the Cactus Engine wheel (~24 MB) plus core deps (numpy, huggingface-hub, fastapi) into the glibc Python environment"
-  loading "Installing Cactus-compute (pip)" _cactus_cli_install_pip_glibc_impl "$@"
+  log_info "This downloads the Cactus Engine wheel (~26 MB) plus dependencies (torch, numpy, fastapi...) — it can take several minutes; progress is shown below"
+  log_info "Full log: ${D_CYAN}$CACTUS_CLI_LOG_FILE${D_NC}"
+  echo
+  _cactus_cli_install_pip_glibc_impl "$@"
 }
 
 _cactus_cli_post_install_glibc() {
@@ -321,7 +327,7 @@ _cactus_cli_verify_impl() {
 }
 
 _cactus_cli_verify_glibc() {
-  loading "Verifying Cactus Engine CLI" _cactus_cli_verify_impl
+  loading "Verifying Cactus Engine CLI (first engine load, may take a few minutes)" _cactus_cli_verify_impl
 }
 
 _cactus_cli_create_glibc_wrapper() {
