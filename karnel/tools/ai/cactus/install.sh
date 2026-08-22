@@ -336,12 +336,18 @@ _cactus_cli_create_glibc_wrapper() {
     log_error "Wrapper template not found at $wrapper_src"
     return 1
   fi
-  cp "$wrapper_src" "$PREFIX/bin/cactus"
+  sed "1s|^#!.*|#!$PREFIX/bin/bash|" "$wrapper_src" >"$PREFIX/bin/cactus"
   chmod +x "$PREFIX/bin/cactus"
   return 0
 }
 
 _cactus_cli_install_native() {
+  if ! _cactus_cpu_supported; then
+    log_error "This CPU lacks ARMv8.1 features (LSE/fp16/dotprod) required by the native Cactus engine — it would crash with Illegal instruction"
+    list_item "Re-run ${D_CYAN}karnel install ai --cactus${D_NC} and choose ${D_CYAN}proot-distro (ubuntu container)${D_NC}"
+    list_item "That method runs under qemu-aarch64 emulation: functional but very slow on this CPU"
+    return 1
+  fi
   _cactus_cli_install_deps_native || return 1
   _cactus_cli_install_pip_glibc || return 1
   _cactus_cli_verify_glibc || return 1
@@ -370,7 +376,7 @@ _cactus_cli_create_proot_wrapper() {
     log_error "Wrapper template not found at $wrapper_src"
     return 1
   fi
-  cp "$wrapper_src" "$PREFIX/bin/cactus"
+  sed "1s|^#!.*|#!$PREFIX/bin/bash|" "$wrapper_src" >"$PREFIX/bin/cactus"
   chmod +x "$PREFIX/bin/cactus"
   return 0
 }
