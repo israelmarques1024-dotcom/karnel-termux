@@ -121,7 +121,14 @@ agent_models_url() {
 agent_check_server() {
 	local models
 	models=$(curl -fsS -m 6 "$(agent_models_url)" 2>/dev/null) || {
-		if ! command -v cactus &>/dev/null; then
+		if agent_server_running; then
+			log_warn "The model server is starting — first run downloads the model (${D_CYAN}this can take several minutes${D_NC})"
+			list_item "Watch progress: ${D_CYAN}tail -f $AGENT_SERVER_LOG${D_NC}"
+			list_item "It will answer automatically once ${D_CYAN}$AGENT_ENDPOINT${D_NC} is up"
+		elif pgrep -f "cactus.* serve|cactus.launcher.py serve" &>/dev/null; then
+			log_warn "A Cactus server process is running but ${D_CYAN}$AGENT_ENDPOINT${D_NC} is not answering yet — it may still be downloading or loading the model"
+			list_item "Watch progress: ${D_CYAN}tail -f $AGENT_SERVER_LOG${D_NC}"
+		elif ! command -v cactus &>/dev/null; then
 			log_warn "Cannot reach endpoint: ${D_CYAN}$AGENT_ENDPOINT${D_NC} — Cactus is not installed"
 			list_item "Install it: ${D_CYAN}karnel install ai --cactus${D_NC}"
 			list_item "Or point to a running server: ${D_CYAN}karnel agent config endpoint <url>${D_NC}"
