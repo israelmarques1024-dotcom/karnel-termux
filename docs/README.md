@@ -29,3 +29,7 @@ With a single CLI (`karnel`), you can install and manage 43 AI tools, 8 language
 - **[Supabase CLI](./cli/README.md#supabase--remote-project-helpers)** — `karnel supabase` remote-project helpers
 - **[Architecture](./ARCHITECTURE.md)** — Project structure, module system, import mechanism
 - **[Changelog](./CHANGELOG.md)** — Version history, bug fixes, known issues
+
+## Credits
+
+Created by **Israel Marques**. Core agent contributions by **devcorex**.

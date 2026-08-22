@@ -1,5 +1,21 @@
 # Documentation Changelog
 
+## 4.16.1 - 2026-08-22
+
+- `karnel agent ask/run`: when the model endpoint is unreachable and Cactus is
+  not installed, the agent now says so explicitly and offers to install Cactus
+  on the spot (`karnel install ai --cactus`) instead of printing a generic
+  "start your server" hint that referenced a binary the user did not have.
+- Cactus glibc installer: fresh installs are now pinned to the tested
+  `cactus-compute` version (2.0.1) — the previous unpinned spec silently pulled
+  2.1.x with a ~1.5 GB torch/CUDA dependency chain; updates keep the
+  `>=2,<3` range used by the proot path.
+- Cactus glibc installer: pip output is now streamed live (and mirrored to the
+  install log) instead of being hidden behind an indeterminate spinner, which
+  made multi-minute downloads look frozen.
+- Credits: devcorex credited as a core agent contributor in `karnel agent`
+  help/REPL screens and project READMEs.
+
 ## 4.16.0 - 2026-08-20
 
 - Rebranded fully to Karnel: removed every remaining reference to DevCoreX and
