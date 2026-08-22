@@ -1144,18 +1144,22 @@ agent_server_ensure() {
 	if ! command -v cactus &>/dev/null; then
 		echo
 		log_warn "Cactus (the local model server) is not installed"
-		if agent_confirm "Install Cactus now? (karnel install ai --cactus)" _agent_install_cactus; then
+		list_item "Install: ${D_CYAN}karnel install ai --cactus${D_NC}"
+		echo
+		if agent_confirm "Install Cactus now?" _agent_install_cactus; then
 			import "@/tools/ai/cactus/install"
-			if install_cactus; then
+			install_cactus
+			local _cactus_rc=$?
+			if (( _cactus_rc == 0 || _cactus_rc == 2 )); then
 				log_success "Cactus installed — starting the model server…"
 			else
-				log_error "Cactus installation failed — start the server manually:"
-				list_item "${D_CYAN}$AGENT_SERVER_CMD${D_NC}"
+				log_error "Cactus installation failed — try again later:"
+				list_item "${D_CYAN}karnel install ai --cactus${D_NC}"
+				list_item "Log: ${D_CYAN}$KARNEL_CACHE/install_ai.log${D_NC}"
 				return 1
 			fi
 		else
-			log_info "Install it later with: ${D_CYAN}karnel install ai --cactus${D_NC}"
-			list_item "Or start the server manually: ${D_CYAN}$AGENT_SERVER_CMD${D_NC}"
+			list_item "When it is installed, the server starts automatically"
 			return 1
 		fi
 	fi
@@ -1202,7 +1206,7 @@ agent_server_stop() {
 agent_confirm() {
 	local prompt="$1" var="$2" _val
 	while true; do
-		printf '    %s%s [%s]%s\n' "$D_YELLOW" "$prompt" "${D_GREEN}y${GRAY}/${D_RED}n${NC}" "$NC" >&2
+		printf '    %b%b [%b]%b\n' "$D_YELLOW" "$prompt" "${D_GREEN}y${GRAY}/${D_RED}n${NC}" "$NC" >&2
 		printf '    > ' >&2
 		read -rn1 _val
 		echo >&2
@@ -1215,7 +1219,7 @@ agent_confirm() {
 			read -r "$var" <<<"n"
 			return 1
 			;;
-		*) printf '    %s✖%s Reply y or n\n' "$RED" "$NC" >&2 ;;
+		*) printf '    %b✖%b Reply y or n\n' "$RED" "$NC" >&2 ;;
 		esac
 	done
 }
