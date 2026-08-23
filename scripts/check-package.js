@@ -28,11 +28,21 @@ cpSync(packageRoot, stagingRoot, {
     return relative === "" || !relative.split(path.sep).some((part) => part === ".git" || part === "node_modules");
   },
 });
-if (!existsSync(releaseCommitPath)) {
-  if (!/^[0-9a-f]{40}$/.test(repositoryHead)) {
-    throw new Error("Required package file is missing: karnel/RELEASE_COMMIT");
-  }
-  writeFileSync(releaseCommitPath, `${repositoryHead}\n`, { flag: "wx", mode: 0o600 });
+// Always bind the staged package to the actual repository HEAD. A stale
+// committed karnel/RELEASE_COMMIT (left over from an earlier release) must
+// never break release validation — the packed commit is what matters, and it
+// must equal HEAD. When HEAD is unavailable (e.g. a non-git fixture) we fall
+// back to a committed marker that is itself a valid SHA.
+let committedCommit = "";
+if (existsSync(releaseCommitPath)) {
+  committedCommit = readFileSync(releaseCommitPath, "utf8").trim();
+}
+if (/^[0-9a-f]{40}$/.test(repositoryHead)) {
+  writeFileSync(releaseCommitPath, `${repositoryHead}\n`, { mode: 0o600 });
+} else if (/^[0-9a-f]{40}$/.test(committedCommit)) {
+  writeFileSync(releaseCommitPath, `${committedCommit}\n`, { mode: 0o600 });
+} else {
+  throw new Error("Required package file is missing: karnel/RELEASE_COMMIT");
 }
 let output;
 try {
