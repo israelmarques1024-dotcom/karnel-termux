@@ -352,6 +352,22 @@ read_select() {
 	local var="$2"
 	shift 2
 	local -a options=("$@")
+
+	# Non-interactive mode: a specific --<tool> was requested, so auto-pick
+	# the recommended (first) option instead of prompting. This also covers
+	# piped/non-TTY input. Tools can still override via KARNEL_INSTALL_METHOD.
+	local _auto="${KARNEL_INSTALL_METHOD:-0}"
+	if [[ -n "${KARNEL_NONINTERACTIVE:-}" ]] || [[ ! -t 0 ]]; then
+		if [[ "$_auto" != "0" ]] && (( _auto < ${#options[@]} )); then
+			selected="$_auto"
+		else
+			selected=0
+		fi
+		read -r "$var" <<<"${options[$selected]}"
+		echo -e "    ${GRAY}└─${D_CYAN}▶ ${D_NC}${options[$selected]}${D_NC}" >&2
+		return 0
+	fi
+
 	local selected=0
 	local total=${#options[@]}
 	local cols

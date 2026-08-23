@@ -156,6 +156,10 @@ _run_ai_tool_action() {
   local id="$2"
   local func_name="${action}_${id//-/_}"
 
+  # A specific --<tool> was requested: skip nested interactive menus and
+  # auto-select the recommended installation method.
+  export KARNEL_NONINTERACTIVE=1
+
   _ai_tool_registered "$id" || return 127
 
   if [[ "$action" != "reinstall" ]]; then
