@@ -646,8 +646,10 @@ update_walkie() {
     return 0
   fi
   log_info "New walkie revision available: $remote_commit (installed: $installed_commit)"
-  local answer
-  read -r -p "Update walkie? [Y/n] " answer
+  local answer="y"
+  if [[ -z "$KARNEL_NONINTERACTIVE" && -t 0 ]]; then
+    read -r -p "Update walkie? [Y/n] " answer
+  fi
   case "$answer" in
     ""|y|Y|yes|Yes|YES) _update_walkie ;;
     *) log_info "Update skipped" ;;

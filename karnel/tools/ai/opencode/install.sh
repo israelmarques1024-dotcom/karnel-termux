@@ -96,6 +96,8 @@ _install_opencode_proot_impl() {
     npm install -g opencode-ai@1.18.15
   ' &>>"$LOG_FILE"
 
+  proot_ubuntu /bin/bash -c 'touch /root/.opencode/.karnel-managed' &>>"$LOG_FILE"
+
   local ubuntu_root
   ubuntu_root="$(detect_ubuntu_root)"
   if [ -z "$ubuntu_root" ]; then
@@ -153,7 +155,11 @@ uninstall_opencode() {
     return 0
   fi
 
-  proot_ubuntu /bin/bash -c 'rm -rf /root/.opencode' &>>"$LOG_FILE"
+  if proot_ubuntu test -f /root/.opencode/.karnel-managed &>>"$LOG_FILE"; then
+    proot_ubuntu /bin/bash -c 'rm -rf /root/.opencode' &>>"$LOG_FILE"
+  else
+    log_warn "OpenCode data in the Ubuntu container was not installed by Karnel — leaving it untouched"
+  fi
   local ubuntu_root
   ubuntu_root="$(detect_ubuntu_root)/root/.bashrc"
   if [ -f "$ubuntu_root" ]; then
@@ -179,7 +185,12 @@ _do_update_opencode() {
     return $?
   fi
 
-  proot_ubuntu /bin/bash -c 'rm -rf /root/.opencode' &>>"$LOG_FILE"
+  if proot_ubuntu test -f /root/.opencode/.karnel-managed &>>"$LOG_FILE"; then
+    proot_ubuntu /bin/bash -c 'rm -rf /root/.opencode' &>>"$LOG_FILE"
+  else
+    log_warn "Existing OpenCode in the Ubuntu container was not installed by Karnel — aborting update to avoid data loss"
+    return 1
+  fi
   proot_ubuntu /bin/bash -c '
     export SHELL=/bin/bash
     export TMPDIR=/tmp

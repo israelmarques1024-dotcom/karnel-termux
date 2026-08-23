@@ -378,11 +378,18 @@ agent_apply_files() {
 	fi
 	while IFS=$'\t' read -r n path lang; do
 		[[ -z "$n" ]] && continue
-		# resolve relative paths against the workspace (absolute paths are used as-is)
+		# Resolve the destination and CONFINE it to the workspace. Absolute
+		# paths and ".." escapes are rejected so the model cannot overwrite
+		# arbitrary files (e.g. shell rc files outside the project).
 		if [[ "$path" != /* ]]; then
 			target="$ws/$path"
 		else
 			target="$path"
+		fi
+		target_abs="$(realpath -m "$target" 2>/dev/null)"
+		if [[ "$target_abs" != "$ws"/* ]]; then
+			log_error "Refusing to write outside the workspace: $path"
+			continue
 		fi
 		# write-protected: the model must not create/edit a file the task
 		# only references (delete/move/run...). Skip it silently.
@@ -410,6 +417,21 @@ agent_apply_files() {
 			# with identical content (e.g. re-emitting an attached file
 			# during a read/explain task) — nothing to create or edit
 			continue
+		fi
+		# Overwriting an existing file requires approval (mirrors the
+		# command confirmation flow). New files inside the workspace are
+		# applied automatically.
+		if (( existed )) && [[ "$AGENT_CONFIRM_COMMANDS" == "1" && "$AGENT_YES" != "1" ]]; then
+			if [[ -t 0 ]]; then
+				local _wf
+				if ! agent_confirm "Overwrite $target?" _wf; then
+					log_warn "Skipped overwriting $target"
+					continue
+				fi
+			else
+				log_warn "No terminal — skipping overwrite: $target (use -y to auto-approve)"
+				continue
+			fi
 		fi
 		if cat "$d/action_file_$n" >"$target" 2>/dev/null; then
 			if (( shown == 0 )); then
@@ -453,8 +475,12 @@ _agent_cmd_is_write() {
 	if printf '%s\n' "$cmd" | grep -qE '(^|[;&|[:space:]])(>|>>)[^=&]'; then
 		return 0
 	fi
-	# blocklist of commands that write to disk / change state
-	printf '%s\n' "$cmd" | grep -qiE '(^|[;&|[:space:]])(rm|rmdir|unlink|mv|cp|mkdir|touch|ln|chmod|chown|chgrp|install|truncate|tee|dd|mkfs|mount|umount|tar|gzip|gunzip|bzip2|xz|zstd|curl|wget|python3|node|npm|bun|yarn|pnpm|cargo|go |rustc|git (add|commit|push|pull|merge|rebase|reset|checkout|switch|restore|clean|stash|tag|clone|init|rm|mv)|pkg (install|uninstall|upgrade|reinstall|update)|apt( |-)|apt-get|dpkg|yum|dnf|pacman|brew|pip|pip3|uv|conda|mysql|psql|sqlite3|redis-cli|kill|pkill|killall|service|systemctl|halt|reboot|shutdown|sudo|doas|su)[[:space:]]' && return 0
+	# command substitution / backticks execute arbitrary code → write
+	if printf '%s\n' "$cmd" | grep -qE '\$\(|`'; then
+		return 0
+	fi
+	# blocklist of commands that write to disk / change state / spawn a shell
+	printf '%s\n' "$cmd" | grep -qiE '(^|[;&|[:space:]])(rm|rmdir|unlink|mv|cp|mkdir|touch|ln|chmod|chown|chgrp|install|truncate|tee|dd|mkfs|mount|umount|tar|gzip|gunzip|bzip2|xz|zstd|curl|wget|python3|python|node|npm|bun|yarn|pnpm|cargo|go |rustc|git (add|commit|push|pull|merge|rebase|reset|checkout|switch|restore|clean|stash|tag|clone|init|rm|mv)|pkg (install|uninstall|upgrade|reinstall|update)|apt( |-)|apt-get|dpkg|yum|dnf|pacman|brew|pip|pip3|uv|conda|mysql|psql|sqlite3|redis-cli|kill|pkill|killall|service|systemctl|halt|reboot|shutdown|sudo|doas|su|pkexec|chroot|bash|sh|dash|zsh|ksh|eval|source|exec|screen|tmux)[[:space:]]' && return 0
 	return 1
 }
 
@@ -1107,7 +1133,11 @@ agent_voice_capture() {
 # left alone.
 # ------------------------------------------------------------
 AGENT_SERVER_LOG="$KARNEL_CACHE/karnel-agent.log"
-AGENT_SERVER_PID_FILE="$KARNEL_CACHE/agent/server.pid"
+# Per-session PID file so one `karnel agent` session does not tear down a
+# server started by a different session. AGENT_SERVER_OWNED tracks whether
+# THIS session launched the server (only then do we stop it on exit).
+AGENT_SERVER_PID_FILE="$KARNEL_CACHE/agent/server_$$.pid"
+AGENT_SERVER_OWNED="${AGENT_SERVER_OWNED:-0}"
 
 agent_server_running() {
 	[[ -f "$AGENT_SERVER_PID_FILE" ]] || return 1
@@ -1168,6 +1198,7 @@ agent_server_ensure() {
 	list_item "Logs: ${D_CYAN}$AGENT_SERVER_LOG${D_NC}"
 	mkdir -p "$(dirname "$AGENT_SERVER_PID_FILE")"
 	rm -f "$AGENT_SERVER_PID_FILE"
+	AGENT_SERVER_OWNED=1
 	# Cloud handoff: if a Cactus Cloud key is present, drop --no-cloud-handoff
 	# so the local server proxies inference to the cloud (fast on this device).
 	# Keyless users keep the fully-local path.
@@ -1194,6 +1225,9 @@ agent_server_ensure() {
 }
 
 agent_server_stop() {
+	# Only stop a server THIS session started; a server launched by
+	# another session (or manually) is left untouched.
+	[[ "$AGENT_SERVER_OWNED" == "1" ]] || return 0
 	[[ -f "$AGENT_SERVER_PID_FILE" ]] || return 0
 	local pid
 	pid=$(cat "$AGENT_SERVER_PID_FILE" 2>/dev/null)

@@ -36,14 +36,24 @@ agent_config_load() {
 	AGENT_TEMPERATURE="${AGENT_TEMPERATURE:-0.3}"
 	AGENT_MAX_TOKENS="${AGENT_MAX_TOKENS:-2048}"
 	AGENT_MAX_ITERATIONS="${AGENT_MAX_ITERATIONS:-12}"
-	# the agent ALWAYS starts in the directory you run it from — the
-	# workspace is never loaded from the persisted config (a stale
-	# saved path used to pin the agent to $HOME/karnel-data). Override
-	# it per session with `-w/--workspace` or `/workspace`.
-	AGENT_WORKSPACE="$PWD"
+	# Honour a saved workspace ONLY when the user explicitly configured
+	# one (the persisted file contains AGENT_WORKSPACE=) and it still
+	# exists. Otherwise the agent always starts in the current directory.
+	if grep -q '^AGENT_WORKSPACE=' "$AGENT_CONF_FILE" 2>/dev/null; then
+		[[ -d "$AGENT_WORKSPACE" ]] || AGENT_WORKSPACE="$PWD"
+	else
+		AGENT_WORKSPACE="$PWD"
+	fi
 	AGENT_CONFIRM_COMMANDS="${AGENT_CONFIRM_COMMANDS:-1}"
 	AGENT_CONTEXT_WINDOW="${AGENT_CONTEXT_WINDOW:-8192}"
-AGENT_SERVER_CMD="${AGENT_SERVER_CMD:-cactus serve Cactus-Compute/gemma-4-e2b-it-cq4 --host 127.0.0.1 --port 8000 --no-cloud-handoff}"
+	AGENT_SERVER_CMD="${AGENT_SERVER_CMD:-cactus serve Cactus-Compute/gemma-4-e2b-it-cq4 --host 127.0.0.1 --port 8000 --no-cloud-handoff}"
+	# Reject tampered config (defense-in-depth): numeric/boolean fields
+	# must match the expected shape or they are reset to safe defaults.
+	[[ "$AGENT_TEMPERATURE" =~ ^[0-9]+(\.[0-9]+)?$ ]] || AGENT_TEMPERATURE=0.3
+	[[ "$AGENT_MAX_TOKENS" =~ ^[0-9]+$ ]] || AGENT_MAX_TOKENS=2048
+	[[ "$AGENT_MAX_ITERATIONS" =~ ^[0-9]+$ ]] || AGENT_MAX_ITERATIONS=12
+	[[ "$AGENT_CONFIRM_COMMANDS" =~ ^[01]$ ]] || AGENT_CONFIRM_COMMANDS=1
+	[[ "$AGENT_CONTEXT_WINDOW" =~ ^[0-9]+$ ]] || AGENT_CONTEXT_WINDOW=8192
 }
 
 # ------------------------------------------------------------
@@ -51,17 +61,19 @@ AGENT_SERVER_CMD="${AGENT_SERVER_CMD:-cactus serve Cactus-Compute/gemma-4-e2b-it
 # ------------------------------------------------------------
 agent_config_save() {
 	mkdir -p "$AGENT_CONF_DIR"
-	cat >"$AGENT_CONF_FILE" <<EOF
-# karnel agent — persisted settings
-AGENT_MODEL="$AGENT_MODEL"
-AGENT_ENDPOINT="$AGENT_ENDPOINT"
-AGENT_TEMPERATURE=$AGENT_TEMPERATURE
-AGENT_MAX_TOKENS=$AGENT_MAX_TOKENS
-AGENT_MAX_ITERATIONS=$AGENT_MAX_ITERATIONS
-AGENT_CONFIRM_COMMANDS=$AGENT_CONFIRM_COMMANDS
-AGENT_CONTEXT_WINDOW=$AGENT_CONTEXT_WINDOW
-AGENT_SERVER_CMD="$AGENT_SERVER_CMD"
-EOF
+	{
+		printf 'AGENT_MODEL="%s"\n' "$AGENT_MODEL"
+		printf 'AGENT_ENDPOINT="%s"\n' "$AGENT_ENDPOINT"
+		printf 'AGENT_TEMPERATURE="%s"\n' "$AGENT_TEMPERATURE"
+		printf 'AGENT_MAX_TOKENS="%s"\n' "$AGENT_MAX_TOKENS"
+		printf 'AGENT_MAX_ITERATIONS="%s"\n' "$AGENT_MAX_ITERATIONS"
+		printf 'AGENT_CONFIRM_COMMANDS="%s"\n' "$AGENT_CONFIRM_COMMANDS"
+		printf 'AGENT_CONTEXT_WINDOW="%s"\n' "$AGENT_CONTEXT_WINDOW"
+		printf 'AGENT_SERVER_CMD="%s"\n' "$AGENT_SERVER_CMD"
+		if [[ "${KARNEL_AGENT_WS_SET:-0}" == "1" ]]; then
+			printf 'AGENT_WORKSPACE="%s"\n' "$AGENT_WORKSPACE"
+		fi
+	} >"$AGENT_CONF_FILE"
 }
 
 # ------------------------------------------------------------
@@ -73,13 +85,26 @@ agent_config_set() {
 	case "$key" in
 	model | --model | -m) AGENT_MODEL="$value" ;;
 	endpoint | --endpoint | -u) AGENT_ENDPOINT="$value" ;;
-	temp | temperature) AGENT_TEMPERATURE="$value" ;;
-	max_tokens | maxtokens) AGENT_MAX_TOKENS="$value" ;;
-	iterations | max_iterations) AGENT_MAX_ITERATIONS="$value" ;;
-	confirm_commands | confirm) AGENT_CONFIRM_COMMANDS="$value" ;;
-	context_window | context) AGENT_CONTEXT_WINDOW="$value" ;;
+	temp | temperature)
+		[[ "$value" =~ ^[0-9]+(\.[0-9]+)?$ ]] || { log_error "temperature must be a number (e.g. 0.3)"; return 1; }
+		AGENT_TEMPERATURE="$value" ;;
+	max_tokens | maxtokens)
+		[[ "$value" =~ ^[0-9]+$ ]] || { log_error "max_tokens must be a positive integer"; return 1; }
+		AGENT_MAX_TOKENS="$value" ;;
+	iterations | max_iterations)
+		[[ "$value" =~ ^[0-9]+$ ]] || { log_error "iterations must be a positive integer"; return 1; }
+		AGENT_MAX_ITERATIONS="$value" ;;
+	confirm_commands | confirm)
+		[[ "$value" =~ ^[01]$ ]] || { log_error "confirm_commands must be 0 or 1"; return 1; }
+		AGENT_CONFIRM_COMMANDS="$value" ;;
+	context_window | context)
+		[[ "$value" =~ ^[0-9]+$ ]] || { log_error "context_window must be a positive integer"; return 1; }
+		AGENT_CONTEXT_WINDOW="$value" ;;
 	server_command | server) AGENT_SERVER_CMD="$value" ;;
-	workspace) AGENT_WORKSPACE="$value" ;;
+	workspace)
+		[[ -n "$value" ]] || { log_error "workspace requires a path"; return 1; }
+		AGENT_WORKSPACE="$value"
+		KARNEL_AGENT_WS_SET=1 ;;
 	*)
 		log_error "Unknown setting: $key"
 		echo
@@ -162,15 +187,26 @@ agent_models_list() {
 agent_build_payload() {
 	local messages="$1"
 	local extra="${2:-}"
-	local payload
+	local payload temp mt
+	# Coerce numeric fields to valid JSON numbers; a bad/empty config
+	# value would otherwise make jq emit an empty payload and silently
+	# break every ask/run call.
+	temp="$AGENT_TEMPERATURE"
+	mt="$AGENT_MAX_TOKENS"
+	[[ "$temp" =~ ^[0-9]+(\.[0-9]+)?$ ]] || temp=0.3
+	[[ "$mt" =~ ^[0-9]+$ ]] || mt=2048
 	payload=$(jq -nc \
 		--arg model "$AGENT_MODEL" \
 		--argjson msgs "$messages" \
-		--argjson temp "$AGENT_TEMPERATURE" \
-		--argjson mt "$AGENT_MAX_TOKENS" \
+		--argjson temp "$temp" \
+		--argjson mt "$mt" \
 		'{model:$model, messages:$msgs, temperature:$temp, max_tokens:$mt}')
+	if [[ -z "$payload" ]]; then
+		log_error "Failed to build request payload (check agent config values)"
+		return 1
+	fi
 	if [[ -n "$extra" ]]; then
-		payload=$(echo "$payload" | jq -c "$extra")
+		payload=$(echo "$payload" | jq -c "$extra") || { log_error "Failed to apply payload extra"; return 1; }
 	fi
 	echo "$payload"
 }

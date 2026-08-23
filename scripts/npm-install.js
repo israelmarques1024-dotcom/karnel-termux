@@ -91,7 +91,26 @@ const main = () => {
   }
 
   try {
-    const releaseCommit = fs.readFileSync(releaseCommitPath, 'utf8').trim();
+    let releaseCommit = '';
+    if (fs.existsSync(releaseCommitPath)) {
+      releaseCommit = fs.readFileSync(releaseCommitPath, 'utf8').trim();
+    }
+    if (!/^[0-9a-f]{40}$/.test(releaseCommit)) {
+      // The published tarball may not contain a baked RELEASE_COMMIT (e.g. a
+      // plain `npm publish`). Derive it from git so the installer's immutable
+      // commit-SHA requirement is still satisfied.
+      try {
+        releaseCommit = execSync('git rev-parse HEAD', {
+          cwd: path.resolve(__dirname, '..'),
+          encoding: 'utf8'
+        }).trim();
+      } catch {
+        releaseCommit = '';
+      }
+      if (/^[0-9a-f]{40}$/.test(releaseCommit)) {
+        fs.writeFileSync(releaseCommitPath, releaseCommit + '\n');
+      }
+    }
     if (!/^[0-9a-f]{40}$/.test(releaseCommit)) {
       throw new Error('package contains an invalid RELEASE_COMMIT');
     }

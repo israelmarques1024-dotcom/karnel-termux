@@ -145,7 +145,7 @@ bootstrap_dependencies() {
 
 	if [[ $needed_tput -eq 1 ]]; then
 		echo -e "  ${P_BORDER}→${P_NC}  Installing ncurses-utils..."
-		pkg install -y ncurses-utils &>/dev/null
+		pkg install -y ncurses-utils &>/dev/null || true
 		echo -e "  ${P_OK}✔${P_NC}  ncurses installed"
 		echo
 	fi
@@ -153,7 +153,7 @@ bootstrap_dependencies() {
 	if [[ $needed_git -eq 1 ]]; then
 		log_info "Installing git..."
 		progress_bar 0 10
-		pkg install -y git &>/dev/null
+		pkg install -y git &>/dev/null || true
 		progress_bar 10 10
 		echo
 		log_ok "git installed"
@@ -162,7 +162,7 @@ bootstrap_dependencies() {
 	if [[ $needed_glow -eq 1 ]]; then
 		log_info "Installing glow..."
 		progress_bar 0 10
-		pkg install -y glow &>/dev/null
+		pkg install -y glow &>/dev/null || true
 		progress_bar 10 10
 		echo
 		log_ok "glow installed"
@@ -171,7 +171,7 @@ bootstrap_dependencies() {
 	if [[ $needed_gh -eq 1 ]]; then
 		log_info "Installing gh (GitHub CLI)..."
 		progress_bar 0 10
-		pkg install -y gh &>/dev/null
+		pkg install -y gh &>/dev/null || true
 		progress_bar 10 10
 		echo
 		log_ok "gh installed"
@@ -180,7 +180,7 @@ bootstrap_dependencies() {
 	if [[ $needed_rg -eq 1 ]]; then
 		log_info "Installing ripgrep..."
 		progress_bar 0 10
-		pkg install -y ripgrep &>/dev/null
+		pkg install -y ripgrep &>/dev/null || true
 		progress_bar 10 10
 		echo
 		log_ok "ripgrep installed"

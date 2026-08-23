@@ -14,8 +14,10 @@ import() {
 	local base="${KARNEL_PATH}"
 	local resolved="${1/@/$base}.sh"
 	local canonical base_canonical
-	canonical="$(realpath "$resolved" 2>/dev/null || readlink -f "$resolved" 2>/dev/null || echo "$resolved")"
-	base_canonical="$(realpath "$base" 2>/dev/null || readlink -f "$base" 2>/dev/null || echo "$base")"
+	canonical="$(realpath "$resolved" 2>/dev/null || readlink -f "$resolved" 2>/dev/null)"
+	[[ -z "$canonical" ]] && { echo "karnel: import error: cannot resolve path: $1" >&2; return 1; }
+	base_canonical="$(realpath "$base" 2>/dev/null || readlink -f "$base" 2>/dev/null)"
+	[[ -z "$base_canonical" ]] && { echo "karnel: import error: cannot resolve KARNEL_PATH" >&2; return 1; }
 
 	if [[ "$canonical" != "$base_canonical"/* ]]; then
 		echo "karnel: import error: path traversal denied: $1" >&2

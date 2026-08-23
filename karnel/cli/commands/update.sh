@@ -210,6 +210,18 @@ _update_cleanup() {
   rm -f "$KARNEL_CACHE/new_version" "$KARNEL_CACHE/last_version_check"
 }
 
+_update_release_commit() {
+  local tag="$1" commit=""
+  if command -v git &>/dev/null 2>&1; then
+    commit=$(git ls-remote "https://github.com/israelmarques1024-dotcom/karnel-termux.git" "refs/tags/${tag}^{}" 2>/dev/null | awk '{print $1}')
+  fi
+  if [[ -z "$commit" ]] && command -v curl &>/dev/null 2>&1; then
+    commit=$(curl -fsS -m 10 "https://api.github.com/repos/israelmarques1024-dotcom/karnel-termux/commits/${tag}" 2>/dev/null \
+      | grep -m1 '"sha"' | sed -E 's/.*"sha":[[:space:]]*"([0-9a-f]{40})".*/\1/')
+  fi
+  [[ "$commit" =~ ^[0-9a-f]{40}$ ]] && echo "$commit"
+}
+
 _update_try_curl() {
   command -v curl &>/dev/null || return 1
 
@@ -252,10 +264,23 @@ _update_try_curl() {
 
   rm -f "$meta" "$sumfile"
 
-  if bash "$installer" --ref "$tag"; then
-    rm -f "$installer"
-    log_success "Karnel-Termux updated via curl ($tag)"
-    return 0
+  # Resolve the release's target commit so the installer's "immutable
+  # commit SHA" requirement is satisfied even when the downloaded asset
+  # does not have RELEASE_COMMIT baked in.
+  local commit
+  commit=$(_update_release_commit "$tag")
+  if [[ -n "$commit" ]]; then
+    if bash "$installer" --ref "$tag" --commit "$commit"; then
+      rm -f "$installer"
+      log_success "Karnel-Termux updated via curl ($tag)"
+      return 0
+    fi
+  else
+    if bash "$installer" --ref "$tag"; then
+      rm -f "$installer"
+      log_success "Karnel-Termux updated via curl ($tag)"
+      return 0
+    fi
   fi
 
   rm -f "$installer"

@@ -394,7 +394,13 @@ uninstall_kimchi_code() {
       "$HOME/.local/share/kimchi" \
       "$HOME/.local/state/kimchi" \
       "$HOME/.cache/kimchi"
+    # Also remove the binaries installed inside the ubuntu container for
+    # proot/glibc installs (they are not cleaned by _uninstall_kimchi_impl).
+    if [ -n "$(_kimchi_detect_ubuntu_root)" ] && _kimchi_wrapper_owned; then
+      _kimchi_proot_ubuntu /bin/bash -c 'rm -f /usr/local/bin/kimchi && rm -rf /usr/local/share/kimchi' &>>"$LOG_FILE"
+    fi
     loading "Uninstalling Kimchi" _uninstall_kimchi_impl
+    rm -f "$PREFIX/bin/kimchi"
     return $?
   fi
 
