@@ -105,7 +105,14 @@ if ! _update_try_curl >/dev/null 2>&1; then
   printf 'FAIL: curl update did not pass the verified ref\n' >&2
   exit 1
 fi
-test "$(cat "$KARNEL_CACHE/curl-args")" = "--ref $mock_tag"
+# The curl update now resolves and passes the release commit SHA so the
+# installer satisfies its "immutable commit SHA" requirement. Accept either
+# form (ref only, or ref + commit) depending on whether the commit resolved.
+curl_args="$(cat "$KARNEL_CACHE/curl-args")"
+if [[ "$curl_args" != "--ref $mock_tag" && "$curl_args" != "--ref $mock_tag --commit "* ]]; then
+  printf 'FAIL: curl update passed unexpected args: %s\n' "$curl_args" >&2
+  exit 1
+fi
 ((pass += 1))
 
 mock_installer='touch "$KARNEL_CACHE/curl-installed"'
