@@ -405,7 +405,7 @@ _cactus_cli_installed_version() {
   fi
 
   if [ "$method" = "proot" ]; then
-    _spin_capture "Detecting version" bash -c 'proot-distro login --shared-tmp ubuntu -- python3 -c "from importlib.metadata import version; print(version(\"cactus-compute\"))" 2>/dev/null'
+    _spin_capture "Detecting version" bash -c 'proot-distro login --shared-tmp ubuntu -- /opt/karnel/cactus/venv/bin/python -c "from importlib.metadata import version; print(version(\"cactus-compute\"))" 2>/dev/null'
   else
     _spin_capture "Detecting version" bash -c 'printf "%s\n" "from importlib.metadata import version; print(version(\"cactus-compute\"))" | glibc-runner -s "$PREFIX/glibc/bin/python" - 2>/dev/null'
   fi
@@ -418,12 +418,9 @@ _cactus_update_native() {
   fi
 
   if [ "$method" = "proot" ]; then
-    if ! _cactus_proot /bin/bash -c 'python3 -m pip install --break-system-packages --upgrade cactus-compute' &>>"$CACTUS_CLI_LOG_FILE"; then
+    _cactus_ensure_ubuntu || return 1
+    if ! _install_cactus_inside_ubuntu || ! _cactus_apply_emulation_patch || ! _cactus_write_wrapper || ! _cactus_validate; then
       log_error "Failed to update Cactus Engine CLI"
-      return 1
-    fi
-    if ! timeout 300 proot-distro login --shared-tmp ubuntu -- python3 -c "import cactus" &>>"$CACTUS_CLI_LOG_FILE"; then
-      log_error "Cactus Engine CLI updated but the native engine failed to load"
       return 1
     fi
     log_success "Cactus Engine CLI (proot-distro) updated"
@@ -443,7 +440,7 @@ _cactus_uninstall_native() {
   fi
 
   if [ "$method" = "proot" ]; then
-    _cactus_proot python3 -m pip uninstall -y cactus-compute &>>"$CACTUS_CLI_LOG_FILE"
+    proot-distro login ubuntu -- rm -rf /opt/karnel/cactus &>>"$CACTUS_CLI_LOG_FILE"
     rm -f "$PREFIX/bin/cactus"
     rm -rf "$CACTUS_DATA_DIR"
     log_success "Cactus Engine CLI (proot-distro) uninstalled"
