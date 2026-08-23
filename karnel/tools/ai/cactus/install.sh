@@ -191,7 +191,7 @@ _cactus_write_wrapper() {
 # The server loads the engine via ctypes inside the python process, so the
 # whole interpreter must run under qemu-aarch64; CACTUS_EMULATE=1 makes the
 # CLI wrap native subprocess children (bin/run) with qemu as well.
-exec proot-distro login --shared-tmp ubuntu -- env CACTUS_EMULATE=1 qemu-aarch64 -cpu max -L / $CACTUS_CONTAINER_DIR/venv/bin/python -m cactus "\$@"
+exec proot-distro login --shared-tmp ubuntu -- env CACTUS_EMULATE=1${CACTUS_CLOUD_KEY:+ CACTUS_CLOUD_KEY="$CACTUS_CLOUD_KEY"}${CACTUS_BASE_URL:+ CACTUS_BASE_URL="$CACTUS_BASE_URL"} qemu-aarch64 -cpu max -L / $CACTUS_CONTAINER_DIR/venv/bin/python -m cactus "$@"
 EOF
   else
     cat >"$temporary" <<EOF

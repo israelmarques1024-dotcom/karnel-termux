@@ -1168,11 +1168,18 @@ agent_server_ensure() {
 	list_item "Logs: ${D_CYAN}$AGENT_SERVER_LOG${D_NC}"
 	mkdir -p "$(dirname "$AGENT_SERVER_PID_FILE")"
 	rm -f "$AGENT_SERVER_PID_FILE"
+	# Cloud handoff: if a Cactus Cloud key is present, drop --no-cloud-handoff
+	# so the local server proxies inference to the cloud (fast on this device).
+	# Keyless users keep the fully-local path.
+	local server_cmd="$AGENT_SERVER_CMD"
+	if [[ -n "${CACTUS_CLOUD_KEY:-}" ]]; then
+		server_cmd="${server_cmd//--no-cloud-handoff/}"
+	fi
 	# stdin from /dev/null so proot-distro (used by the cactus wrapper)
 	# never blocks waiting for the terminal. The background wrapper writes
 	# its OWN real PID (setsid may fork, so $! can point at a dead
 	# intermediate); `exec` keeps that PID for the actual server.
-	setsid bash -c 'echo $$ > "$1"; shift; exec "$@"' _ "$AGENT_SERVER_PID_FILE" $AGENT_SERVER_CMD </dev/null >"$AGENT_SERVER_LOG" 2>&1 &
+	setsid bash -c 'echo $$ > "$1"; shift; exec "$@"' _ "$AGENT_SERVER_PID_FILE" $server_cmd </dev/null >"$AGENT_SERVER_LOG" 2>&1 &
 	# wait for the wrapper to write its PID before we can track/stop it
 	local i
 	for ((i = 0; i < 5; i++)); do
