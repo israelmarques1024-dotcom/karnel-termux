@@ -151,9 +151,34 @@ _ai_tool_registered() {
   return 1
 }
 
+# Resolve a user token (install flag, binary name, or display name,
+# case-insensitive) to the canonical registry id. Echoes the id and
+# returns 0 when a match is found, otherwise echoes the token unchanged
+# and returns 1.
+_ai_tool_resolve() {
+  local token="$1" entry id name bins
+  for entry in "${AI_TOOLS_REGISTRY[@]}"; do
+    IFS=':' read -r id name bins <<< "$entry"
+    [[ "$id" == "$token" ]] && { echo "$id"; return 0; }
+    [[ "$name" == "$token" ]] && { echo "$id"; return 0; }
+    [[ "${name,,}" == "${token,,}" ]] && { echo "$id"; return 0; }
+    local IFS=',' b
+    for b in $bins; do
+      [[ "$b" == "$token" ]] && { echo "$id"; return 0; }
+    done
+  done
+  echo "$token"
+  return 1
+}
+
 _run_ai_tool_action() {
   local action="$1"
   local id="$2"
+
+  # Accept the binary/command name (e.g. --agy) or display name as aliases
+  # for the canonical install flag (e.g. --antigravity-cli).
+  id="$(_ai_tool_resolve "$id")"
+
   local func_name="${action}_${id//-/_}"
 
   # A specific --<tool> was requested: skip nested interactive menus and

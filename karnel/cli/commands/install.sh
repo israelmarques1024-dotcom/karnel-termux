@@ -204,6 +204,9 @@ _install_specific_tools() {
     done
 
     for tool in "${tools[@]}"; do
+      # Accept the binary/command name (e.g. --agy) or display name as an
+      # alias for the canonical install flag (e.g. --antigravity-cli).
+      tool="$(_ai_tool_resolve "$tool")"
       local func_name="install_${tool//-/_}"
 
       if [[ -z "${_tool_binaries[$tool]+registered}" ]]; then
