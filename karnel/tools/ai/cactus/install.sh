@@ -188,7 +188,10 @@ _cactus_write_wrapper() {
     cat >"$temporary" <<EOF
 #!$PREFIX/bin/bash
 # Karnel-managed Cactus wrapper (qemu-aarch64 emulation)
-exec proot-distro login --shared-tmp ubuntu -- env CACTUS_EMULATE=1 $CACTUS_CONTAINER_DIR/venv/bin/cactus "\$@"
+# The server loads the engine via ctypes inside the python process, so the
+# whole interpreter must run under qemu-aarch64; CACTUS_EMULATE=1 makes the
+# CLI wrap native subprocess children (bin/run) with qemu as well.
+exec proot-distro login --shared-tmp ubuntu -- env CACTUS_EMULATE=1 qemu-aarch64 -cpu max -L / $CACTUS_CONTAINER_DIR/venv/bin/python -m cactus "\$@"
 EOF
   else
     cat >"$temporary" <<EOF
