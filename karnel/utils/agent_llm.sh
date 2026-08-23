@@ -20,7 +20,7 @@ AGENT_MAX_ITERATIONS="${AGENT_MAX_ITERATIONS:-12}"
 AGENT_WORKSPACE="${AGENT_WORKSPACE:-$PWD}"
 AGENT_CONFIRM_COMMANDS="${AGENT_CONFIRM_COMMANDS:-1}"
 AGENT_CONTEXT_WINDOW="${AGENT_CONTEXT_WINDOW:-8192}"
-AGENT_SERVER_CMD="${AGENT_SERVER_CMD:-cactus serve Cactus-Compute/gemma-4-E2B-it --host 127.0.0.1 --port 8000 --no-cloud-handoff}"
+AGENT_SERVER_CMD="${AGENT_SERVER_CMD:-cactus serve Cactus-Compute/gemma-4-e2b-it-cq4 --host 127.0.0.1 --port 8000 --no-cloud-handoff}"
 
 # ------------------------------------------------------------
 # agent_config_load — read persisted config
@@ -43,7 +43,7 @@ agent_config_load() {
 	AGENT_WORKSPACE="$PWD"
 	AGENT_CONFIRM_COMMANDS="${AGENT_CONFIRM_COMMANDS:-1}"
 	AGENT_CONTEXT_WINDOW="${AGENT_CONTEXT_WINDOW:-8192}"
-AGENT_SERVER_CMD="${AGENT_SERVER_CMD:-cactus serve Cactus-Compute/gemma-4-E2B-it --host 127.0.0.1 --port 8000 --no-cloud-handoff}"
+AGENT_SERVER_CMD="${AGENT_SERVER_CMD:-cactus serve Cactus-Compute/gemma-4-e2b-it-cq4 --host 127.0.0.1 --port 8000 --no-cloud-handoff}"
 }
 
 # ------------------------------------------------------------
