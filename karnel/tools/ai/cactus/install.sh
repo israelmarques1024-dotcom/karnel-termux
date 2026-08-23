@@ -479,9 +479,15 @@ install_cactus() {
   log_info "Select installation method for Cactus:"
 
   local SELECTED_METHOD
-  read_select "Installation method" SELECTED_METHOD \
-    "glibc (recommended)" \
-    "proot-distro (ubuntu container)"
+  if [[ "$CACTUS_EMULATE" == 1 ]]; then
+    read_select "Installation method" SELECTED_METHOD \
+      "proot-distro (ubuntu container)" \
+      "glibc (not recommended: engine SIGILLs on this CPU)"
+  else
+    read_select "Installation method" SELECTED_METHOD \
+      "glibc (recommended)" \
+      "proot-distro (ubuntu container)"
+  fi
 
   case "$SELECTED_METHOD" in
   *glibc*)
