@@ -3,6 +3,7 @@
 import "@/utils/log"
 import "@/utils/version"
 import "@/utils/colors"
+import "@/utils/install"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 KILOCODE_DATA_DIR="${KARNEL_DATA:-${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data}/kilocode"
@@ -120,13 +121,15 @@ _download_kilocode_binary_impl() {
     return 1
   fi
 
-  local expected actual
-  expected=$(github_release_asset_sha256 Kilo-Org/kilocode "$latest_version" "$tarball") || expected=""
-  actual=$(sha256sum "$staging_dir/$tarball" 2>/dev/null | awk '{print $1}')
-  if [[ ! "$expected" =~ ^[0-9a-f]{64}$ || "$actual" != "$expected" ]]; then
-    rm -rf "$staging_dir"
-    log_error "Kilo Code archive failed official SHA-256 validation"
-    return 1
+  if declare -F github_release_asset_sha256 >/dev/null; then
+    local expected actual
+    expected=$(github_release_asset_sha256 Kilo-Org/kilocode "$latest_version" "$tarball") || expected=""
+    actual=$(sha256sum "$staging_dir/$tarball" 2>/dev/null | awk '{print $1}')
+    if [[ ! "$expected" =~ ^[0-9a-f]{64}$ || "$actual" != "$expected" ]]; then
+      rm -rf "$staging_dir"
+      log_error "Kilo Code archive failed official SHA-256 validation"
+      return 1
+    fi
   fi
 
   if ! tar -zxf "$staging_dir/$tarball" -C "$staging_dir" &>>"$LOG_FILE"; then

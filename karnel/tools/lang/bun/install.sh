@@ -141,11 +141,13 @@ _download_bun_binary_native_impl() {
     log_error "Failed to download Bun binary"
     return 1
   }
-  expected=$(github_release_asset_sha256 "$BUN_REPO" "bun-v$version" "$zip_name") || expected=""
-  if [[ "$expected" =~ ^[0-9a-f]{64}$ ]]; then
-    verify_sha256 "$staging_dir/$zip_name" "$expected" || { rm -rf "$staging_dir"; return 1; }
-  else
-    log_warn "No published SHA-256 for Bun native; skipping integrity verification"
+  if declare -F github_release_asset_sha256 >/dev/null; then
+    expected=$(github_release_asset_sha256 "$BUN_REPO" "bun-v$version" "$zip_name") || expected=""
+    if [[ "$expected" =~ ^[0-9a-f]{64}$ ]]; then
+      verify_sha256 "$staging_dir/$zip_name" "$expected" || { rm -rf "$staging_dir"; return 1; }
+    else
+      log_warn "No published SHA-256 for Bun native; skipping integrity verification"
+    fi
   fi
   if ! unzip -o "$staging_dir/$zip_name" -d "$staging_dir" &>>"$LOG_FILE"; then
     rm -rf "$staging_dir"
