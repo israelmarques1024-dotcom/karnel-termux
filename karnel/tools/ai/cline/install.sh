@@ -83,6 +83,20 @@ _cline_install_global_impl() {
     return 1
   fi
 
+  local expected actual
+  expected=$(npm view "@cline/cli-linux-arm64@$version" dist.integrity 2>/dev/null)
+  if [[ -z "$expected" ]]; then
+    rm -f "$tarball"
+    log_error "Falha ao obter a integridade do binário do Cline no registry npm"
+    return 1
+  fi
+  actual=$(node -e 'const c=require("crypto");const h=c.createHash("sha512");h.update(require("fs").readFileSync(process.argv[1]));process.stdout.write("sha512-"+h.digest("base64"))' "$tarball" 2>/dev/null) || actual=""
+  if [[ "$actual" != "$expected" ]]; then
+    rm -f "$tarball"
+    log_error "Integridade do binário do Cline não confere (esperado $expected)"
+    return 1
+  fi
+
   mkdir -p "$CLINE_DATA_DIR"
   : >"$CLINE_DATA_DIR/$CLINE_MARKER"
   if ! tar -xzf "$tarball" -C "$CLINE_DATA_DIR" &>>"$LOG_FILE"; then

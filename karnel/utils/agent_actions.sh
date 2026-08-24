@@ -366,6 +366,11 @@ agent_apply_files() {
 	d=$(agent_md_dir)
 	fm="$d/actions_files_manifest.txt"
 	ws="${AGENT_ACTIONS_WORKSPACE:-$PWD}"
+	ws="$(realpath -m "$ws" 2>/dev/null)" || ws=""
+	if [[ -z "$ws" || "$ws" == "/" ]]; then
+		log_error "Recusando aplicar arquivos com workspace '/' (permitiria escrita em qualquer lugar)"
+		return 1
+	fi
 	AGENT_FILES_WRITTEN=0
 	shown=0
 	# paths attached as action="no-read" are write-protected for this task

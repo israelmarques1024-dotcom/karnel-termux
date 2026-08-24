@@ -46,9 +46,9 @@ update_masscan() {
     _pinned_git_repo_owned "$_MASSCAN_DIR" "$_MASSCAN_REPO" ||
       { [ -f "$_MASSCAN_DIR/.karnel-wrapper" ] && _adopt_pinned_git_repo "$_MASSCAN_DIR" "$_MASSCAN_REPO"; } || return 1
     install_pinned_git_repo "$_MASSCAN_REPO" "$_MASSCAN_COMMIT" "$_MASSCAN_DIR" || return 1
-    make -C "$_MASSCAN_DIR" -j4 2>/dev/null
-  install -m 755 "$_MASSCAN_DIR/bin/masscan" "$PREFIX/bin/masscan"
-    sha256sum "$PREFIX/bin/masscan" > "$_MASSCAN_DIR/.karnel-wrapper"
+    make -C "$_MASSCAN_DIR" -j4 2>/dev/null || return 1
+  install -m 755 "$_MASSCAN_DIR/bin/masscan" "$PREFIX/bin/masscan" || return 1
+    sha256sum "$PREFIX/bin/masscan" > "$_MASSCAN_DIR/.karnel-wrapper" || return 1
     log_success "masscan atualizado"
     return 0
   fi

@@ -14,6 +14,10 @@ install_sqlmap() {
     log_success "sqlmap instalado"
     return 0
   fi
+  command -v git >/dev/null 2>&1 || pkg install -y git >/dev/null 2>&1 || {
+    log_error "git é necessário para instalar o sqlmap via repositório"
+    return 1
+  }
   if install_pinned_git_repo "$_SQLMAP_REPO" "$_SQLMAP_COMMIT" "$_SQLMAP_DIR"; then
     ln -sf "$_SQLMAP_DIR/sqlmap.py" "$PREFIX/bin/sqlmap"
     chmod +x "$PREFIX/bin/sqlmap"

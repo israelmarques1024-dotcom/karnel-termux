@@ -14,6 +14,10 @@ install_theharvester() {
     log_success "theharvester instalado"
     return 0
   fi
+  command -v git >/dev/null 2>&1 || pkg install -y git >/dev/null 2>&1 || {
+    log_error "git é necessário para instalar o theharvester via repositório"
+    return 1
+  }
   if install_pinned_git_repo "$_THEHARVESTER_REPO" "$_THEHARVESTER_COMMIT" "$_THEHARVESTER_DIR"; then
     pip install -r "$_THEHARVESTER_DIR/requirements/base.txt" 2>/dev/null
     chmod +x "$_THEHARVESTER_DIR/theHarvester.py"

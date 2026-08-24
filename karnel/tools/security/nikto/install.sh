@@ -14,6 +14,10 @@ install_nikto() {
     log_success "nikto instalado"
     return 0
   fi
+  command -v git >/dev/null 2>&1 || pkg install -y git >/dev/null 2>&1 || {
+    log_error "git é necessário para instalar o nikto via repositório"
+    return 1
+  }
   if install_pinned_git_repo "$_NIKTO_REPO" "$_NIKTO_COMMIT" "$_NIKTO_DIR"; then
     ln -sf "$_NIKTO_DIR/program/nikto.pl" "$PREFIX/bin/nikto"
     chmod +x "$PREFIX/bin/nikto"

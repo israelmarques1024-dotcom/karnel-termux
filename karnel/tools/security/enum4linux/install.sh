@@ -14,6 +14,10 @@ install_enum4linux() {
     log_success "enum4linux instalado"
     return 0
   fi
+  command -v git >/dev/null 2>&1 || pkg install -y git >/dev/null 2>&1 || {
+    log_error "git é necessário para instalar o enum4linux via repositório"
+    return 1
+  }
   if install_pinned_git_repo "$_ENUM4LINUX_REPO" "$_ENUM4LINUX_COMMIT" "$_ENUM4LINUX_DIR"; then
     chmod +x "$_ENUM4LINUX_DIR/enum4linux.pl"
     ln -sf "$_ENUM4LINUX_DIR/enum4linux.pl" "$PREFIX/bin/enum4linux"

@@ -14,6 +14,10 @@ install_whatweb() {
     log_success "whatweb instalado"
     return 0
   fi
+  command -v git >/dev/null 2>&1 || pkg install -y git >/dev/null 2>&1 || {
+    log_error "git é necessário para instalar o whatweb via repositório"
+    return 1
+  }
   if install_pinned_git_repo "$_WHATWEB_REPO" "$_WHATWEB_COMMIT" "$_WHATWEB_DIR"; then
     ln -sf "$_WHATWEB_DIR/whatweb" "$PREFIX/bin/whatweb"
     chmod +x "$PREFIX/bin/whatweb"

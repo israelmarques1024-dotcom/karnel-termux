@@ -39,6 +39,17 @@ _install_deps_impl() {
 		fi
 	done
 
+	if [[ ! -f "$GLIBC_LIBDIR/ld-linux-aarch64.so.1" ]]; then
+		if ! yes | pkg install glibc-repo &>>"$LOG_FILE"; then
+			log_error "Failed to install glibc-repo"
+			return 1
+		fi
+		if ! yes | pkg install glibc &>>"$LOG_FILE"; then
+			log_error "Failed to install glibc (required by the glibc-linked Node.js)"
+			return 1
+		fi
+	fi
+
 	return 0
 }
 
