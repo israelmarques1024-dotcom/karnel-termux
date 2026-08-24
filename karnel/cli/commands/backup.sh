@@ -10,7 +10,7 @@ mkdir -p "$BACKUP_DIR"
 
 backup_main() {
   local cmd="${1:-}"
-  shift 2>/dev/null || true
+  shift || true
 
   case "$cmd" in
     --help|-h)      backup_help ;;

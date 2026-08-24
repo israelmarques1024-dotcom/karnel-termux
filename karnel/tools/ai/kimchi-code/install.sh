@@ -262,9 +262,15 @@ _kimchi_ubuntu_install_bin() {
 
   local download_url="https://github.com/getkimchi/kimchi/releases/download/$latest_version/kimchi_linux_arm64.tar.gz"
 
-  _kimchi_proot_ubuntu /bin/bash -c "
+  local expected
+  expected=$(github_release_asset_sha256 getkimchi/kimchi "$latest_version" "kimchi_linux_arm64.tar.gz") || expected=""
+  if [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
+    log_warn "No published SHA-256 for Kimchi; skipping integrity verification"
+  fi
+  _kimchi_proot_ubuntu /bin/bash -c '
     mkdir -p /tmp/kimchi-install &&
-    curl -fsSL '$download_url' -o /tmp/kimchi-install/kimchi.tar.gz &&
+    curl -fsSL "$1" -o /tmp/kimchi-install/kimchi.tar.gz &&
+    { [ -z "$2" ] || [ "$(sha256sum /tmp/kimchi-install/kimchi.tar.gz | awk "{print \$1}")" = "$2" ]; } &&
     tar -zxf /tmp/kimchi-install/kimchi.tar.gz -C /tmp/kimchi-install &&
     mkdir -p /usr/local/bin /usr/local/share &&
     mv /tmp/kimchi-install/bin/kimchi /usr/local/bin/kimchi &&
@@ -272,7 +278,7 @@ _kimchi_ubuntu_install_bin() {
     rm -rf /usr/local/share/kimchi &&
     mv /tmp/kimchi-install/share/kimchi /usr/local/share/kimchi &&
     rm -rf /tmp/kimchi-install
-  " &>>"$LOG_FILE"
+  ' bash "$download_url" "$expected" &>>"$LOG_FILE"
 
   local kimchi_bin
   kimchi_bin="$(_kimchi_detect_ubuntu_root)/usr/local/bin/kimchi"

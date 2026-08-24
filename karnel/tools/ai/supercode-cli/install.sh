@@ -8,6 +8,13 @@ install_supercode_cli() {
     log_info "Supercode CLI is already installed"
     return 2
   fi
+  if ! command -v npm &>/dev/null; then
+    if ! pkg install nodejs-lts -y &>>"$LOG_FILE"; then
+      log_error "Failed to install Node.js (required by Supercode CLI)"
+      return 1
+    fi
+  fi
+
   log_info "Installing Supercode CLI..."
   local output rc
   output="$(npm install -g supercode-cli 2>&1)"

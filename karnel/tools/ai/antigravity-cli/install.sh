@@ -3,6 +3,7 @@
 import "@/utils/log"
 import "@/utils/colors"
 import "@/utils/version"
+import "@/utils/install"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 AGY_DATA_DIR="$HOME/.local/share/karnel-data/antigravity-cli"
@@ -63,22 +64,33 @@ _antigravity_download_binary() {
 }
 
 _antigravity_download_binary_impl() {
-  local latest_version
-  latest_version=$(_antigravity_get_latest_version)
-  if [ -z "$latest_version" ]; then
-    log_error "Failed to fetch latest Antigravity version"
+  local manifest
+  manifest=$(curl -fsSL "$MANIFEST_URL") || {
+    log_error "Failed to fetch Antigravity CLI manifest"
+    return 1
+  }
+  local latest_version download_url manifest_sha256
+  latest_version=$(printf '%s' "$manifest" | jq -r .version)
+  download_url=$(printf '%s' "$manifest" | jq -r .url)
+  manifest_sha256=$(printf '%s' "$manifest" | jq -r '.sha256 // empty')
+  if [ -z "$latest_version" ] || [ -z "$download_url" ]; then
+    log_error "Failed to parse Antigravity CLI manifest"
     return 1
   fi
 
   mkdir -p "$AGY_DATA_DIR"
 
-  local download_url
-  download_url=$(_antigravity_get_download_url)
   local tarball="$AGY_DATA_DIR/agy.tar.gz"
 
   if ! curl -fsSL -o "$tarball" "$download_url" &>>"$LOG_FILE"; then
     log_error "Failed to download Antigravity CLI binary"
     return 1
+  fi
+
+  if [[ "$manifest_sha256" =~ ^[0-9a-f]{64}$ ]]; then
+    verify_sha256 "$tarball" "$manifest_sha256" || return 1
+  else
+    log_warn "Antigravity CLI manifest does not publish a SHA-256; skipping integrity verification"
   fi
 
   if ! tar -xzf "$tarball" -C "$AGY_DATA_DIR" &>>"$LOG_FILE"; then

@@ -12,6 +12,13 @@ install_puter() {
     return 2
   fi
 
+  if ! command -v npm &>/dev/null; then
+    if ! pkg install nodejs-lts -y &>>"$LOG_FILE"; then
+      log_error "Failed to install Node.js (required by Puter CLI)"
+      return 1
+    fi
+  fi
+
   log_info "Installing Puter CLI..."
   if ! npm install -g "$PUTER_PACKAGE" &>>"$PUTER_LOG_FILE"; then
     log_error "Failed to install Puter CLI; see $PUTER_LOG_FILE"

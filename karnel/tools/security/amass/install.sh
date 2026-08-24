@@ -24,9 +24,16 @@ install_amass() (
   log_info "Instalando amass..."
   if [ ! -f "$_AMASS_MARKER" ] &&
     { pkg install -y amass 2>/dev/null || apt install -y amass 2>/dev/null; }; then
+    local bin; bin="$(command -v amass)"
+    [ -n "$bin" ] && sha256sum "$bin" > "$_AMASS_MARKER" 2>/dev/null
     log_success "amass instalado"
     return 0
   fi
+
+  command -v unzip >/dev/null 2>&1 || pkg install -y unzip >/dev/null 2>&1 || {
+    log_error "unzip indisponível; não foi possível extrair amass"
+    return 1
+  }
 
   local arch asset checksum url tmpdir archive amass_bin staged_bin
   arch=$(_amass_arch) || { log_error "Arquitetura não suportada"; return 1; }

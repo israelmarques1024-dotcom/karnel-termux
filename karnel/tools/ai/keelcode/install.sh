@@ -117,6 +117,13 @@ install_keelcode() {
   fi
   _keelcode_verify_ownership || return 1
 
+  if ! command -v npm &>/dev/null; then
+    if ! pkg install nodejs-lts -y &>>"$LOG_FILE"; then
+      log_error "Failed to install Node.js (required by KeelCode)"
+      return 1
+    fi
+  fi
+
   log_info "Installing KeelCode..."
   local output rc
   output="$(npm install -g "$KEELCODE_PACKAGE" --force 2>&1)"

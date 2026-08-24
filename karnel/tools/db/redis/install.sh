@@ -50,7 +50,10 @@ _update_redis_impl() {
 
 _do_redis_update() {
 	mkdir -p "$(dirname "$LOG_FILE")"
-	pkg upgrade redis -y &>>"$LOG_FILE"
+	if ! pkg upgrade redis -y &>>"$LOG_FILE"; then
+		log_error "Falha ao atualizar Redis"
+		return 1
+	fi
 }
 
 update_redis() {

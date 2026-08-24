@@ -3,6 +3,7 @@
 import "@/utils/log"
 import "@/utils/colors"
 import "@/utils/version"
+import "@/utils/install"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 OMP_DATA_DIR="$HOME/.local/share/karnel-data/oh-my-pi"
@@ -85,8 +86,16 @@ _download_omp_binary_impl() {
     log_error "Failed to download Oh-My-Pi binary"
     return 1
   fi
+  local expected
+  expected=$(github_release_asset_sha256 can1357/oh-my-pi "$latest_version" "omp-linux-arm64") || expected=""
+  if [[ "$expected" =~ ^[0-9a-f]{64}$ ]]; then
+    verify_sha256 "$target_dir/omp" "$expected" || return 1
+  else
+    log_warn "No published SHA-256 for Oh-My-Pi; skipping integrity verification"
+  fi
   chmod +x "$target_dir/omp"
   echo "$latest_version" > "$target_dir/version"
+  : > "$target_dir/.karnel-managed"
   return 0
 }
 
@@ -160,15 +169,21 @@ _install_omp_proot_impl() {
     return 1
   fi
   local download_url="https://github.com/can1357/oh-my-pi/releases/download/$latest_version/omp-linux-arm64"
-  if ! _omp_proot_ubuntu /bin/bash -c "
+  local expected
+  expected=$(github_release_asset_sha256 can1357/oh-my-pi "$latest_version" "omp-linux-arm64") || expected=""
+  if [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
+    log_warn "No published SHA-256 for Oh-My-Pi; skipping integrity verification"
+  fi
+  if ! _omp_proot_ubuntu /bin/bash -c '
     mkdir -p /tmp/omp-install &&
-    curl -fsSL '$download_url' -o /tmp/omp-install/omp &&
+    curl -fsSL "$1" -o /tmp/omp-install/omp &&
+    { [ -z "$2" ] || [ "$(sha256sum /tmp/omp-install/omp | awk "{print \$1}")" = "$2" ]; } &&
     chmod +x /tmp/omp-install/omp &&
     test -x /tmp/omp-install/omp &&
     mkdir -p /usr/local/bin &&
     mv /tmp/omp-install/omp /usr/local/bin/omp &&
     rm -rf /tmp/omp-install
-  " &>>"$LOG_FILE"; then
+  ' bash "$download_url" "$expected" &>>"$LOG_FILE"; then
     log_error "Failed to install Oh-My-Pi binary"
     return 1
   fi
@@ -209,6 +224,10 @@ install_oh_my_pi() {
 }
 
 _uninstall_omp_native_impl() {
+  if [[ ! -f "$OMP_DATA_DIR/.karnel-managed" ]]; then
+    log_error "Refusing to remove an Oh-My-Pi installation that is not managed by Karnel"
+    return 1
+  fi
   rm -f "$PREFIX/bin/omp"
   rm -rf "$OMP_DATA_DIR"
 }
@@ -256,14 +275,20 @@ _update_omp_proot_impl() {
     return 1
   fi
   local download_url="https://github.com/can1357/oh-my-pi/releases/download/$latest_version/omp-linux-arm64"
-  if ! _omp_proot_ubuntu /bin/bash -c "
+  local expected
+  expected=$(github_release_asset_sha256 can1357/oh-my-pi "$latest_version" "omp-linux-arm64") || expected=""
+  if [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
+    log_warn "No published SHA-256 for Oh-My-Pi; skipping integrity verification"
+  fi
+  if ! _omp_proot_ubuntu /bin/bash -c '
     mkdir -p /tmp/omp-update &&
-    curl -fsSL '$download_url' -o /tmp/omp-update/omp &&
+    curl -fsSL "$1" -o /tmp/omp-update/omp &&
+    { [ -z "$2" ] || [ "$(sha256sum /tmp/omp-update/omp | awk "{print \$1}")" = "$2" ]; } &&
     chmod +x /tmp/omp-update/omp &&
     test -x /tmp/omp-update/omp &&
     mv /tmp/omp-update/omp /usr/local/bin/omp &&
     rm -rf /tmp/omp-update
-  " &>>"$LOG_FILE"; then
+  ' bash "$download_url" "$expected" &>>"$LOG_FILE"; then
     log_error "Failed to update Oh-My-Pi binary"
     return 1
   fi

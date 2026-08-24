@@ -24,9 +24,16 @@ install_subfinder() (
   log_info "Instalando subfinder..."
   if [ ! -f "$_SUBFINDER_MARKER" ] &&
     { pkg install -y subfinder 2>/dev/null || apt install -y subfinder 2>/dev/null; }; then
+    local bin; bin="$(command -v subfinder)"
+    [ -n "$bin" ] && sha256sum "$bin" > "$_SUBFINDER_MARKER" 2>/dev/null
     log_success "subfinder instalado"
     return 0
   fi
+
+  command -v unzip >/dev/null 2>&1 || pkg install -y unzip >/dev/null 2>&1 || {
+    log_error "unzip indisponível; não foi possível extrair subfinder"
+    return 1
+  }
 
   local arch asset checksum url tmpdir archive staged_bin
   arch=$(_subfinder_arch) || { log_error "Arquitetura não suportada"; return 1; }

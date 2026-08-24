@@ -196,6 +196,7 @@ _goose_download_binary_proot_impl() {
     log_error "Failed to download Goose CLI"
     return 1
   fi
+  verify_github_release_asset aaif-goose/goose "v${latest_version}" "$tarball" "$GOOSE_DATA_DIR/$tarball" || return 1
   if ! tar -xzf "$GOOSE_DATA_DIR/$tarball" -C "$GOOSE_DATA_DIR" &>>"$LOG_FILE"; then
     rm -f "$GOOSE_DATA_DIR/$tarball"
     log_error "Failed to extract Goose CLI"

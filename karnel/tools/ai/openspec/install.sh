@@ -13,6 +13,13 @@ install_openspec() {
     return 2
   fi
 
+  if ! command -v npm &>/dev/null; then
+    if ! pkg install nodejs-lts -y &>>"$LOG_FILE"; then
+      log_error "Failed to install Node.js (required by openspec)"
+      return 1
+    fi
+  fi
+
   log_info "Installing openspec (Spec-Driven Development framework)..."
   npm install -g @fission-ai/openspec@latest 2>/dev/null
   local rc=$?

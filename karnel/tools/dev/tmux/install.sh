@@ -62,7 +62,10 @@ _update_tmux_pkg() {
 
 _do_tmux_update() {
   mkdir -p "$(dirname "$LOG_FILE")"
-  yes | pkg upgrade tmux -y &>>"$LOG_FILE"
+  if ! yes | pkg upgrade tmux -y &>>"$LOG_FILE"; then
+    log_error "Falha ao atualizar Tmux"
+    return 1
+  fi
 }
 
 update_tmux() {

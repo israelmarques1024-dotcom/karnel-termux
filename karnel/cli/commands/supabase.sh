@@ -5,7 +5,7 @@ import "@/utils/colors"
 
 supabase_main() {
   local subcommand="${1:-help}"
-  shift 2>/dev/null || true
+  shift || true
 
   case "$subcommand" in
     help|--help|-h)

@@ -493,10 +493,14 @@ uninstall_robin() {
     return 2
   fi
 
+  if [[ ! -f "$ROBIN_ROOT/.managed-by-karnel" ]]; then
+    log_error "Robin at $ROBIN_ROOT is not managed by Karnel; refusing to remove it to avoid deleting unrelated data"
+    return 1
+  fi
+
   _robin_acquire_lock || return 1
   local rc=0
-  _robin_migrate_legacy_layout || rc=$?
-  if (( rc == 0 )) && _robin_runtime_active; then
+  if _robin_runtime_active; then
     log_error "Stop Robin before uninstalling it: karnel robin stop"
     rc=1
   fi

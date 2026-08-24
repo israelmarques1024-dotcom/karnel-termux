@@ -3,6 +3,7 @@
 import "@/utils/log"
 import "@/utils/colors"
 import "@/utils/version"
+import "@/utils/install"
 
 LOG_FILE="$KARNEL_CACHE/install_lang.log"
 BUN_DATA_DIR="$KARNEL_DATA/bun"
@@ -268,16 +269,22 @@ _install_bun_proot_impl() {
   _bun_proot_ubuntu /bin/bash -c \
     'apt-get update && apt-get upgrade -y && apt-get install -y curl ca-certificates unzip' \
     &>>"$LOG_FILE"
-  _bun_proot_ubuntu /bin/bash -c "
+  local expected
+  expected=$(github_release_asset_sha256 "$BUN_REPO" "bun-v$version" "bun-linux-aarch64.zip") || expected=""
+  if [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
+    log_warn "No published SHA-256 for Bun; skipping integrity verification"
+  fi
+  _bun_proot_ubuntu /bin/bash -c '
     export HOME=/root TMPDIR=/tmp
     cd /tmp &&
-    curl -fsSL '$download_url' -o bun.zip &&
+    curl -fsSL "$1" -o bun.zip &&
+    { [ -z "$2" ] || [ "$(sha256sum bun.zip | awk "{print \$1}")" = "$2" ]; } &&
     unzip -o bun.zip >/dev/null 2>&1 &&
     mkdir -p /usr/local/bin &&
     mv bun-linux-aarch64/bun /usr/local/bin/bun &&
     chmod +x /usr/local/bin/bun &&
     rm -rf bun.zip bun-linux-aarch64
-  " &>>"$LOG_FILE"
+  ' bash "$download_url" "$expected" &>>"$LOG_FILE"
   local ubuntu_root
   ubuntu_root="$(_bun_detect_ubuntu_root)"
   if [ -z "$ubuntu_root" ]; then
@@ -374,16 +381,22 @@ _update_bun_proot() {
   fi
   local download_url="https://github.com/$BUN_REPO/releases/download/bun-v$version/bun-linux-aarch64.zip"
   _bun_proot_ubuntu /bin/bash -c 'rm -f /usr/local/bin/bun' &>>"$LOG_FILE"
-  _bun_proot_ubuntu /bin/bash -c "
+  local expected
+  expected=$(github_release_asset_sha256 "$BUN_REPO" "bun-v$version" "bun-linux-aarch64.zip") || expected=""
+  if [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
+    log_warn "No published SHA-256 for Bun; skipping integrity verification"
+  fi
+  _bun_proot_ubuntu /bin/bash -c '
     export HOME=/root TMPDIR=/tmp
     cd /tmp &&
-    curl -fsSL '$download_url' -o bun.zip &&
+    curl -fsSL "$1" -o bun.zip &&
+    { [ -z "$2" ] || [ "$(sha256sum bun.zip | awk "{print \$1}")" = "$2" ]; } &&
     unzip -o bun.zip >/dev/null 2>&1 &&
     mkdir -p /usr/local/bin &&
     mv bun-linux-aarch64/bun /usr/local/bin/bun &&
     chmod +x /usr/local/bin/bun &&
     rm -rf bun.zip bun-linux-aarch64
-  " &>>"$LOG_FILE"
+  ' bash "$download_url" "$expected" &>>"$LOG_FILE"
   local ubuntu_root
   ubuntu_root="$(_bun_detect_ubuntu_root)"
   local bun_bin="$ubuntu_root/usr/local/bin/bun"

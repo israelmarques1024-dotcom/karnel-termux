@@ -3,6 +3,7 @@
 import "@/utils/log"
 import "@/utils/colors"
 import "@/utils/version"
+import "@/utils/install"
 import "@/utils/uninstall"
 
 : "${KARNEL_DATA:=${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data}"
@@ -239,14 +240,20 @@ _droid_ubuntu_install_bin() {
 
   local binary_url="https://downloads.factory.ai/factory-cli/releases/$latest_version/linux/arm64/droid"
 
-  _droid_proot_ubuntu /bin/bash -c "
+  local expected
+  expected=$(curl -fsSL "$binary_url.sha256" 2>/dev/null | awk '{print $1}') || expected=""
+  if [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
+    log_warn "No published SHA-256 for Droid; skipping integrity verification"
+  fi
+  _droid_proot_ubuntu /bin/bash -c '
     mkdir -p /tmp/droid-install &&
-    curl -fsSL '$binary_url' -o /tmp/droid-install/droid &&
+    curl -fsSL "$1" -o /tmp/droid-install/droid &&
+    { [ -z "$2" ] || [ "$(sha256sum /tmp/droid-install/droid | awk "{print \$1}")" = "$2" ]; } &&
     mkdir -p /usr/local/bin &&
     mv /tmp/droid-install/droid /usr/local/bin/droid &&
     chmod +x /usr/local/bin/droid &&
     rm -rf /tmp/droid-install
-  " &>>"$LOG_FILE"
+  ' bash "$binary_url" "$expected" &>>"$LOG_FILE"
 
   local droid_bin="$(_droid_detect_ubuntu_root)/usr/local/bin/droid"
   if [ ! -f "$droid_bin" ]; then
@@ -413,14 +420,20 @@ _update_droid_proot_impl() {
 
   local binary_url="https://downloads.factory.ai/factory-cli/releases/$latest_version/linux/arm64/droid"
 
-  _droid_proot_ubuntu /bin/bash -c "
+  local expected
+  expected=$(curl -fsSL "$binary_url.sha256" 2>/dev/null | awk '{print $1}') || expected=""
+  if [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
+    log_warn "No published SHA-256 for Droid; skipping integrity verification"
+  fi
+  _droid_proot_ubuntu /bin/bash -c '
     rm -f /usr/local/bin/droid &&
     mkdir -p /tmp/droid-update &&
-    curl -fsSL '$binary_url' -o /tmp/droid-update/droid &&
+    curl -fsSL "$1" -o /tmp/droid-update/droid &&
+    { [ -z "$2" ] || [ "$(sha256sum /tmp/droid-update/droid | awk "{print \$1}")" = "$2" ]; } &&
     mv /tmp/droid-update/droid /usr/local/bin/droid &&
     chmod +x /usr/local/bin/droid &&
     rm -rf /tmp/droid-update
-  " &>>"$LOG_FILE"
+  ' bash "$binary_url" "$expected" &>>"$LOG_FILE"
 
   local ubuntu_root
   ubuntu_root="$(_droid_detect_ubuntu_root)"

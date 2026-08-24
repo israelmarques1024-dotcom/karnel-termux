@@ -62,7 +62,10 @@ _update_openssh_pkg() {
 
 _do_openssh_update() {
   mkdir -p "$(dirname "$LOG_FILE")"
-  yes | pkg upgrade openssh -y &>>"$LOG_FILE"
+  if ! yes | pkg upgrade openssh -y &>>"$LOG_FILE"; then
+    log_error "Falha ao atualizar OpenSSH"
+    return 1
+  fi
 }
 
 update_openssh() {

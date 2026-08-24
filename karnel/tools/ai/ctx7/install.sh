@@ -13,6 +13,13 @@ install_ctx7() {
     return 2
   fi
 
+  if ! command -v npm &>/dev/null; then
+    if ! pkg install nodejs-lts -y &>>"$LOG_FILE"; then
+      log_error "Failed to install Node.js (required by ctx7)"
+      return 1
+    fi
+  fi
+
   log_info "Installing ctx7 (Context7 documentation provider)..."
   npm install -g ctx7 2>/dev/null
   local rc=$?

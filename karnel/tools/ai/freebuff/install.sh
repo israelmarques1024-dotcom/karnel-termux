@@ -9,6 +9,13 @@ install_freebuff() {
     return 2
   fi
 
+  if ! command -v npm &>/dev/null; then
+    if ! pkg install nodejs-lts -y &>>"$LOG_FILE"; then
+      log_error "Failed to install Node.js (required by Freebuff)"
+      return 1
+    fi
+  fi
+
   log_info "Installing Freebuff..."
   npm install -g freebuff || {
     log_error "Failed to install Freebuff"
