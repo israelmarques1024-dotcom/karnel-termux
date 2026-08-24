@@ -19,7 +19,7 @@ install_dnsrecon() {
     return 1
   }
   if install_pinned_git_repo "$_DNSRECON_REPO" "$_DNSRECON_COMMIT" "$_DNSRECON_DIR"; then
-    pip install -r "$_DNSRECON_DIR/requirements.txt" 2>/dev/null
+    pip install -r "$_DNSRECON_DIR/requirements.txt" 2>>"$LOG_FILE" || return 1
     chmod +x "$_DNSRECON_DIR/dnsrecon.py"
     ln -sf "$_DNSRECON_DIR/dnsrecon.py" "$PREFIX/bin/dnsrecon"
     : > "$_DNSRECON_DIR/.karnel-wrapper"
@@ -45,7 +45,7 @@ update_dnsrecon() {
       { [ -f "$_DNSRECON_DIR/.karnel-wrapper" ] && _adopt_pinned_git_repo "$_DNSRECON_DIR" "$_DNSRECON_REPO"; } || return 1
     install_pinned_git_repo "$_DNSRECON_REPO" "$_DNSRECON_COMMIT" "$_DNSRECON_DIR" || return 1
     : > "$_DNSRECON_DIR/.karnel-wrapper"
-    pip install -r "$_DNSRECON_DIR/requirements.txt" 2>/dev/null
+    pip install -r "$_DNSRECON_DIR/requirements.txt" 2>>"$LOG_FILE" || return 1
     log_success "dnsrecon atualizado"
     return 0
   fi

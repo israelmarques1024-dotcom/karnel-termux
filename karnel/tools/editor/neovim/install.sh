@@ -51,7 +51,10 @@ _update_neovim_impl() {
 
 _do_neovim_update() {
   mkdir -p "$(dirname "$LOG_FILE")"
-  yes | pkg upgrade neovim -y &>>"$LOG_FILE"
+  if ! yes | pkg upgrade neovim -y &>>"$LOG_FILE"; then
+    log_error "Falha ao atualizar Neovim"
+    return 1
+  fi
 }
 
 update_neovim() {

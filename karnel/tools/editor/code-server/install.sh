@@ -73,7 +73,10 @@ update_code_server() {
 }
 
 _update_code_server_impl() {
-  pkg upgrade -y code-server 2>/dev/null
+  if ! pkg upgrade -y code-server &>>"$LOG_FILE"; then
+    log_error "Falha ao atualizar code-server"
+    return 1
+  fi
 }
 
 reinstall_code_server() {

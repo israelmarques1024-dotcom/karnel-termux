@@ -25,8 +25,8 @@ install_metasploit() {
   }
 
   cd "$METASPLOIT_DIR"
-  gem install bundler 2>/dev/null
-  bundle install --jobs 4 2>/dev/null
+  gem install bundler 2>>"$LOG_FILE" || return 1
+  bundle install --jobs 4 2>>"$LOG_FILE" || return 1
 
   for bin in msfconsole msfvenom msfrpc msfrpcd msfdb; do
     cat > "$PREFIX/bin/$bin" << BINEOF
@@ -58,7 +58,7 @@ update_metasploit() {
     _pinned_git_repo_owned "$METASPLOIT_DIR" "$METASPLOIT_REPO" ||
       { [ -f "$METASPLOIT_DIR/.karnel-installed" ] && _adopt_pinned_git_repo "$METASPLOIT_DIR" "$METASPLOIT_REPO"; } || return 1
     install_pinned_git_repo "$METASPLOIT_REPO" "$METASPLOIT_COMMIT" "$METASPLOIT_DIR" || return 1
-    cd "$METASPLOIT_DIR" && bundle install --jobs 4 2>/dev/null
+    cd "$METASPLOIT_DIR" && bundle install --jobs 4 2>>"$LOG_FILE" || return 1
     for bin in msfconsole msfvenom msfrpc msfrpcd msfdb; do
       sha256sum "$PREFIX/bin/$bin" > "$METASPLOIT_DIR/.karnel-wrapper-$bin"
     done

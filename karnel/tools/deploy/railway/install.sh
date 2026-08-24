@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 import "@/utils/log"
+import "@/utils/install"
 import "@/utils/version"
 
 LOG_FILE="$KARNEL_CACHE/install_deploy.log"
@@ -108,6 +109,15 @@ _install_railway_manual_impl() {
     log_info "Use 'npx @railway/cli' instead."
     rmdir "$RAILWAY_DATA_DIR" 2>/dev/null || true
     return 2
+  fi
+
+  local expected
+  expected=$(github_release_asset_sha256 railwayapp/cli "$latest_version" "railway-${version}-aarch64-linux.tar.gz") || expected=""
+  if [[ "$expected" =~ ^[0-9a-f]{64}$ ]]; then
+    verify_sha256 "$RAILWAY_DATA_DIR/railway.tar.gz" "$expected" || {
+      rm -f "$RAILWAY_DATA_DIR/railway.tar.gz"
+      return 1
+    }
   fi
 
   tar -zxf "$RAILWAY_DATA_DIR/railway.tar.gz" -C "$RAILWAY_DATA_DIR" 2>>"$LOG_FILE" || {
