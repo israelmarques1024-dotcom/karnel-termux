@@ -178,8 +178,8 @@ install_turbopack() {
 
 uninstall_turbopack() {
 	if ! _has_glibc_node; then
-		log_warn "Turbopack is not installed"
-		return 1
+		log_info "Turbopack is not installed"
+		return 2
 	fi
 
 	loading "Removing CLI wrappers" _uninstall_wrappers

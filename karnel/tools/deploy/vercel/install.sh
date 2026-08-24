@@ -10,6 +10,13 @@ install_vercel() {
     log_info "Vercel CLI is already installed"
     return 2
   fi
+  if ! command -v node &>/dev/null || ! command -v npm &>/dev/null; then
+    log_info "Installing Node.js..."
+    if ! pkg install -y nodejs-lts &>>"$LOG_FILE"; then
+      log_error "Failed to install Node.js"
+      return 1
+    fi
+  fi
   log_info "Installing Vercel CLI..."
   npm install -g vercel &>/dev/null || {
     log_error "Failed to install Vercel CLI"

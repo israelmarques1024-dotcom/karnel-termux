@@ -106,6 +106,10 @@ _batch_tool_action() {
   local failed_count=0
   local skipped_count=0
 
+  # An explicit uninstall should actually remove owned data, even when no TTY
+  # is attached (piped/non-interactive). Ownership is still guarded upstream.
+  [[ "$action" == "uninstall" ]] && export KARNEL_REMOVE_DEFAULT=y
+
   import "@/tools/$module/all"
 
   for tool in "${tools[@]}"; do

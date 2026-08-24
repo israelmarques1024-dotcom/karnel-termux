@@ -292,7 +292,7 @@ _fix_locale() {
   if [[ ! -f "$config" ]] && [[ -f "$HOME/.bashrc" ]]; then
     config="$HOME/.bashrc"
   fi
-  echo 'export LANG=en_US.UTF-8' >> "$config" 2>/dev/null
+  grep -qxF 'export LANG=en_US.UTF-8' "$config" 2>/dev/null || echo 'export LANG=en_US.UTF-8' >> "$config" 2>/dev/null
 }
 
 
@@ -425,6 +425,6 @@ _fix_keyring() {
 }
 
 _fix_apt_cache() {
-  rm -rf "$PREFIX/var/apt/lists"/* 2>/dev/null
+  rm -rf "${PREFIX:?}/var/apt/lists"/* 2>/dev/null
   pkg update -y &>/dev/null
 }

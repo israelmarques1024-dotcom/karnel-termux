@@ -185,6 +185,15 @@ uninstall_railway() {
 }
 
 update_railway() {
+  if _railway_proot_wrapper_owned; then
+    log_info "Railway was installed via Ubuntu PRoot; updating inside the container..."
+    if proot-distro login ubuntu -- npm update -g @railway/cli &>>"$LOG_FILE"; then
+      log_success "Railway CLI updated through Ubuntu Proot"
+      return 0
+    fi
+    log_warn "Railway CLI update failed inside Ubuntu Proot"
+    return 1
+  fi
   _check_update_needed "Railway CLI" "$(_get_installed_npm_version @railway/cli)" "$(_get_remote_npm_version @railway/cli)" _do_update_railway
 }
 

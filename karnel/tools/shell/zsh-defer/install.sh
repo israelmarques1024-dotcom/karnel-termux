@@ -60,7 +60,7 @@ install_zsh_defer() {
 _uninstall_zsh_defer_impl() {
   if [[ ! -d "$ZSH_PLUGINS_DIR/zsh-defer" ]]; then
     log_info "zsh-defer is not installed"
-    return 2
+    return 0
   fi
 
   local remove_rc=0

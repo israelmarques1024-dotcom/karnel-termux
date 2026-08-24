@@ -3,6 +3,7 @@
 confirm_remove_paths() {
   local label="$1"
   shift
+  local default="${KARNEL_REMOVE_DEFAULT:-n}"
   local answer path
   local -a existing=()
 
@@ -11,7 +12,7 @@ confirm_remove_paths() {
   done
   (( ${#existing[@]} > 0 )) || return 0
 
-  read_confirm_default "Remove $label configuration and data?" "n" answer || return 2
+  read_confirm_default "Remove $label configuration and data?" "$default" answer || return 2
   [[ "$answer" == "y" ]] || return 2
 
   rm -rf -- "${existing[@]}"

@@ -16,6 +16,13 @@ install_netlify() {
     log_info "Netlify CLI is already installed"
     return 2
   fi
+  if ! command -v node &>/dev/null || ! command -v npm &>/dev/null; then
+    log_info "Installing Node.js..."
+    if ! pkg install -y nodejs-lts &>>"$LOG_FILE"; then
+      log_error "Failed to install Node.js"
+      return 1
+    fi
+  fi
 	if ! _netlify_node_supported; then
 		log_error "Netlify CLI requires Node.js 22.13.0 or newer. Update Node.js and retry."
 		return 1

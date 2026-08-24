@@ -269,8 +269,14 @@ managed_file_matches() {
 
 github_download_and_extract() {
   local repo="$1" version="$2" asset="$3" outdir="$4"
-  local tarball
+  local tarball expected
   tarball=$(github_download_release "$repo" "$version" "$asset" "$outdir") || return 1
+  expected=$(github_release_asset_sha256 "$repo" "$version" "$asset") || expected=""
+  if [[ "$expected" =~ ^[0-9a-f]{64}$ ]]; then
+    verify_sha256 "$tarball" "$expected" || return 1
+  else
+    log_warn "No published SHA-256 digest for $repo/$asset; skipping integrity verification"
+  fi
   extract_tarball "$tarball" "$outdir" || return 1
   return 0
 }

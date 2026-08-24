@@ -296,6 +296,7 @@ _install_bun_proot_impl() {
   fi
   sed "s|__UBUNTU_ROOTFS__|$ubuntu_root|g" "$wrapper_src" >"$PREFIX/bin/bun"
   chmod +x "$PREFIX/bin/bun"
+  mkdir -p "$BUN_DATA_DIR" && : >"$BUN_DATA_DIR/.karnel-proot"
   return 0
 }
 
@@ -339,7 +340,12 @@ _uninstall_bun_impl() {
     _uninstall_bun_native
     return $?
   fi
-  _uninstall_bun_proot
+  if [ -f "$BUN_DATA_DIR/.karnel-proot" ]; then
+    _uninstall_bun_proot
+    return $?
+  fi
+  log_error "Refusing to remove unowned bun command: $PREFIX/bin/bun"
+  return 1
 }
 
 uninstall_bun() {

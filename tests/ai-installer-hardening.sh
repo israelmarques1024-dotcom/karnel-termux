@@ -78,9 +78,9 @@ assert_source_contracts() {
     file="$ROOT_DIR/karnel/tools/ai/$tool/install.sh"
     grep -qF 'extract_tarball' "$file"
   done
-  for tool in claude-code kimchi-code qoder codebuff ampcode mimocode goose codegraph crush; do
+  for tool in claude-code kimchi-code qoder codebuff ampcode mimocode goose codegraph crush opencode; do
     file="$ROOT_DIR/karnel/tools/ai/$tool/install.sh"
-    grep -Eq 'SHA-256|sha256|integrity|verify_github_release_asset' "$file"
+    grep -Eq 'SHA-256|sha256|integrity|verify_github_release_asset|github_download_and_extract' "$file"
   done
   grep -qF 'upstream does not publish a verifiable checksum' "$ROOT_DIR/karnel/tools/ai/cursor-cli/install.sh"
   grep -qF 'MiMo Code Proot installation is unavailable' "$ROOT_DIR/karnel/tools/ai/mimocode/install.sh"

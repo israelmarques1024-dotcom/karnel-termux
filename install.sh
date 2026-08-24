@@ -79,7 +79,9 @@ _INSTALL_KARNEL_SYMLINK_CHANGED=false
 _INSTALL_PREVIOUS_KARNEL_SYMLINK=""
 
 _cleanup_failed() {
-	echo -e "\n  ${P_FAIL}✖${P_NC}  Installation failed at step ${CURRENT_STEP}. Cleaning up..."
+  set +e
+  trap - ERR
+  echo -e "\n  ${P_FAIL}✖${P_NC}  Installation failed at step ${CURRENT_STEP}. Cleaning up..."
 	if $_INSTALL_KARNEL_SYMLINK_CHANGED; then
 		if [[ -n "$_INSTALL_PREVIOUS_KARNEL_SYMLINK" ]]; then
 			local rollback_link_dir
@@ -287,7 +289,23 @@ clone_repo() {
 			log_fail "Failed to clone repository"
 			return 1
 		fi
-		if [[ -n "$RELEASE_REF" ]]; then
+		if [[ -n "$RELEASE_COMMIT" ]]; then
+			if ! git -C "$candidate_repo" fetch --depth=1 origin "$RELEASE_COMMIT" &>/dev/null; then
+				log_fail "Failed to fetch release commit $RELEASE_COMMIT"
+				return 1
+			fi
+			if ! git -C "$candidate_repo" checkout --quiet --detach "$RELEASE_COMMIT" &>/dev/null; then
+				log_fail "Failed to checkout release commit $RELEASE_COMMIT"
+				return 1
+			fi
+			local candidate_commit
+			candidate_commit=$(git -C "$candidate_repo" rev-parse HEAD 2>/dev/null) || return 1
+			if [[ "$candidate_commit" != "$RELEASE_COMMIT" ]]; then
+				log_fail "Release commit mismatch"
+				log_info "Expected $RELEASE_COMMIT, got $candidate_commit"
+				return 1
+			fi
+		elif [[ -n "$RELEASE_REF" ]]; then
 			local candidate_commit
 			candidate_commit=$(git -C "$candidate_repo" rev-parse HEAD 2>/dev/null) || return 1
 			if [[ "$candidate_commit" != "$RELEASE_COMMIT" ]]; then

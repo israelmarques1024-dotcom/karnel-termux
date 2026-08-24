@@ -30,7 +30,8 @@ import "@/utils/env"
 
 # ===== SEMVER COMPARISON =====
 _semver_gt() {
-  [[ "$(printf '%s\n%s' "$1" "$2" | sort -V | tail -1)" == "$1" ]] && [[ "$1" != "$2" ]]
+  local a="${1#v}" b="${2#v}"
+  [[ "$(printf '%s\n%s' "$a" "$b" | sort -V | tail -1)" == "$a" ]] && [[ "$a" != "$b" ]]
 }
 
 _valid_semver() {

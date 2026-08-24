@@ -1078,33 +1078,33 @@ configure_rust() {
 
 	# Append dependencies to Cargo.toml
 	if [[ -f "Cargo.toml" ]]; then
-		# Append after [dependencies] or add it
-		if grep -q '^\[dependencies\]' Cargo.toml; then
-			cat >>Cargo.toml <<EOF
-EOF
-		else
-			echo -e "\n[dependencies]" >> Cargo.toml
+		if ! grep -q '^\[dependencies\]' Cargo.toml; then
+			printf '\n[dependencies]\n' >> Cargo.toml
 		fi
-		cat >>Cargo.toml <<EOF
-tokio = { version = "1.0", features = ["full"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-dotenvy = "0.15"
-EOF
+		local dep name spec
+		local -a deps=(
+			'tokio = { version = "1.0", features = ["full"] }'
+			'serde = { version = "1.0", features = ["derive"] }'
+			'serde_json = "1.0"'
+			'dotenvy = "0.15"'
+		)
 		if [[ "$framework_choice" == "Axum" ]]; then
-			cat >>Cargo.toml <<EOF
-axum = "0.7"
-EOF
+			deps+=('axum = "0.7"')
 		else
-			cat >>Cargo.toml <<EOF
-actix-web = "4.0"
-EOF
+			deps+=('actix-web = "4.0"')
 		fi
 		if [[ "$db_choice" == "SQLx (PostgreSQL)" ]]; then
-			cat >>Cargo.toml <<EOF
-sqlx = { version = "0.7", features = ["runtime-tokio", "postgres", "macros"] }
-EOF
+			deps+=('sqlx = { version = "0.7", features = ["runtime-tokio", "postgres", "macros"] }')
 		fi
+		for dep in "${deps[@]}"; do
+			name="${dep%% =*}"
+			name="${name%%[[:space:]]*}"
+			if grep -q "^${name} =" Cargo.toml; then
+				log_info "Dependency already present: ${name}"
+			else
+				sed -i "/^\[dependencies\]/a ${dep}" Cargo.toml
+			fi
+		done
 		log_success "Configured Cargo.toml"
 	fi
 
