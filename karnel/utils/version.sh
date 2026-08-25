@@ -176,31 +176,31 @@ _check_update_needed() {
   local remote_ver="$3"
   local update_func="$4"
 
-  if [ -z "$installed_ver" ]; then
-    log_warn "$display_name: could not detect installed version"
-    echo
-    local confirm_var
-    read_confirm_default "Update $display_name anyway?" "y" confirm_var
-    if [ "$confirm_var" = "y" ]; then
-      $update_func
-      return $?
-    fi
-    log_info "Skipped $display_name"
-    return 0
-  fi
+	if [ -z "$installed_ver" ]; then
+		log_warn "$display_name: could not detect installed version"
+		echo
+		local confirm_var
+		read_confirm_default "Update $display_name anyway?" "n" confirm_var
+		if [ "$confirm_var" = "y" ]; then
+			$update_func
+			return $?
+		fi
+		log_info "Skipped $display_name"
+		return 0
+	fi
 
-  if [ -z "$remote_ver" ]; then
-    log_warn "$display_name: could not detect remote version"
-    echo
-    local confirm_var
-    read_confirm_default "Update $display_name anyway?" "y" confirm_var
-    if [ "$confirm_var" = "y" ]; then
-      $update_func
-      return $?
-    fi
-    log_info "Skipped $display_name"
-    return 0
-  fi
+	if [ -z "$remote_ver" ]; then
+		log_warn "$display_name: could not detect remote version"
+		echo
+		local confirm_var
+		read_confirm_default "Update $display_name anyway?" "n" confirm_var
+		if [ "$confirm_var" = "y" ]; then
+			$update_func
+			return $?
+		fi
+		log_info "Skipped $display_name"
+		return 0
+	fi
 
   if _compare_versions "$installed_ver" "$remote_ver"; then
     log_success "$display_name is already up to date (${D_GREEN}v${installed_ver}${D_NC})"

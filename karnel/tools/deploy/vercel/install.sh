@@ -3,13 +3,20 @@
 import "@/utils/log"
 import "@/utils/version"
 
-VERCEL_BIN="$PREFIX/lib/node_modules/vercel/dist/vc.js"
+LOG_FILE="${LOG_FILE:-${KARNEL_CACHE:-$HOME/.cache/karnel}/install_deploy.log}"
+
+VERCEL_MARKER="$PREFIX/share/karnel-installers/vercel"
+
+_vercel_is_owned() {
+  command -v vercel &>/dev/null && [[ -f "$VERCEL_MARKER" ]] || return 1
+}
 
 install_vercel() {
-  if [[ -f "$VERCEL_BIN" ]]; then
+  if command -v vercel &>/dev/null; then
     log_info "Vercel CLI is already installed"
     return 2
   fi
+  mkdir -p "$(dirname "$LOG_FILE")"
   if ! command -v node &>/dev/null || ! command -v npm &>/dev/null; then
     log_info "Installing Node.js..."
     if ! pkg install -y nodejs-lts &>>"$LOG_FILE"; then
@@ -18,20 +25,26 @@ install_vercel() {
     fi
   fi
   log_info "Installing Vercel CLI..."
-  npm install -g vercel &>/dev/null || {
-    log_error "Failed to install Vercel CLI"
+  if ! npm install -g vercel --legacy-peer-deps &>>"$LOG_FILE"; then
+    log_error "Failed to install Vercel CLI (see $LOG_FILE)"
     return 1
-  }
+  fi
   command -v termux-fix-shebang &>/dev/null && termux-fix-shebang "$(command -v vercel)" &>/dev/null
+  mkdir -p "$(dirname "$VERCEL_MARKER")" && : >"$VERCEL_MARKER"
   log_success "Vercel CLI installed"
 }
 
 uninstall_vercel() {
+  if ! _vercel_is_owned; then
+    log_warn "Preserving Vercel CLI not managed by Karnel"
+    return 2
+  fi
   log_info "Uninstalling Vercel CLI..."
-  npm uninstall -g vercel &>/dev/null || {
-    log_error "Failed to uninstall Vercel CLI"
+  if ! npm uninstall -g vercel &>>"$LOG_FILE"; then
+    log_error "Failed to uninstall Vercel CLI (see $LOG_FILE)"
     return 1
-  }
+  fi
+  rm -f "$VERCEL_MARKER"
   log_success "Vercel CLI uninstalled"
 }
 
@@ -40,15 +53,21 @@ update_vercel() {
 }
 
 _do_update_vercel() {
-  npm update -g vercel &>/dev/null || {
-    log_error "Failed to update Vercel CLI"
+  if ! _vercel_is_owned; then
+    log_warn "Skipping update: Vercel CLI not managed by Karnel"
+    return 2
+  fi
+  if ! npm update -g vercel --legacy-peer-deps &>>"$LOG_FILE"; then
+    log_error "Failed to update Vercel CLI (see $LOG_FILE)"
     return 1
-  }
+  fi
   command -v termux-fix-shebang &>/dev/null && termux-fix-shebang "$(command -v vercel)" &>/dev/null
   return 0
 }
 
 reinstall_vercel() {
   uninstall_vercel
+  local rc=$?
+  [[ "$rc" == 0 || "$rc" == 2 ]] || return "$rc"
   install_vercel
 }

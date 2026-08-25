@@ -13,7 +13,9 @@ _vercel_dependencies() {
 
   log_info "Installing Nodejs..."
   mkdir -p "$(dirname "$LOG_FILE")"
-  pkg install nodejs-lts -y &>>"$LOG_FILE"
+  if ! pkg install nodejs-lts -y &>>"$LOG_FILE"; then
+    log_error "Failed to install Node.js (required by this tool)"; return 1
+  fi
 }
 
 _install_vercel_npm() {
@@ -36,8 +38,7 @@ install_vercel() {
   fi
   log_info "Installing Vercel CLI..."
 
-  _vercel_dependencies
-
+  _vercel_dependencies || return 1
   mkdir -p "$(dirname "$LOG_FILE")"
 
   _install_vercel_npm || return 1

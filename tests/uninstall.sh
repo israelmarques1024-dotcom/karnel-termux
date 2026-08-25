@@ -8,29 +8,51 @@ trap 'rm -rf "$TEST_ROOT"' EXIT
 # shellcheck source=../karnel/utils/uninstall.sh
 source "$ROOT_DIR/karnel/utils/uninstall.sh"
 
-read_confirm_default() {
-  local _prompt="$1" _default="$2" var="$3"
-  printf -v "$var" '%s' "n"
-  return 1
-}
-
-mkdir -p "$TEST_ROOT/keep"
-if confirm_remove_paths "test data" "$TEST_ROOT/keep"; then
-  printf 'FAIL: declined configuration removal succeeded\n' >&2
-  exit 1
-fi
-test -d "$TEST_ROOT/keep"
+log_info() { :; }
+log_warn() { :; }
 
 read_confirm_default() {
   local _prompt="$1" _default="$2" var="$3"
-  printf -v "$var" '%s' "y"
+  printf -v "$var" '%s' "${CONFIRM_ANSWER:-n}"
+  [[ "${CONFIRM_ANSWER:-n}" == "y" ]]
 }
 
-if ! confirm_remove_paths "test data" "$TEST_ROOT/keep"; then
-  printf 'FAIL: confirmed configuration removal failed\n' >&2
+# An unmanaged path must be preserved even when the user confirms removal.
+CONFIRM_ANSWER=y
+mkdir -p "$TEST_ROOT/unmanaged"
+if confirm_remove_paths "test data" "$TEST_ROOT/unmanaged"; then
+  printf 'FAIL: unmanaged path was removed\n' >&2
   exit 1
 fi
-test ! -e "$TEST_ROOT/keep"
+test -d "$TEST_ROOT/unmanaged"
+
+# KARNEL_FORCE overrides the ownership gate.
+CONFIRM_ANSWER=y
+if ! KARNEL_FORCE=1 confirm_remove_paths "test data" "$TEST_ROOT/unmanaged"; then
+  printf 'FAIL: forced removal failed\n' >&2
+  exit 1
+fi
+test ! -e "$TEST_ROOT/unmanaged"
+
+# A Karnel-managed path (with a marker) is removed when confirmed.
+CONFIRM_ANSWER=y
+mkdir -p "$TEST_ROOT/managed"
+: >"$TEST_ROOT/managed/.karnel-managed"
+if ! confirm_remove_paths "test data" "$TEST_ROOT/managed"; then
+  printf 'FAIL: managed path removal failed\n' >&2
+  exit 1
+fi
+test ! -e "$TEST_ROOT/managed"
+
+# A Karnel-managed path is preserved when declined.
+CONFIRM_ANSWER=n
+mkdir -p "$TEST_ROOT/managed2"
+: >"$TEST_ROOT/managed2/.karnel-managed"
+if confirm_remove_paths "test data" "$TEST_ROOT/managed2"; then
+  printf 'FAIL: declined managed removal succeeded\n' >&2
+  exit 1
+fi
+test -d "$TEST_ROOT/managed2"
 
 test_shell_plugin_uninstall_decline() (
   import() { :; }

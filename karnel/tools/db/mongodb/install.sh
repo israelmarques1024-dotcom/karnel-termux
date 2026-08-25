@@ -13,6 +13,9 @@ _install_mongodb_impl() {
 			log_error "Failed to install tur-repo"
 			return 1
 		fi
+		if ! pkg update -y &>>"$LOG_FILE"; then
+			log_warn "pkg update after adding tur-repo failed (see $LOG_FILE)"
+		fi
 	fi
 
 	if pkg install mongodb -y &>>"$LOG_FILE"; then

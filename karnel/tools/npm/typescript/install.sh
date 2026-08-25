@@ -13,7 +13,9 @@ _typescript_dependencies() {
 
   log_info "Installing Nodejs..."
   mkdir -p "$(dirname "$LOG_FILE")"
-  pkg install nodejs-lts -y &>>"$LOG_FILE"
+  if ! pkg install nodejs-lts -y &>>"$LOG_FILE"; then
+    log_error "Failed to install Node.js (required by this tool)"; return 1
+  fi
 }
 
 _install_typescript_npm() {
@@ -36,8 +38,7 @@ install_typescript() {
   fi
   log_info "Installing TypeScript..."
 
-  _typescript_dependencies
-
+  _typescript_dependencies || return 1
   mkdir -p "$(dirname "$LOG_FILE")"
 
   _install_typescript_npm || return 1

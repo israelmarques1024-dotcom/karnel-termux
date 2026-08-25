@@ -28,7 +28,9 @@ _localtunnel_dependencies() {
   log_info "Installing Nodejs..."
 
   mkdir -p "$(dirname "$LOG_FILE")"
-  pkg install nodejs-lts -y &>>"$LOG_FILE"
+  if ! pkg install nodejs-lts -y &>>"$LOG_FILE"; then
+    log_error "Failed to install Node.js (required by this tool)"; return 1
+  fi
 }
 
 _install_localtunnel_npm() {
@@ -53,8 +55,7 @@ install_localtunnel() {
   fi
   log_info "Installing Localtunnel..."
 
-  _localtunnel_dependencies
-
+  _localtunnel_dependencies || return 1
   mkdir -p "$(dirname "$LOG_FILE")"
 
   _install_localtunnel_npm || return 1

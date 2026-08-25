@@ -13,7 +13,9 @@ _live_server_dependencies() {
 
   log_info "Installing Nodejs..."
   mkdir -p "$(dirname "$LOG_FILE")"
-  pkg install nodejs-lts -y &>>"$LOG_FILE"
+  if ! pkg install nodejs-lts -y &>>"$LOG_FILE"; then
+    log_error "Failed to install Node.js (required by this tool)"; return 1
+  fi
 }
 
 _install_live_server_npm() {
@@ -37,8 +39,7 @@ install_live_server() {
 
   log_info "Installing Live Server..."
 
-  _live_server_dependencies
-
+  _live_server_dependencies || return 1
   mkdir -p "$(dirname "$LOG_FILE")"
 
   _install_live_server_npm || return 1

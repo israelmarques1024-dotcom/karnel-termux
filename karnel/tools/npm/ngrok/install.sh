@@ -13,7 +13,9 @@ _ngrok_dependencies() {
 
   log_info "Installing Nodejs..."
   mkdir -p "$(dirname "$LOG_FILE")"
-  pkg install nodejs-lts -y &>>"$LOG_FILE"
+  if ! pkg install nodejs-lts -y &>>"$LOG_FILE"; then
+    log_error "Failed to install Node.js (required by this tool)"; return 1
+  fi
 }
 
 _install_ngrok_npm() {
@@ -36,8 +38,7 @@ install_ngrok() {
   fi
   log_info "Installing Ngrok..."
 
-  _ngrok_dependencies
-
+  _ngrok_dependencies || return 1
   mkdir -p "$(dirname "$LOG_FILE")"
 
   _install_ngrok_npm || return 1

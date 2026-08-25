@@ -3,6 +3,8 @@
 import "@/utils/log"
 import "@/utils/version"
 
+LOG_FILE="${LOG_FILE:-${KARNEL_CACHE:-$HOME/.cache/karnel}/install_editor.log}"
+
 # code-server - VS Code in the browser for Termux
 # Official docs: https://coder.com/docs/code-server
 # Termux install: pkg install tur-repo && pkg install code-server
@@ -17,16 +19,23 @@ install_code_server() {
 
   log_info "Installing code-server (VS Code for Termux)..."
 
+  mkdir -p "$(dirname "$LOG_FILE")"
+
   # Add tur-repo if not present (required for code-server on Termux)
   if ! pkg list-installed 2>/dev/null | grep -q tur-repo; then
     log_info "Adding tur-repo (required for code-server)..."
-    pkg install -y tur-repo 2>/dev/null
+    if ! pkg install -y tur-repo &>>"$LOG_FILE"; then
+      log_error "Failed to add tur-repo (see $LOG_FILE)"
+      return 1
+    fi
   fi
 
-  pkg install -y code-server 2>/dev/null
-  local rc=$?
+  if ! pkg update -y &>>"$LOG_FILE"; then
+    log_error "Failed to refresh package lists (see $LOG_FILE)"
+    return 1
+  fi
 
-  if [[ $rc -eq 0 ]] && command -v code-server &>/dev/null; then
+  if pkg install -y code-server &>>"$LOG_FILE" && command -v code-server &>/dev/null; then
     # Do not replace a user-managed configuration or its password.
     mkdir -p "$HOME/.config/code-server"
     chmod 700 "$HOME/.config/code-server"
@@ -47,7 +56,7 @@ CONF
     log_info "The generated password is stored in ~/.config/code-server/config.yaml (chmod 600)"
     return 0
   else
-    log_error "code-server installation failed"
+    log_error "code-server installation failed (see $LOG_FILE)"
     return 1
   fi
 }
@@ -59,8 +68,11 @@ uninstall_code_server() {
   fi
 
   log_info "Uninstalling code-server..."
-  pkg uninstall -y code-server 2>/dev/null
-  return $?
+  if ! pkg uninstall -y code-server &>>"$LOG_FILE"; then
+    log_error "Failed to uninstall code-server (see $LOG_FILE)"
+    return 1
+  fi
+  return 0
 }
 
 update_code_server() {
@@ -80,7 +92,7 @@ _update_code_server_impl() {
 }
 
 reinstall_code_server() {
-  uninstall_code_server 2>/dev/null
+  uninstall_code_server
   install_code_server
   return $?
 }

@@ -18,7 +18,7 @@ _install_rust_pkg_impl() {
 }
 
 install_rust() {
-	if command -v rust &>/dev/null; then
+	if command -v rustc &>/dev/null; then
 		log_info "Rust is already installed"
 		return 2
 	fi

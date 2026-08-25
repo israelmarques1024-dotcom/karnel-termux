@@ -8,9 +8,23 @@ confirm_remove_paths() {
   local -a existing=()
 
   for path in "$@"; do
-    [[ -e "$path" || -L "$path" ]] && existing+=("$path")
+    [[ -e "$path" || -L "$path" ]] || continue
+    # Ownership gate: refuse to remove a path that is not managed by Karnel unless
+    # explicitly forced. This prevents silently deleting a user's own directory
+    # (e.g. a pre-existing ~/.oh-my-zsh or ~/.zsh-plugins/<plugin>).
+    if [[ -z "${KARNEL_FORCE:-}" ]]; then
+      local owned=0
+      for marker in "$path/.karnel-managed" "$path/.karnel-pinned-git" "$path/.managed-by-karnel"; do
+        [[ -f "$marker" ]] && owned=1 && break
+      done
+      if (( owned == 0 )); then
+        log_warn "Preserving $label at $path (not managed by Karnel)"
+        continue
+      fi
+    fi
+    existing+=("$path")
   done
-  (( ${#existing[@]} > 0 )) || return 0
+  (( ${#existing[@]} > 0 )) || return 2
 
   read_confirm_default "Remove $label configuration and data?" "$default" answer || return 2
   [[ "$answer" == "y" ]] || return 2

@@ -1,0 +1,8 @@
+title: Karnel Termux
+description: Modular Dev Environment for Termux — install languages, databases, AI agents, editors, and more with one command.
+theme: jekyll-theme-cayman
+markdown: kramdown
+exclude:
+  - vendor
+  - Gemfile
+  - Gemfile.lock

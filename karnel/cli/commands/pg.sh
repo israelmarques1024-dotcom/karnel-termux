@@ -4,9 +4,19 @@ import "@/utils/log"
 import "@/utils/colors"
 
 # Variáveis globais do PostgreSQL
+: "${PREFIX:=/data/data/com.termux/files/usr}"
 PG_DATA_DEFAULT="$PREFIX/var/lib/postgresql"
 PG_LOG="$KARNEL_CACHE/postgresql.log"
-PG_USER="postgres"
+# Termux PostgreSQL creates the superuser role from the OS user, not "postgres".
+PG_USER="$(id -un 2>/dev/null || whoami 2>/dev/null || echo postgres)"
+PGPORT="5432"
+# Prefer the local Unix socket; fall back to TCP only when the socket is absent.
+if [[ -d "$PREFIX/var/run/postgresql" ]]; then
+	PGHOST="$PREFIX/var/run/postgresql"
+else
+	PGHOST="localhost"
+fi
+export PGUSER="$PG_USER" PGPORT="$PGPORT" PGHOST="$PGHOST" PGDATABASE="postgres"
 
 # Função para exportar variáveis de ambiente do PostgreSQL
 pg_export_env() {
@@ -15,7 +25,7 @@ pg_export_env() {
 		export PGDATA="$data_dir"
 		export PGUSER="$PG_USER"
 		export PGPORT="5432"
-		export PGHOST="localhost"
+		export PGHOST="$PGHOST"
 		export PGDATABASE="postgres"
 		# Adicionar binários do PostgreSQL ao PATH se necessário
 		if [[ -d "$PREFIX/bin" ]]; then
@@ -116,11 +126,7 @@ pg_init() {
 		log_success "PostgreSQL initialized successfully"
 		echo
 		list_item "Data directory: $PG_DATA_DEFAULT"
-		list_item "OS user: $os_user (superuser)"
-		list_item "PostgreSQL user: $PG_USER (may need to be created)"
-		echo
-		log_info "To create the 'postgres' role:"
-		list_item "${D_CYAN}psql -d postgres -c \"CREATE ROLE $PG_USER LOGIN SUPERUSER;\"${NC}"
+		list_item "Superuser role: $PG_USER (the Termux OS user)"
 		echo
 		log_info "Start PostgreSQL with: ${D_CYAN}karnel pg start${NC}"
 	else

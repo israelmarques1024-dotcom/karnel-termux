@@ -31,14 +31,18 @@ karnel-termux/
 │   │   ├── lang/               # 8 languages
 │   │   ├── db/                 # 5 databases
 │   │   ├── dev/                # 22 dev tools
-│   │   ├── editor/             # Code editor
-│   │   ├── npm/                # Global npm packages
-│   │   ├── shell/              # ZSH plugins
-│   │   ├── ui/                 # Termux UI
-│   │   ├── auto/               # Automation
-│   │   ├── deploy/             # Deploy CLIs
+│   │   ├── editor/             # code-server, Neovim, NvChad
+│   │   ├── npm/                # 11 global npm packages
+│   │   ├── shell/              # ZSH + 10 plugins
+│   │   ├── ui/                 # 4 UI components
+│   │   ├── auto/               # n8n automation
+│   │   ├── deploy/             # 4 deploy CLIs
+│   │   ├── games/              # 6 games
 │   │   ├── network/            # 2 network tools (dark, dedsec-network)
 │   │   ├── utils/              # 12 utility tools (fconv, notes, zork, SuperFile, etc.)
+│   │   ├── security/           # 30 security tools
+│   │   ├── voice/              # Speech-to-agent via Termux:API
+│   │   ├── plugins/            # Built-in plugin manager
 │   │   └── osint/              # Robin OSINT integration
 │   └── utils/                  # Shared utilities
 │       ├── bootstrap.sh        # Import mechanism, shell detection
@@ -105,7 +109,9 @@ on the caller's dynamic scope.
 
 ## Module System
 
-Each module (`lang`, `db`, `ai`, `dev`, etc.) has:
+Each module (`ai`, `auto`, `db`, `deploy`, `dev`, `editor`, `games`, `lang`,
+`network`, `npm`, `osint`, `security`, `shell`, `ui`, `utils`, `voice`,
+`plugin`) has:
 
 1. A **module orchestrator** in `karnel/modules/<name>.sh` — handles installation logic
 2. Individual **tool installers** in `karnel/tools/<name>/<tool>/install.sh` — each installs one tool
@@ -133,4 +139,4 @@ _tool_postinstall() { ... }      # Post-installation setup
 
 ## Doctor Subsystem Architecture
 
-See [Doctor System](./doctor/README.md) for the complete breakdown of the doctor code analysis engine.
+See [Doctor System](./doctor/) for the complete breakdown of the doctor code analysis engine.

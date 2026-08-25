@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+import "@/utils/log"
+import "@/utils/version"
+
 _SUPABASE_VERSION="2.20.8"
 _SUPABASE_RELEASE_URL="https://github.com/supabase/cli/releases/download/v${_SUPABASE_VERSION}"
 _SUPABASE_BIN="$PREFIX/bin/supabase"
@@ -142,6 +145,8 @@ update_supabase() {
 }
 
 reinstall_supabase() {
-  uninstall_supabase || return $?
+  uninstall_supabase
+  local rc=$?
+  [[ "$rc" == 0 || "$rc" == 2 ]] || return "$rc"
   install_supabase
 }

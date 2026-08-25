@@ -436,10 +436,10 @@ loading() {
 
 	printf "    ${CYAN}⠋${D_CYAN} %s${NC}" "$message"
 
+	mkdir -p "$KARNEL_CACHE"
+
 	"$@" >"$tmpfile" 2>&1 &
 	cmd_pid=$!
-
-	mkdir -p "$KARNEL_CACHE"
 
 	local frame_idx=0
 	while kill -0 "$cmd_pid" 2>/dev/null; do

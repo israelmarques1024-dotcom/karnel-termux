@@ -13,7 +13,9 @@ _psqlformat_dependencies() {
 
   log_info "Installing Nodejs and Perl..."
   mkdir -p "$(dirname "$LOG_FILE")"
-  pkg install nodejs-lts perl -y &>>"$LOG_FILE"
+  if ! pkg install nodejs-lts -y &>>"$LOG_FILE"; then
+    log_error "Failed to install Node.js (required by this tool)"; return 1
+  fi
 }
 
 _install_psqlformat_npm() {
@@ -36,8 +38,7 @@ install_psqlformat() {
   fi
   log_info "Installing PSQL Format..."
 
-  _psqlformat_dependencies
-
+  _psqlformat_dependencies || return 1
   mkdir -p "$(dirname "$LOG_FILE")"
 
   _install_psqlformat_npm || return 1

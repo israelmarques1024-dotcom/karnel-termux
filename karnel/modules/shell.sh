@@ -51,10 +51,12 @@ install_oh_my_zsh() (
 			log_error "Unable to pin the Oh My Zsh clone"
 			return 1
 		fi
-		if ! CHSH=no RUNZSH=no BRANCH="$OH_MY_ZSH_REF" sh "$temp_file" &>>"$LOG_FILE"; then
+		if ! CHSH=no RUNZSH=no BRANCH="master" sh "$temp_file" &>>"$LOG_FILE"; then
 			log_error "Failed to install Oh My Zsh"
 			return 1
 		fi
+		# Record Karnel ownership so uninstall only removes a Karnel-managed install.
+		: >"$OH_MY_ZSH_DIR/.karnel-managed"
 		log_success "Oh My Zsh installed successfully"
 		return 0
 	else
@@ -159,16 +161,25 @@ install_shell() {
 
 	mkdir -p "$(dirname "$LOG_FILE")"
 
-	loading "Installing base packages" install_termux_packages
-	log_success "Base packages installed"
-	echo
-
-	install_oh_my_zsh
-	echo
-
 	local rc=0
+	if ! loading "Installing base packages" install_termux_packages; then
+		log_error "Base package installation failed"
+		rc=1
+	fi
+	echo
+
+	if ! install_oh_my_zsh; then
+		log_error "Oh My Zsh installation failed"
+		rc=1
+	fi
+	echo
+
 	_install_shell_plugins_wrapper || rc=$?
-	log_success "ZSH plugins installed"
+	if (( rc == 0 )); then
+		log_success "ZSH plugins installed"
+	else
+		log_warn "ZSH plugin(s) failed to install"
+	fi
 	echo
 
 	setup_zsh_aliases
@@ -245,7 +256,7 @@ uninstall_oh_my_zsh() {
 	log_info "Uninstalling Oh My Zsh..."
 
 	local remove_rc=0
-	confirm_remove_paths "Oh My Zsh" "$OH_MY_ZSH_DIR" &>>"$LOG_FILE" || remove_rc=$?
+	confirm_remove_paths "Oh My Zsh" "$OH_MY_ZSH_DIR" || remove_rc=$?
 	if [[ "$remove_rc" -eq 0 ]]; then
 		log_success "Oh My Zsh uninstalled"
 	elif [[ "$remove_rc" -eq 2 ]]; then
