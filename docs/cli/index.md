@@ -23,7 +23,7 @@ karnel install <module> --tool1 --tool2  # Install specific tools only
 |-----------|-------------|
 | `lang`    | Node.js, Python, Go, Rust, C/C++, PHP, Perl, Bun |
 | `db`      | PostgreSQL, MariaDB, SQLite, MongoDB, Redis |
-| `ai`      | 43 AI tools (OpenCode, Cactus, Hugging Face, Claude Code, KeelCode, Goose, Factory Droid, Ollama, etc.) |
+| `ai`      | 45 AI tools (OpenCode, Cactus, Hugging Face, Claude Code, KeelCode, Goose, Factory Droid, Ollama, etc.) |
 | `editor`  | code-server (VS Code in browser), Neovim, NvChad |
 | `dev`     | gh, curl, fzf, bat, lsd, jq, tmux, openssh, snyk (22 tools) |
 | `npm`     | TypeScript, NestJS CLI, Prettier, Vercel CLI, etc. |
@@ -43,7 +43,7 @@ karnel install <module> --tool1 --tool2  # Install specific tools only
 
 | Module    | Flags |
 |-----------|-------|
-| `ai`      | `--qwen-code`, `--gemini-cli`, `--claude-code`, `--mistral-vibe`, `--openclaude`, `--openclaw`, `--ollama`, `--codex`, `--opencode`, `--mimocode`, `--engram`, `--codegraph`, `--pi`, `--antigravity-cli`, `--minimax-cli`, `--gentle-ai`, `--gga`, `--hermes-agent`, `--kimi-code`, `--command-code`, `--codebuff`, `--freebuff`, `--kilocode-cli`, `--kiro`, `--crush`, `--cline`, `--odysseus`, `--kimchi-code`, `--omni-route`, `--ctx7`, `--openspec`, `--supercode-cli`, `--puter`, `--keelcode`, `--copilot-termux`, `--qoder`, `--ampcode`, `--cursor-cli`, `--oh-my-pi`, `--goose`, `--droid`, `--cactus`, `--hugging-face` |
+| `ai`      | `--qwen-code`, `--gemini-cli`, `--claude-code`, `--mistral-vibe`, `--openclaude`, `--openclaw`, `--ollama`, `--codex`, `--opencode`, `--mimocode`, `--engram`, `--codegraph`, `--pi`, `--antigravity-cli`, `--minimax-cli`, `--gentle-ai`, `--gga`, `--hermes-agent`, `--kimi-code`, `--command-code`, `--codebuff`, `--freebuff`, `--kilocode-cli`, `--kiro`, `--crush`, `--cline`, `--odysseus`, `--kimchi-code`, `--omni-route`, `--ctx7`, `--openspec`, `--supercode-cli`, `--puter`, `--keelcode`, `--copilot-termux`, `--qoder`, `--ampcode`, `--cursor-cli`, `--oh-my-pi`, `--goose`, `--droid`, `--cactus`, `--cactus-needle`, `--walkie`, `--hugging-face` |
 | `db`      | `--postgresql`, `--mariadb`, `--sqlite`, `--mongodb`, `--redis` |
 | `dev`     | `--gh`, `--wget`, `--curl`, `--lsd`, `--bat`, `--proot`, `--ncurses`, `--tmate`, `--openssh`, `--tmux`, `--cloudflared`, `--translate`, `--html2text`, `--jq`, `--bc`, `--tree`, `--fzf`, `--imagemagick`, `--shfmt`, `--make`, `--udocker`, `--snyk` |
 | `lang`    | `--bun`, `--nodejs`, `--python`, `--perl`, `--php`, `--rust`, `--clang`, `--golang` |
@@ -136,7 +136,7 @@ binary/command name, and current install status.
 |-----------|-------|
 | `lang`    | 8 languages |
 | `db`      | 5 databases |
-| `ai`      | 43 AI tools |
+| `ai`      | 45 AI tools |
 | `editor`  | 3 editor components |
 | `dev`     | 22 development tools |
 | `npm`     | 11 npm global modules |
@@ -340,7 +340,7 @@ karnel robin doctor --network
 karnel robin purge-data --yes
 ```
 
-See the [Robin reference](../../karnel/tools/osint/robin/README.md) for detailed
+See the [Robin reference](https://github.com/israelmarques1024-dotcom/karnel-termux/blob/main/karnel/tools/osint/robin/README.md) for detailed
 lifecycle, data locations, and troubleshooting.
 
 ---
@@ -509,6 +509,45 @@ karnel ia sessions --all
 karnel ia install omni-route
 karnel ia routes
 ```
+
+---
+
+## agent — Local AI assistant
+
+```bash
+karnel agent <ask|run|config> [options]
+```
+
+| Subcommand | Description |
+|------------|-------------|
+| `ask`  | Streamed AI chat assistant (markdown TUI). With no prompt, opens an interactive chat. |
+| `run`  | Task agent: the LLM answers in a plan/build/execute loop and can run shell commands. |
+| `config` | Show or set the assistant configuration. |
+
+### Options (ask / run)
+
+| Flag | Description |
+|------|-------------|
+| `-p`, `--prompt <text>` | Task or question (omit for interactive mode) |
+| `-m`, `--model <name>` | Model id (default from config) |
+| `-u`, `--endpoint <url>` | OpenAI-compatible endpoint (default from config) |
+| `-t`, `--temperature <n>` | Sampling temperature |
+| `--max-tokens <n>` | Maximum output tokens |
+| `-n`, `--max-iterations <n>` | Agent loop iteration limit (`run`) |
+| `-y`, `--yes` | Auto-approve commands, skip the y/N prompt (`run`) |
+| `-w`, `--workspace <dir>` | Working directory for the task agent (`run`) |
+
+```bash
+karnel agent ask -p "Explain rsync"
+karnel agent ask                       # interactive chat
+karnel agent run -p "create a backup script"
+karnel agent run -p "..." -m gemma-4-e2b-it-cq4 -u http://127.0.0.1:8000/v1
+karnel agent config                    # show current settings
+karnel agent config model gpt-4o        # set the default model id
+```
+
+`karnel agent ask` connects to the configured OpenAI-compatible endpoint; if it is
+unreachable and Cactus is not installed, it offers to install Cactus on the spot.
 
 ---
 

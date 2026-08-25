@@ -76,7 +76,7 @@ AI_TOOLS_REGISTRY=(
 )
 
 # Only tools with a documented, non-interactive version contract are executed.
-declare -A AI_TOOL_PROBES=(
+declare -gA AI_TOOL_PROBES=(
   [claude-code]='claude --version'
   [qoder]='qodercli --version'
   [codebuff]='codebuff --version'

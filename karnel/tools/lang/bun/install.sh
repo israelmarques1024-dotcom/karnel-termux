@@ -223,7 +223,7 @@ _compile_bun_helper_impl() {
     return 1
   fi
   chmod +x "$PREFIX/lib/bun-shim.so"
-  wrapper_tmp="$(mktemp "${TMPDIR:-/tmp}/bun_wrapper.XXXXXX.c")" || return 1
+  wrapper_tmp="$(mktemp "$PREFIX/bin/.bun-wrapper.XXXXXX.c")" || return 1
   wrapper_bin_tmp="$(mktemp "$PREFIX/bin/.bun.XXXXXX")" || { rm -f "$wrapper_tmp"; return 1; }
   sed "s|__BUN_REAL__|$BUN_DATA_DIR/bun.real|g" "$wrapper_src" >"$wrapper_tmp"
   if ! $CC -O2 -o "$wrapper_bin_tmp" "$wrapper_tmp" &>>"$LOG_FILE"; then

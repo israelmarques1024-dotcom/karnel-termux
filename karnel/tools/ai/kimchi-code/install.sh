@@ -265,7 +265,8 @@ _kimchi_ubuntu_install_bin() {
   local expected
   expected=$(github_release_asset_sha256 getkimchi/kimchi "$latest_version" "kimchi_linux_arm64.tar.gz") || expected=""
   if [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
-    log_warn "No published SHA-256 for Kimchi; skipping integrity verification"
+    log_error "No published SHA-256 for Kimchi; refusing install (integrity cannot be verified)"
+    return 1
   fi
   _kimchi_proot_ubuntu /bin/bash -c '
     mkdir -p /tmp/kimchi-install &&
@@ -488,7 +489,8 @@ _update_kimchi_proot_impl() {
   local expected
   expected=$(github_release_asset_sha256 getkimchi/kimchi "$latest_version" "kimchi_linux_arm64.tar.gz") || expected=""
   if [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
-    log_warn "No published SHA-256 for Kimchi; skipping integrity verification"
+    log_error "No published SHA-256 for Kimchi; refusing install (integrity cannot be verified)"
+    return 1
   fi
   _kimchi_proot_ubuntu /bin/bash -c '
     mkdir -p /tmp/kimchi-install &&

@@ -243,7 +243,8 @@ _droid_ubuntu_install_bin() {
   local expected
   expected=$(curl -fsSL "$binary_url.sha256" 2>/dev/null | awk '{print $1}') || expected=""
   if [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
-    log_warn "No published SHA-256 for Droid; skipping integrity verification"
+    log_error "No published SHA-256 for Droid; refusing install (integrity cannot be verified)"
+    return 1
   fi
   _droid_proot_ubuntu /bin/bash -c '
     mkdir -p /tmp/droid-install &&
@@ -423,7 +424,8 @@ _update_droid_proot_impl() {
   local expected
   expected=$(curl -fsSL "$binary_url.sha256" 2>/dev/null | awk '{print $1}') || expected=""
   if [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
-    log_warn "No published SHA-256 for Droid; skipping integrity verification"
+    log_error "No published SHA-256 for Droid; refusing install (integrity cannot be verified)"
+    return 1
   fi
   _droid_proot_ubuntu /bin/bash -c '
     rm -f /usr/local/bin/droid &&

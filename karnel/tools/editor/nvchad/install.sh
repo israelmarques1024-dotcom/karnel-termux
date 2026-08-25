@@ -19,7 +19,7 @@ _nvchad_owned_path() {
 _nvchad_owned_source() {
   { _nvchad_owned_path "$NVCHAD_DIR" source ||
     { declare -F _pinned_git_repo_owned &>/dev/null && _pinned_git_repo_owned "$NVCHAD_DIR" "$NVCHAD_REPO"; }; } &&
-    [[ -d "$NVCHAD_DIR/.git" && -d "$NVCHAD_DIR/nvim" ]]
+    [[ -d "$NVCHAD_DIR/.git" ]]
 }
 
 _nvchad_installed() {

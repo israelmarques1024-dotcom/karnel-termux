@@ -4,7 +4,7 @@ LOG_FILE="${LOG_FILE:-$KARNEL_CACHE/install_ai.log}"
 
 # ── Dependency installation ────────────────────────────────────
 
-declare -A _INSTALL_DEPS_CACHE
+declare -gA _INSTALL_DEPS_CACHE
 
 install_deps() {
   local -n deps=$1
@@ -200,17 +200,25 @@ activate_installer_file() {
 }
 
 github_release_asset_sha256() {
-  local repo="$1" version="$2" asset="$3"
-  curl -fsSL "https://api.github.com/repos/$repo/releases/tags/$version" |
-    awk -v asset="$asset" '
-      index($0, "\"name\": \"" asset "\"") { found = 1 }
-      found && /"digest": "sha256:[0-9a-f]+"/ {
-        sub(/^.*"digest": "sha256:/, "")
-        sub(/".*$/, "")
-        print
-        exit
-      }
-    '
+  local repo="$1" version="$2" asset="$3" digest=""
+  # GitHub's release API does not expose per-asset digests, so fetch the
+  # companion checksum file published alongside the asset (common convention).
+  digest=$(curl -fsSL --connect-timeout 10 --max-time 30 \
+    "https://github.com/$repo/releases/download/$version/$asset.sha256" 2>/dev/null \
+    | awk '{print $1; exit}' | tr -d '\r')
+  if [[ "$digest" =~ ^[0-9a-f]{64}$ ]]; then
+    echo "$digest"
+    return 0
+  fi
+  # Fallback: a checksums.txt / SHA256SUMS asset listing every released file.
+  digest=$(curl -fsSL --connect-timeout 10 --max-time 30 \
+    "https://github.com/$repo/releases/download/$version/checksums.txt" 2>/dev/null \
+    | awk -v a="$asset" '$0 ~ a {print $1; exit}' | tr -d '\r')
+  if [[ "$digest" =~ ^[0-9a-f]{64}$ ]]; then
+    echo "$digest"
+    return 0
+  fi
+  return 1
 }
 
 verify_github_release_asset() {

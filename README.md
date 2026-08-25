@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux">
-    <img src="https://img.shields.io/badge/version-4.17.6-0078D4?style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/badge/version-4.17.7-0078D4?style=for-the-badge" alt="Version">
   </a>
   <a href="https://www.npmjs.com/package/karnel-termux">
     <img src="https://img.shields.io/npm/v/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
@@ -35,7 +35,7 @@ Created by **Israel Marques**.
 
 Core agent contributions by **devcorex**.
 
-- **43 AI tools** — Claude, Gemini, OpenCode, Cactus, Hugging Face, Ollama, KeelCode, Goose, Factory Droid and more
+- **45 AI tools** — Claude, Gemini, OpenCode, Cactus, Hugging Face, Ollama, KeelCode, Goose, Factory Droid and more
 - **8 languages** — Node.js, Python, Go, Rust, C/C++, PHP, Perl, Bun
 - **5 databases** — PostgreSQL, MariaDB, SQLite, MongoDB, Redis
 - **22 dev tools** — gh, curl, fzf, bat, lsd, jq, tmux, openssh, snyk and more
@@ -61,7 +61,7 @@ Core agent contributions by **devcorex**.
 ### Via checksummed GitHub release (recommended)
 
 ```bash
-version=4.17.6
+version=4.17.7
 tmpdir=$(mktemp -d) && trap 'rm -rf "$tmpdir"' EXIT
 base="https://github.com/israelmarques1024-dotcom/karnel-termux/releases/download/v$version"
 curl -fsSL "$base/karnel-termux-install.sh" -o "$tmpdir/karnel-termux-install.sh"
@@ -112,6 +112,7 @@ aliases, or options; use `karnel help` and the CLI reference for the full set.
 | `karnel brain` | Second brain — memories and search |
 | `karnel env` | Manage environment variables |
 | `karnel voice` | Voice commands for AI agents |
+| `karnel agent` | Local AI assistant — chat (`ask`) and task agent (`run`) |
 | `karnel start editor` | Start code-server (VS Code in browser) |
 | `karnel pg` | PostgreSQL manager |
 | `karnel init <template>` | Initialize projects with templates |
@@ -126,7 +127,7 @@ aliases, or options; use `karnel help` and the CLI reference for the full set.
 |--------|-------------|--------------|
 | `lang` | Node.js, Python, Go, Rust, C/C++, PHP, Perl, Bun | `karnel install lang` |
 | `db` | PostgreSQL, MariaDB, SQLite, MongoDB, Redis | `karnel install db` |
-| `ai` | 43 AI tools, agents, and local inference clients | `karnel install ai` |
+| `ai` | 45 AI tools, agents, and local inference clients | `karnel install ai` |
 | `editor` | code-server (VS Code in browser), Neovim, NvChad | `karnel install editor` |
 | `dev` | gh, curl, fzf, bat, lsd, jq and more | `karnel install dev` |
 | `npm` | TypeScript, NestJS CLI, Prettier and more | `karnel install npm` |
@@ -270,7 +271,7 @@ See the bundled reference with `karnel show osint --robin`.
 
 ---
 
-## AI Tools (43)
+## AI Tools (45)
 
 ```bash
 karnel install ai                             # Install all
@@ -325,7 +326,9 @@ karnel install ai --opencode --ollama         # Install specific agents
 | **Supercode CLI** | `--supercode-cli` | Supercode CLI — official npm package |
 | **Puter CLI** | `--puter` | Puter CLI for sites and workers |
 | **KeelCode** | `--keelcode` | Hosted coding-agent CLI |
- 
+| **Cactus Needle** | `--cactus-needle` | Lightweight Cactus inference helper |
+| **Walkie Agent** | `--walkie` | Voice-first Walkie AI agent |
+  
 </details>
 
 ---
@@ -354,7 +357,7 @@ definitions across 68 distinct tool labels. It detects subprojects, executes
 checks in the matching project or subproject directory, preserves command exit status, and writes
 timestamped text reports under `$KARNEL_DATA/doctor_code_reports/`.
 
-Read the **[complete Doctor reference](docs/doctor/README.md)** for modes,
+Read the **[complete Doctor reference](docs/doctor/index.md)** for modes,
 supported ecosystems, tool coverage, JSON schema, reports, and auto-fix safety.
 
 ---
@@ -510,11 +513,11 @@ Documentation loads from https://karneltermux.vercel.app.
 
 ## Documentation
 
-- [Documentation index](docs/README.md)
-- [CLI reference](docs/cli/README.md)
-- [Doctor reference](docs/doctor/README.md)
-- [Troubleshooting](docs/troubleshooting.md)
-- [Architecture](docs/ARCHITECTURE.md)
+- [Documentation index](docs/index.md)
+- [CLI reference](docs/cli/index.md)
+- [Doctor reference](docs/doctor/index.md)
+- [Troubleshooting](docs/troubleshooting/index.md)
+- [Architecture](docs/ARCHITECTURE/index.md)
 - [Documentation changelog](docs/CHANGELOG.md)
 - [Official website](https://karneltermux.vercel.app)
 
@@ -561,7 +564,7 @@ karnel/
 │   │   └── karnel.sh    # Main CLI (with TUI)
 │   ├── modules/       # Module orchestrators
 │   ├── tools/         # Tool installers
-│   │   ├── ai/        # 43 AI tools
+│   │   ├── ai/        # 45 AI tools
 │   │   ├── lang/      # 8 languages
 │   │   ├── db/        # 5 databases
 │   │   ├── dev/       # 22 dev tools

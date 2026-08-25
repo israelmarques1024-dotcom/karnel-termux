@@ -121,7 +121,7 @@ pg_init() {
 	echo
 
 	# Executar initdb
-	if loading "Initializing database" initdb -D "$PG_DATA_DEFAULT"; then
+	if loading "Initializing database" initdb -D "$PG_DATA_DEFAULT" -E UTF8 --locale=C.UTF-8; then
 		local os_user; os_user=$(whoami 2>/dev/null || id -un 2>/dev/null || echo "unknown")
 		log_success "PostgreSQL initialized successfully"
 		echo
@@ -152,22 +152,23 @@ pg_start() {
 		log_warn "PostgreSQL not initialized yet"
 		log_info "Initializing first..."
 		mkdir -p "$PG_DATA_DEFAULT"
-		if ! loading "Initializing database" initdb -D "$PG_DATA_DEFAULT"; then
+		if ! loading "Initializing database" initdb -D "$PG_DATA_DEFAULT" -E UTF8 --locale=C.UTF-8; then
 			log_error "Failed to initialize PostgreSQL"
 			log_warn "Check log: $PG_LOG"
 			return 1
 		fi
 		pg_export_env "$PG_DATA_DEFAULT"
+		PG_DATA="$PG_DATA_DEFAULT"
 	fi
 
 	log_info "Starting PostgreSQL server..."
 	echo
 
 	# Iniciar servidor e verificar se funcionou
-	if loading "Starting PostgreSQL" pg_ctl -D "$PG_DATA" -l "$PG_LOG" start 2>&1; then
+	if loading "Starting PostgreSQL" pg_ctl -D "${PG_DATA:-$PGDATA}" -l "$PG_LOG" start 2>&1; then
 		sleep 2
 		# Verificar se realmente está rodando
-		if pg_ctl -D "$PG_DATA" status &>/dev/null; then
+		if pg_ctl -D "${PG_DATA:-$PGDATA}" status &>/dev/null; then
 			log_success "PostgreSQL started successfully"
 			echo
 			list_item "Listening on: localhost:5432"
@@ -623,17 +624,17 @@ pg_restore_db() {
 	log_info "Restoring backup into '$db_name'..."
 
 	local success=false
+	local pg_confirm
+	read_confirm "Restore will clean ($db_name) and replace all objects. Continue?" pg_confirm
+	if [[ "$pg_confirm" != "y" ]]; then
+		log_info "Restore cancelled"
+		return 0
+	fi
 	if [[ "$backup_file" == *.gz ]]; then
 		if loading "Restoring compressed database" _run_restore_cmd "$db_name" "$backup_file"; then
 			success=true
 		fi
 	else
-		local pg_confirm
-		read_confirm "Restore will clean ($db_name) and replace all objects. Continue?" pg_confirm
-		if [[ "$pg_confirm" != "y" ]]; then
-			log_info "Restore cancelled"
-			return 0
-		fi
 		if loading "Restoring database" pg_restore -d "$db_name" -c "$backup_file" 2>/dev/null || pg_restore -d "$db_name" "$backup_file" 2>/dev/null; then
 			success=true
 		fi

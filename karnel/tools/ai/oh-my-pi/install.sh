@@ -91,7 +91,8 @@ _download_omp_binary_impl() {
   if [[ "$expected" =~ ^[0-9a-f]{64}$ ]]; then
     verify_sha256 "$target_dir/omp" "$expected" || return 1
   else
-    log_warn "No published SHA-256 for Oh-My-Pi; skipping integrity verification"
+    log_error "No published SHA-256 for Oh-My-Pi; refusing install (integrity cannot be verified)"
+    return 1
   fi
   chmod +x "$target_dir/omp"
   echo "$latest_version" > "$target_dir/version"
@@ -172,7 +173,8 @@ _install_omp_proot_impl() {
   local expected
   expected=$(github_release_asset_sha256 can1357/oh-my-pi "$latest_version" "omp-linux-arm64") || expected=""
   if [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
-    log_warn "No published SHA-256 for Oh-My-Pi; skipping integrity verification"
+    log_error "No published SHA-256 for Oh-My-Pi; refusing install (integrity cannot be verified)"
+    return 1
   fi
   if ! _omp_proot_ubuntu /bin/bash -c '
     mkdir -p /tmp/omp-install &&
@@ -278,7 +280,8 @@ _update_omp_proot_impl() {
   local expected
   expected=$(github_release_asset_sha256 can1357/oh-my-pi "$latest_version" "omp-linux-arm64") || expected=""
   if [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
-    log_warn "No published SHA-256 for Oh-My-Pi; skipping integrity verification"
+    log_error "No published SHA-256 for Oh-My-Pi; refusing install (integrity cannot be verified)"
+    return 1
   fi
   if ! _omp_proot_ubuntu /bin/bash -c '
     mkdir -p /tmp/omp-update &&

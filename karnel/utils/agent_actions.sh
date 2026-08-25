@@ -52,8 +52,13 @@ agent_tools_available() {
 # ------------------------------------------------------------
 agent_system_prompt() {
 	local workspace="$1"
-	local tools mode_name mode_rules sys
+	local tools mode_name mode_rules sys ew eh ep et
 	tools=$(agent_tools_available)
+	# Escape values so untrusted paths (containing &, \, |) cannot break the sed substitution
+	ew=$(printf '%s' "$workspace" | sed 's/[\\|&]/\\&/g')
+	eh=$(printf '%s' "$HOME" | sed 's/[\\|&]/\\&/g')
+	ep=$(printf '%s' "$PWD" | sed 's/[\\|&]/\\&/g')
+	et=$(printf '%s' "$tools" | sed 's/[\\|&]/\\&/g')
 	if (( AGENT_PLAN_MODE )); then
 		mode_name="PLAN (read-only)"
 		mode_rules=$(cat <<'MODE_RULES_PLAN'
@@ -71,10 +76,10 @@ MODE_RULES_BUILD
 )
 	fi
 
-	sys=$(sed -e "s|{WORKSPACE}|$workspace|g" \
-		-e "s|{HOME}|$HOME|g" \
-		-e "s|{PWD}|$PWD|g" \
-		-e "s|{TOOLS}|$tools|g" <<'AGENT_SYSTEM_PROMPT'
+	sys=$(sed -e "s|{WORKSPACE}|$ew|g" \
+		-e "s|{HOME}|$eh|g" \
+		-e "s|{PWD}|$ep|g" \
+		-e "s|{TOOLS}|$et|g" <<'AGENT_SYSTEM_PROMPT'
 You are an autonomous CLI agent that completes the user's task on this real machine. You NEVER execute anything yourself: you only write markdown, and the host (bash) parses it and performs the file writes and shell commands you describe.
 
 ## LANGUAGE
@@ -485,7 +490,7 @@ _agent_cmd_is_write() {
 		return 0
 	fi
 	# blocklist of commands that write to disk / change state / spawn a shell
-	printf '%s\n' "$cmd" | grep -qiE '(^|[;&|[:space:]])(rm|rmdir|unlink|mv|cp|mkdir|touch|ln|chmod|chown|chgrp|install|truncate|tee|dd|mkfs|mount|umount|tar|gzip|gunzip|bzip2|xz|zstd|curl|wget|python3|python|node|npm|bun|yarn|pnpm|cargo|go |rustc|git (add|commit|push|pull|merge|rebase|reset|checkout|switch|restore|clean|stash|tag|clone|init|rm|mv)|pkg (install|uninstall|upgrade|reinstall|update)|apt( |-)|apt-get|dpkg|yum|dnf|pacman|brew|pip|pip3|uv|conda|mysql|psql|sqlite3|redis-cli|kill|pkill|killall|service|systemctl|halt|reboot|shutdown|sudo|doas|su|pkexec|chroot|bash|sh|dash|zsh|ksh|eval|source|exec|screen|tmux)[[:space:]]' && return 0
+	printf '%s\n' "$cmd" | grep -qiE '(^|[;&|[:space:]])(rm|rmdir|unlink|mv|cp|mkdir|touch|ln|chmod|chown|chgrp|install|truncate|tee|dd|mkfs|mount|umount|tar|gzip|gunzip|bzip2|xz|zstd|curl|wget|python3|python|node|npm|bun|yarn|pnpm|cargo|go |rustc|git (add|commit|push|pull|merge|rebase|reset|checkout|switch|restore|clean|stash|tag|clone|init|rm|mv)|pkg (install|uninstall|upgrade|reinstall|update)|apt( |-)|apt-get|dpkg|yum|dnf|pacman|brew|pip|pip3|uv|conda|mysql|psql|sqlite3|redis-cli|mongosh|kill|pkill|killall|service|systemctl|halt|reboot|shutdown|sudo|doas|su|pkexec|chroot|bash|sh|dash|zsh|ksh|eval|source|exec|screen|tmux|ssh|scp|sftp|rsync|telnet|nc|ncat|ftp|lftp|rsh|sshpass|socat|crontab|at |iptables|nft|ufw|docker|podman|kubectl|helm)[[:space:]]' && return 0
 	return 1
 }
 

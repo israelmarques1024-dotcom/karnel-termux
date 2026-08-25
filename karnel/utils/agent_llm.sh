@@ -170,8 +170,8 @@ agent_check_server() {
 			log_warn "Model ${D_CYAN}$AGENT_MODEL${D_NC} not found in endpoint. Available:"
 			echo "$ids" | sed 's/^/    /'
 		fi
-			fi
-	}
+	fi
+}
 # ------------------------------------------------------------
 # agent_models_list — echo available model ids (one per line)
 # ------------------------------------------------------------

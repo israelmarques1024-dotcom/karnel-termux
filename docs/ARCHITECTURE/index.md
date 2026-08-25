@@ -27,7 +27,7 @@ karnel-termux/
 │   │       ├── dev.sh          # Dev tools installer
 │   │       └── ...
 │   ├── tools/                  # Individual tool installers
-│   │   ├── ai/                 # 43 AI tools
+│   │   ├── ai/                 # 45 AI tools
 │   │   ├── lang/               # 8 languages
 │   │   ├── db/                 # 5 databases
 │   │   ├── dev/                # 22 dev tools
@@ -139,4 +139,4 @@ _tool_postinstall() { ... }      # Post-installation setup
 
 ## Doctor Subsystem Architecture
 
-See [Doctor System](./doctor/) for the complete breakdown of the doctor code analysis engine.
+See [Doctor System](../doctor/) for the complete breakdown of the doctor code analysis engine.

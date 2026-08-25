@@ -163,8 +163,9 @@ _brain_remove_related() {
 	head -n $((frontmatter_end - 1)) "$file" >"$tmp"
 	local escaped
 	escaped=$(_brain_slug_escape "$slug")
-	sed -i "s/related: \[\(.*\)$escaped\(.*\)\]/related: [\1\2]/" "$tmp"
-	sed -i 's/related: \[, */related: [/; s/, *, */, /g; s/related: \[ *\]//' "$tmp"
+	# Only touch the `related:` line, and only strip the slug as a discrete
+	# comma-separated token (never as a substring inside another slug).
+	sed -i "/^related:/ s/, ${escaped}//g; s/${escaped}, //g; s/\[${escaped}\]/[]/g; s/\[, /[/g; s/, \]/]/g" "$tmp"
 	tail -n +$((frontmatter_end)) "$file" >>"$tmp"
 	mv "$tmp" "$file"
 }
@@ -443,7 +444,7 @@ brain_save() {
 					done
 					$already || related_slugs+=("$match_slug")
 				fi
-			done < <(_brain_rg -i "tags:.*$tag" || true)
+			done < <(_brain_rg -l -i "tags:.*$tag" || true)
 		done
 		IFS=$' \t\n'
 
@@ -1296,11 +1297,12 @@ brain_delete() {
 	fi
 
 	# Remove relations from related files
-	local file_slug
+	local file_slug escaped_slug
 	file_slug=$(basename "$file" .md)
+	escaped_slug=$(_brain_slug_escape "$file_slug")
 	while IFS= read -r rfile; do
 		_brain_remove_related "$rfile" "$file_slug"
-	done < <(_brain_rg "$file_slug" || true)
+	done < <(_brain_rg -l "related:.*${escaped_slug}" || true)
 
 	if [[ "$file" != "$BRAIN_DIR"/* ]]; then
 		log_error "Refusing to delete file outside brain directory"

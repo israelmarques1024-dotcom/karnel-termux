@@ -59,16 +59,20 @@ _keelcode_install_termux_wrapper() {
   fi
 
   expected=$(_keelcode_get_integrity)
-  if [ -n "$expected" ] && [ "$expected" != "sha512-" ]; then
+  if [[ "$expected" =~ ^sha512-[A-Za-z0-9+/=]+$ ]]; then
     actual=$(python3 -c 'import base64,hashlib,sys; print("sha512-" + base64.b64encode(hashlib.sha512(open(sys.argv[1], "rb").read()).digest()).decode())' "$archive" 2>/dev/null)
     if [ -z "$actual" ] || [ "$actual" != "$expected" ]; then
       rm -rf "$staging"
       log_error "KeelCode package failed npm registry integrity validation"
       return 1
     fi
+  else
+    rm -rf "$staging"
+    log_error "KeelCode integrity unavailable from npm registry; refusing install"
+    return 1
   fi
 
-  if ! tar -xzf "$archive" -C "$staging" ||
+  if ! safe_extract_tar "$archive" "$staging" ||
     [[ ! -x "$staging/package/bin/keelcode" || ! -x "$staging/package/bin/rg" ]]; then
     rm -rf "$staging"
     log_error "Failed to extract the official KeelCode linux-arm64 binary"

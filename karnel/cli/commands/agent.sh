@@ -448,7 +448,7 @@ agent_repl_handle() {
 		;;
 	/model*)
 		local m="${line#/model }"
-		m="${m#/model}"
+		[[ "$m" == "$line" ]] && m=""
 		m=$(echo "$m" | xargs)
 		if [[ -z "$m" ]]; then
 			log_info "Available models:"
@@ -462,7 +462,7 @@ agent_repl_handle() {
 		;;
 	/endpoint*)
 		local e="${line#/endpoint }"
-		e="${e#/endpoint}"
+		[[ "$e" == "$line" ]] && e=""
 		e=$(echo "$e" | xargs)
 		if [[ -z "$e" ]]; then agent_read_input "Endpoint URL (e.g. http://127.0.0.1:8000/v1)" e; fi
 		if [[ -z "$e" ]]; then return 0; fi
@@ -472,7 +472,7 @@ agent_repl_handle() {
 		;;
 	/temp*)
 		local t="${line#/temp }"
-		t="${t#/temp}"
+		[[ "$t" == "$line" ]] && t=""
 		t=$(echo "$t" | xargs)
 		if [[ -z "$t" ]]; then agent_read_input "Temperature (0-2)" t; fi
 		if [[ -n "$t" ]]; then AGENT_TEMPERATURE="$t"; log_success "Temperature → ${D_CYAN}$AGENT_TEMPERATURE${D_NC}"; fi
@@ -480,7 +480,7 @@ agent_repl_handle() {
 		;;
 	/max*)
 		local mx="${line#/max }"
-		mx="${mx#/max}"
+		[[ "$mx" == "$line" ]] && mx=""
 		mx=$(echo "$mx" | xargs)
 		if [[ -z "$mx" ]]; then agent_read_input "Max tokens" mx; fi
 		if [[ -n "$mx" ]]; then AGENT_MAX_TOKENS="$mx"; log_success "Max tokens → ${D_CYAN}$AGENT_MAX_TOKENS${D_NC}"; fi
@@ -488,9 +488,8 @@ agent_repl_handle() {
 		;;
 	/workspace*)
 		local ws="${line#/workspace }"
-		ws="${ws#/workspace}"
+		[[ "$ws" == "$line" ]] && ws=""
 		ws=$(echo "$ws" | xargs)
-		if [[ -z "$ws" ]]; then agent_read_input "Workspace directory (absolute path)" ws; fi
 		if [[ -n "$ws" ]]; then
 			mkdir -p "$ws"
 			AGENT_WORKSPACE="$ws"

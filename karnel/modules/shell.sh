@@ -75,9 +75,18 @@ add_to_zshrc() {
 setup_zsh_aliases() {
 	log_info "Setting up ZSH aliases..."
 
-	add_to_zshrc "alias ls=\"lsd\""
-	add_to_zshrc 'alias cat="bat --theme=Dracula --style=plain --paging=never"'
-	add_to_zshrc 'eval "$(zoxide init zsh)"'
+	# Wrap in a marker block so it can be cleanly removed on uninstall, and
+	# only alias to tools that are actually installed (otherwise ls/cat break).
+	local block_start="# >>> karnel shell aliases >>>"
+	local block_end="# <<< karnel shell aliases <<<"
+	[[ -f ~/.zshrc ]] && sed -i "/$block_start/,/$block_end/d" ~/.zshrc 2>/dev/null
+	{
+		echo "$block_start"
+		command -v lsd >/dev/null && echo 'alias ls="lsd"'
+		command -v bat >/dev/null && echo 'alias cat="bat --theme=Dracula --style=plain --paging=never"'
+		command -v zoxide >/dev/null && echo 'eval "$(zoxide init zsh)"'
+		echo "$block_end"
+	} >>~/.zshrc
 
 	log_success "ZSH aliases configured"
 }
@@ -337,9 +346,12 @@ reinstall_shell() {
   separator
   echo
 
-  mkdir -p "$(dirname "$LOG_FILE")"
+	mkdir -p "$(dirname "$LOG_FILE")"
 
-  local rc=0
+	# Remove karnel-managed alias block so a missing/broken lsd/bat no longer hijacks ls/cat
+	[[ -f ~/.zshrc ]] && sed -i '/# >>> karnel shell aliases >>>/,/# <<< karnel shell aliases <<</d' ~/.zshrc 2>/dev/null
+
+	local rc=0
   _reinstall_shell_plugins_wrapper || rc=$?
   log_success "ZSH plugins reinstalled"
   echo

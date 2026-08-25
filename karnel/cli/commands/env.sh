@@ -3,13 +3,15 @@
 import "@/utils/log"
 import "@/utils/colors"
 
-# ── Detect rc file: zsh > bash ─────────────────────────────
+# ── Detect rc file based on the ACTIVE shell (not just presence) ──
 _env_rc_file() {
-	if [[ -f "$HOME/.zshrc" ]]; then
-		echo "$HOME/.zshrc"
-	else
-		echo "$HOME/.bashrc"
-	fi
+	local shell_name
+	shell_name=$(basename "${SHELL:-${0:-bash}}" 2>/dev/null)
+	shell_name="${shell_name#-}"   # strip leading '-' from login-shell names (e.g. -bash)
+	case "$shell_name" in
+		zsh) echo "$HOME/.zshrc" ;;
+		*) echo "$HOME/.bashrc" ;;
+	esac
 }
 
 # ── Validate variable name ─────────────────────────────────

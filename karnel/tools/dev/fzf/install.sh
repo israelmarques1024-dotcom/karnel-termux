@@ -53,8 +53,10 @@ _fix_fzf_zshrc() {
     return 0
   fi
 
-  local tmpfile
-  tmpfile=$(mktemp)
+  local tmpfile tmpdir
+  tmpdir="${KARNEL_CACHE:-${TMPDIR:-$HOME/.cache/karnel}}"
+  mkdir -p "$tmpdir"
+  tmpfile=$(mktemp "$tmpdir/karnel-fzf.XXXXXX")
   while IFS= read -r line; do
     if [[ "$line" == *"fzf/key-bindings"* ]]; then
       echo "# Ensure up-line-or-beginning-search is available for fzf" >> "$tmpfile"

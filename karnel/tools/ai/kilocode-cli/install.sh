@@ -132,7 +132,7 @@ _download_kilocode_binary_impl() {
     fi
   fi
 
-  if ! tar -zxf "$staging_dir/$tarball" -C "$staging_dir" &>>"$LOG_FILE"; then
+  if ! safe_extract_tar "$staging_dir/$tarball" "$staging_dir"; then
     rm -rf "$staging_dir"
     log_error "Failed to extract Kilo Code CLI binary"
     return 1
