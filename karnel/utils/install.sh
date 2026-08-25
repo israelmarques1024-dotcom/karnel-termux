@@ -211,9 +211,11 @@ github_release_asset_sha256() {
     return 0
   fi
   # Fallback: a checksums.txt / SHA256SUMS asset listing every released file.
+  # Match the filename field exactly (it is the LAST field) so a substring or
+  # regex-metacharacter in $asset cannot select the wrong line's digest.
   digest=$(curl -fsSL --connect-timeout 10 --max-time 30 \
     "https://github.com/$repo/releases/download/$version/checksums.txt" 2>/dev/null \
-    | awk -v a="$asset" '$0 ~ a {print $1; exit}' | tr -d '\r')
+    | awk -v a="$asset" '{ f=$NF; if (f == a) { sub(/^\*/, "", $1); print $1; exit } }' | tr -d '\r')
   if [[ "$digest" =~ ^[0-9a-f]{64}$ ]]; then
     echo "$digest"
     return 0
@@ -248,20 +250,26 @@ extract_tarball() {
 
 replace_managed_directory() {
   local staging="$1" destination="$2" marker="$3"
-  local backup="${destination}.previous.$$"
+  local backup_dir backup_target=""
   if [[ -e "$destination" && ! -f "$destination/$marker" ]]; then
     log_error "Refusing to replace unowned installation: $destination"
     return 1
   fi
   printf '%s\n' 'karnel-managed-v1' >"$staging/$marker" || return 1
-  if [[ -e "$destination" ]] && ! mv "$destination" "$backup"; then
-    return 1
+  backup_dir="$(mktemp -d "$(dirname "$destination")/.karnel-managed.XXXXXX")" || return 1
+  if [[ -e "$destination" ]]; then
+    backup_target="$backup_dir/$(basename "$destination")"
+    if ! mv "$destination" "$backup_target"; then
+      rm -rf "$backup_dir"
+      return 1
+    fi
   fi
   if ! mv "$staging" "$destination"; then
-    [[ ! -e "$backup" ]] || mv "$backup" "$destination"
+    [[ -n "$backup_target" ]] && mv "$backup_target" "$destination" 2>/dev/null
+    rm -rf "$backup_dir"
     return 1
   fi
-  rm -rf "$backup"
+  rm -rf "$backup_dir"
 }
 
 record_managed_file() {
@@ -283,7 +291,9 @@ github_download_and_extract() {
   if [[ "$expected" =~ ^[0-9a-f]{64}$ ]]; then
     verify_sha256 "$tarball" "$expected" || return 1
   else
-    log_warn "No published SHA-256 digest for $repo/$asset; skipping integrity verification"
+    log_error "No verifiable SHA-256 digest published for $repo/$asset; refusing install"
+    rm -f "$tarball"
+    return 1
   fi
   extract_tarball "$tarball" "$outdir" || return 1
   return 0

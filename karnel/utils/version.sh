@@ -51,7 +51,9 @@ _spin_capture() {
   shift
   local frames=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
   local tmp
-  tmp=$(mktemp)
+  local _ktmpdir="${KARNEL_CACHE:-${XDG_CACHE_HOME:-$HOME/.cache}/karnel}"
+  mkdir -p "$_ktmpdir" 2>/dev/null || _ktmpdir="${TMPDIR:-/tmp}"
+  tmp=$(mktemp "$_ktmpdir/karnel.XXXXXX" 2>/dev/null) || tmp=$(mktemp 2>/dev/null)
   local spinner_fd
   if [ -c /dev/tty ] 2>/dev/null; then
     spinner_fd=/dev/tty

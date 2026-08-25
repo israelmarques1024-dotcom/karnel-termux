@@ -4,7 +4,7 @@ import "@/utils/log"
 import "@/utils/install"
 import "@/utils/version"
 
-LOG_FILE="$KARNEL_CACHE/install_deploy.log"
+LOG_FILE="${KARNEL_CACHE:-${XDG_CACHE_HOME:-$HOME/.cache}/karnel}/install_deploy.log"
 RAILWAY_DATA_DIR="${KARNEL_DATA:-${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data}/deploy/railway"
 _RAILWAY_MARKER="$PREFIX/share/karnel-installers/railway"
 _RAILWAY_DATA_MARKER="$RAILWAY_DATA_DIR/.karnel-managed"
@@ -113,14 +113,17 @@ _install_railway_manual_impl() {
 
   local expected
   expected=$(github_release_asset_sha256 railwayapp/cli "$latest_version" "railway-${version}-aarch64-linux.tar.gz") || expected=""
-  if [[ "$expected" =~ ^[0-9a-f]{64}$ ]]; then
-    verify_sha256 "$RAILWAY_DATA_DIR/railway.tar.gz" "$expected" || {
-      rm -f "$RAILWAY_DATA_DIR/railway.tar.gz"
-      return 1
-    }
+  if [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
+    log_error "No published SHA-256 for Railway CLI; refusing install"
+    rm -f "$RAILWAY_DATA_DIR/railway.tar.gz"
+    return 1
   fi
+  verify_sha256 "$RAILWAY_DATA_DIR/railway.tar.gz" "$expected" || {
+    rm -f "$RAILWAY_DATA_DIR/railway.tar.gz"
+    return 1
+  }
 
-  tar -zxf "$RAILWAY_DATA_DIR/railway.tar.gz" -C "$RAILWAY_DATA_DIR" 2>>"$LOG_FILE" || {
+  safe_extract_tar "$RAILWAY_DATA_DIR/railway.tar.gz" "$RAILWAY_DATA_DIR" || {
     rm -f "$RAILWAY_DATA_DIR/railway.tar.gz"
     return 1
   }

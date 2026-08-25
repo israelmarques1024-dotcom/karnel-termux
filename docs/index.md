@@ -1,5 +1,7 @@
 # Karnel Termux Documentation
 
+<img class="karnel-logo" src="{{ '/assets/images/karnel-logo.png' | relative_url }}" alt="Karnel Termux">
+
 > Modular Dev Environment for Termux — install languages, databases, AI agents, editors, and more with one command
 
 Navigate the docs:
@@ -16,12 +18,13 @@ Navigate the docs:
 ## What is Karnel?
 
 Karnel Termux transforms your Android device into a complete development workstation.
-With a single CLI (`karnel`), you can install and manage 45 AI tools, 8 languages,
-5 databases, 22 dev tools, 11 npm packages, 10 shell plugins, 4 UI components,
-4 deploy CLIs, 6 games, 2 network tools, 12 utility tools, 30 security tools,
-responsible OSINT, a second brain, voice commands, and reviewed plugins — all
-from modules: `ai`, `auto`, `db`, `deploy`, `dev`, `editor`, `games`, `lang`,
-`network`, `npm`, `osint`, `security`, `shell`, `ui`, `utils`, `voice`, `plugin`.
+With a single CLI (`karnel`), you can install and manage 45 AI tools, 3 editors,
+8 languages, 5 databases, 22 dev tools, 11 npm packages, 10 shell plugins,
+4 UI components, 4 deploy CLIs, 6 games, 2 network tools, 12 utility tools,
+30 security tools, 1 automation tool, responsible OSINT, a second brain,
+voice commands, and reviewed plugins — all from modules: `ai`, `auto`, `db`,
+`deploy`, `dev`, `editor`, `games`, `lang`, `network`, `npm`, `osint`,
+`security`, `shell`, `ui`, `utils`, `voice`, `plugin`.
 
 ## Sections
 

@@ -43,7 +43,9 @@ install_supabase() (
   local url="${_SUPABASE_RELEASE_URL}/${filename}"
   local checksum_url="${_SUPABASE_RELEASE_URL}/supabase_${_SUPABASE_VERSION}_checksums.txt"
   local tmp_dir staged_bin marker_staging="" old_bin="" old_marker=""
-  tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/supabase.XXXXXX") || return 1
+  local _kdir="${KARNEL_CACHE:-${XDG_CACHE_HOME:-$HOME/.cache}/karnel}"
+  mkdir -p "$_kdir" 2>/dev/null || _kdir="${TMPDIR:-/tmp}"
+  tmp_dir=$(mktemp -d "$_kdir/supabase.XXXXXX") || return 1
   staged_bin=""
   trap 'rm -rf "$tmp_dir"; [[ -z "$staged_bin" ]] || rm -f "$staged_bin"; [[ -z "$marker_staging" ]] || rm -f "$marker_staging"' EXIT
 

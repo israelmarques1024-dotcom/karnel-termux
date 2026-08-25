@@ -429,7 +429,9 @@ loading() {
 	local frames=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
 	local delay=0.08
 	local tmpfile
-	tmpfile="$(mktemp "${TMPDIR:-/tmp}/karnel.XXXXXX")"
+	local _ktmpdir="${KARNEL_CACHE:-${XDG_CACHE_HOME:-$HOME/.cache}/karnel}"
+	mkdir -p "$_ktmpdir" 2>/dev/null || _ktmpdir="${TMPDIR:-/tmp}"
+	tmpfile="$(mktemp "$_ktmpdir/karnel.XXXXXX" 2>/dev/null)" || tmpfile="$(mktemp 2>/dev/null)"
 	local cmd_pid=""
 
 	trap 'kill "$cmd_pid" 2>/dev/null; rm -f "$tmpfile"; return 1' INT TERM

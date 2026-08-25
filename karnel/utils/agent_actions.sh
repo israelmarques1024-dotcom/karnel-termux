@@ -889,7 +889,9 @@ agent_exec_loading() {
 	local frames=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
 	local delay=0.08
 	local tmpfile
-	tmpfile="$(mktemp)"
+	local _ktmpdir="${KARNEL_CACHE:-${XDG_CACHE_HOME:-$HOME/.cache}/karnel}"
+	mkdir -p "$_ktmpdir" 2>/dev/null || _ktmpdir="${TMPDIR:-/tmp}"
+	tmpfile="$(mktemp "$_ktmpdir/karnel.XXXXXX" 2>/dev/null)" || tmpfile="$(mktemp 2>/dev/null)"
 
 	local stty_saved=""
 	if [[ -t 0 ]]; then

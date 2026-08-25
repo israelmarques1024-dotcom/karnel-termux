@@ -88,13 +88,16 @@ _antigravity_download_binary_impl() {
   fi
 
   if [[ "$manifest_sha256" =~ ^[0-9a-f]{64}$ ]]; then
-    verify_sha256 "$tarball" "$manifest_sha256" || return 1
+    verify_sha256 "$tarball" "$manifest_sha256" || { rm -f "$tarball"; return 1; }
   else
-    log_warn "Antigravity CLI manifest does not publish a SHA-256; skipping integrity verification"
+    log_error "Antigravity CLI manifest does not publish a SHA-256; refusing install"
+    rm -f "$tarball"
+    return 1
   fi
 
-  if ! tar -xzf "$tarball" -C "$AGY_DATA_DIR" &>>"$LOG_FILE"; then
+  if ! safe_extract_tar "$tarball" "$AGY_DATA_DIR"; then
     log_error "Failed to extract Antigravity CLI binary"
+    rm -f "$tarball"
     return 1
   fi
 

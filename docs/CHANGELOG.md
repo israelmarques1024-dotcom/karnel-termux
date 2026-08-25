@@ -1,5 +1,15 @@
 # Documentation Changelog
 
+## 4.17.7
+
+- Documentation site overhauled: valid `_config.yml`, cayman-compatible custom
+  stylesheet that imports the full theme, a workflow that builds Jekyll before
+  deploying to GitHub Pages, and tool counts reconciled with the actual
+  `karnel/tools/*` and `karnel/tools/ai/*` directories (45 AI tools, 3 editors,
+  8 languages, 5 databases, 22 dev tools, 11 npm packages, 10 shell plugins,
+  4 UI components, 4 deploy CLIs, 6 games, 2 network tools, 12 utility tools,
+  30 security tools, 1 automation tool).
+
 ## 4.16.1 - 2026-08-22
 
 - `karnel agent ask/run`: when the model endpoint is unreachable and Cactus is

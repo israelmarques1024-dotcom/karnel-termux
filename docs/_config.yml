@@ -2,11 +2,14 @@ title: Karnel Termux
 description: >-
   Modular Dev Environment for Termux — install languages, databases, AI agents,
   editors, and more with one command.
+author: Israel Marques
+lang: en-US
 theme: jekyll-theme-cayman
 markdown: kramdown
 logo: /assets/images/karnel-logo.png
 custom_css: /assets/css/style.css
 baseurl: /karnel-termux
+show_downloads: false
 exclude:
   - vendor
   - Gemfile

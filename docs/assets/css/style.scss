@@ -1,3 +1,8 @@
+---
+---
+
+@import "jekyll-theme-cayman";
+
 /* Karnel Termux — custom styling layered on top of jekyll-theme-cayman */
 
 :root {
@@ -19,6 +24,16 @@ body {
   font-size: 16px;
   line-height: 1.6;
   color: #24292f;
+}
+
+/* Logo (added in page content; cayman's default.html does not render site.logo) */
+.karnel-logo {
+  display: block;
+  margin: 0 auto 1.25rem;
+  max-width: 220px;
+  height: auto;
+  border-radius: 14px;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.18);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -51,15 +66,6 @@ body {
 .page-header .project-tagline {
   opacity: 0.95;
   font-size: 1.1rem;
-}
-
-/* Logo */
-.karnel-logo {
-  display: block;
-  margin: 0 auto 1.25rem;
-  max-width: 220px;
-  height: auto;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
 }
 
 /* Landing navigation */
@@ -149,6 +155,15 @@ body {
   font-size: 0.88em;
 }
 
+/* Inline code should not be wrapped in its own block styling */
+.main-content p code,
+.main-content li code,
+.main-content td code {
+  background: rgba(120, 120, 120, 0.12);
+  padding: 0.12em 0.4em;
+  border-radius: 4px;
+}
+
 /* Blockquotes */
 .main-content blockquote {
   border-left: 4px solid var(--karnel-accent-2, #0078d4);
@@ -156,6 +171,16 @@ body {
   padding: 0.75rem 1rem;
   color: inherit;
   border-radius: 0 6px 6px 0;
+}
+
+/* Admonition callouts */
+.karnel-note {
+  border: 1px solid var(--karnel-accent-2, #0078d4);
+  border-left-width: 4px;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin: 1.25rem 0;
+  background: rgba(0, 120, 212, 0.06);
 }
 
 /* Section spacing */
@@ -202,4 +227,11 @@ body {
     border-color: var(--karnel-border);
     color: #e6edf3;
   }
+}
+
+/* Footer credit spacing */
+.site-footer {
+  margin-top: 2.5rem;
+  border-top: 1px solid #e1e4e8;
+  padding-top: 1rem;
 }

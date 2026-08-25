@@ -244,7 +244,20 @@ agent_chat_completion() {
 # characters. Real UTF-8 text passes through untouched.
 # ------------------------------------------------------------
 _agent_unescape_unicode() {
-	perl -CS -pe 's/\\u([0-9a-fA-F]{4})/chr(hex($1))/ge' 2>/dev/null
+  if command -v perl >/dev/null 2>&1; then
+    perl -CS -pe 's/\\u([0-9a-fA-F]{4})/chr(hex($1))/ge'
+  elif command -v python3 >/dev/null 2>&1; then
+    python3 -c 'import sys,re;sys.stdout.write(re.sub(r"\\u([0-9a-fA-F]{4})",lambda m:chr(int(m.group(1),16)),sys.stdin.read()))'
+  else
+    awk '{
+      while (match($0, /\\u[0-9a-fA-F]{4}/)) {
+        h = substr($0, RSTART + 2, 4)
+        c = sprintf("%c", strtonum("0x" h))
+        $0 = substr($0, 1, RSTART - 1) c substr($0, RSTART + 6)
+      }
+      print
+    }'
+  fi
 }
 
 # ------------------------------------------------------------

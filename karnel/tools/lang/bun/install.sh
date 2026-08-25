@@ -143,16 +143,24 @@ _download_bun_binary_native_impl() {
   }
   if declare -F github_release_asset_sha256 >/dev/null; then
     expected=$(github_release_asset_sha256 "$BUN_REPO" "bun-v$version" "$zip_name") || expected=""
-    if [[ "$expected" =~ ^[0-9a-f]{64}$ ]]; then
-      verify_sha256 "$staging_dir/$zip_name" "$expected" || { rm -rf "$staging_dir"; return 1; }
-    else
-      log_warn "No published SHA-256 for Bun native; skipping integrity verification"
+    if [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
+      rm -rf "$staging_dir"
+      log_error "No published SHA-256 for Bun native; refusing install"
+      return 1
     fi
-  fi
-  if ! unzip -o "$staging_dir/$zip_name" -d "$staging_dir" &>>"$LOG_FILE"; then
-    rm -rf "$staging_dir"
-    log_error "Failed to extract Bun binary"
-    return 1
+    verify_sha256 "$staging_dir/$zip_name" "$expected" || { rm -rf "$staging_dir"; return 1; }
+    if ! safe_extract_zip "$staging_dir/$zip_name" "$staging_dir"; then
+      rm -rf "$staging_dir"
+      log_error "Failed to extract Bun binary"
+      return 1
+    fi
+  else
+    command -v log_warn >/dev/null 2>&1 && log_warn "Integrity helpers unavailable; skipping Bun integrity verification"
+    if ! unzip -o "$staging_dir/$zip_name" -d "$staging_dir" &>>"$LOG_FILE"; then
+      rm -rf "$staging_dir"
+      log_error "Failed to extract Bun binary"
+      return 1
+    fi
   fi
   rm -f "$staging_dir/$zip_name"
   extracted="$staging_dir/bun-linux-aarch64/bun"
@@ -280,13 +288,14 @@ _install_bun_proot_impl() {
   local expected
   expected=$(github_release_asset_sha256 "$BUN_REPO" "bun-v$version" "bun-linux-aarch64.zip") || expected=""
   if [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
-    log_warn "No published SHA-256 for Bun; skipping integrity verification"
+    log_error "No published SHA-256 for Bun; refusing install"
+    return 1
   fi
   _bun_proot_ubuntu /bin/bash -c '
     export HOME=/root TMPDIR=/tmp
     cd /tmp &&
     curl -fsSL "$1" -o bun.zip &&
-    { [ -z "$2" ] || [ "$(sha256sum bun.zip | awk "{print \$1}")" = "$2" ]; } &&
+    [ "$(sha256sum bun.zip | awk "{print \$1}")" = "$2" ] &&
     unzip -o bun.zip >/dev/null 2>&1 &&
     mkdir -p /usr/local/bin &&
     mv bun-linux-aarch64/bun /usr/local/bin/bun &&
@@ -392,13 +401,14 @@ _update_bun_proot() {
   local expected
   expected=$(github_release_asset_sha256 "$BUN_REPO" "bun-v$version" "bun-linux-aarch64.zip") || expected=""
   if [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
-    log_warn "No published SHA-256 for Bun; skipping integrity verification"
+    log_error "No published SHA-256 for Bun; refusing update"
+    return 1
   fi
   _bun_proot_ubuntu /bin/bash -c '
     export HOME=/root TMPDIR=/tmp
     cd /tmp &&
     curl -fsSL "$1" -o bun.zip &&
-    { [ -z "$2" ] || [ "$(sha256sum bun.zip | awk "{print \$1}")" = "$2" ]; } &&
+    [ "$(sha256sum bun.zip | awk "{print \$1}")" = "$2" ] &&
     unzip -o bun.zip >/dev/null 2>&1 &&
     mkdir -p /usr/local/bin &&
     mv bun-linux-aarch64/bun /usr/local/bin/bun &&

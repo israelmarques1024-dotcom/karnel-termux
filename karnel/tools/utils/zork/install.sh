@@ -2,6 +2,7 @@
 
 import "@/utils/log"
 import "@/utils/version"
+import "@/utils/install"
 
 LOG_FILE="$KARNEL_CACHE/install_zork.log"
 ZORK_DATA_DIR="${KARNEL_DATA:-${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data}/zork"
@@ -62,7 +63,10 @@ _download_zork_data_impl() {
       return 1
     fi
 
-    if ! unzip -o "$zip_file" -d "$staging_dir" 2>>"$LOG_FILE"; then
+    if declare -F safe_extract_zip >/dev/null; then
+      safe_extract_zip "$zip_file" "$staging_dir" 2>>"$LOG_FILE" || {
+        rm -rf "$staging_dir"; log_error "Failed to extract Zork ${num}"; return 1; }
+    elif ! unzip -o "$zip_file" -d "$staging_dir" 2>>"$LOG_FILE"; then
       rm -rf "$staging_dir"
       log_error "Failed to extract Zork ${num}"
       return 1
