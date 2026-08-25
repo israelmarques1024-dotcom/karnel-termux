@@ -35,17 +35,13 @@ _railway_data_is_karnel_owned() {
 
 _railway_mark_install() {
   mkdir -p "$(dirname "$_RAILWAY_MARKER")" "$RAILWAY_DATA_DIR" || return 1
-  local bin
-  bin="$(command -v railway 2>/dev/null)" || { log_error "railway binary not found in PATH; cannot mark install"; return 1; }
-  sha256sum "$bin" >"$_RAILWAY_MARKER" || return 1
+  sha256sum "$PREFIX/bin/railway" >"$_RAILWAY_MARKER" || return 1
   _railway_write_data_metadata
 }
 
 _railway_command_is_karnel_owned() {
-  local bin
-  bin="$(command -v railway 2>/dev/null)" || return 1
   [ -f "$_RAILWAY_MARKER" ] &&
-    [ "$(sha256sum "$bin" 2>/dev/null)" = "$(<"$_RAILWAY_MARKER")" ]
+    [ "$(sha256sum "$PREFIX/bin/railway" 2>/dev/null)" = "$(<"$_RAILWAY_MARKER")" ]
 }
 
 _railway_proot_wrapper_owned() {
