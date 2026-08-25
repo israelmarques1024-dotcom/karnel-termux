@@ -5,6 +5,13 @@ import "@/utils/version"
 import "@/utils/colors"
 import "@/utils/install"
 
+if ! declare -f safe_extract_tar >/dev/null 2>&1; then
+  safe_extract_tar() {
+    local archive="$1" outdir="$2" strip_components="${3:-0}"
+    tar -xf "$archive" -C "$outdir" --strip-components="$strip_components"
+  }
+fi
+
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 KILOCODE_DATA_DIR="${KARNEL_DATA:-${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data}/kilocode"
 

@@ -3,6 +3,13 @@
 import "@/utils/log"
 import "@/utils/version"
 
+if ! declare -f safe_extract_tar >/dev/null 2>&1; then
+  safe_extract_tar() {
+    local archive="$1" outdir="$2" strip_components="${3:-0}"
+    tar -xf "$archive" -C "$outdir" --strip-components="$strip_components"
+  }
+fi
+
 KEELCODE_PACKAGE="@keelcode-ai/keelcode"
 : "${KARNEL_DATA:=${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data}"
 : "${KARNEL_CACHE:=${XDG_CACHE_HOME:-$HOME/.cache}/karnel}"
