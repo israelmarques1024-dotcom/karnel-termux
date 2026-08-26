@@ -481,8 +481,10 @@ _agent_exec_to_file() {
 # ------------------------------------------------------------
 _agent_cmd_is_write() {
 	local cmd="$1"
-	# file redirections: >file >>file 2>file 1>>file &>file  (excludes fd-to-fd like >&2 and comparisons >=)
-	if printf '%s\n' "$cmd" | grep -qE '(^|[;&|[:space:]])(>|>>|&>|[0-9]>|[0-9]>>)([^&=]|$)'; then
+	# file redirections: >file >>file 2>file 1>>file &>file (also without a
+	# preceding space, e.g. echo x>file). Excludes fd-to-fd like >&2 and
+	# numeric comparisons >= / =>.
+	if printf '%s\n' "$cmd" | grep -qE '(^|[;&|[:space:]]|[A-Za-z0-9])(>|>>|&>)([^&=]|$)'; then
 		return 0
 	fi
 	# command substitution / backticks execute arbitrary code → write
@@ -497,8 +499,14 @@ _agent_cmd_is_write() {
 	if printf '%s\n' "$cmd" | grep -qiE '(^|[;&|[:space:]])(vim|nvim|emacs|ed|ex|vi|nano)[[:space:]]'; then
 		return 0
 	fi
+	# interpreters that can execute arbitrary code / spawn processes / modify
+	# files even without a trailing redirection or -i flag (sed 'w', perl
+	# open(">"), awk system(), env/setsid/nohup running a command, make, xargs)
+	if printf '%s\n' "$cmd" | grep -qiE '(^|[;&|[:space:]])(sed|awk|perl|xargs|make|env|nohup|setsid)[[:space:]]'; then
+		return 0
+	fi
 	# blocklist of commands that write to disk / change state / spawn a shell
-	printf '%s\n' "$cmd" | grep -qiE '(^|[;&|[:space:]])(rm|rmdir|unlink|mv|cp|mkdir|touch|ln|chmod|chown|chgrp|install|truncate|tee|dd|mkfs|mount|umount|tar|gzip|gunzip|bzip2|xz|zstd|curl|wget|python3|python|node|npm|bun|yarn|pnpm|cargo|go |rustc|git (add|commit|push|pull|merge|rebase|reset|checkout|switch|restore|clean|stash|tag|clone|init|rm|mv)|pkg (install|uninstall|upgrade|reinstall|update)|apt( |-)|apt-get|dpkg|yum|dnf|pacman|brew|pip|pip3|uv|conda|mysql|psql|sqlite3|redis-cli|mongosh|kill|pkill|killall|service|systemctl|halt|reboot|shutdown|sudo|doas|su|pkexec|chroot|bash|sh|dash|zsh|ksh|eval|source|exec|screen|tmux|ssh|scp|sftp|rsync|telnet|nc|ncat|ftp|lftp|rsh|sshpass|socat|crontab|at |iptables|nft|ufw|docker|podman|kubectl|helm)[[:space:]]' && return 0
+	printf '%s\n' "$cmd" | grep -qiE '(^|[;&|[:space:]])(rm|rmdir|unlink|mv|cp|mkdir|touch|ln|chmod|chown|chgrp|install|truncate|tee|dd|mkfs|mount|umount|tar|gzip|gunzip|bzip2|xz|zstd|curl|wget|python3|python|node|npm|bun|yarn|pnpm|cargo|go |rustc|git (add|commit|push|pull|merge|rebase|reset|checkout|switch|restore|clean|stash|tag|clone|init|rm|mv|apply|am|worktree|read-tree|update-index|write-tree|checkout-index)|pkg (install|uninstall|upgrade|reinstall|update)|apt( |-)|apt-get|dpkg|yum|dnf|pacman|brew|pip|pip3|uv|conda|mysql|psql|sqlite3|redis-cli|mongosh|kill|pkill|killall|service|systemctl|halt|reboot|shutdown|sudo|doas|su|pkexec|chroot|bash|sh|dash|zsh|ksh|eval|source|exec|screen|tmux|ssh|scp|sftp|rsync|telnet|nc|ncat|ftp|lftp|rsh|sshpass|socat|crontab|at |iptables|nft|ufw|docker|podman|kubectl|helm)[[:space:]]' && return 0
 	return 1
 }
 
@@ -898,7 +906,7 @@ agent_exec_loading() {
 	local delay=0.08
 	local tmpfile
 	local _ktmpdir="${KARNEL_CACHE:-${XDG_CACHE_HOME:-$HOME/.cache}/karnel}"
-	mkdir -p "$_ktmpdir" 2>/dev/null || _ktmpdir="${TMPDIR:-/tmp}"
+	mkdir -p "$_ktmpdir" 2>/dev/null || _ktmpdir="${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}"
 	tmpfile="$(mktemp "$_ktmpdir/karnel.XXXXXX" 2>/dev/null)" || tmpfile="$(mktemp 2>/dev/null)"
 
 	local stty_saved=""

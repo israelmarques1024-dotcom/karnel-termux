@@ -121,7 +121,7 @@ _brain_slug_escape() {
 _brain_update_related() {
 	local file="$1" slug="$2"
 	local tmp
-	tmp=$(mktemp "${TMPDIR:-/tmp}/karnel-brain.XXXXXX")
+	tmp=$(mktemp "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/karnel-brain.XXXXXX")
 	local frontmatter_end
 	frontmatter_end=$(awk '/^---$/ {++n} n==2 {print NR; exit}' "$file")
 
@@ -151,7 +151,7 @@ _brain_update_related() {
 _brain_remove_related() {
 	local file="$1" slug="$2"
 	local tmp
-	tmp=$(mktemp "${TMPDIR:-/tmp}/karnel-brain.XXXXXX")
+	tmp=$(mktemp "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/karnel-brain.XXXXXX")
 	local frontmatter_end
 	frontmatter_end=$(awk '/^---$/ {++n} n==2 {print NR; exit}' "$file")
 

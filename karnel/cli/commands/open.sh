@@ -3,7 +3,7 @@
 import "@/utils/log"
 import "@/utils/colors"
 
-OPEN_BASE_URL="https://karneltermux.vercel.app"
+OPEN_BASE_URL="https://israelmarques1024-dotcom.github.io/karnel-termux"
 
 open_main() {
 	if [[ $# -eq 0 ]]; then

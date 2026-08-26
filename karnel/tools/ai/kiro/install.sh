@@ -3,6 +3,14 @@
 import "@/utils/log"
 import "@/utils/colors"
 import "@/utils/version"
+import "@/utils/install"
+
+if ! declare -f safe_extract_tar >/dev/null 2>&1; then
+  safe_extract_tar() {
+    local archive="$1" outdir="$2" strip_components="${3:-0}"
+    tar -xzf "$archive" -C "$outdir" --strip-components="$strip_components"
+  }
+fi
 
 : "${KARNEL_CACHE:=${XDG_CACHE_HOME:-$HOME/.cache}/karnel}"
 : "${KARNEL_DATA:=${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data}"
@@ -136,7 +144,7 @@ print(version, download, checksum, sep="\t")
     fi
     log_success "Checksum verified"
 
-    if tar xzf "$archive" -C "$tmpdir" 2>>"$LOG_FILE"; then
+    if safe_extract_tar "$archive" "$tmpdir" 2>>"$LOG_FILE"; then
       bin_path=$(find "$tmpdir" -name "kiro-cli" -type f -executable 2>/dev/null | head -1)
       if [[ -z "$bin_path" ]]; then
         bin_path=$(find "$tmpdir" -name "kiro*" -type f -executable 2>/dev/null | head -1)

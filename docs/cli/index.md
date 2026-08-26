@@ -1,3 +1,9 @@
+---
+title: CLI Commands
+permalink: /cli/
+layout: base
+---
+
 # Karnel CLI Reference
 
 ```bash
@@ -190,7 +196,7 @@ karnel open <target>
 ```
 
 Opens the official documentation page for a module using
-`termux-open-url`. Base URL: `https://karneltermux.vercel.app`
+`termux-open-url`. Base URL: `https://israelmarques1024-dotcom.github.io/karnel-termux`
 
 | Target           | Opens |
 |------------------|-------|

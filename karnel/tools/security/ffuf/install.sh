@@ -26,7 +26,7 @@ _download_ffuf() (
     *) return 1 ;;
   esac
   url="https://github.com/ffuf/ffuf/releases/download/v${_FFUF_VERSION}/$asset"
-  tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/ffuf.XXXXXX") || return 1
+  tmpdir=$(mktemp -d "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/ffuf.XXXXXX") || return 1
   staged_bin=""
   trap 'rm -rf "$tmpdir"; [ -z "$staged_bin" ] || rm -f "$staged_bin"' EXIT
   archive="$tmpdir/ffuf.tar.gz"

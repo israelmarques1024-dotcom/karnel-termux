@@ -64,7 +64,7 @@ _init_lang_tools() {
   LANG_TOOLS["C/C++:clang_tidy"]="clang-tidy|lint|clang-tidy {} -- -std=c17 2>&1 | head -20|||official"
 
   # Java
-  LANG_TOOLS["Java:javac"]="javac|syntax|javac -d \"${TMPDIR:-/tmp}\" -Xlint:all {} 2>&1 | head -10|||official"
+  LANG_TOOLS["Java:javac"]="javac|syntax|javac -d \"${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}\" -Xlint:all {} 2>&1 | head -10|||official"
 
   # Docker
   LANG_TOOLS["Docker:hadolint"]="hadolint|lint|hadolint Dockerfile|||community"

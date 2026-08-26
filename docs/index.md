@@ -1,19 +1,12 @@
-# Karnel Termux Documentation
+---
+title: Karnel Termux Documentation
+permalink: /
+layout: base
+---
 
 <img class="karnel-logo" src="{{ '/assets/images/karnel-logo.png' | relative_url }}" alt="Karnel Termux">
 
 > Modular Dev Environment for Termux — install languages, databases, AI agents, editors, and more with one command
-
-Navigate the docs:
-
-<ul class="karnel-nav">
-  <li><a href="./cli/">CLI Commands</a></li>
-  <li><a href="./doctor/">Doctor System</a></li>
-  <li><a href="./troubleshooting/">Troubleshooting</a></li>
-  <li><a href="./ARCHITECTURE/">Architecture</a></li>
-  <li><a href="./CHANGELOG/">Changelog</a></li>
-  <li><a href="https://israelmarques1024-dotcom.github.io/karnel-termux/">Live Site</a></li>
-</ul>
 
 ## What is Karnel?
 

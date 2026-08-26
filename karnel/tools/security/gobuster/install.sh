@@ -19,7 +19,7 @@ _install_gobuster_bin() (
     x86_64) checksum="871be404ce5f80c96b864586b3caa90f894598d1a8222ae316c19e5f70e04cfc" ;;
   esac
   local url="https://github.com/OJ/gobuster/releases/download/v${_GOBUSTER_VERSION}/$asset"
-  tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/gobuster.XXXXXX") || return 1
+  tmpdir=$(mktemp -d "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/gobuster.XXXXXX") || return 1
   staged_bin=""
   trap 'rm -rf "$tmpdir"; [ -z "$staged_bin" ] || rm -f "$staged_bin"' EXIT
   archive="$tmpdir/gobuster.tar.gz"

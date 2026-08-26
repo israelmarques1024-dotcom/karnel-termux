@@ -1,3 +1,9 @@
+---
+title: Architecture
+permalink: /ARCHITECTURE/
+layout: base
+---
+
 # Karnel Architecture
 
 ## Project Structure

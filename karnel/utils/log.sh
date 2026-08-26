@@ -430,7 +430,7 @@ loading() {
 	local delay=0.08
 	local tmpfile
 	local _ktmpdir="${KARNEL_CACHE:-${XDG_CACHE_HOME:-$HOME/.cache}/karnel}"
-	mkdir -p "$_ktmpdir" 2>/dev/null || _ktmpdir="${TMPDIR:-/tmp}"
+	mkdir -p "$_ktmpdir" 2>/dev/null || _ktmpdir="${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}"
 	tmpfile="$(mktemp "$_ktmpdir/karnel.XXXXXX" 2>/dev/null)" || tmpfile="$(mktemp 2>/dev/null)"
 	local cmd_pid=""
 

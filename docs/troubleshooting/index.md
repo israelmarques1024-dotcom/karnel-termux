@@ -1,3 +1,9 @@
+---
+title: Troubleshooting
+permalink: /troubleshooting/
+layout: base
+---
+
 # Troubleshooting
 
 Common issues when installing, updating, or publishing Karnel Termux.
@@ -55,7 +61,7 @@ The workflow runs `actions/jekyll-build-pages` (from `docs/`, output to
 
 If a build fails, open the Actions run for the failing job and read the Jekyll
 output: the usual causes are invalid `_config.yml` YAML, an SCSS compile error
-in `assets/css/style.scss`, or a malformed `{{ }}` Liquid tag. After a
+in `assets/css/style.scss`, or a malformed `{% raw %}{{ }}{% endraw %}` Liquid tag. After a
 successful deploy, the published site is visible under the repository's
 **Settings → Pages**.
 

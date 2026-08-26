@@ -226,9 +226,9 @@ _update_try_curl() {
   command -v curl &>/dev/null || return 1
 
   local meta installer sumfile tag
-  meta=$(mktemp "${TMPDIR:-/tmp}/karnel-meta.XXXXXX") || return 1
-  installer=$(mktemp "${TMPDIR:-/tmp}/karnel-install.XXXXXX") || { rm -f "$meta"; return 1; }
-  sumfile=$(mktemp "${TMPDIR:-/tmp}/karnel-sum.XXXXXX") || { rm -f "$meta" "$installer"; return 1; }
+  meta=$(mktemp "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/karnel-meta.XXXXXX") || return 1
+  installer=$(mktemp "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/karnel-install.XXXXXX") || { rm -f "$meta"; return 1; }
+  sumfile=$(mktemp "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/karnel-sum.XXXXXX") || { rm -f "$meta" "$installer"; return 1; }
 
   log_info "Trying the official curl installer..."
 

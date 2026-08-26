@@ -28,7 +28,7 @@ install_burpsuite() (
 
   local url tmpdir staged_dir wrapper old_dir wrapper_backup
   url="https://portswigger.net/burp/releases/download?product=community&type=Jar&version=${_BURP_VERSION}"
-  tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/burpsuite.XXXXXX") || return 1
+  tmpdir=$(mktemp -d "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/burpsuite.XXXXXX") || return 1
   trap 'rm -rf "$tmpdir"' EXIT
   staged_dir="$tmpdir/data"
   mkdir -p "$staged_dir" "$PREFIX/bin" "$(dirname "$_BURP_DIR")" || return 1

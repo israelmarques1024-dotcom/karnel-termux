@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux">
-    <img src="https://img.shields.io/badge/version-4.17.9-0078D4?style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/badge/version-4.17.10-0078D4?style=for-the-badge" alt="Version">
   </a>
   <a href="https://www.npmjs.com/package/karnel-termux">
     <img src="https://img.shields.io/npm/v/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
@@ -22,8 +22,8 @@
   <a href="https://termux.dev/">
     <img src="https://img.shields.io/badge/platform-Termux%20%7C%20Android-0078D4?style=for-the-badge" alt="Platform">
   </a>
-  <a href="https://karneltermux.vercel.app">
-    <img src="https://img.shields.io/badge/Site-karneltermux.vercel.app-0078D4?style=for-the-badge" alt="Website">
+  <a href="https://israelmarques1024-dotcom.github.io/karnel-termux">
+    <img src="https://img.shields.io/badge/Site-karneltermux.github.io-0078D4?style=for-the-badge" alt="Website">
   </a>
 </p>
 
@@ -61,7 +61,7 @@ Core agent contributions by **devcorex**.
 ### Via checksummed GitHub release (recommended)
 
 ```bash
-version=4.17.9
+version=4.17.10
 tmpdir=$(mktemp -d) && trap 'rm -rf "$tmpdir"' EXIT
 base="https://github.com/israelmarques1024-dotcom/karnel-termux/releases/download/v$version"
 curl -fsSL "$base/karnel-termux-install.sh" -o "$tmpdir/karnel-termux-install.sh"
@@ -507,7 +507,7 @@ karnel open ai                        # Open AI module docs
 karnel open db                        # Open DB module docs
 ```
 
-Documentation loads from https://karneltermux.vercel.app.
+Documentation loads from https://israelmarques1024-dotcom.github.io/karnel-termux.
 
 ---
 
@@ -519,7 +519,7 @@ Documentation loads from https://karneltermux.vercel.app.
 - [Troubleshooting](docs/troubleshooting/index.md)
 - [Architecture](docs/ARCHITECTURE/index.md)
 - [Documentation changelog](docs/CHANGELOG.md)
-- [Official website](https://karneltermux.vercel.app)
+- [Official website](https://israelmarques1024-dotcom.github.io/karnel-termux)
 
 ---
 
@@ -651,7 +651,7 @@ MIT © Israel Marques
 ---
 
 <p align="center">
-  <a href="https://karneltermux.vercel.app">
+  <a href="https://israelmarques1024-dotcom.github.io/karnel-termux">
     <img src="https://img.shields.io/badge/Full%20Documentation-0078D4?style=for-the-badge" alt="Documentation">
   </a>
   <a href="https://www.youtube.com/@capideb">

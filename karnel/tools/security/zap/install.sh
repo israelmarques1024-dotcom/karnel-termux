@@ -34,7 +34,7 @@ install_zap() (
 
   local url="https://github.com/zaproxy/zaproxy/releases/download/v${_ZAP_VERSION}/$ZAP_ASSET"
 
-  tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/zap.XXXXXX") || {
+  tmpdir=$(mktemp -d "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/zap.XXXXXX") || {
     log_error "Falha ao criar diretório temporário"
     return 1
   }

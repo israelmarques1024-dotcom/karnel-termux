@@ -47,7 +47,7 @@ install_amass() (
   esac
   url="https://github.com/owasp-amass/amass/releases/download/v${_AMASS_VERSION}/$asset"
 
-  tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/amass.XXXXXX") || return 1
+  tmpdir=$(mktemp -d "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/amass.XXXXXX") || return 1
   staged_bin=""
   trap 'rm -rf "$tmpdir"; [ -z "$staged_bin" ] || rm -f "$staged_bin"' EXIT
   archive="$tmpdir/amass.zip"

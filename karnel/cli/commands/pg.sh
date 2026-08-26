@@ -737,9 +737,22 @@ pg_schedule() {
 		local escaped_db; printf -v escaped_db '%q' "$db_name"
 		local escaped_path; printf -v escaped_path '%q' "$KARNEL_PATH"
 		local job="$cron_expr KARNEL_PATH=$escaped_path $escaped_path/bin/karnel pg backup $escaped_db >/dev/null 2>&1"
-		(crontab -l 2>/dev/null | grep -v "karnel pg backup $db_name"; echo "$job") | crontab -
-		log_success "Backup scheduled successfully ($interval) for database '$db_name'!"
-		list_item "Ensure cron daemon is running (run: 'crond')"
+		local tmpcron
+		tmpcron="$(mktemp "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/karnel-pg.XXXXXX")" || {
+			log_error "Failed to schedule backup for database '$db_name'"
+			return 1
+		}
+		{
+			crontab -l 2>/dev/null | grep -vF "karnel pg backup $escaped_db"
+			echo "$job"
+		} >"$tmpcron"
+		if crontab "$tmpcron"; then
+			log_success "Backup scheduled successfully ($interval) for database '$db_name'!"
+			list_item "Ensure cron daemon is running (run: 'crond')"
+		else
+			log_error "Failed to schedule backup for database '$db_name'"
+		fi
+		rm -f "$tmpcron"
 	fi
 	echo
 }

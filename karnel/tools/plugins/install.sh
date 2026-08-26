@@ -519,7 +519,10 @@ _plugin_verify_checksum() {
   local expected actual
 
   expected="$(jq -r '.checksum // empty' "$manifest")" || return 1
-  [[ -n "$expected" ]] || return 0
+  if [[ -z "$expected" ]]; then
+    log_error "Plugin '$(jq -r '.name' "$manifest")' has no checksum; refusing install"
+    return 1
+  fi
 
   actual="$(_plugin_payload_checksum "$plugin_root")" || return 1
   if [[ "$actual" != "$expected" ]]; then
@@ -882,11 +885,15 @@ _plugin_clone_repository() {
   local repo="$1"
   local ref="$2"
   local destination="$3"
+  local commit="$4"
   local source_url="https://github.com/$repo.git"
 
   _plugin_require_command git || return 1
 
-  if [[ -n "$ref" ]]; then
+  if [[ -n "$commit" ]]; then
+    git clone "$source_url" "$destination" || return 1
+    git -C "$destination" checkout "$commit" --detach || return 1
+  elif [[ -n "$ref" ]]; then
     git clone --depth=1 --branch "$ref" "$source_url" "$destination"
   else
     git clone --depth=1 "$source_url" "$destination"
@@ -1083,6 +1090,13 @@ _plugin_stage_and_install() {
   local replace_existing="$7"
   local staging checkout checkout_root candidate candidate_root manifest_name commit installed_ref expected_commit registry_name
 
+  expected_commit=""
+  registry_name=""
+  if [[ -n "$registry_entry" ]]; then
+    expected_commit="$(jq -r '.commit // empty' <<<"$registry_entry")" || return 1
+    registry_name="$(jq -r '.name' <<<"$registry_entry")" || return 1
+  fi
+
   _plugin_prepare_plugins_dir || return 1
   _plugin_validate_repo "$repo" || return 1
   [[ -z "$ref" ]] || _plugin_ref_is_valid "$ref" || {
@@ -1100,7 +1114,7 @@ _plugin_stage_and_install() {
   }
   checkout="$staging/repository"
 
-  if ! _plugin_clone_repository "$repo" "$ref" "$checkout"; then
+  if ! _plugin_clone_repository "$repo" "$ref" "$checkout" "$expected_commit"; then
     log_error "Failed to clone plugin repository '$repo'."
     _plugin_cleanup_staging "$staging"
     return 1

@@ -59,7 +59,7 @@ _run_tool_lifecycle_action() {
     fi
     "$uninstall_handler"
     rc=$?
-    (( rc == 0 )) || return "$rc"
+    (( rc == 0 || rc == 2 )) || return "$rc"
     "$install_handler"
     rc=$?
     if (( rc == 0 && protected )); then

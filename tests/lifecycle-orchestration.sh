@@ -39,16 +39,19 @@ assert_reinstall_stops_after_uninstall_failure() (
 )
 run_test "reinstall stops after uninstall failure" assert_reinstall_stops_after_uninstall_failure
 
-assert_reinstall_stops_after_uninstall_skip() (
+assert_reinstall_proceeds_after_uninstall_skip() (
   calls=()
   uninstall_demo() { calls+=(uninstall); return 2; }
   install_demo() { calls+=(install); }
 
   _run_tool_lifecycle_action fixture reinstall demo
   rc=$?
-  [[ $rc -eq 2 && "${calls[*]}" == "uninstall" ]]
+  # An uninstall that reports "already uninstalled" (rc 2) must not abort the
+  # reinstall: the install step still runs so a not-yet-installed tool can be
+  # (re)installed.
+  [[ $rc -eq 0 && "${calls[*]}" == "uninstall install" ]]
 )
-run_test "reinstall preserves uninstall skip" assert_reinstall_stops_after_uninstall_skip
+run_test "reinstall proceeds to install after uninstall skip" assert_reinstall_proceeds_after_uninstall_skip
 
 assert_registered_handler_guards_specific_flow() (
   calls=()

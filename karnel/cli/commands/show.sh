@@ -47,6 +47,11 @@ show_main() {
 		return 1
 	fi
 
+  if [[ ! "$module" =~ ^[A-Za-z0-9_-]+$ ]]; then
+    log_error "Invalid module name: $module"
+    return 1
+  fi
+
   if [[ "$module" == "backup" ]]; then
     _show_backup_docs "$tool"
     return

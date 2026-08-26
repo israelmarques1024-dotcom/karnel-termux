@@ -47,7 +47,7 @@ install_subfinder() (
   esac
   url="https://github.com/projectdiscovery/subfinder/releases/download/v${_SUBFINDER_VERSION}/$asset"
 
-  tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/subfinder.XXXXXX") || return 1
+  tmpdir=$(mktemp -d "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/subfinder.XXXXXX") || return 1
   staged_bin=""
   trap 'rm -rf "$tmpdir"; [ -z "$staged_bin" ] || rm -f "$staged_bin"' EXIT
   archive="$tmpdir/subfinder.zip"

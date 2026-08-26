@@ -1,9 +1,35 @@
 ---
 title: Documentation Changelog
 permalink: /CHANGELOG/
+layout: base
 ---
 
 # Documentation Changelog
+
+## 4.17.10
+
+- Round 10 security/correctness hardening (23 distinct fixes):
+  - **Termux `/tmp` fallbacks eliminated** across host-side code
+    (`update.sh`, `brain.sh`, `version.sh`, `log.sh`, `agent_actions.sh`,
+    `doctor/code_langs.sh`, `supabase`, and the `security/*` tools amass,
+    subfinder, ffuf, gobuster, burpsuite, zap) — now use `KARNEL_CACHE`.
+  - **`karnel show <module>`** now rejects invalid module names
+    (`/`, `..`, `~`), closing a path-traversal / information-disclosure bug.
+  - **Agent PLAN (read-only) mode** hardened: blocks `sed`/`awk`/`perl`/
+    `xargs`/`make`/`env`/`nohup`/`setsid`, `sed`/`perl -i`, editors,
+    `git apply`/`worktree`/`read-tree`/`update-index`, and now also catches
+    redirections without a preceding space (`echo x>file`).
+  - **Plugin supply chain** fail-closed: installs now require a manifest
+    checksum (was silently skipped), and registry installs pin to a committed
+    SHA when provided.
+  - **`karnel pg backup --schedule`** no longer swallows `crontab` failures
+    and uses the escaped DB name to avoid duplicate cron jobs.
+  - **Reinstall** now proceeds to install when the uninstall step reports
+    "already uninstalled" (rc 2) instead of aborting.
+  - **Archive extraction hardened**: `cline`, `goose`, `kiro` AI installers
+    and `zork` now use the safe extractors; `zork` also drops literal `/tmp`.
+  - Site fully overhauled (navigation, dark mode, GitHub Pages URLs, Liquid
+    fixes, consistent front matter).
 
 ## 4.17.9
 

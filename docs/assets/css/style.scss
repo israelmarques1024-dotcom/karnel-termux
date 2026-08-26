@@ -246,3 +246,37 @@ body {
   border-top: 1px solid #e1e4e8;
   padding-top: 1rem;
 }
+
+/* Top navigation bar (injected by _layouts/base.html) */
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  align-items: center;
+  padding: 0.7rem 1rem;
+  margin-bottom: 1.75rem;
+  background: #f3f5f8;
+  border: 1px solid #d0d7de;
+  border-radius: 10px;
+}
+
+.site-nav a {
+  color: #0078d4;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.site-nav a:hover {
+  text-decoration: underline;
+}
+
+@media (prefers-color-scheme: dark) {
+  .site-nav {
+    background: var(--karnel-panel);
+    border-color: var(--karnel-border);
+  }
+  .site-nav a {
+    color: var(--karnel-accent);
+  }
+}

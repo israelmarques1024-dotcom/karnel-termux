@@ -3,6 +3,14 @@
 import "@/utils/log"
 import "@/utils/version"
 import "@/utils/colors"
+import "@/utils/install"
+
+if ! declare -f safe_extract_tar >/dev/null 2>&1; then
+  safe_extract_tar() {
+    local archive="$1" outdir="$2" strip_components="${3:-0}"
+    tar -xzf "$archive" -C "$outdir" --strip-components="$strip_components"
+  }
+fi
 
 : "${KARNEL_DATA:=${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data}"
 : "${KARNEL_CACHE:=${XDG_CACHE_HOME:-$HOME/.cache}/karnel}"
@@ -99,7 +107,7 @@ _cline_install_global_impl() {
 
   mkdir -p "$CLINE_DATA_DIR"
   : >"$CLINE_DATA_DIR/$CLINE_MARKER"
-  if ! tar -xzf "$tarball" -C "$CLINE_DATA_DIR" &>>"$LOG_FILE"; then
+  if ! safe_extract_tar "$tarball" "$CLINE_DATA_DIR" &>>"$LOG_FILE"; then
     rm -f "$tarball"
     log_error "Failed to extract cline linux-arm64 binary"
     return 1

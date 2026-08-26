@@ -1,3 +1,9 @@
+---
+title: Doctor System
+permalink: /doctor/
+layout: base
+---
+
 # Karnel Doctor
 
 `karnel doctor` diagnoses the Termux environment, analyzes project code, and
