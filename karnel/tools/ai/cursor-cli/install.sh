@@ -3,6 +3,7 @@
 import "@/utils/log"
 import "@/utils/colors"
 import "@/utils/version"
+import "@/utils/install"
 
 : "${KARNEL_CACHE:=${XDG_CACHE_HOME:-$HOME/.cache}/karnel}"
 : "${KARNEL_DATA:=${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data}"
@@ -142,7 +143,7 @@ _download_cursor_binary_impl() {
     return 1
   fi
 
-  if ! tar -zxf "$staging_dir/$tarball" --strip-components=1 -C "$staging_dir" &>>"$LOG_FILE"; then
+  if ! safe_extract_tar "$staging_dir/$tarball" "$staging_dir" 1; then
     rm -rf "$staging_dir"
     log_error "Failed to extract Cursor CLI binary"
     return 1

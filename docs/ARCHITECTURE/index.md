@@ -45,7 +45,7 @@ karnel-termux/
 │   │   ├── deploy/             # 4 deploy CLIs
 │   │   ├── games/              # 6 games
 │   │   ├── network/            # 2 network tools (dark, dedsec-network)
-│   │   ├── utils/              # 12 utility tools (fconv, notes, zork, SuperFile, etc.)
+│   │   ├── utils/              # 13 utility tools (fconv, notes, zork, SuperFile, herdr, etc.)
 │   │   ├── security/           # 30 security tools
 │   │   ├── voice/              # Speech-to-agent via Termux:API
 │   │   ├── plugins/            # Built-in plugin manager

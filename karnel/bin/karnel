@@ -119,7 +119,7 @@ show_update_notification() {
   fi
 }
 
-if [[ "${KARNEL_READ_ONLY:-0}" != "1" ]] && [[ "${1:-}" != "update" ]] && [[ "${1:-}" != "uninstall" ]] && [[ "${1:-}" != "reinstall" ]]; then
+if [[ "${KARNEL_READ_ONLY:-0}" != "1" ]] && [[ "${1:-}" != "update" ]] && [[ "${1:-}" != "uninstall" ]] && [[ "${1:-}" != "reinstall" ]] && [[ "${1:-}" != "upgrade" ]]; then
   check_for_updates
   import "@/utils/log"
   import "@/utils/colors"

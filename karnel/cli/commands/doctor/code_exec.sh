@@ -126,6 +126,10 @@ _exec_apply_fix() {
   fi
 
   log_info "Applying fix: $tool ($lang)..."
+  # Snapshot the target before an in-place rewrite so the user can revert.
+  if [[ -n "$file" && -f "$file" && ! -e "$file.karnel-bak" ]]; then
+    cp -p "$file" "$file.karnel-bak" 2>/dev/null || true
+  fi
   local out rc
   if out=$(cd "$dir" && timeout 60 bash -c "$full_cmd" 2>&1); then
     rc=0

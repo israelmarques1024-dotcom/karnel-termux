@@ -41,7 +41,7 @@ _patch_psutil_for_termux() {
   local tmp
   tmp=$(mktemp -d "$KARNEL_CACHE/psutil_patch.XXXXXX") || return 1
   "$HERMES_VENV/bin/python" -m pip download psutil==7.2.2 --no-binary :all: --no-deps -d "$tmp" 2>/dev/null || { rm -rf "$tmp"; return 1; }
-  tar xzf "$tmp/psutil-7.2.2.tar.gz" -C "$tmp" || { rm -rf "$tmp"; return 1; }
+  safe_extract_tar "$tmp/psutil-7.2.2.tar.gz" "$tmp" || { rm -rf "$tmp"; return 1; }
   sed -i 's/LINUX = sys.platform.startswith("linux")/LINUX = sys.platform.startswith(("linux", "android"))/' "$tmp/psutil-7.2.2/psutil/_common.py" || { rm -rf "$tmp"; return 1; }
   "$HERMES_VENV/bin/python" -m pip install "$tmp/psutil-7.2.2" || { rm -rf "$tmp"; return 1; }
   rm -rf "$tmp"

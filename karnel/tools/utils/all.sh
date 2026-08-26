@@ -19,6 +19,7 @@ TOOLS_PACKAGES=(
   "zork"
   "qrcode"
   "superfile"
+  "herdr"
 )
 
 TOOLS_DISPLAY=(
@@ -34,6 +35,7 @@ TOOLS_DISPLAY=(
   "Zork (text adventure games I, II, III)"
   "QR Code (link-to-QR generator)"
   "SuperFile (terminal file manager)"
+  "Herdr (terminal AI assistant CLI)"
 )
 
 for _tool in "${TOOLS_PACKAGES[@]}"; do

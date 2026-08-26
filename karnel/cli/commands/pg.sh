@@ -635,8 +635,11 @@ pg_restore_db() {
 			success=true
 		fi
 	else
-		if loading "Restoring database" pg_restore -d "$db_name" -c "$backup_file" 2>/dev/null || pg_restore -d "$db_name" "$backup_file" 2>/dev/null; then
+		local pg_log="$KARNEL_CACHE/pg-restore.log"
+		if loading "Restoring database" pg_restore -d "$db_name" -c --single-transaction "$backup_file" 2>>"$pg_log"; then
 			success=true
+		else
+			log_warn "pg_restore failed; details in: $pg_log"
 		fi
 	fi
 
@@ -736,7 +739,8 @@ pg_schedule() {
 
 		local escaped_db; printf -v escaped_db '%q' "$db_name"
 		local escaped_path; printf -v escaped_path '%q' "$KARNEL_PATH"
-		local job="$cron_expr KARNEL_PATH=$escaped_path $escaped_path/bin/karnel pg backup $escaped_db >/dev/null 2>&1"
+		local pg_log="$KARNEL_CACHE/pg-backup.log"
+		local job="$cron_expr PATH=\"$PREFIX/bin:/usr/bin:/bin\" PREFIX=\"$PREFIX\" KARNEL_PATH=$escaped_path $escaped_path/bin/karnel pg backup $escaped_db >>\"$pg_log\" 2>&1"
 		local tmpcron
 		tmpcron="$(mktemp "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/karnel-pg.XXXXXX")" || {
 			log_error "Failed to schedule backup for database '$db_name'"

@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux">
-    <img src="https://img.shields.io/badge/version-4.17.10-0078D4?style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/badge/version-4.17.11-0078D4?style=for-the-badge" alt="Version">
   </a>
   <a href="https://www.npmjs.com/package/karnel-termux">
     <img src="https://img.shields.io/npm/v/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
@@ -39,7 +39,7 @@ Core agent contributions by **devcorex**.
 - **8 languages** — Node.js, Python, Go, Rust, C/C++, PHP, Perl, Bun
 - **5 databases** — PostgreSQL, MariaDB, SQLite, MongoDB, Redis
 - **22 dev tools** — gh, curl, fzf, bat, lsd, jq, tmux, openssh, snyk and more
-- **12 utility tools** — fconv, notes, treex, qrcode, SuperFile, zork and more
+- **13 utility tools** — fconv, notes, treex, qrcode, SuperFile, zork, herdr and more
 - **2 network tools** — dark, dedsec-network
 - **4 deploy CLIs** — Vercel, Railway, Netlify, Supabase
 - **Responsible OSINT** — Robin v2.8 through Tor with a loopback-only web UI
@@ -61,7 +61,7 @@ Core agent contributions by **devcorex**.
 ### Via checksummed GitHub release (recommended)
 
 ```bash
-version=4.17.10
+version=4.17.11
 tmpdir=$(mktemp -d) && trap 'rm -rf "$tmpdir"' EXIT
 base="https://github.com/israelmarques1024-dotcom/karnel-termux/releases/download/v$version"
 curl -fsSL "$base/karnel-termux-install.sh" -o "$tmpdir/karnel-termux-install.sh"
@@ -106,6 +106,7 @@ aliases, or options; use `karnel help` and the CLI reference for the full set.
 | `karnel update <module>` | Update modules or karnel |
 | `karnel uninstall <module>` | Remove installed modules |
 | `karnel reinstall <module>` | Reinstall modules |
+| `karnel upgrade` | Upgrade the framework (self-update) |
 | `karnel doctor termux` | Diagnose the Termux environment (30+ sections) |
 | `karnel doctor code` | Detect project ecosystems and run code checks |
 | `karnel doctor robin` | Diagnose Robin, Tor, dependencies, and local UI |
@@ -152,7 +153,7 @@ aliases, or options; use `karnel help` and the CLI reference for the full set.
 karnel install ai --keelcode
 
 # Install the SuperFile terminal file manager
-karnel install utils --superfile
+karnel install utils --superfile --herdr
 ```
 
 Both tools support `update`, `reinstall`, and `uninstall` with the same module and flag.
@@ -343,7 +344,7 @@ karnel doctor termux --quick         # Run essential system/package checks only
 karnel doctor termux --fix           # Apply queued fixes without group confirmation
 
 karnel doctor code                   # Quick project analysis
-karnel doctor code --standard .      # Add security, deps, coverage and complexity
+karnel doctor code --standard .      # Add security, deps, dead-code and complexity
 karnel doctor code --deep --json .   # All 76 definitions as standalone JSON
 karnel doctor code --fix .           # Apply fixes classified as safe
 karnel doctor robin                  # Robin/Tor/dependency diagnostics
@@ -430,7 +431,7 @@ Microphone -> termux-speech-to-text -> editor (edit) -> clipboard -> AI agent
 ### Requirements
 
 - Termux:API: `pkg install termux-api`
-- App Termux:API: https://karneltermux.vercel.app/termux/api
+- App Termux:API: https://israelmarques1024-dotcom.github.io/karnel-termux/termux/api
 - Editor (optional): `karnel install editor`; otherwise use `--raw` or the automatic raw fallback
 
 ---
@@ -574,7 +575,7 @@ karnel/
 │   │   ├── ui/        # 4 UI components
 │   │   ├── auto/      # 1 automation tool
 │   │   ├── network/   # 2 network tools
-│   │   ├── utils/     # 12 utility tools
+│   │   ├── utils/     # 13 utility tools
 │   │   ├── games/     # 6 games
 │   │   ├── security/  # 30 security tools
 │   │   └── deploy/    # 4 deploy CLIs

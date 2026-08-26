@@ -32,7 +32,7 @@ install_oh_my_zsh() (
 	echo
 
 	local temp_base temp_dir temp_file
-	temp_base="${TMPDIR:-${PREFIX:-/tmp}/tmp}"
+	temp_base="${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}"
 	mkdir -p "$temp_base" || return 1
 	temp_dir=$(mktemp -d "$temp_base/karnel-omz.XXXXXX") || {
 		log_error "Failed to create private Oh My Zsh temporary directory"

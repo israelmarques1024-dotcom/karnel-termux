@@ -1413,20 +1413,45 @@ doctor_termux() {
     fi
     if [[ "$confirm" == "y" ]]; then
       echo
+      local -A DESTRUCTIVE_FIXES=(
+        [_fix_ai_install]=1
+        [_fix_proot_ubuntu]=1
+        [_fix_disk_cleanup]=1
+        [_fix_broken_symlinks]=1
+        [_fix_apt_cache]=1
+      )
       for ((i=0; i<${#fix_commands[@]}; i++)); do
         log_info "Fixing: ${fix_descriptions[$i]}..."
         local callback="${fix_callbacks[$i]:-}"
         local success=false
+        local apply_this="y"
 
-        if [[ -n "$callback" ]] && type "$callback" &>/dev/null 2>&1; then
-          "$callback" && success=true
+        # Destructive fixes are never auto-applied in --fix mode. In an
+        # interactive --fix session they require an explicit confirmation; in a
+        # non-interactive one they are skipped (fail-closed) to avoid wiping
+        # caches, reinstalling packages or deleting unrelated software.
+        if [[ -n "$callback" && -n "${DESTRUCTIVE_FIXES[$callback]:-}" ]]; then
+          if $FIX_MODE; then
+            if [[ -t 0 ]]; then
+              read_confirm "DANGEROUS: ${fix_descriptions[$i]}. Apply?" apply_this
+            else
+              log_warn "Skipping destructive fix (non-interactive): ${fix_descriptions[$i]}"
+              continue
+            fi
+          fi
         fi
 
-        if [[ "$success" == "true" ]]; then
-          ((fixed++))
-          log_success "Fixed: ${fix_descriptions[$i]}"
-        else
-          log_warn "Could not fix: ${fix_descriptions[$i]}"
+        if [[ "$apply_this" == "y" ]]; then
+          if [[ -n "$callback" ]] && type "$callback" &>/dev/null 2>&1; then
+            "$callback" && success=true
+          fi
+
+          if [[ "$success" == "true" ]]; then
+            ((fixed++))
+            log_success "Fixed: ${fix_descriptions[$i]}"
+          else
+            log_warn "Could not fix: ${fix_descriptions[$i]}"
+          fi
         fi
       done
       echo

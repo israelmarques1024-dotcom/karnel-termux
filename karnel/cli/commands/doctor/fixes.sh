@@ -3,6 +3,7 @@
 
 import "@/utils/log"
 import "@/utils/colors"
+import "@/utils/install"
 
 _fix_storage() {
   termux-setup-storage 2>/dev/null
@@ -207,7 +208,7 @@ _fix_psutil() {
   local tmp="$PREFIX/tmp/psutil_patch"
   mkdir -p "$tmp"
   pip download psutil==7.2.2 --no-binary :all: --no-deps -d "$tmp" 2>/dev/null || return 1
-  tar xzf "$tmp/psutil-7.2.2.tar.gz" -C "$tmp"
+  safe_extract_tar "$tmp/psutil-7.2.2.tar.gz" "$tmp" || return 1
   if grep -q 'LINUX = sys.platform.startswith("linux")' "$tmp/psutil-7.2.2/psutil/_common.py" 2>/dev/null; then
     sed -i 's/LINUX = sys.platform.startswith("linux")/LINUX = sys.platform.startswith(("linux", "android"))/' "$tmp/psutil-7.2.2/psutil/_common.py"
   else
@@ -248,7 +249,18 @@ _fix_npm_shebangs() {
 }
 
 _fix_broken_symlinks() {
-  find "$PREFIX/bin" -type l ! -exec test -e {} \; -delete 2>/dev/null
+  local link target
+  for link in "$PREFIX/bin"/*; do
+    [[ -L "$link" ]] || continue
+    [[ -e "$link" ]] && continue
+    target="$(readlink -f "$link" 2>/dev/null || true)"
+    # Only remove broken symlinks that point into Karnel-managed locations so we
+    # never delete unrelated third-party software from the user's environment.
+    if [[ "$target" == "$KARNEL_PATH"/* || "$target" == "$KARNEL_DATA"/* ||
+          "$target" == "$PREFIX/lib/node_modules"/* || "$target" == "$PREFIX/lib"/* ]]; then
+      rm -f "$link" 2>/dev/null || true
+    fi
+  done
   return 0
 }
 

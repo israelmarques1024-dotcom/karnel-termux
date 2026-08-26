@@ -61,7 +61,7 @@ karnel install <module> --tool1 --tool2  # Install specific tools only
 | `deploy`  | `--vercel`, `--railway`, `--netlify`, `--supabase` |
 | `games`   | `--buzz`, `--ctfgod`, `--detective`, `--pet-friends`, `--tamagotchi`, `--arcade` |
 | `network` | `--dark`, `--dedsec-network` |
-| `utils`   | `--fconv`, `--filecheck`, `--websites`, `--notes`, `--treex`, `--passman`, `--applaunch`, `--splash`, `--httptmux`, `--zork`, `--qrcode`, `--superfile` |
+| `utils`   | `--fconv`, `--filecheck`, `--websites`, `--notes`, `--treex`, `--passman`, `--applaunch`, `--splash`, `--httptmux`, `--zork`, `--qrcode`, `--superfile`, `--herdr` |
 | `security`| Run `karnel list security` for the 30 supported tool flags |
 
 ```bash
@@ -152,7 +152,7 @@ binary/command name, and current install status.
 | `deploy`  | 4 deploy CLIs |
 | `games`   | 6 games |
 | `network` | 2 network tools |
-| `utils`   | 12 utility scripts |
+| `utils`   | 13 utility scripts |
 | `osint`   | Robin OSINT |
 | `voice`   | Voice commands |
 | `security`| 30 security tools |
@@ -288,7 +288,7 @@ Karnel, AI commands, shell config, processes, networking.
 
 ```bash
 karnel doctor code                              # Quick registry set (default)
-karnel doctor code --standard /path/to/project   # + security, deps, coverage
+karnel doctor code --standard /path/to/project   # + security, deps, dead-code
 karnel doctor code --deep --json /path/to/project # All 76 definitions
 karnel doctor code --fix /path/to/project        # Apply safe fixes
 ```
@@ -766,7 +766,7 @@ contain credentials. Protect local and cloud copies as sensitive plaintext data.
 
 | Flag | Description |
 |------|-------------|
-| `--cloud` | Legacy plaintext upload; requires explicit `KARNEL_ALLOW_PLAINTEXT_CLOUD_BACKUP=1` acknowledgement |
+| `--cloud` | Upload to a configured rclone remote named `karnel` (e.g. Google Drive); archives are unencrypted at rest, so the `KARNEL_ALLOW_PLAINTEXT_CLOUD_BACKUP=1` acknowledgement is required |
 | `snapshot <name>` | Create a timestamped named snapshot using the same contents and secret filter as a full backup; names accept 1-64 letters, numbers, dots, underscores, or hyphens |
 | `list` / `ls` | List full backups and snapshots |
 | `info` / `show [file]` | Show a backup's contents (latest if omitted) |
@@ -817,7 +817,7 @@ Karnel if `apt-get` changes package state before returning an error.
 | Argument | Description |
 |----------|-------------|
 | `<file>` | Path to a specific backup file |
-| `--cloud` | Legacy unauthenticated cloud restore; requires `KARNEL_ALLOW_UNAUTHENTICATED_CLOUD_RESTORE=1` |
+| `--cloud` | Restore from the rclone remote named `karnel`; a remote can replace both archive and checksum, so `KARNEL_ALLOW_UNAUTHENTICATED_CLOUD_RESTORE=1` is required to trust it |
 | `--list`, `-l` | List available full backups and snapshots |
 | `--help`, `-h` | Show help |
 

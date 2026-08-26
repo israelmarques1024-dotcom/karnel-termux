@@ -6,6 +6,20 @@ layout: base
 
 # Documentation Changelog
 
+## 4.17.11
+
+- Added the **Herdr** CLI to the `utils` module (`karnel install utils --herdr`), with checksum-verified download, atomic install, and Karnel ownership markers.
+- Critical runtime fixes:
+  - `cursor-cli`, `hermes-agent` and the `doctor` psutil patch now extract archives with the guarded `safe_extract_tar` (path-traversal/symlink protection).
+  - `pg schedule` now exports `PATH`/`PREFIX` in the cron job and logs failures instead of discarding output.
+  - `pg restore` uses `--single-transaction` and surfaces errors instead of silently retrying.
+  - `doctor --fix` no longer auto-applies destructive fixes (install-class, cache wipes, mass symlink deletion) without explicit confirmation; non-interactive sessions skip them (fail-closed).
+  - `doctor code --fix` now snapshots each rewritten file to `<file>.karnel-bak` before applying in-place formatters.
+  - `_fix_broken_symlinks` only removes broken symlinks that point into Karnel-managed paths.
+  - `karnel upgrade` no longer triggers a concurrent update check.
+  - `shell.sh` temp directory falls back to `KARNEL_CACHE` instead of `/tmp`.
+- Website/documentation overhaul: `karnel open` now resolves to real GitHub source URLs (no more 404s), canonical site URL unified to GitHub Pages, utility-tool count corrected to 13 (Herdr added), cloud-backup docs corrected to rclone, added `karnel upgrade` to the command table, and added favicon/SEO meta + Troubleshooting nav.
+
 ## 4.17.10
 
 - Round 10 security/correctness hardening (23 distinct fixes):

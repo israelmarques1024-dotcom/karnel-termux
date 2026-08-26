@@ -3,7 +3,9 @@
 import "@/utils/log"
 import "@/utils/colors"
 
-OPEN_BASE_URL="https://israelmarques1024-dotcom.github.io/karnel-termux"
+OPEN_GH="https://github.com/israelmarques1024-dotcom/karnel-termux"
+OPEN_BRANCH="main"
+OPEN_DOCS="https://israelmarques1024-dotcom.github.io/karnel-termux"
 
 open_main() {
 	if [[ $# -eq 0 ]]; then
@@ -16,76 +18,33 @@ open_main() {
 
 	case "$target" in
 	karnel | help)
-		url="$OPEN_BASE_URL/karnel"
-		;;
-	lang)
-		url="$OPEN_BASE_URL/karnel/lang"
-		;;
-	db)
-		url="$OPEN_BASE_URL/karnel/db"
-		;;
-	ai)
-		url="$OPEN_BASE_URL/karnel/ai"
-		;;
-	editor)
-		url="$OPEN_BASE_URL/karnel/editor"
-		;;
-	dev)
-		url="$OPEN_BASE_URL/karnel/dev"
-		;;
-	npm)
-		url="$OPEN_BASE_URL/karnel/npm"
-		;;
-	shell)
-		url="$OPEN_BASE_URL/karnel/shell"
-		;;
-	ui)
-		url="$OPEN_BASE_URL/karnel/ui"
-		;;
-	auto)
-		url="$OPEN_BASE_URL/karnel/auto"
-		;;
-	deploy)
-		url="$OPEN_BASE_URL/karnel/deploy"
+		url="$OPEN_GH"
 		;;
 	supabase)
-		url="$OPEN_BASE_URL/karnel/supabase"
+		url="$OPEN_GH/tree/$OPEN_BRANCH/karnel/tools/deploy/supabase"
 		;;
-  cleanup)
-    url="$OPEN_BASE_URL/karnel/cleanup"
-    ;;
-  network)
-    url="$OPEN_BASE_URL/karnel/network"
-    ;;
-  utils)
-    url="$OPEN_BASE_URL/karnel/utils"
-    ;;
-  games)
-    url="$OPEN_BASE_URL/karnel/games"
-    ;;
-  voice)
-    url="$OPEN_BASE_URL/karnel/voice"
-    ;;
-  plugin)
-    url="$OPEN_BASE_URL/karnel/plugin"
-    ;;
-  security)
-    url="$OPEN_BASE_URL/karnel/security"
-    ;;
-  osint|robin)
-    url="$OPEN_BASE_URL/karnel/osint"
-    ;;
-  --help | -h)
+	cleanup)
+		url="$OPEN_GH/tree/$OPEN_BRANCH/karnel/cli/commands/cleanup.sh"
+		;;
+	plugin)
+		url="$OPEN_GH/tree/$OPEN_BRANCH/karnel/modules/plugin.sh"
+		;;
+	--help | -h)
 		open_help
 		return
 		;;
-	*)
-		log_error "Unknown target: $target"
-		echo
-		open_help
-		return 1
-		;;
 	esac
+
+	if [[ -z "$url" ]]; then
+		if [[ -f "$KARNEL_PATH/modules/$target.sh" ]]; then
+			url="$OPEN_GH/tree/$OPEN_BRANCH/karnel/modules/$target.sh"
+		else
+			log_error "Unknown target: $target"
+			echo
+			open_help
+			return 1
+		fi
+	fi
 
 	if command -v termux-open-url &>/dev/null; then
 		termux-open-url "$url" 2>/dev/null && {
@@ -130,20 +89,20 @@ open_help() {
 	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "npm" "Node.js tools"
 	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "shell" "ZSH shell"
 	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "ui" "Termux UI"
-  printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "auto" "Automation tools"
-  printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "deploy" "Deploy CLIs"
-  printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "supabase" "Supabase CLI"
-  printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "games" "Games"
-  printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "cleanup" "Cache cleanup"
-  printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "network" "Network tools"
-  printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "utils" "Utility tools"
-  printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "voice" "Voice command"
-  printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "osint" "OSINT tools"
-  printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "plugin" "Plugin system"
-  printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "security" "Security tools"
-  echo
+	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "auto" "Automation tools"
+	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "deploy" "Deploy CLIs"
+	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "supabase" "Supabase CLI"
+	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "games" "Games"
+	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "cleanup" "Cache cleanup"
+	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "network" "Network tools"
+	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "utils" "Utility tools"
+	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "voice" "Voice command"
+	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "osint" "OSINT tools"
+	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "plugin" "Plugin system"
+	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "security" "Security tools"
+	echo
 	separator_section "Website"
 	echo
-	list_item "${D_CYAN}$OPEN_BASE_URL${NC}"
+	list_item "${D_CYAN}$OPEN_DOCS${NC}"
 	echo
 }
