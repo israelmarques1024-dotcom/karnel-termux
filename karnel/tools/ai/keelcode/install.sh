@@ -2,6 +2,7 @@
 
 import "@/utils/log"
 import "@/utils/version"
+import "@/utils/install"
 
 if ! declare -f safe_extract_tar >/dev/null 2>&1; then
   safe_extract_tar() {

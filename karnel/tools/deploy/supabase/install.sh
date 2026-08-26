@@ -2,6 +2,14 @@
 
 import "@/utils/log"
 import "@/utils/version"
+import "@/utils/install"
+
+if ! declare -f safe_extract_tar >/dev/null 2>&1; then
+  safe_extract_tar() {
+    local archive="$1" outdir="$2" strip_components="${3:-0}"
+    tar -xzf "$archive" -C "$outdir" --strip-components="$strip_components"
+  }
+fi
 
 _SUPABASE_VERSION="2.20.8"
 _SUPABASE_RELEASE_URL="https://github.com/supabase/cli/releases/download/v${_SUPABASE_VERSION}"
@@ -81,8 +89,11 @@ install_supabase() (
   fi
   log_success "Checksum verified"
 
-  # Extract
-  tar -xzf "$tmp_dir/$filename" -C "$tmp_dir" supabase 2>/dev/null
+  # Extract (hardened: rejects symlink/absolute-path traversal)
+  safe_extract_tar "$tmp_dir/$filename" "$tmp_dir" || {
+    log_error "Extraction failed"
+    return 1
+  }
   if [[ ! -f "$tmp_dir/supabase" ]]; then
     log_error "Extraction failed"
     return 1

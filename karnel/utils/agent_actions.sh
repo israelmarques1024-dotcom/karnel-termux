@@ -481,12 +481,20 @@ _agent_exec_to_file() {
 # ------------------------------------------------------------
 _agent_cmd_is_write() {
 	local cmd="$1"
-	# file redirections (2>&1 / >= are not redirections to a file)
-	if printf '%s\n' "$cmd" | grep -qE '(^|[;&|[:space:]])(>|>>)[^=&]'; then
+	# file redirections: >file >>file 2>file 1>>file &>file  (excludes fd-to-fd like >&2 and comparisons >=)
+	if printf '%s\n' "$cmd" | grep -qE '(^|[;&|[:space:]])(>|>>|&>|[0-9]>|[0-9]>>)([^&=]|$)'; then
 		return 0
 	fi
 	# command substitution / backticks execute arbitrary code → write
 	if printf '%s\n' "$cmd" | grep -qE '\$\(|`'; then
+		return 0
+	fi
+	# in-place editors: sed -i / perl -i modify files in place
+	if printf '%s\n' "$cmd" | grep -qiE '(^|[;&|[:space:]])(sed|perl)[[:space:]][^|;&]*-[A-Za-z]*i[A-Za-z]*([[:space:]]|$)'; then
+		return 0
+	fi
+	# full-screen / line editors that can modify files
+	if printf '%s\n' "$cmd" | grep -qiE '(^|[;&|[:space:]])(vim|nvim|emacs|ed|ex|vi|nano)[[:space:]]'; then
 		return 0
 	fi
 	# blocklist of commands that write to disk / change state / spawn a shell
@@ -1359,12 +1367,17 @@ agent_context_footer() {
 agent_history_trim_tokens() {
 	local history="$1" budget="${2:-0}"
 	(( budget <= 0 )) && { echo "$history"; return; }
-	local toks n
+	local toks n drop_idx is_summary
 	while :; do
 		toks=$(agent_context_tokens "$history")
 		(( toks <= budget )) && break
 		n=$(printf '%s' "$history" | jq 'length')
 		(( n <= 4 )) && break
+		drop_idx=$(printf '%s' "$history" | jq -c 'if .[0].role == "system" then 1 else 0 end')
+		is_summary=$(printf '%s' "$history" | jq -r --argjson i "$drop_idx" '.[$i].content // "" | contains("<compacted_summary>")')
+		if [[ "$is_summary" == "true" ]]; then
+			break
+		fi
 		history=$(printf '%s' "$history" | jq -c 'if .[0].role == "system" then .[0:1] + .[2:] else .[1:] end')
 	done
 	echo "$history"

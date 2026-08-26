@@ -125,13 +125,22 @@ _download_droid_binary_impl() {
 
   local expected actual
   expected="$(curl -fsSL "$sha_url" 2>/dev/null | awk '{print $1}')"
-  if [ -n "$expected" ] && command -v sha256sum &>/dev/null; then
+  if [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
+    log_error "No published SHA-256 for Droid binary; refusing install"
+    rm -f "$DROID_DATA_DIR/droid"
+    return 1
+  fi
+  if command -v sha256sum &>/dev/null; then
     actual="$(sha256sum "$DROID_DATA_DIR/droid" | awk '{print $1}')"
     if [ "$actual" != "$expected" ]; then
       log_error "Checksum verification failed"
       rm -f "$DROID_DATA_DIR/droid"
       return 1
     fi
+  else
+    log_error "sha256sum unavailable; refusing install"
+    rm -f "$DROID_DATA_DIR/droid"
+    return 1
   fi
 
   chmod +x "$DROID_DATA_DIR/droid"

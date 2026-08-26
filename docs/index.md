@@ -11,7 +11,7 @@ Navigate the docs:
   <li><a href="./doctor/">Doctor System</a></li>
   <li><a href="./troubleshooting/">Troubleshooting</a></li>
   <li><a href="./ARCHITECTURE/">Architecture</a></li>
-  <li><a href="./CHANGELOG.md">Changelog</a></li>
+  <li><a href="./CHANGELOG/">Changelog</a></li>
   <li><a href="https://israelmarques1024-dotcom.github.io/karnel-termux/">Live Site</a></li>
 </ul>
 
@@ -38,7 +38,7 @@ voice commands, and reviewed plugins — all from modules: `ai`, `auto`, `db`,
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux/blob/main/karnel/tools/utils/fconv/README.md">Utility Scripts — fconv, notes, treex, and more</a>
   <a href="./cli/#supabase--remote-project-helpers">Supabase CLI — remote-project helpers</a>
   <a href="./ARCHITECTURE/">Architecture — project structure and module system</a>
-  <a href="./CHANGELOG.md">Changelog — version history and fixes</a>
+  <a href="./CHANGELOG/">Changelog — version history and fixes</a>
 </div>
 
 ## Credits

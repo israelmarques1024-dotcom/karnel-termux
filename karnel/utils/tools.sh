@@ -60,9 +60,6 @@ _run_tool_lifecycle_action() {
     "$uninstall_handler"
     rc=$?
     (( rc == 0 )) || return "$rc"
-    if (( protected )); then
-      rm -f "$marker" || return 1
-    fi
     "$install_handler"
     rc=$?
     if (( rc == 0 && protected )); then

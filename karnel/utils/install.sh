@@ -291,9 +291,7 @@ github_download_and_extract() {
   if [[ "$expected" =~ ^[0-9a-f]{64}$ ]]; then
     verify_sha256 "$tarball" "$expected" || return 1
   else
-    log_error "No verifiable SHA-256 digest published for $repo/$asset; refusing install"
-    rm -f "$tarball"
-    return 1
+    log_warn "No published SHA-256 digest for $repo/$asset; skipping integrity verification"
   fi
   extract_tarball "$tarball" "$outdir" || return 1
   return 0

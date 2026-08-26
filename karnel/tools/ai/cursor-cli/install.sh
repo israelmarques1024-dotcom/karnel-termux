@@ -129,9 +129,16 @@ _download_cursor_binary_impl() {
 
   # Cursor does not publish a verifiable checksum for this asset, so integrity
   # relies on HTTPS transport only; upstream does not publish a verifiable checksum.
+  # Validate the payload is a real gzip archive before extracting so a corrupted
+  # or error response (e.g. an HTML error page) is rejected.
   if ! curl -fsSL "$download_url" -o "$staging_dir/$tarball" &>>"$LOG_FILE"; then
     rm -rf "$staging_dir"
     log_error "Failed to download Cursor CLI binary"
+    return 1
+  fi
+  if ! gzip -t "$staging_dir/$tarball" 2>/dev/null; then
+    rm -rf "$staging_dir"
+    log_error "Downloaded Cursor bundle is not a valid gzip archive"
     return 1
   fi
 

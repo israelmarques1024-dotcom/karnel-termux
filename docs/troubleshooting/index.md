@@ -43,12 +43,21 @@ npm publish does not block the release. The workflow needs `contents: write`
 permission (already declared). If `gh release create` fails, confirm the tag
 exists and the token used by GitHub Actions has write access.
 
-## Vercel deployment
+## Documentation site (GitHub Pages)
 
-The live site deploys automatically through the Vercel integration on push to
-`main`; no GitHub Actions workflow is required. If a deploy fails, check the
-Vercel dashboard for build logs and confirm the framework preset, install
-command, and environment variables.
+The documentation site is a Jekyll (cayman theme) site built from the `docs/`
+directory and published to GitHub Pages by the `Publish Docs` workflow
+(`.github/workflows/docs.yml`) on every push to `main` that changes `docs/**`.
+The workflow runs `actions/jekyll-build-pages` (from `docs/`, output to
+`docs/_site`), uploads the result as a Pages artifact, and deploys it to the
+`github-pages` environment. The live site is
+`https://israelmarques1024-dotcom.github.io/karnel-termux/`.
+
+If a build fails, open the Actions run for the failing job and read the Jekyll
+output: the usual causes are invalid `_config.yml` YAML, an SCSS compile error
+in `assets/css/style.scss`, or a malformed `{{ }}` Liquid tag. After a
+successful deploy, the published site is visible under the repository's
+**Settings → Pages**.
 
 ## Reporting a bug
 

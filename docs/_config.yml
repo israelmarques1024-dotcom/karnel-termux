@@ -7,7 +7,7 @@ lang: en-US
 theme: jekyll-theme-cayman
 markdown: kramdown
 logo: /assets/images/karnel-logo.png
-custom_css: /assets/css/style.css
+custom_css: /karnel-termux/assets/css/style.css
 baseurl: /karnel-termux
 show_downloads: false
 exclude:

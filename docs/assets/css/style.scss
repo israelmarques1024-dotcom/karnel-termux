@@ -14,6 +14,7 @@
   --karnel-text: #c9d1d9;
   --karnel-muted: #8b949e;
   --karnel-code-bg: #161b22;
+  color-scheme: dark light;
 }
 
 html {
@@ -37,12 +38,22 @@ body {
 }
 
 @media (prefers-color-scheme: dark) {
+  html {
+    background: var(--karnel-bg);
+  }
   body {
     background: var(--karnel-bg);
     color: var(--karnel-text);
   }
+  .main-content {
+    color: var(--karnel-text);
+  }
   .page-header {
     background-image: linear-gradient(120deg, #0078d4, #2f81f7);
+  }
+  .page-header .project-name,
+  .page-header .project-tagline {
+    color: #ffffff;
   }
   .main-content h1,
   .main-content h2,

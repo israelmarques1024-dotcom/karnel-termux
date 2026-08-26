@@ -133,7 +133,10 @@ assert_reinstall_recreates_marker_after_install() (
 
   install_neovim() { calls+=(failed-install); return 8; }
   _run_tool_lifecycle_action editor reinstall neovim
-  [[ $? -eq 8 && ! -e "$marker" ]]
+  # On install failure the ownership marker must survive so the tool is not
+  # orphaned (a missing marker would make the protected guard refuse future
+  # reinstall/uninstall operations on an already-installed tool).
+  [[ $? -eq 8 && -e "$marker" ]]
 )
 run_test "reinstall sequences handlers and recreates ownership after install" assert_reinstall_recreates_marker_after_install
 

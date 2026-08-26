@@ -347,12 +347,22 @@ _update_try_git() {
   return 1
 }
 
+_npm_installed_version() {
+  local v pr
+  v=$(npm list -g karnel-termux 2>/dev/null | grep -oP 'karnel-termux@\K[0-9.]+')
+  if [[ -z "$v" ]]; then
+    pr="$(npm root -g 2>/dev/null)/karnel-termux/package.json"
+    [[ -f "$pr" ]] && v=$(grep -oP '"version"\s*:\s*"\K[0-9.]+' "$pr")
+  fi
+  printf '%s' "${v:-unknown}"
+}
+
 _update_try_npm() {
   command -v npm &>/dev/null || return 1
   log_info "Trying npm update..."
   if npm update -g karnel-termux --ignore-scripts 2>/dev/null; then
     local new_ver
-    new_ver=$(npm list -g karnel-termux 2>/dev/null | grep karnel-termux | grep -oP '@\K[0-9.]+' || echo "latest")
+    new_ver=$(_npm_installed_version)
     log_success "Updated to v$new_ver via npm"
     return 0
   fi
@@ -365,7 +375,7 @@ _update_try_npm_install() {
   log_info "Trying npm install..."
   if npm install -g karnel-termux@latest --ignore-scripts 2>/dev/null; then
     local new_ver
-    new_ver=$(npm list -g karnel-termux 2>/dev/null | grep karnel-termux | grep -oP '@\K[0-9.]+' || echo "latest")
+    new_ver=$(_npm_installed_version)
     log_success "Updated to v$new_ver via npm install"
     return 0
   fi

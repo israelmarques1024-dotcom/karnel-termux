@@ -1,4 +1,47 @@
+---
+title: Documentation Changelog
+permalink: /CHANGELOG/
+---
+
 # Documentation Changelog
+
+## 4.17.9
+
+- Hardened installer and runtime security across the toolkit:
+  - `droid` binary install now refuses when no published SHA-256 digest is
+    available (fail-closed) instead of silently skipping verification.
+  - `keelcode` and `supabase` now extract archives through the hardened
+    `safe_extract_tar` (rejects symlink/absolute-path traversal) instead of
+    raw `tar`.
+  - Restored OpenCode installation: upstream publishes no checksum, so
+    `github_download_and_extract` warns instead of refusing (other tools that
+    publish checksums remain fail-closed).
+  - `cursor-cli` now validates the downloaded bundle is a real gzip archive
+    before extraction.
+  - Agent PLAN (read-only) mode write-guard hardened: now blocks `sed -i` /
+    `perl -i`, full-screen editors, and file descriptors like `2>file`.
+  - Agent compaction no longer drops the freshly built summary during the
+    trim safety-net.
+  - `voice` uninstall no longer removes `termux-api` unless Karnel installed it.
+  - `karnel show` no longer depends on `realpath` (portable fallback).
+  - `karnel update` reports the accurate installed version instead of a
+    misleading `latest`.
+  - Reinstall no longer deletes the ownership marker before confirming the
+    install, preventing a tool from being orphaned on install failure.
+
+## 4.17.8
+
+- Documentation site reconciled with the GitHub Pages deployment: the `Publish
+  Docs` workflow (`.github/workflows/docs.yml`) builds Jekyll from `docs/` and
+  deploys to GitHub Pages, so the live documentation URL is
+  `https://israelmarques1024-dotcom.github.io/karnel-termux/`.
+- `docs/CHANGELOG.md` is now a rendered page (added front matter + permalink)
+  and all internal links to it use the clean `/CHANGELOG/` path.
+- Tool counts verified against the actual `karnel/tools/*` and
+  `karnel/tools/ai/*` directories: 45 AI tools, 3 editors, 8 languages,
+  5 databases, 22 dev tools, 11 npm packages, 10 shell plugins, 4 UI
+  components, 4 deploy CLIs, 6 games, 2 network tools, 12 utility tools,
+  30 security tools, 1 automation tool.
 
 ## 4.17.7
 

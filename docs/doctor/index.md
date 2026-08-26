@@ -239,5 +239,5 @@ Regression coverage lives in `tests/smoke.sh` and verifies nested module syntax,
 the 76-entry registry, pipeline-safe parsing, mode counts, hidden GitHub workflow
 detection, scoped NestJS detection, TypeScript, and Python manifests.
 
-See [the 2026-07-16 changelog](../CHANGELOG.md) for the complete audit and hardening
+See [the 2026-07-16 changelog](../CHANGELOG/) for the complete audit and hardening
 record.
