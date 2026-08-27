@@ -82,7 +82,7 @@ _karnel_tool_flags() {
     security) tools="aircrack-ng amass binwalk burpsuite dirb dnsrecon enum4linux exiftool ffuf foremost gobuster hashcat hydra john masscan metasploit netcat nikto nmap smbclient sqlmap steghide subfinder tcpdump theharvester wafw00f whatweb whois wpscan zap" ;;
     shell) tools="powerlevel10k zsh-defer zsh-autosuggestions zsh-syntax-highlighting history-substring zsh-completions fzf-tab you-should-use zsh-autopair better-npm" ;;
     ui) tools="font extra-keys cursor banner" ;;
-    utils) tools="fconv filecheck websites notes treex passman applaunch splash httptmux zork qrcode superfile" ;;
+    utils) tools="fconv filecheck websites notes treex passman applaunch splash httptmux zork qrcode superfile herdr" ;;
   esac
 
   local -a flags=()

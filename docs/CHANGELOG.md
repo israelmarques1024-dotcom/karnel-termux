@@ -6,6 +6,10 @@ layout: base
 
 # Documentation Changelog
 
+## 4.17.13
+
+- Fixed the shell completion catalog (`scripts/completion.bash` / `completion.zsh`) to include the `herdr` utils tool, satisfying the `completion-catalog` CI gate.
+
 ## 4.17.12
 
 - Generated real per-module documentation pages under `/karnel/<module>/` (all 17 modules: ai, auto, db, deploy, dev, editor, games, lang, network, npm, osint, plugin, security, shell, ui, utils, voice).
