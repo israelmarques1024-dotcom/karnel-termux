@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux">
-    <img src="https://img.shields.io/badge/version-4.17.14-0078D4?style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/badge/version-4.17.15-0078D4?style=for-the-badge" alt="Version">
   </a>
   <a href="https://www.npmjs.com/package/karnel-termux">
     <img src="https://img.shields.io/npm/v/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
@@ -67,7 +67,7 @@ karnel install utils --herdr
 Why it's great:
 - **Checksum-verified** download from the official Herdr release manifest (`https://herdr.dev/latest.json`).
 - **Atomic, safe install** into `$PREFIX/bin/herdr` with a Karnel ownership marker — so `karnel uninstall utils --herdr` is clean and never touches files it didn't manage.
-- Pairs perfectly with the 45+ other AI agents Karnel manages.
+- Pairs perfectly with the 45 other AI agents Karnel manages.
 
 > Open its docs anytime with `karnel open herdr`.
 
@@ -78,7 +78,7 @@ Why it's great:
 ### Via checksummed GitHub release (recommended)
 
 ```bash
-version=4.17.11
+version=4.17.15
 tmpdir=$(mktemp -d) && trap 'rm -rf "$tmpdir"' EXIT
 base="https://github.com/israelmarques1024-dotcom/karnel-termux/releases/download/v$version"
 curl -fsSL "$base/karnel-termux-install.sh" -o "$tmpdir/karnel-termux-install.sh"
@@ -448,7 +448,7 @@ Microphone -> termux-speech-to-text -> editor (edit) -> clipboard -> AI agent
 ### Requirements
 
 - Termux:API: `pkg install termux-api`
-- App Termux:API: https://israelmarques1024-dotcom.github.io/karnel-termux/termux/api
+- App Termux:API: https://github.com/termux/termux-api
 - Editor (optional): `karnel install editor`; otherwise use `--raw` or the automatic raw fallback
 
 ---
@@ -671,8 +671,5 @@ MIT © Israel Marques
 <p align="center">
   <a href="https://israelmarques1024-dotcom.github.io/karnel-termux">
     <img src="https://img.shields.io/badge/Full%20Documentation-0078D4?style=for-the-badge" alt="Documentation">
-  </a>
-  <a href="https://www.youtube.com/@capideb">
-    <img src="https://img.shields.io/badge/YouTube-Capi.deb-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="YouTube — Capi.deb">
   </a>
 </p>

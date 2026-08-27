@@ -14,4 +14,4 @@ OSINT tooling, centered on Robin.
 See the [CLI reference]({{ '/cli/' | relative_url }}#osint) for the full command list, or the
 [source on GitHub](https://github.com/israelmarques1024-dotcom/karnel-termux/tree/main/karnel/modules/osint.sh).
 
-[← Back to docs]({{ '/' | relative_url }})
+[← Back to docs]({{ '/' | relative_url }}) · [CLI reference]({{ '/cli/' | relative_url }})

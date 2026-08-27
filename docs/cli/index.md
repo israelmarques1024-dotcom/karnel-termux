@@ -23,7 +23,7 @@ karnel install <module>              # Install all tools in a module
 karnel install <module> --tool1 --tool2  # Install specific tools only
 ```
 
-### Modules
+### Available modules
 
 | Module    | Description |
 |-----------|-------------|
@@ -38,7 +38,7 @@ karnel install <module> --tool1 --tool2  # Install specific tools only
 | `auto`    | n8n automation |
 | `deploy`  | Vercel, Railway, Netlify, Supabase CLIs |
 | `games`   | Buzz, CTF God, Detective, Tamagotchi, Arcade, Pet Friends |
-| `network` | Dark Web OSINT, DedSec Network Toolkit |
+| `network` | Dark-web and anonymity tooling, plus the DedSec Network Toolkit |
 | `utils`   | fconv, filecheck, websites, notes, treex, passman, applaunch, splash, httptmux, zork, qrcode, superfile, herdr (13 scripts) |
 | `osint`   | Robin v2.8 — dark web OSINT via Tor + LLM |
 | `voice`   | Speech-to-agent via Termux:API |
@@ -893,9 +893,9 @@ The main tool modules work with `install`, `uninstall`, `reinstall`, `update`,
 
 ---
 
-## Modules
+## Module documentation pages
 
-Per-module documentation pages (resolves the `/cli/#<module>` anchors):
+Per-module documentation pages:
 
 ### ai
 Documentation page: [ai module]({{ '/karnel/ai/' | relative_url }}).

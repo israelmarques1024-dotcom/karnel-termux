@@ -47,7 +47,7 @@ install_crush() {
   log_info "Downloading Crush v${CRUSH_VERSION} for Android arm64..."
 
   local tmpdir
-  tmpdir=$(mktemp -d)
+  tmpdir=$(mktemp -d "${KARNEL_CACHE:-${TMPDIR:-$HOME/.cache/karnel}}/karnel-crush.XXXXXX" 2>/dev/null) || tmpdir=$(mktemp -d) || return 1
   if curl -fsSL --connect-timeout 15 --max-time 120 "$url" -o "$tmpdir/$tarball" 2>>"$LOG_FILE"; then
     if verify_github_release_asset charmbracelet/crush "v${CRUSH_VERSION}" "$tarball" "$tmpdir/$tarball" &&
       extract_tarball "$tmpdir/$tarball" "$tmpdir"; then

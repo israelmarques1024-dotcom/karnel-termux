@@ -14,4 +14,4 @@ AI coding agents and assistants (Claude Code, Codex, Cline, Goose, and many more
 See the [CLI reference]({{ '/cli/' | relative_url }}#ai) for the full command list, or the
 [source on GitHub](https://github.com/israelmarques1024-dotcom/karnel-termux/tree/main/karnel/modules/ai.sh).
 
-[← Back to docs]({{ '/' | relative_url }})
+[← Back to docs]({{ '/' | relative_url }}) · [CLI reference]({{ '/cli/' | relative_url }})

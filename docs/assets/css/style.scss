@@ -79,45 +79,6 @@ body {
   font-size: 1.1rem;
 }
 
-/* Landing navigation */
-.karnel-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin: 1.5rem 0 2rem;
-  padding: 0;
-  list-style: none;
-}
-
-.karnel-nav li {
-  margin: 0;
-}
-
-.karnel-nav a {
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--karnel-accent-2, #0078d4);
-  border-radius: 999px;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.92rem;
-  color: #fff;
-  background: rgba(0, 120, 212, 0.12);
-  transition: background 0.15s ease, transform 0.15s ease;
-}
-
-.karnel-nav a:hover {
-  background: rgba(0, 120, 212, 0.28);
-  transform: translateY(-1px);
-}
-
-@media (prefers-color-scheme: dark) {
-  .karnel-nav a {
-    color: #c9d1d9;
-    border-color: var(--karnel-border);
-  }
-}
-
 /* Tables */
 .main-content table {
   display: table;

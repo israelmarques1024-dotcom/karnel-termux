@@ -269,16 +269,17 @@ _kimchi_ubuntu_install_bin() {
     return 1
   fi
   _kimchi_proot_ubuntu /bin/bash -c '
-    mkdir -p /tmp/kimchi-install &&
-    curl -fsSL "$1" -o /tmp/kimchi-install/kimchi.tar.gz &&
-    { [ -z "$2" ] || [ "$(sha256sum /tmp/kimchi-install/kimchi.tar.gz | awk "{print \$1}")" = "$2" ]; } &&
-    tar -zxf /tmp/kimchi-install/kimchi.tar.gz -C /tmp/kimchi-install &&
+    d=$(mktemp -d) &&
+    curl -fsSL "$1" -o "$d/kimchi.tar.gz" &&
+    { [ -z "$2" ] || [ "$(sha256sum "$d/kimchi.tar.gz" | awk "{print \$1}")" = "$2" ]; } &&
+    tar -tzf "$d/kimchi.tar.gz" | grep -Eq "(^|/)\.\.(/|$)|^/" && { echo "unsafe archive member"; false; } &&
+    tar -zxf "$d/kimchi.tar.gz" -C "$d" &&
     mkdir -p /usr/local/bin /usr/local/share &&
-    mv /tmp/kimchi-install/bin/kimchi /usr/local/bin/kimchi &&
+    mv "$d/bin/kimchi" /usr/local/bin/kimchi &&
     chmod +x /usr/local/bin/kimchi &&
     rm -rf /usr/local/share/kimchi &&
-    mv /tmp/kimchi-install/share/kimchi /usr/local/share/kimchi &&
-    rm -rf /tmp/kimchi-install
+    mv "$d/share/kimchi" /usr/local/share/kimchi &&
+    rm -rf "$d"
   ' bash "$download_url" "$expected" &>>"$LOG_FILE"
 
   local kimchi_bin
@@ -493,16 +494,17 @@ _update_kimchi_proot_impl() {
     return 1
   fi
   _kimchi_proot_ubuntu /bin/bash -c '
-    mkdir -p /tmp/kimchi-install &&
-    curl -fsSL "$1" -o /tmp/kimchi-install/kimchi.tar.gz &&
-    { [ -z "$2" ] || [ "$(sha256sum /tmp/kimchi-install/kimchi.tar.gz | awk "{print \$1}")" = "$2" ]; } &&
-    tar -zxf /tmp/kimchi-install/kimchi.tar.gz -C /tmp/kimchi-install &&
+    d=$(mktemp -d) &&
+    curl -fsSL "$1" -o "$d/kimchi.tar.gz" &&
+    { [ -z "$2" ] || [ "$(sha256sum "$d/kimchi.tar.gz" | awk "{print \$1}")" = "$2" ]; } &&
+    tar -tzf "$d/kimchi.tar.gz" | grep -Eq "(^|/)\.\.(/|$)|^/" && { echo "unsafe archive member"; false; } &&
+    tar -zxf "$d/kimchi.tar.gz" -C "$d" &&
     rm -f /usr/local/bin/kimchi &&
-    mv /tmp/kimchi-install/bin/kimchi /usr/local/bin/kimchi &&
+    mv "$d/bin/kimchi" /usr/local/bin/kimchi &&
     chmod +x /usr/local/bin/kimchi &&
     rm -rf /usr/local/share/kimchi &&
-    mv /tmp/kimchi-install/share/kimchi /usr/local/share/kimchi &&
-    rm -rf /tmp/kimchi-install
+    mv "$d/share/kimchi" /usr/local/share/kimchi &&
+    rm -rf "$d"
   ' bash "$download_url" "$expected" &>>"$LOG_FILE"
 
   local kimchi_bin

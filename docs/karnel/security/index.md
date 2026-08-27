@@ -14,4 +14,4 @@ Security and pentest tooling (30+ tools).
 See the [CLI reference]({{ '/cli/' | relative_url }}#security) for the full command list, or the
 [source on GitHub](https://github.com/israelmarques1024-dotcom/karnel-termux/tree/main/karnel/modules/security.sh).
 
-[← Back to docs]({{ '/' | relative_url }})
+[← Back to docs]({{ '/' | relative_url }}) · [CLI reference]({{ '/cli/' | relative_url }})

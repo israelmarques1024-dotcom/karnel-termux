@@ -15,9 +15,16 @@ With a single CLI (`karnel`), you can install and manage 45 AI tools, 3 editors,
 8 languages, 5 databases, 22 dev tools, 11 npm packages, 10 shell plugins,
 4 UI components, 4 deploy CLIs, 6 games, 2 network tools, 13 utility tools,
 30 security tools, 1 automation tool, responsible OSINT, a second brain,
-voice commands, and reviewed plugins — all from modules: `ai`, `auto`, `db`,
-`deploy`, `dev`, `editor`, `games`, `lang`, `network`, `npm`, `osint`,
-`security`, `shell`, `ui`, `utils`, `voice`, `plugin`.
+voice commands, and reviewed plugins — all from modules:
+[ai]({{ '/karnel/ai/' | relative_url }}), [auto]({{ '/karnel/auto/' | relative_url }}),
+[db]({{ '/karnel/db/' | relative_url }}), [deploy]({{ '/karnel/deploy/' | relative_url }}),
+[dev]({{ '/karnel/dev/' | relative_url }}), [editor]({{ '/karnel/editor/' | relative_url }}),
+[games]({{ '/karnel/games/' | relative_url }}), [lang]({{ '/karnel/lang/' | relative_url }}),
+[network]({{ '/karnel/network/' | relative_url }}), [npm]({{ '/karnel/npm/' | relative_url }}),
+[osint]({{ '/karnel/osint/' | relative_url }}), [security]({{ '/karnel/security/' | relative_url }}),
+[shell]({{ '/karnel/shell/' | relative_url }}), [ui]({{ '/karnel/ui/' | relative_url }}),
+[utils]({{ '/karnel/utils/' | relative_url }}), [voice]({{ '/karnel/voice/' | relative_url }}),
+[plugin]({{ '/karnel/plugin/' | relative_url }}).
 
 ## 🌟 Featured: Herdr
 

@@ -14,4 +14,4 @@ The plugin system and manager.
 See the [CLI reference]({{ '/cli/' | relative_url }}#plugin) for the full command list, or the
 [source on GitHub](https://github.com/israelmarques1024-dotcom/karnel-termux/tree/main/karnel/modules/plugin.sh).
 
-[← Back to docs]({{ '/' | relative_url }})
+[← Back to docs]({{ '/' | relative_url }}) · [CLI reference]({{ '/cli/' | relative_url }})

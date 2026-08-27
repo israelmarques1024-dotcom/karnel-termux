@@ -177,14 +177,14 @@ _install_omp_proot_impl() {
     return 1
   fi
   if ! _omp_proot_ubuntu /bin/bash -c '
-    mkdir -p /tmp/omp-install &&
-    curl -fsSL "$1" -o /tmp/omp-install/omp &&
-    { [ -z "$2" ] || [ "$(sha256sum /tmp/omp-install/omp | awk "{print \$1}")" = "$2" ]; } &&
-    chmod +x /tmp/omp-install/omp &&
-    test -x /tmp/omp-install/omp &&
+    d=$(mktemp -d) &&
+    curl -fsSL "$1" -o "$d/omp" &&
+    { [ -z "$2" ] || [ "$(sha256sum "$d/omp" | awk "{print \$1}")" = "$2" ]; } &&
+    chmod +x "$d/omp" &&
+    test -x "$d/omp" &&
     mkdir -p /usr/local/bin &&
-    mv /tmp/omp-install/omp /usr/local/bin/omp &&
-    rm -rf /tmp/omp-install
+    mv "$d/omp" /usr/local/bin/omp &&
+    rm -rf "$d"
   ' bash "$download_url" "$expected" &>>"$LOG_FILE"; then
     log_error "Failed to install Oh-My-Pi binary"
     return 1
@@ -284,13 +284,13 @@ _update_omp_proot_impl() {
     return 1
   fi
   if ! _omp_proot_ubuntu /bin/bash -c '
-    mkdir -p /tmp/omp-update &&
-    curl -fsSL "$1" -o /tmp/omp-update/omp &&
-    { [ -z "$2" ] || [ "$(sha256sum /tmp/omp-update/omp | awk "{print \$1}")" = "$2" ]; } &&
-    chmod +x /tmp/omp-update/omp &&
-    test -x /tmp/omp-update/omp &&
-    mv /tmp/omp-update/omp /usr/local/bin/omp &&
-    rm -rf /tmp/omp-update
+    d=$(mktemp -d) &&
+    curl -fsSL "$1" -o "$d/omp" &&
+    { [ -z "$2" ] || [ "$(sha256sum "$d/omp" | awk "{print \$1}")" = "$2" ]; } &&
+    chmod +x "$d/omp" &&
+    test -x "$d/omp" &&
+    mv "$d/omp" /usr/local/bin/omp &&
+    rm -rf "$d"
   ' bash "$download_url" "$expected" &>>"$LOG_FILE"; then
     log_error "Failed to update Oh-My-Pi binary"
     return 1

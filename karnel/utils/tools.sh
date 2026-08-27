@@ -90,6 +90,12 @@ _register_safe_reinstall_handlers() {
   local tool normalized
   for tool in "$@"; do
     normalized="${tool//-/_}"
+    # Reject any tool/module name containing shell metacharacters before eval,
+    # otherwise a crafted tool directory name could inject code into the
+    # generated reinstall handler.
+    case "$module/$tool/$normalized" in
+      *[!A-Za-z0-9_/-]*) log_error "Refusing to register unsafe tool name: $module/$tool"; continue ;;
+    esac
     eval "reinstall_${normalized}() { _run_tool_lifecycle_action '$module' reinstall '$tool'; }"
   done
 }

@@ -132,7 +132,7 @@ EOF
 			log_warn "jq not found — skipping package.json update"
 		else
 			local temp
-			temp=$(mktemp)
+			temp=$(mktemp "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/karnel-XXXXXX")
 			jq '.scripts.dev = "next dev --webpack" | .scripts.build = "next build --webpack" | .scripts.start = "next start"' package.json > "$temp" && mv "$temp" package.json
 			log_success "Added --webpack flag to dev and build scripts"
 		fi
@@ -533,7 +533,7 @@ EOF
 			log_warn "jq not found — skipping package.json update"
 		else
 		local temp
-		temp=$(mktemp)
+		temp=$(mktemp "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/karnel-XXXXXX")
 		jq '.scripts += {
       "dev": "ts-node-dev --require tsconfig-paths/register --env-file=.env --respawn src/index.ts",
       "build": "tsc && tsc-alias -p tsconfig.json",

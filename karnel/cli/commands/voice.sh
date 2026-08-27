@@ -151,7 +151,7 @@ voice_main() {
   local prompt="$raw"
   if [[ "$skip_edit" == "false" ]] && [[ -t 0 ]] && [[ -t 1 ]]; then
     local tmpfile
-    tmpfile="$(mktemp)"
+    tmpfile="$(mktemp "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/karnel-XXXXXX")"
     echo "$raw" >"$tmpfile"
     $is_text || log_info "Review the prompt in ${EDITOR:-nano}, fix mistakes, then save and quit"
     ${EDITOR:-nano} "$tmpfile" </dev/tty >/dev/tty || true

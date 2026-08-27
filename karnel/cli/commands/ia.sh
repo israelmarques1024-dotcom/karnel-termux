@@ -407,7 +407,7 @@ PY
 	# Persist all discovered sessions to IA_SESSIONS_DIR for history
 	local persist_file="$IA_SESSIONS_DIR/.all_sessions.json"
 	local tmp_persist
-	tmp_persist=$(mktemp)
+	tmp_persist=$(mktemp "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/karnel-XXXXXX")
 	echo "[" > "$tmp_persist"
 	local first=1
 	for session in "${sessions[@]}"; do

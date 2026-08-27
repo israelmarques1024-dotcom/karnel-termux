@@ -230,7 +230,7 @@ _brain_editor() {
 	fi
 
 	local tmpfile
-	tmpfile=$(mktemp)
+	tmpfile=$(mktemp "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/karnel-XXXXXX")
 
 	echo "# $title" >"$tmpfile"
 	echo >>"$tmpfile"
@@ -1466,7 +1466,7 @@ EOF
 
 	if command -v jq &>/dev/null; then
 		local temp
-		temp=$(mktemp)
+		temp=$(mktemp "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/karnel-XXXXXX")
 		if [[ "$val" == "true" ]] || [[ "$val" == "false" ]]; then
 			jq --argjson v "$val" ".${key} = \$v" "$config_file" > "$temp" && mv "$temp" "$config_file"
 		elif [[ "$val" =~ ^[0-9]+$ ]]; then
@@ -1635,7 +1635,7 @@ EOF
 	echo
 
 	local ai_response_temp
-	ai_response_temp=$(mktemp)
+	ai_response_temp=$(mktemp "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/karnel-XXXXXX")
 
 	if loading "Generating AI response" _run_ai_query "$ai_cmd" "$full_prompt" "$default_model" "$ai_response_temp"; then
 		echo

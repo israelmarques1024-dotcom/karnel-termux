@@ -14,4 +14,4 @@ Termux UI components.
 See the [CLI reference]({{ '/cli/' | relative_url }}#ui) for the full command list, or the
 [source on GitHub](https://github.com/israelmarques1024-dotcom/karnel-termux/tree/main/karnel/modules/ui.sh).
 
-[← Back to docs]({{ '/' | relative_url }})
+[← Back to docs]({{ '/' | relative_url }}) · [CLI reference]({{ '/cli/' | relative_url }})

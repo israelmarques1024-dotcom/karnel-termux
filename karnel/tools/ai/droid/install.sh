@@ -256,13 +256,13 @@ _droid_ubuntu_install_bin() {
     return 1
   fi
   _droid_proot_ubuntu /bin/bash -c '
-    mkdir -p /tmp/droid-install &&
-    curl -fsSL "$1" -o /tmp/droid-install/droid &&
-    { [ -z "$2" ] || [ "$(sha256sum /tmp/droid-install/droid | awk "{print \$1}")" = "$2" ]; } &&
+    d=$(mktemp -d) &&
+    curl -fsSL "$1" -o "$d/droid" &&
+    { [ -z "$2" ] || [ "$(sha256sum "$d/droid" | awk "{print \$1}")" = "$2" ]; } &&
     mkdir -p /usr/local/bin &&
-    mv /tmp/droid-install/droid /usr/local/bin/droid &&
+    mv "$d/droid" /usr/local/bin/droid &&
     chmod +x /usr/local/bin/droid &&
-    rm -rf /tmp/droid-install
+    rm -rf "$d"
   ' bash "$binary_url" "$expected" &>>"$LOG_FILE"
 
   local droid_bin="$(_droid_detect_ubuntu_root)/usr/local/bin/droid"
@@ -438,12 +438,12 @@ _update_droid_proot_impl() {
   fi
   _droid_proot_ubuntu /bin/bash -c '
     rm -f /usr/local/bin/droid &&
-    mkdir -p /tmp/droid-update &&
-    curl -fsSL "$1" -o /tmp/droid-update/droid &&
-    { [ -z "$2" ] || [ "$(sha256sum /tmp/droid-update/droid | awk "{print \$1}")" = "$2" ]; } &&
-    mv /tmp/droid-update/droid /usr/local/bin/droid &&
+    d=$(mktemp -d) &&
+    curl -fsSL "$1" -o "$d/droid" &&
+    { [ -z "$2" ] || [ "$(sha256sum "$d/droid" | awk "{print \$1}")" = "$2" ]; } &&
+    mv "$d/droid" /usr/local/bin/droid &&
     chmod +x /usr/local/bin/droid &&
-    rm -rf /tmp/droid-update
+    rm -rf "$d"
   ' bash "$binary_url" "$expected" &>>"$LOG_FILE"
 
   local ubuntu_root

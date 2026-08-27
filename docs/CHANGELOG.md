@@ -6,6 +6,25 @@ layout: base
 
 # Documentation Changelog
 
+## 4.17.15
+
+- **Core hardening (10+ bug fixes):**
+  - `karnel/utils/tools.sh`: `_register_safe_reinstall_handlers` now rejects any tool/module name containing shell metacharacters before `eval`-ing the generated reinstall handler (prevents code injection via a crafted tool directory name).
+  - `karnel/tools/ai/droid/install.sh`: dropped the predictable `/tmp/droid-install` / `/tmp/droid-update` paths inside the proot container in favor of `mktemp -d`.
+  - `karnel/tools/ai/kimchi-code/install.sh`: replaced predictable `/tmp/kimchi-install` with `mktemp -d` and added an archive-member path-traversal check before extraction.
+  - `karnel/tools/ai/oh-my-pi/install.sh`: replaced predictable `/tmp/omp-install` / `/tmp/omp-update` with `mktemp -d`.
+  - `karnel/tools/ai/crush/install.sh`: `mktemp -d` now uses a safe template (no bare `/tmp` fallback).
+  - `karnel/cli/commands/{init,voice,brain,ia}.sh`: bare `mktemp` calls now use a safe `$KARNEL_CACHE`/`$TMPDIR` template instead of falling back to `/tmp`.
+- **Full site overhaul (10+ fixes):**
+  - Removed the YouTube `capi.deb` channel references from the README.
+  - Fixed the README install snippet (stale `4.17.11` → `4.17.15`) and the `45+` AI-agents count (→ `45`).
+  - Fixed a dead `/termux/api` link (now points to the official termux-api repo).
+  - `docs/cli/index.md`: corrected the misleading "resolves the `/cli/#<module>` anchors" note, renamed the duplicate `Modules` heading to `Module documentation pages`, and fixed the `network` module description (no longer misattributes OSINT).
+  - `docs/index.md`: module names are now clickable links to their per-module pages.
+  - All 17 module pages gained a `CLI reference` cross-link in their footer.
+  - Removed dead `.karnel-nav` CSS and added the branding logo site-wide via the `default.html` page header.
+  - Verified the existing GitHub Pages deploy already honors `docs/_config.yml` (baseurl/theme load correctly) — no deploy change needed.
+
 ## 4.17.14
 
 - **Core security audit — fixed 12 critical bugs:**
