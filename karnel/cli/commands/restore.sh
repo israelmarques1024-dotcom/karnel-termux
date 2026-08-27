@@ -115,9 +115,9 @@ restore_main() {
 
   local tmp transaction
   tmp=$(mktemp -d) || return 1
-  if ! tar -xzf "$file" -C "$tmp" --no-same-owner --no-same-permissions 2>/dev/null; then
+  if ! tar -xzf "$file" -C "$tmp" --no-same-owner --no-same-permissions 2>"$tmp/extract.err"; then
+    log_error "Failed to extract backup: $(cat "$tmp/extract.err" 2>/dev/null)"
     rm -rf "$tmp"
-    log_error "Failed to extract backup"
     return 1
   fi
   local pkgs="$tmp/metadata/packages.list"

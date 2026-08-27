@@ -466,7 +466,7 @@ _run_restore_cmd() {
 	local file_path="$2"
 	local _rs_ret=0
 	set -o pipefail
-	gunzip -c "$file_path" | pg_restore -d "$db_name" -c 2>/dev/null || _rs_ret=$?
+	gunzip -c "$file_path" | pg_restore -d "$db_name" -c 2>>"${KARNEL_CACHE:-$HOME/.cache/karnel}/karnel-pg.log" || _rs_ret=$?
 	set +o pipefail
 	return $_rs_ret
 }

@@ -546,6 +546,30 @@ _agent_cmd_is_read_inspection() {
 # In PLAN (read-only) mode, write commands are blocked without
 # running and read-only commands run without asking.
 # ------------------------------------------------------------
+_agent_cmd_is_readonly() {
+	# Allowed in PLAN (read-only) mode: a STRICT allowlist of inspection
+	# commands. Anything the write-gate flags, or any command not in this
+	# allowlist (ruby/php/lua/tclsh/expect/sbcl/...), is blocked — so PLAN
+	# mode can never modify the machine or run arbitrary code.
+	_agent_cmd_is_write "$1" && return 1
+	local first
+	first=$(printf '%s\n' "$1" | sed 's/^[[:space:]]*//' | cut -d' ' -f1)
+	case "$first" in
+		ls | cat | head | tail | grep | rg | find | stat | wc | file | diff | sort | uniq | cut | tr | tree | du | df | which | type | echo | printf | jq | readlink | realpath | date | pwd | whoami | uname | sed)
+			return 0
+			;;
+		git)
+			case " $1 " in
+			*" status "* | *" log "* | *" diff "* | *" show "* | *" branch "* | *" remote "* | *" ls-files "* | *" ls "* | *" grep "* | *" rev-parse "* | *" stash list "* | *" tag "*)
+				return 0
+				;;
+			*) return 1 ;;
+		esac
+			;;
+		*) return 1 ;;
+	esac
+}
+
 agent_execute_commands() {
 	local d cm n lang cmd out code ran_file
 	d=$(agent_md_dir)
@@ -574,24 +598,24 @@ agent_execute_commands() {
 			continue
 		fi
 
-		# PLAN (read-only) mode: write commands are blocked, read-only
-		# commands run without asking (they cannot harm anything).
-		local write=0
-		_agent_cmd_is_write "$cmd" && write=1
-		if (( AGENT_PLAN_MODE && write )); then
-			printf '    %s↳ blocked — PLAN mode is read-only (not executed)%s\n' "$D_YELLOW" "$NC"
-			{
-				printf '<command_result tool="run_command" ok="false">\n'
-				printf '<command>%s</command>\n' "$cmd"
-				printf '<status>blocked in PLAN mode (read-only) — not executed</status>\n'
-				printf '</command_result>\n'
-			} >>"$results_file"
-			continue
-		fi
-
+				# PLAN (read-only) mode: ONLY a strict allowlist of read-only
+		# inspection commands may run; every other command is blocked.
 		local run=0
 		if (( AGENT_PLAN_MODE )); then
-			run=1
+			if _agent_cmd_is_readonly "$cmd"; then
+				run=1
+			else
+				printf '    %s↳ blocked — PLAN mode is read-only (not executed)%s\n' "$D_YELLOW" "$NC"
+				{
+					printf '<command_result tool="run_command" ok="false">\n'
+					printf '<command>%s</command>
+' "$cmd"
+					printf '<status>blocked in PLAN mode (read-only) — not executed</status>\n'
+					printf '</command_result>
+'
+				} >>"$results_file"
+				continue
+			fi
 		elif [[ "$AGENT_CONFIRM_COMMANDS" == "1" && "$AGENT_YES" != "1" ]]; then
 			if [[ -t 0 ]]; then
 				local _ans

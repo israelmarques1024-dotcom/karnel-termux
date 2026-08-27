@@ -62,16 +62,16 @@ agent_config_load() {
 agent_config_save() {
 	mkdir -p "$AGENT_CONF_DIR"
 	{
-		printf 'AGENT_MODEL="%s"\n' "$AGENT_MODEL"
-		printf 'AGENT_ENDPOINT="%s"\n' "$AGENT_ENDPOINT"
-		printf 'AGENT_TEMPERATURE="%s"\n' "$AGENT_TEMPERATURE"
-		printf 'AGENT_MAX_TOKENS="%s"\n' "$AGENT_MAX_TOKENS"
-		printf 'AGENT_MAX_ITERATIONS="%s"\n' "$AGENT_MAX_ITERATIONS"
-		printf 'AGENT_CONFIRM_COMMANDS="%s"\n' "$AGENT_CONFIRM_COMMANDS"
-		printf 'AGENT_CONTEXT_WINDOW="%s"\n' "$AGENT_CONTEXT_WINDOW"
-		printf 'AGENT_SERVER_CMD="%s"\n' "$AGENT_SERVER_CMD"
+		printf 'AGENT_MODEL=%q\n' "$AGENT_MODEL"
+		printf 'AGENT_ENDPOINT=%q\n' "$AGENT_ENDPOINT"
+		printf 'AGENT_TEMPERATURE=%q\n' "$AGENT_TEMPERATURE"
+		printf 'AGENT_MAX_TOKENS=%q\n' "$AGENT_MAX_TOKENS"
+		printf 'AGENT_MAX_ITERATIONS=%q\n' "$AGENT_MAX_ITERATIONS"
+		printf 'AGENT_CONFIRM_COMMANDS=%q\n' "$AGENT_CONFIRM_COMMANDS"
+		printf 'AGENT_CONTEXT_WINDOW=%q\n' "$AGENT_CONTEXT_WINDOW"
+		printf 'AGENT_SERVER_CMD=%q\n' "$AGENT_SERVER_CMD"
 		if [[ "${KARNEL_AGENT_WS_SET:-0}" == "1" ]]; then
-			printf 'AGENT_WORKSPACE="%s"\n' "$AGENT_WORKSPACE"
+			printf 'AGENT_WORKSPACE=%q\n' "$AGENT_WORKSPACE"
 		fi
 	} >"$AGENT_CONF_FILE"
 }

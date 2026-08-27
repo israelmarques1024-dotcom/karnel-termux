@@ -3,13 +3,61 @@
 import "@/utils/log"
 import "@/utils/version"
 import "@/utils/install"
+# Safe, self-contained tar extractor (independent of framework import).
+# Rejects path traversal, absolute paths, unsafe symlinks/hardlinks, and
+# device/special-file entries. Intentionally has NO unsafe fallback.
+_archive_member_is_safe() {
+  local member="$1"
+  [[ -n "$member" && "$member" != /* && "$member" != *\\* ]] || return 1
+  case "/$member/" in
+    */../*) return 1 ;;
+  esac
+}
 
-if ! declare -f safe_extract_tar >/dev/null 2>&1; then
-  safe_extract_tar() {
-    local archive="$1" outdir="$2" strip_components="${3:-0}"
-    tar -xzf "$archive" -C "$outdir" --strip-components="$strip_components"
-  }
-fi
+_archive_link_is_safe() {
+  local member="$1" target="$2" part depth=0
+  local -a _archive_parts
+  [[ -n "$target" && "$target" != /* && "$target" != *\\* ]] || return 1
+  IFS=/ read -r -a _archive_parts <<<"$(dirname "$member")/$target"
+  for part in "${_archive_parts[@]}"; do
+    case "$part" in
+      ''|.) ;;
+      ..) ((depth > 0)) || return 1; ((depth -= 1)) ;;
+      *) ((depth += 1)) ;;
+    esac
+  done
+}
+
+safe_extract_tar() {
+  local archive="$1" outdir="$2" strip_components="${3:-0}"
+  local member listing verbose mode line target
+  listing=$(tar -tf "$archive" 2>/dev/null) || return 1
+  while IFS= read -r member; do
+    _archive_member_is_safe "$member" || return 1
+  done <<<"$listing"
+  verbose=$(tar -tvf "$archive" 2>/dev/null) || return 1
+  while IFS= read -r line; do
+    mode=${line%% *}
+    case "${mode:0:1}" in
+      l)
+        member=${line%% -> *}; member=${member##* }
+        target=${line#* -> }
+        _archive_link_is_safe "$member" "$target" || return 1
+        ;;
+      h)
+        member=${line%% link to *}; member=${member##* }
+        target=${line#* link to }
+        _archive_link_is_safe "$member" "$target" || return 1
+        ;;
+      b|c|p) return 1 ;;
+    esac
+  done <<<"$verbose"
+  mkdir -p "$outdir" || return 1
+  tar -xf "$archive" -C "$outdir" --strip-components="$strip_components" \
+    --no-same-owner --no-same-permissions
+}
+
+
 
 _SUPABASE_VERSION="2.20.8"
 _SUPABASE_RELEASE_URL="https://github.com/supabase/cli/releases/download/v${_SUPABASE_VERSION}"

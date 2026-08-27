@@ -11,7 +11,7 @@ Network utilities (dark, dedsec-network).
 
 | `network` | `--dark`, `--dedsec-network` |
 
-See the [CLI reference]({ '/cli/' | relative_url }#network) for the full command list, or the
+See the [CLI reference]({{ '/cli/' | relative_url }}#network) for the full command list, or the
 [source on GitHub](https://github.com/israelmarques1024-dotcom/karnel-termux/tree/main/karnel/modules/network.sh).
 
-[← Back to docs]({ '/' | relative_url })
+[← Back to docs]({{ '/' | relative_url }})

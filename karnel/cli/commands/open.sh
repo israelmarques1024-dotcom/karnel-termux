@@ -21,6 +21,9 @@ open_main() {
 	herdr)
 		url="$OPEN_DOCS/karnel/utils"
 		;;
+	robin)
+		url="$OPEN_DOCS/karnel/osint"
+		;;
 	supabase)
 		url="$OPEN_DOCS/karnel/deploy"
 		;;

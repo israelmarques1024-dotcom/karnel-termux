@@ -43,7 +43,9 @@ install_oh_my_zsh() (
 
 	if curl -fsSL "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/$OH_MY_ZSH_REF/tools/install.sh" -o "$temp_file" &>>"$LOG_FILE"; then
 		# Keep the reviewed installer behavior, but fetch and check out the reviewed commit.
-		sed -i "s|git fetch --depth=1 origin|git fetch --depth=1 origin $OH_MY_ZSH_REF|" "$temp_file"
+		local omz_ref_esc
+omz_ref_esc=$(printf '%s\n' "$OH_MY_ZSH_REF" | sed 's/[][\/.&*?^$|]/\\&/g')
+sed -i "s|git fetch --depth=1 origin|git fetch --depth=1 origin $omz_ref_esc|" "$temp_file"
 		# shellcheck disable=SC2016
 		sed -i 's|git checkout -b "$BRANCH" "origin/$BRANCH"|git checkout --detach FETCH_HEAD|' "$temp_file"
 		if ! grep -qF "git fetch --depth=1 origin $OH_MY_ZSH_REF" "$temp_file" ||

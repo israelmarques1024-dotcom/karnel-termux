@@ -216,9 +216,10 @@ Opens the official documentation page for a module using
 | `cleanup`        | Cache cleanup |
 | `network`        | Network tools |
 | `utils`          | Utility tools |
+| `herdr`          | Herdr terminal AI assistant |
 | `voice`          | Voice command |
-| `plugin`         | Plugin system |
-| `security`       | Security tools |
+| `plugin`          | Plugin system |
+| `security`        | Security tools |
 | `osint` / `robin` | OSINT tools |
 
 ```bash
@@ -889,3 +890,60 @@ The main tool modules work with `install`, `uninstall`, `reinstall`, `update`,
 
 `plugin` works with `install`, `uninstall`, `reinstall`, `update`, `list`, and
 `open`, but does not expose tool documentation through `show`.
+
+---
+
+## Modules
+
+Per-module documentation pages (resolves the `/cli/#<module>` anchors):
+
+### ai
+Documentation page: [ai module]({{ '/karnel/ai/' | relative_url }}).
+
+### auto
+Documentation page: [auto module]({{ '/karnel/auto/' | relative_url }}).
+
+### db
+Documentation page: [db module]({{ '/karnel/db/' | relative_url }}).
+
+### deploy
+Documentation page: [deploy module]({{ '/karnel/deploy/' | relative_url }}).
+
+### dev
+Documentation page: [dev module]({{ '/karnel/dev/' | relative_url }}).
+
+### editor
+Documentation page: [editor module]({{ '/karnel/editor/' | relative_url }}).
+
+### games
+Documentation page: [games module]({{ '/karnel/games/' | relative_url }}).
+
+### lang
+Documentation page: [lang module]({{ '/karnel/lang/' | relative_url }}).
+
+### network
+Documentation page: [network module]({{ '/karnel/network/' | relative_url }}).
+
+### npm
+Documentation page: [npm module]({{ '/karnel/npm/' | relative_url }}).
+
+### osint
+Documentation page: [osint module]({{ '/karnel/osint/' | relative_url }}).
+
+### plugin
+Documentation page: [plugin module]({{ '/karnel/plugin/' | relative_url }}).
+
+### security
+Documentation page: [security module]({{ '/karnel/security/' | relative_url }}).
+
+### shell
+Documentation page: [shell module]({{ '/karnel/shell/' | relative_url }}).
+
+### ui
+Documentation page: [ui module]({{ '/karnel/ui/' | relative_url }}).
+
+### utils
+Documentation page: [utils module]({{ '/karnel/utils/' | relative_url }}), including the [Herdr](https://herdr.dev) terminal AI assistant (`karnel install utils --herdr`).
+
+### voice
+Documentation page: [voice module]({{ '/karnel/voice/' | relative_url }}).

@@ -11,7 +11,7 @@ Automation and workflow tooling (n8n).
 
 | `auto`    | `--n8n` |
 
-See the [CLI reference]({ '/cli/' | relative_url }#auto) for the full command list, or the
+See the [CLI reference]({{ '/cli/' | relative_url }}#auto) for the full command list, or the
 [source on GitHub](https://github.com/israelmarques1024-dotcom/karnel-termux/tree/main/karnel/modules/auto.sh).
 
-[← Back to docs]({ '/' | relative_url })
+[← Back to docs]({{ '/' | relative_url }})

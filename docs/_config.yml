@@ -4,6 +4,7 @@ description: >-
   editors, and more with one command.
 author: Israel Marques
 lang: en-US
+logo: /assets/images/karnel-logo.png
 theme: jekyll-theme-cayman
 markdown: kramdown
 baseurl: /karnel-termux

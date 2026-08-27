@@ -155,12 +155,10 @@ _download_bun_binary_native_impl() {
       return 1
     fi
   else
-    command -v log_warn >/dev/null 2>&1 && log_warn "Integrity helpers unavailable; skipping Bun integrity verification"
-    if ! unzip -o "$staging_dir/$zip_name" -d "$staging_dir" &>>"$LOG_FILE"; then
-      rm -rf "$staging_dir"
-      log_error "Failed to extract Bun binary"
-      return 1
-    fi
+    command -v log_warn >/dev/null 2>&1 && log_warn "Integrity helpers unavailable; refusing unsafe Bun extraction"
+    rm -rf "$staging_dir"
+    log_error "Bun extraction requires integrity helpers (safe_extract_zip)"
+    return 1
   fi
   rm -f "$staging_dir/$zip_name"
   extracted="$staging_dir/bun-linux-aarch64/bun"

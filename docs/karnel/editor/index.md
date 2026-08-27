@@ -11,7 +11,7 @@ Terminal and browser-based editors (code-server, Neovim, and more).
 
 | `editor`  | `--code-server`, `--neovim`, `--nvchad` |
 
-See the [CLI reference]({ '/cli/' | relative_url }#editor) for the full command list, or the
+See the [CLI reference]({{ '/cli/' | relative_url }}#editor) for the full command list, or the
 [source on GitHub](https://github.com/israelmarques1024-dotcom/karnel-termux/tree/main/karnel/modules/editor.sh).
 
-[← Back to docs]({ '/' | relative_url })
+[← Back to docs]({{ '/' | relative_url }})

@@ -63,13 +63,8 @@ _download_zork_data_impl() {
       return 1
     fi
 
-    if declare -F safe_extract_zip >/dev/null; then
-      safe_extract_zip "$zip_file" "$staging_dir" 2>>"$LOG_FILE" || {
-        rm -rf "$staging_dir"; log_error "Failed to extract Zork ${num}"; return 1; }
-    elif ! unzip -o "$zip_file" -d "$staging_dir" 2>>"$LOG_FILE"; then
-      rm -rf "$staging_dir"
-      log_error "Failed to extract Zork ${num}"
-      return 1
+    if ! safe_extract_zip "$zip_file" "$staging_dir" 2>>"$LOG_FILE"; then
+      rm -rf "$staging_dir"; log_error "Failed to extract Zork ${num}"; return 1
     fi
 
     rm -f "$zip_file"

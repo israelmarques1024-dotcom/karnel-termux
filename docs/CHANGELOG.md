@@ -6,6 +6,22 @@ layout: base
 
 # Documentation Changelog
 
+## 4.17.14
+
+- **Core security audit — fixed 12 critical bugs:**
+  - `agent_llm.sh`: config save now uses `%q` instead of `%s`, closing a command-injection/RCE vector when `source`ing saved agent config.
+  - `agent_actions.sh`: PLAN (read-only) mode now enforces a strict allowlist (`_agent_cmd_is_readonly`) so non-inspection commands (ruby, php, lua, etc.) can no longer bypass the guard.
+  - `zork/zork.sh`: rewritten with a self-contained safe extractor that rejects `..`/absolute paths and symlink escapes before moving files into `ZORK_DIR`.
+  - `zork/install.sh` / `bun/install.sh`: removed unsafe `unzip -o` / tar fallbacks; extraction now uses the hardened `safe_extract_zip` / `safe_extract_tar` helpers.
+  - `supabase`, `kiro`, `cline`, `kilocode-cli`, `keelcode` installers: replaced the local `safe_extract_tar` (which fell back to an unsafe `tar -xzf` on missing integrity helpers) with a self-contained, safe implementation that has no unsafe fallback.
+  - `restore.sh` / `pg.sh`: database restore no longer silences `tar` / `pg_restore` errors with `2>/dev/null`; failures are surfaced to the user.
+  - `shell.sh`: `OH_MY_ZSH_REF` is now escaped before being substituted into `sed` patterns, preventing delimiter injection.
+- **Site overhaul:**
+  - Fixed single-brace Liquid (`{{ }}`) on all 17 per-module pages (34 broken links resolved).
+  - `karnel open` gained a `robin` target (opens the OSINT module page) and a `herdr` target row in the CLI reference.
+  - Added a `## Modules` anchor section to the CLI reference so `/cli/#<module>` links resolve.
+  - Moved favicon + SEO meta into `<head>` via a `docs/_layouts/default.html` override of the cayman theme (previously dead `<body>`-level meta); set `logo:` for rich-link previews.
+
 ## 4.17.13
 
 - Fixed the shell completion catalog (`scripts/completion.bash` / `completion.zsh`) to include the `herdr` utils tool, satisfying the `completion-catalog` CI gate.
