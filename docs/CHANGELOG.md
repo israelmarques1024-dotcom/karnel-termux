@@ -6,6 +6,14 @@ layout: base
 
 # Documentation Changelog
 
+## 4.17.12
+
+- Generated real per-module documentation pages under `/karnel/<module>/` (all 17 modules: ai, auto, db, deploy, dev, editor, games, lang, network, npm, osint, plugin, security, shell, ui, utils, voice).
+- `karnel open <module>` now opens the in-site page (`/karnel/<module>/`) instead of the GitHub source; added a dedicated `herdr` open target that opens the utils page.
+- Featured **Herdr** prominently in the README and on the site landing page, with a `karnel install utils --herdr` callout.
+- Added `karnel/tools/utils/herdr/README.md` so `karnel show utils --herdr` renders proper documentation.
+- Site/CLI audit: fixed the stale "12 scripts" utils summary in the CLI reference (now lists all 13 tools including Herdr).
+
 ## 4.17.11
 
 - Added the **Herdr** CLI to the `utils` module (`karnel install utils --herdr`), with checksum-verified download, atomic install, and Karnel ownership markers.

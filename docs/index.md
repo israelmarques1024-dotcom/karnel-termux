@@ -19,6 +19,13 @@ voice commands, and reviewed plugins — all from modules: `ai`, `auto`, `db`,
 `deploy`, `dev`, `editor`, `games`, `lang`, `network`, `npm`, `osint`,
 `security`, `shell`, `ui`, `utils`, `voice`, `plugin`.
 
+## 🌟 Featured: Herdr
+
+Karnel now ships **[Herdr](https://herdr.dev)**, a terminal AI assistant CLI, as a managed utility.
+Install it with `karnel install utils --herdr` — the binary is checksum-verified from the official
+release manifest and tracked with Karnel ownership markers, so `karnel uninstall utils --herdr` is clean.
+Open its docs with `karnel open herdr`.
+
 ## Sections
 
 <div class="karnel-links">

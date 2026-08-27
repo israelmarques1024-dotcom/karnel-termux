@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux">
-    <img src="https://img.shields.io/badge/version-4.17.11-0078D4?style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/badge/version-4.17.12-0078D4?style=for-the-badge" alt="Version">
   </a>
   <a href="https://www.npmjs.com/package/karnel-termux">
     <img src="https://img.shields.io/npm/v/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
@@ -53,6 +53,23 @@ Core agent contributions by **devcorex**.
 > Designed exclusively for **Termux on Android**. Does not work on other platforms.
 
 
+
+---
+
+## 🌟 Featured: Herdr — terminal AI assistant
+
+Karnel now ships **[Herdr](https://herdr.dev)**, a blazing-fast terminal AI assistant CLI, as a first-class utility. Install it with:
+
+```bash
+karnel install utils --herdr
+```
+
+Why it's great:
+- **Checksum-verified** download from the official Herdr release manifest (`https://herdr.dev/latest.json`).
+- **Atomic, safe install** into `$PREFIX/bin/herdr` with a Karnel ownership marker — so `karnel uninstall utils --herdr` is clean and never touches files it didn't manage.
+- Pairs perfectly with the 45+ other AI agents Karnel manages.
+
+> Open its docs anytime with `karnel open herdr`.
 
 ---
 

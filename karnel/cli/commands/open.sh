@@ -3,8 +3,6 @@
 import "@/utils/log"
 import "@/utils/colors"
 
-OPEN_GH="https://github.com/israelmarques1024-dotcom/karnel-termux"
-OPEN_BRANCH="main"
 OPEN_DOCS="https://israelmarques1024-dotcom.github.io/karnel-termux"
 
 open_main() {
@@ -18,33 +16,32 @@ open_main() {
 
 	case "$target" in
 	karnel | help)
-		url="$OPEN_GH"
+		url="$OPEN_DOCS/"
+		;;
+	herdr)
+		url="$OPEN_DOCS/karnel/utils"
 		;;
 	supabase)
-		url="$OPEN_GH/tree/$OPEN_BRANCH/karnel/tools/deploy/supabase"
+		url="$OPEN_DOCS/karnel/deploy"
 		;;
 	cleanup)
-		url="$OPEN_GH/tree/$OPEN_BRANCH/karnel/cli/commands/cleanup.sh"
-		;;
-	plugin)
-		url="$OPEN_GH/tree/$OPEN_BRANCH/karnel/modules/plugin.sh"
+		url="$OPEN_DOCS/cli"
 		;;
 	--help | -h)
 		open_help
 		return
 		;;
-	esac
-
-	if [[ -z "$url" ]]; then
+	*)
 		if [[ -f "$KARNEL_PATH/modules/$target.sh" ]]; then
-			url="$OPEN_GH/tree/$OPEN_BRANCH/karnel/modules/$target.sh"
+			url="$OPEN_DOCS/karnel/$target"
 		else
 			log_error "Unknown target: $target"
 			echo
 			open_help
 			return 1
 		fi
-	fi
+		;;
+	esac
 
 	if command -v termux-open-url &>/dev/null; then
 		termux-open-url "$url" 2>/dev/null && {
@@ -100,6 +97,7 @@ open_help() {
 	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "osint" "OSINT tools"
 	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "plugin" "Plugin system"
 	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "security" "Security tools"
+	printf "    ${D_GREEN}%-14s${NC} ${D_DIM}%s${NC}\n" "herdr" "Herdr terminal AI assistant"
 	echo
 	separator_section "Website"
 	echo

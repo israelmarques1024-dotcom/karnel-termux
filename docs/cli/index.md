@@ -39,7 +39,7 @@ karnel install <module> --tool1 --tool2  # Install specific tools only
 | `deploy`  | Vercel, Railway, Netlify, Supabase CLIs |
 | `games`   | Buzz, CTF God, Detective, Tamagotchi, Arcade, Pet Friends |
 | `network` | Dark Web OSINT, DedSec Network Toolkit |
-| `utils`   | fconv, filecheck, notes, qrcode, SuperFile, zork, httptmux (12 scripts) |
+| `utils`   | fconv, filecheck, websites, notes, treex, passman, applaunch, splash, httptmux, zork, qrcode, superfile, herdr (13 scripts) |
 | `osint`   | Robin v2.8 — dark web OSINT via Tor + LLM |
 | `voice`   | Speech-to-agent via Termux:API |
 | `security`| Nmap, Hydra, SQLMap, Metasploit, and 26 other tools |
