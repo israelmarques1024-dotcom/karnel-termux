@@ -158,11 +158,6 @@ binary/command name, and current install status.
 | `security`| 30 security tools |
 | `utils`   | 13 utility scripts |
 | `plugin`  | Installed plugins |
-| `network` | 2 network tools |
-| `utils`   | 13 utility scripts |
-| `osint`   | Robin OSINT |
-| `voice`   | Voice commands |
-| `security`| 30 security tools |
 
 ```bash
 karnel list ai

@@ -1085,6 +1085,10 @@ def preview_text_file(p: Path, lines: int) -> str:
 def explorer_mode(lang: str) -> None:
     print(t("explorer_title", lang))
     cur = prompt_path(lang, Path(".")).expanduser()
+    while True:
+        try:
+            with os.scandir(cur) as it:
+                ents = list(it)
             ents.sort(key=lambda d: (0 if d.is_dir(follow_symlinks=False) else 1, d.name.lower()))
         except Exception:
             print(t("err_open", lang))

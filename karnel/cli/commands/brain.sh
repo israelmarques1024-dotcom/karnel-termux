@@ -142,7 +142,7 @@ _brain_update_related() {
 	if grep -q "^related:" "$tmp" 2>/dev/null; then
 		sed -i "s/^related: \[\(.*\)\]/related: [\1, $escaped]/" "$tmp"
 	else
-		sed -i "/^---$/a related: [$slug]" "$tmp"
+		sed -i "/^---$/a related: [$escaped]" "$tmp"
 	fi
 	tail -n +$((frontmatter_end)) "$file" >>"$tmp"
 	mv "$tmp" "$file"

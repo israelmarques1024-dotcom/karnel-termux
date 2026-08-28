@@ -461,6 +461,7 @@ _list_utils() {
   table_row "Zork (text adventure)" "--zork" "zork" "$(_check_cmd "zork")"
   table_row "QR Code Generator" "--qrcode" "qrcode" "$(_check_cmd "qrcode")"
   table_row "SuperFile" "--superfile" "spf" "$(_check_cmd "spf")"
+  table_row "Herdr (AI assistant)" "--herdr" "herdr" "$(_check_cmd "herdr")"
   table_end
 
   echo

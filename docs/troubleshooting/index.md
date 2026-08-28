@@ -24,8 +24,10 @@ npm/pnpm installs.
 | `All update methods failed` | Every fallback failed. Check network, the Git checkout state, and npm connectivity. |
 | Update stays on the same version | Old releases (`v4.13.3`, `v4.13.4`) do not ship installer assets, so the curl path falls back to git. A release that includes the installer assets enables the verified curl path. |
 
-Logs: `$KARNEL_CACHE/install_dev.log` (GitHub/installer) and
-`$KARNEL_CACHE/install_npm.log` (npm).
+The updater prints its progress to the terminal only; it does not write log
+files. For module installs, `karnel install dev` logs to
+`$KARNEL_CACHE/install_dev.log` and `karnel install npm` logs to
+`$KARNEL_CACHE/install_npm.log`.
 
 ## npm publishing
 

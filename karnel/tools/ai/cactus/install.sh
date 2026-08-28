@@ -285,7 +285,7 @@ _cactus_cli_post_install_glibc() {
   fi
   mkdir -p "$PREFIX/libexec"
   cp "$launcher_src" "$launcher_dst"
-  chmod 644 "$launcher_dst"
+  chmod 755 "$launcher_dst"
 
   if ! command -v patchelf &>/dev/null; then
     if ! yes | pkg install patchelf &>>"$CACTUS_CLI_LOG_FILE"; then

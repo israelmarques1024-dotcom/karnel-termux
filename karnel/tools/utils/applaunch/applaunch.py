@@ -67,9 +67,9 @@ def get_app_label(apk_path, package):
     Uses aapt (must be available in the shell PATH, e.g., via Android SDK tools)
     to extract the friendly label from the APK.
     """
-    cmd = f"aapt dump badging \"{apk_path}\""
+    cmd = ["aapt", "dump", "badging", apk_path]
     try:
-        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True)
         match = re.search(r"application: label='([^']+)'", result.stdout)
         if match:
             return match.group(1)
@@ -368,17 +368,22 @@ def main():
         component = launchable_map.get(selected_package)
         if component:
             print(f"Launching '{selected_label}' ({selected_package})...")
-            os.system(f"am start -n {component} > /dev/null 2>&1")
+            subprocess.run(["am", "start", "-n", component],
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         else:
             print("Launch component not found for the selected app.")
-            
+
     elif chosen_option == "App Info":
         print(f"Opening App Info for '{selected_label}' ({selected_package})...")
-        os.system(f"am start -a android.settings.APPLICATION_DETAILS_SETTINGS -d package:{selected_package} > /dev/null 2>&1")
-        
+        subprocess.run(["am", "start", "-a", "android.settings.APPLICATION_DETAILS_SETTINGS",
+                        "-d", f"package:{selected_package}"],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
     elif chosen_option == "Uninstall":
         print(f"Uninstalling '{selected_label}' ({selected_package}) using the system uninstall method...")
-        os.system(f"am start -a android.intent.action.DELETE -d package:{selected_package} > /dev/null 2>&1")
+        subprocess.run(["am", "start", "-a", "android.intent.action.DELETE",
+                        "-d", f"package:{selected_package}"],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         
     elif chosen_option == "Extract APK":
         apk_path_on_device = package_map.get(selected_package)
@@ -390,11 +395,13 @@ def main():
             destination_file = os.path.join(target_dir, f"{selected_package}.apk")
 
             print(f"Ensuring destination directory exists: '{target_dir}'...")
-            
+
             # Create the destination directory recursively if it doesn't exist
-            if os.system(f"mkdir -p \"{target_dir}\"") != 0:
-                 print("Error: Could not create the destination directory. Check Termux storage permissions ('termux-setup-storage').")
-                 return
+            try:
+                os.makedirs(target_dir, exist_ok=True)
+            except OSError:
+                print("Error: Could not create the destination directory. Check Termux storage permissions ('termux-setup-storage').")
+                return
             
             print(f"Copying APK from '{apk_path_on_device}' to '{destination_file}'...")
             
@@ -426,9 +433,6 @@ def main():
     else:
         print("No valid option selected.")
 
-    # After performing the selected action, run Settings.py
-    print("\nLaunching settings...")
-    os.system(f"{sys.executable} Settings.py")
 
 if __name__ == "__main__":
     main()

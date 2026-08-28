@@ -6,7 +6,7 @@ layout: base
 
 # Security module
 
-Security and pentest tooling (30+ tools).
+Security and pentest tooling (30 tools).
 ## Install
 
 | `security`       | Security tools |

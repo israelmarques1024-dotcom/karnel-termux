@@ -155,7 +155,7 @@ def update_delay(seconds):
         if LOADING_SCREEN_END in line:
             in_loading_screen = False
 
-        if in_loading_screen and "sleep" in line:
+        if in_loading_screen and line.strip().startswith("sleep"):
             line = f"sleep {seconds}\n"
         new_lines.append(line)
 
@@ -179,7 +179,15 @@ def main():
     elif choice == "4":
         install_custom_loading_screen(10)  # Default 10 seconds delay
     elif choice == "5":
-        seconds = int(input("Enter the number of seconds for the Loading Screen delay: ").strip())
+        raw = input("Enter the number of seconds for the Loading Screen delay: ").strip()
+        try:
+            seconds = int(raw)
+        except ValueError:
+            print("Invalid number of seconds.")
+            return
+        if seconds < 0:
+            print("Seconds must be zero or greater.")
+            return
         update_delay(seconds)  # Update delay without reinstalling Loading Screen or custom art
     else:
         print("Bye.")

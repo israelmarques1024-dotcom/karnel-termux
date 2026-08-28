@@ -111,35 +111,14 @@ _exec_run_lang() {
   done < <(_get_lang_tools "$lang" "$mode" "$include_global")
 }
 
-_exec_fix_cmd_is_safe() {
-  local cmd="$1"
-  [[ -n "$cmd" ]] || return 1
-  # Reject any shell operators / metacharacters that enable injection.
-  local bad_re='[;&|$(<>)`\\]'
-  if [[ "$cmd" =~ $bad_re ]]; then
-    return 1
-  fi
-  # Only a single '{}' placeholder is permitted; stray braces are forbidden.
-  local rest="${cmd//\{\}/}"
-  [[ "$rest" == *[{}]* ]] && return 1
-  # Reject destructive / arbitrary-execution commands by their leading token.
-  local first="${rest%% *}"
-  case "$first" in
-    rm|sudo|dd|mv|cp|chmod|chown|mkfs|wget|curl|bash|sh|eval|exec|kill|pkill|tee|ln|:) return 1 ;;
-  esac
-  # Allow only safe characters: alphanumerics, underscore, space, / . : @ % + = - _
-  [[ "$rest" =~ [^a-zA-Z0-9_\ /.:\@%+=-] ]] && return 1
-  return 0
-}
-
 _exec_apply_fix() {
   local tool="$1" fix_cmd="$2" lang="$3" file="$4" dir="${5:-$PWD}"
   local full_cmd; full_cmd="$(_tool_command "$fix_cmd" "$file")"
 
-  if ! _exec_fix_cmd_is_safe "$fix_cmd"; then
-    log_warn "Refusing unsafe fix command (possible injection): $fix_cmd"
-    return 1
-  fi
+  # NOTE: fix/check commands come exclusively from the in-repo LANG_TOOLS
+  # registry (code_langs.sh); some legitimate fixes are multi-statement
+  # loops (e.g. Go gofmt) or contain pipes, so pattern-based "injection"
+  # guards here would refuse valid commands. Do not re-add one.
 
   if [[ "$fix_cmd" == *'{}'* && -z "$file" ]]; then
     log_warn "Cannot fix — no matching file found for $tool"

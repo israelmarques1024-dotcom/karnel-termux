@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux">
-    <img src="https://img.shields.io/badge/version-4.17.16-0078D4?style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/badge/version-4.17.17-0078D4?style=for-the-badge" alt="Version">
   </a>
   <a href="https://www.npmjs.com/package/karnel-termux">
     <img src="https://img.shields.io/npm/v/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
@@ -23,17 +23,17 @@
     <img src="https://img.shields.io/badge/platform-Termux%20%7C%20Android-0078D4?style=for-the-badge" alt="Platform">
   </a>
   <a href="https://israelmarques1024-dotcom.github.io/karnel-termux">
-    <img src="https://img.shields.io/badge/Site-karneltermux.github.io-0078D4?style=for-the-badge" alt="Website">
+    <img src="https://img.shields.io/badge/Site-israelmarques1024--dotcom.github.io%2Fkarnel--termux-0078D4?style=for-the-badge" alt="Website">
   </a>
 </p>
 
 ---
 
-**Karnel Termux** is a modular development environment that transforms Termux into a complete workstation. With a single CLI (`karnel`), install and manage:
+**Karnel Termux** is a modular development environment that transforms Termux into a complete workstation.
 
-Created by **Israel Marques**.
+Created by **Israel Marques**. Core agent contributions by **devcorex**.
 
-Core agent contributions by **devcorex**.
+With a single CLI (`karnel`), install and manage:
 
 - **45 AI tools** — Claude, Gemini, OpenCode, Cactus, Hugging Face, Ollama, KeelCode, Goose, Factory Droid and more
 - **8 languages** — Node.js, Python, Go, Rust, C/C++, PHP, Perl, Bun
@@ -78,7 +78,7 @@ Why it's great:
 ### Via checksummed GitHub release (recommended)
 
 ```bash
-version=4.17.16
+version=4.17.17
 tmpdir=$(mktemp -d) && trap 'rm -rf "$tmpdir"' EXIT
 base="https://github.com/israelmarques1024-dotcom/karnel-termux/releases/download/v$version"
 curl -fsSL "$base/karnel-termux-install.sh" -o "$tmpdir/karnel-termux-install.sh"
@@ -595,6 +595,9 @@ karnel/
 │   │   ├── utils/     # 13 utility tools
 │   │   ├── games/     # 6 games
 │   │   ├── security/  # 30 security tools
+│   │   ├── osint/     # Robin OSINT (Tor + LLM)
+│   │   ├── voice/     # Speech-to-agent via Termux:API
+│   │   ├── plugins/   # Plugin manager
 │   │   └── deploy/    # 4 deploy CLIs
 │   └── utils/         # Utilities (banner, log, env, etc.)
 ├── install.sh         # Installation script
@@ -644,8 +647,8 @@ once every 24 hours; the check can use npm or GitHub and writes state under
 
 The repository CI validates Bash/Zsh syntax, ShellCheck errors, CLI smoke tests,
 version behavior, Robin contracts, plugin lifecycle contracts, and npm package
-contents. The official documentation site validates its catalog contracts,
-TypeScript, formatting, tests, and production build.
+contents. The documentation site is built by the `Publish Docs` workflow with
+`actions/jekyll-build-pages`, so a broken Jekyll page fails that build.
 
 These checks do not install every external tool or prove behavior on every Android
 device. Before relying on a new installer, test it in native Termux aarch64 with
