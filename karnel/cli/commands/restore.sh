@@ -114,7 +114,7 @@ restore_main() {
   log_success "Checksum verified"
 
   local tmp transaction
-  tmp=$(mktemp -d) || return 1
+  tmp=$(mktemp -d "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/karnel-XXXXXX") || return 1
   if ! tar -xzf "$file" -C "$tmp" --no-same-owner --no-same-permissions 2>"$tmp/extract.err"; then
     log_error "Failed to extract backup: $(cat "$tmp/extract.err" 2>/dev/null)"
     rm -rf "$tmp"

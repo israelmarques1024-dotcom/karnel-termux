@@ -4,8 +4,6 @@ permalink: /
 layout: base
 ---
 
-<img class="karnel-logo" src="{{ '/assets/images/karnel-logo.png' | relative_url }}" alt="Karnel Termux">
-
 > Modular Dev Environment for Termux — install languages, databases, AI agents, editors, and more with one command
 
 ## What is Karnel?
@@ -44,8 +42,7 @@ Open its docs with `karnel open herdr`.
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux/blob/main/karnel/tools/ai/keelcode/README.md">KeelCode — hosted coding-agent CLI</a>
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux/blob/main/karnel/tools/utils/superfile/README.md">SuperFile — terminal file manager</a>
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux/blob/main/karnel/tools/utils/fconv/README.md">Utility Scripts — fconv, notes, treex, and more</a>
-  <a href="./cli/#supabase--remote-project-helpers">Supabase CLI — remote-project helpers</a>
-  <a href="./ARCHITECTURE/">Architecture — project structure and module system</a>
+  <a href="./cli/#supabase-remote-project-helpers">Supabase CLI — remote-project helpers</a>
   <a href="./CHANGELOG/">Changelog — version history and fixes</a>
 </div>
 

@@ -1,4 +1,5 @@
 #!/data/data/com.termux/files/usr/bin/python3
+import os
 import sys
 import subprocess
 import string
@@ -297,6 +298,10 @@ class Vault:
         salt, enc_data = SecurityUtils.encrypt(self.data, self.master_pwd)
         with open(self.filename, "wb") as f:
             f.write(salt + enc_data)
+        try:
+            os.chmod(self.filename, 0o600)
+        except OSError:
+            pass
         print(f"{Fore.GREEN}Vault saved!{Style.RESET_ALL}")
         time.sleep(0.5)
 
@@ -489,10 +494,24 @@ class Vault:
                 input("Press Enter...")
                 return
 
+            # Back up the existing vault before overwriting (data-loss protection)
+            if os.path.exists(self.filename):
+                backup_path = self.filename + ".bak"
+                with open(self.filename, "rb") as src, open(backup_path, "wb") as dst:
+                    dst.write(src.read())
+                try:
+                    os.chmod(backup_path, 0o600)
+                except OSError:
+                    pass
+
             # Overwrite the main vault file
             with open(self.filename, 'wb') as dest:
                 dest.write(content)
-            
+            try:
+                os.chmod(self.filename, 0o600)
+            except OSError:
+                pass
+
             # Reload the newly imported data
             self.data = temp_data 
             print(f"{Fore.GREEN}Vault imported and loaded successfully!{Style.RESET_ALL}")

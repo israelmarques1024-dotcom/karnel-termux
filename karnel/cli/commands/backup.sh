@@ -61,7 +61,7 @@ backup_run() {
   echo
 
   local tmp archive_tmp checksum_tmp
-  tmp=$(mktemp -d) || { _backup_release_output; return 1; }
+  tmp=$(mktemp -d "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/karnel-XXXXXX") || { _backup_release_output; return 1; }
   archive_tmp="$BACKUP_DIR/.$(basename "$file").$$.tmp"
   checksum_tmp="$archive_tmp.sha256"
   if ! _backup_collect_payload "$tmp"; then
@@ -130,7 +130,7 @@ backup_snapshot() {
   echo
 
   local tmp archive_tmp checksum_tmp checksum
-  tmp=$(mktemp -d) || { _backup_release_output; return 1; }
+  tmp=$(mktemp -d "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/karnel-XXXXXX") || { _backup_release_output; return 1; }
   archive_tmp="$BACKUP_DIR/.$(basename "$file").$$.tmp"
   checksum_tmp="$archive_tmp.sha256"
   if ! _backup_collect_payload "$tmp" ||

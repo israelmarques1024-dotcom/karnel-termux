@@ -6,6 +6,24 @@ layout: base
 
 # Documentation Changelog
 
+## 4.17.16
+
+- **Core hardening (10 critical bug fixes):**
+  - `karnel/tools/lang/bun/install.sh`: the proot install/update paths now reject Bun archives containing path-traversal or absolute-path members before `unzip -o` runs (defense-in-depth alongside the SHA-256 check).
+  - `karnel/tools/utils/passman/passman.py`: **fixed a critical defect** — the module referenced `os.*` without importing `os`, which broke the entire password manager. Added `import os`.
+  - `karnel/tools/utils/passman/passman.py`: the encrypted vault is now written with `0600` permissions (was world-readable), and `import_vault` now backs up the existing vault to `<vault>.bak` before overwriting (prevents silent data loss).
+  - `karnel/cli/commands/backup.sh` and `restore.sh`: temporary directories now use a safe `mktemp` template under `TMPDIR`/`KARNEL_CACHE` instead of a bare `mktemp -d` (avoids an insecure `/tmp` fallback).
+  - `karnel/cli/commands/doctor/code_exec.sh`: `_exec_apply_fix` now validates the fix command with `_exec_fix_cmd_is_safe`, rejecting shell operators, stray braces, and destructive leading commands such as `rm`/`sudo`/`mv` — closing a command-injection path via a malicious project doctor config.
+  - `karnel/cli/commands/env.sh`: when a variable name looks like a secret (`SECRET`/`TOKEN`/`KEY`/`PASSWORD`/…), the shell rc file is tightened to `0600` so other local users cannot read stored secrets.
+- **Docs / site fixes:**
+  - Removed the duplicate logo on the documentation homepage (it was rendered both in the header and in the page body).
+  - Fixed two `karnel voice` help URLs that pointed at a custom redirector (`karneltermux.vercel.app/termux/api`); they now point to the official `https://github.com/termux/termux-api`.
+  - `README.md`: "45 other AI agents" → "45 AI agents" (Herdr is a utility, not one of the 45).
+  - `docs/cli/index.md`: the `list` table was missing `network`, `osint`, `voice`, `security`, `utils`, and `plugin`; all six rows were added.
+  - `docs/cli/index.md`: added the `osint --robin` install flag to the per-module flags table.
+  - `docs/index.md`: removed a broken `./ARCHITECTURE/` link (that page does not exist) and fixed the Supabase anchor (`supabase--remote-project-helpers` → `supabase-remote-project-helpers`).
+  - Bumped version references to `4.17.16` (README badge, install snippet, `package.json`).
+
 ## 4.17.15
 
 - **Core hardening (10+ bug fixes):**

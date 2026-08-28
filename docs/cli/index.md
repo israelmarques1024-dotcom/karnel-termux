@@ -59,6 +59,7 @@ karnel install <module> --tool1 --tool2  # Install specific tools only
 | `ui`      | `--font`, `--extra-keys`, `--cursor`, `--banner` |
 | `auto`    | `--n8n` |
 | `deploy`  | `--vercel`, `--railway`, `--netlify`, `--supabase` |
+| `osint`   | `--robin` |
 | `games`   | `--buzz`, `--ctfgod`, `--detective`, `--pet-friends`, `--tamagotchi`, `--arcade` |
 | `network` | `--dark`, `--dedsec-network` |
 | `utils`   | `--fconv`, `--filecheck`, `--websites`, `--notes`, `--treex`, `--passman`, `--applaunch`, `--splash`, `--httptmux`, `--zork`, `--qrcode`, `--superfile`, `--herdr` |
@@ -151,6 +152,12 @@ binary/command name, and current install status.
 | `auto`    | 1 automation tool (n8n) |
 | `deploy`  | 4 deploy CLIs |
 | `games`   | 6 games |
+| `network` | 2 network tools |
+| `osint`   | Robin OSINT (Tor + LLM) |
+| `voice`   | Voice command |
+| `security`| 30 security tools |
+| `utils`   | 13 utility scripts |
+| `plugin`  | Installed plugins |
 | `network` | 2 network tools |
 | `utils`   | 13 utility scripts |
 | `osint`   | Robin OSINT |

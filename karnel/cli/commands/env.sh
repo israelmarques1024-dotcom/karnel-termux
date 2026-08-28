@@ -86,6 +86,12 @@ env_set() {
 
 	printf 'export %s=%q\n' "$key" "$value" >>"$rc_file"
 
+	# Secrets stored in a shell rc are world-readable by default; tighten the
+	# file's permissions so other local users cannot read them.
+	if [[ "$key" =~ (SECRET|TOKEN|KEY|PASSWORD|PASSWD|API_|ACCESS|PRIVATE|CREDENTIAL) ]]; then
+		chmod go-rwx "$rc_file" 2>/dev/null || true
+	fi
+
 	echo
 	log_success "Variable ${D_CYAN}${key}${D_GREEN} set in ${D_NC}$(basename "$rc_file")"
 	list_item "Run: ${D_CYAN}source $(basename "$rc_file")${D_NC} to apply, or restart your terminal"
