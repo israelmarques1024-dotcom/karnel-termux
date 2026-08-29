@@ -6,6 +6,24 @@ layout: base
 
 # Documentation Changelog
 
+## 4.17.18
+
+- **Core fixes (2):**
+  - `karnel/cli/commands/ia.sh`: `karnel ia sessions --all` was a silent no-op — the flag was bound and never used, and agent names were always displayed anyway. Removed from the help text; the parser still accepts `--all` for back-compat.
+  - `karnel/cli/commands/open.sh`: `karnel open` help did not list the `robin` target even though the dispatcher handled it (`osint / robin`).
+- **npm/GitHub readme audit + site fixes (10):**
+  - `README.md`: documentation links were repo-relative (`docs/doctor/index.md`, `docs/index.md`, …), which 404 on npmjs.com — the README is also the npm package readme. All seven links now use absolute GitHub URLs.
+  - `README.md`: "Supported Agents (15)" → 14 (the count included `text`, which the same docs describe as "no agent"), and the `!` alias row was missing from the table; added.
+  - `docs/ARCHITECTURE/index.md`: the commands tree said "27 .sh files" — the directory has 28.
+  - `docs/ARCHITECTURE/index.md`: the "Tool Installer Pattern" documented `_tool_dependencies()`/`_tool_install()`/`_tool_postinstall()`, which exist nowhere in the repo; replaced with the real `install_<tool>`/`uninstall_<tool>`/`update_<tool>`/`reinstall_<tool>` contract and the 0/2 exit-code semantics.
+  - `docs/karnel/dev/index.md`: listed `proot-distro` as a dev tool; the module installs `proot` (a different package).
+  - `docs/_layouts/default.html`: Google Fonts was only `rel="preload"` — no stylesheet link existed anywhere, so Open Sans never loaded; replaced with a normal stylesheet link.
+  - `docs/_layouts/base.html`: the "Live Site" nav item linked to the site itself; now points to the GitHub repository.
+  - `docs/assets/css/style.scss`: the dark palette was set unconditionally on `:root`, making every light-mode fallback in the stylesheet unreachable; added a `prefers-color-scheme: light` override so OS theme is respected.
+  - `docs/CHANGELOG.md`: the permanent "## Unreleased - 2026-07-16" heading (for long-shipped features) retitled honestly as historical.
+  - `docs/cli/index.md`: removed the `karnel ia sessions --all` example (flag removed).
+  - Version references bumped to `4.17.18`.
+
 ## 4.17.17
 
 - **Core fixes (8, incl. one broken tool and a 4.17.16 regression):**
@@ -383,7 +401,7 @@ layout: base
   error gating, npm package inspection, CI, and release automation.
 - Corrected competing stderr redirections in three installers.
 
-## Unreleased - 2026-07-16
+## 2026-07-16 — Doctor command surface (shipped before 4.8.0)
 
 ### Doctor command surface
 

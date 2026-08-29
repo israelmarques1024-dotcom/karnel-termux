@@ -22,7 +22,6 @@ ia_help() {
 	separator_section "Examples"
 	echo
 	printf "    ${D_CYAN}karnel ia sessions${NC}         # Show all AI sessions\n"
-	printf "    ${D_CYAN}karnel ia sessions --all${NC}   # Include agent names\n"
 	printf "    ${D_CYAN}karnel ia install omni-route${NC}  # Install omniRoute\n"
 	printf "    ${D_CYAN}karnel ia routes${NC}             # Show AI CLI routes\n"
 	printf "    ${D_CYAN}karnel list ai${NC}               # List installed AI tools\n"
@@ -31,7 +30,12 @@ ia_help() {
 
 # List all AI sessions from known tools
 ia_sessions() {
+	# $1 was historically `--all`; agent names are always shown now, so the
+	# flag is accepted for back-compat and ignored.
 	local show_all="${1:-0}"
+	if [[ "$show_all" == "--all" ]]; then
+		show_all=0
+	fi
 
 	mkdir -p "$IA_SESSIONS_DIR"
 

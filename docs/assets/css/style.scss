@@ -17,6 +17,21 @@
   color-scheme: dark light;
 }
 
+/* Respect the OS theme: without this the dark palette above is unconditional
+   and the light fallbacks used across the stylesheet are unreachable. */
+@media (prefers-color-scheme: light) {
+  :root {
+    --karnel-bg: #ffffff;
+    --karnel-panel: #f6f8fa;
+    --karnel-border: #d0d7de;
+    --karnel-accent: #0969da;
+    --karnel-accent-2: #0078d4;
+    --karnel-text: #24292f;
+    --karnel-muted: #57606a;
+    --karnel-code-bg: #f6f8fa;
+  }
+}
+
 html {
   scroll-behavior: smooth;
 }

@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux">
-    <img src="https://img.shields.io/badge/version-4.17.17-0078D4?style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/badge/version-4.17.18-0078D4?style=for-the-badge" alt="Version">
   </a>
   <a href="https://www.npmjs.com/package/karnel-termux">
     <img src="https://img.shields.io/npm/v/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
@@ -78,7 +78,7 @@ Why it's great:
 ### Via checksummed GitHub release (recommended)
 
 ```bash
-version=4.17.17
+version=4.17.18
 tmpdir=$(mktemp -d) && trap 'rm -rf "$tmpdir"' EXIT
 base="https://github.com/israelmarques1024-dotcom/karnel-termux/releases/download/v$version"
 curl -fsSL "$base/karnel-termux-install.sh" -o "$tmpdir/karnel-termux-install.sh"
@@ -375,7 +375,7 @@ definitions across 68 distinct tool labels. It detects subprojects, executes
 checks in the matching project or subproject directory, preserves command exit status, and writes
 timestamped text reports under `$KARNEL_DATA/doctor_code_reports/`.
 
-Read the **[complete Doctor reference](docs/doctor/index.md)** for modes,
+Read the **[complete Doctor reference](https://github.com/israelmarques1024-dotcom/karnel-termux/blob/main/docs/doctor/index.md)** for modes,
 supported ecosystems, tool coverage, JSON schema, reports, and auto-fix safety.
 
 ---
@@ -406,7 +406,7 @@ karnel voice claude-code --lang en # Speak in English -> claude -p
 karnel voice "!"                   # Shortcut for "text"
 ```
 
-### Supported Agents (15)
+### Supported Agents (14)
 
 | Agent | Command executed |
 |-------|-----------------|
@@ -425,6 +425,7 @@ karnel voice "!"                   # Shortcut for "text"
 | `crush` | `crush "..."` |
 | `kiro` | `kiro-cli "..."` |
 | `text` | Prints prompt to terminal |
+| `!` | Alias for `text` |
 
 ### Options
 
@@ -531,12 +532,12 @@ Documentation loads from https://israelmarques1024-dotcom.github.io/karnel-termu
 
 ## Documentation
 
-- [Documentation index](docs/index.md)
-- [CLI reference](docs/cli/index.md)
-- [Doctor reference](docs/doctor/index.md)
-- [Troubleshooting](docs/troubleshooting/index.md)
-- [Architecture](docs/ARCHITECTURE/index.md)
-- [Documentation changelog](docs/CHANGELOG.md)
+- [Documentation index](https://github.com/israelmarques1024-dotcom/karnel-termux/blob/main/docs/index.md)
+- [CLI reference](https://github.com/israelmarques1024-dotcom/karnel-termux/blob/main/docs/cli/index.md)
+- [Doctor reference](https://github.com/israelmarques1024-dotcom/karnel-termux/blob/main/docs/doctor/index.md)
+- [Troubleshooting](https://github.com/israelmarques1024-dotcom/karnel-termux/blob/main/docs/troubleshooting/index.md)
+- [Architecture](https://github.com/israelmarques1024-dotcom/karnel-termux/blob/main/docs/ARCHITECTURE/index.md)
+- [Documentation changelog](https://github.com/israelmarques1024-dotcom/karnel-termux/blob/main/docs/CHANGELOG.md)
 - [Official website](https://israelmarques1024-dotcom.github.io/karnel-termux)
 
 ---

@@ -25,7 +25,7 @@ karnel-termux/
 │   │       ├── voice.sh
 │   │       ├── init.sh
 │   │       ├── deploy.sh
-│   │   ├── ... (27 .sh files + doctor/ subdir)
+│   │   ├── ... (28 .sh files + doctor/ subdir)
 │   ├── modules/                # Module orchestrators
 │   │       ├── ai.sh           # AI agent installer
 │   │       ├── lang.sh         # Language installer
@@ -137,11 +137,19 @@ installation. Uninstall does not delete persistent data.
 
 ### Tool Installer Pattern
 
+Each tool lives in `karnel/tools/<module>/<tool>/install.sh` and exposes
+lifecycle entry points named after the tool:
+
 ```bash
-_tool_dependencies() { ... }    # Declare dependencies
-_tool_install() { ... }          # Install the tool
-_tool_postinstall() { ... }      # Post-installation setup
+install_<tool>()    # Install the tool; 0 = installed, 2 = already installed
+uninstall_<tool>()  # Remove the tool; 0 = removed, 2 = was not installed
+update_<tool>()     # Update the tool
+reinstall_<tool>()  # Uninstall + install
 ```
+
+The module orchestrator (`karnel/modules/<module>.sh`) discovers these
+functions, checks ownership markers before touching files, and treats exit
+code `2` as a no-op rather than a failure.
 
 ## Doctor Subsystem Architecture
 

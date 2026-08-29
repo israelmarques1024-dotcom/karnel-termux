@@ -6,7 +6,7 @@ layout: base
 
 # Dev module
 
-General development utilities (fzf, bat, make, proot-distro, tmux, and more).
+General development utilities (fzf, bat, make, proot, tmux, and more).
 ## Install
 
 | `dev`     | `--gh`, `--wget`, `--curl`, `--lsd`, `--bat`, `--proot`, `--ncurses`, `--tmate`, `--openssh`, `--tmux`, `--cloudflared`, `--translate`, `--html2text`, `--jq`, `--bc`, `--tree`, `--fzf`, `--imagemagick`, `--shfmt`, `--make`, `--udocker`, `--snyk` |

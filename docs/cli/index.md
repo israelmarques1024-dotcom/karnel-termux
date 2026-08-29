@@ -514,7 +514,6 @@ karnel ia <command> [options]
 
 ```bash
 karnel ia sessions
-karnel ia sessions --all
 karnel ia install omni-route
 karnel ia routes
 ```
