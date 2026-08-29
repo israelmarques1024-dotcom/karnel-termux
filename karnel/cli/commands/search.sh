@@ -31,7 +31,7 @@ search_main() {
       local id name
       id=$(echo "$line" | cut -d: -f1 | tr -d '"' | xargs)
       name=$(echo "$line" | cut -d: -f2 | tr -d '"' | xargs)
-      if echo "$id $name" | grep -qi "$query"; then
+      if printf '%s\n' "$id $name" | grep -Fqi -- "$query"; then
         list_item "${D_CYAN}$mod${NC}: $name ($id)"
         any_found=true
       fi
@@ -51,7 +51,7 @@ search_main() {
       title=$(head -1 "$file" 2>/dev/null | sed 's/^# //')
       list_item "${D_CYAN}$(basename "$file")${NC}: ${title:-$file}"
       any_found=true
-    done < <(grep -ril "$query" "$KARNEL_DATA/brain" 2>/dev/null)
+    done < <(grep -rFil -- "$query" "$KARNEL_DATA/brain" 2>/dev/null)
     if ! $any_found; then
       log_info "No memories found matching '$query'"
     fi

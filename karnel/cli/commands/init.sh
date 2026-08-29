@@ -80,9 +80,8 @@ EOF
 	log_success "Created .prettierrc"
 
 	log_info "Creating karnel landing page..."
-	[[ -f "src/app/page.tsx" ]] && cat >src/app/page.tsx <<'EOF'
+[[ -f "src/app/page.tsx" ]] && cat >src/app/page.tsx <<'EOF'
 "use client"
-import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { Terminal, Code2, Rocket } from "lucide-react"
 import { Toaster } from "sonner"
@@ -113,9 +112,9 @@ export default function Home() {
             <div className="p-6 rounded-xl bg-slate-900/50 border border-slate-800"><Terminal className="w-12 h-12 text-pink-400 mb-4 mx-auto" /><h3 className="text-lg font-semibold text-white mb-2">Comunidad Activa</h3></div>
           </motion.div>
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7 }} className="w-full max-w-sm mx-auto">
-            <Button size="lg" onClick={() => window.open("mailto:israelmarques1024@gmail.com", "_blank")} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-6 text-lg font-semibold">
-              <Rocket className="w-5 h-5 mr-2" /> Contato: israelmarques1024@gmail.com
-            </Button>
+            <button type="button" onClick={() => window.open("mailto:israelmarques1024@gmail.com", "_blank")} className="w-full rounded-md bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-6 text-lg font-semibold text-white hover:from-blue-600 hover:to-purple-700">
+               <Rocket className="w-5 h-5 mr-2" /> Contato: israelmarques1024@gmail.com
+            </button>
           </motion.div>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="mt-16 text-sm text-slate-600">Built with ❤️ using karnel tools</motion.p>
         </motion.div>
@@ -296,7 +295,7 @@ EOF
 }
 
 _install_react_deps() {
-	npm install axios lucide-react framer-motion sonner zod react-hook-form @hookform/resolvers @tanstack/react-query zustand tailwindcss &>"$LOG_FILE"
+	npm install axios lucide-react framer-motion sonner zod react-hook-form @hookform/resolvers @tanstack/react-query zustand tailwindcss clsx tailwind-merge &>"$LOG_FILE"
 	npm install -D prettier prettier-plugin-tailwindcss &>>"$LOG_FILE"
 }
 
@@ -431,8 +430,6 @@ EOF
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { DATABASE_URL, NODE_ENV } from "@/config/env";
-import { ExampleEntity1 } from "@/entities/ExampleEntity1";
-import { ExampleEntity2 } from "@/entities/ExampleEntity2";
 
 const isDevelopment = NODE_ENV === "development";
 const isProduction = NODE_ENV === "production";
@@ -440,10 +437,10 @@ const isProduction = NODE_ENV === "production";
 export const AppDataSource = new DataSource({
   type: "postgres",
   url: DATABASE_URL,
-  ssl: isDevelopment ? false : { rejectUnauthorized: false },
+  ssl: isDevelopment ? false : { rejectUnauthorized: true },
   synchronize: isDevelopment,
   logging: isDevelopment ? ["query", "error"] : false,
-  entities: [ExampleEntity1, ExampleEntity2],
+  entities: [],
   migrations: isDevelopment
     ? [__dirname + "/migrations/*.ts"]
     : [__dirname + "/migrations/*.js"],
@@ -463,8 +460,6 @@ import morgan from "morgan";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { FRONTEND_URL } from "@/config/env";
-import exampleRoutes1 from "@/routes/example1.routes";
-import exampleRoutes2 from "@/routes/example2.routes";
 
 const app = express();
 
@@ -496,10 +491,6 @@ app.use(express.json());
 
 // manejar cookies
 app.use(cookieParser());
-
-// endpoints
-app.use("/api/example1", exampleRoutes1);
-app.use("/api/example2", exampleRoutes2);
 
 export default app;
 EOF
@@ -854,6 +845,12 @@ configure_go() {
 		go mod init "$mod_name" 2>/dev/null || go mod init project
 		log_success "Created go.mod"
 	fi
+	local go_module
+	go_module=$(awk '$1 == "module" { print $2; exit }' go.mod)
+	if [[ -z "$go_module" ]]; then
+		log_error "Unable to determine Go module name from go.mod"
+		return 1
+	fi
 
 	log_info "Creating folder structure..."
 	mkdir -p cmd/api internal/config internal/db internal/handlers internal/models scripts 2>/dev/null
@@ -888,14 +885,14 @@ EOF
 
 	# Create main.go based on framework
 	if [[ "$framework_choice" == "Gin" ]]; then
-		cat >cmd/api/main.go <<'EOF'
+		cat >cmd/api/main.go <<EOF
 package main
 
 import (
 	"fmt"
 	"net/http"
-	"project/internal/config"
-	"project/internal/handlers"
+	"$go_module/internal/config"
+	"$go_module/internal/handlers"
 	"github.com/gin-gonic/gin"
 )
 
@@ -917,13 +914,13 @@ func main() {
 }
 EOF
 	else
-		cat >cmd/api/main.go <<'EOF'
+		cat >cmd/api/main.go <<EOF
 package main
 
 import (
 	"fmt"
-	"project/internal/config"
-	"project/internal/handlers"
+	"$go_module/internal/config"
+	"$go_module/internal/handlers"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -1107,6 +1104,12 @@ configure_rust() {
 		done
 		log_success "Configured Cargo.toml"
 	fi
+	local rust_binary
+	rust_binary=$(awk -F '"' '/^name[[:space:]]*=/ { print $2; exit }' Cargo.toml)
+	if [[ -z "$rust_binary" ]]; then
+		log_error "Unable to determine Rust package name from Cargo.toml"
+		return 1
+	fi
 
 	# Create src/main.rs
 	mkdir -p src scripts 2>/dev/null
@@ -1197,7 +1200,7 @@ EOF
 	chmod +x scripts/run.sh
 
 	# Create Dockerfile
-	cat >Dockerfile <<'EOF'
+	cat >Dockerfile <<EOF
 FROM rust:1.70 AS builder
 WORKDIR /app
 COPY . .
@@ -1205,9 +1208,9 @@ RUN cargo build --release
 
 FROM debian:bullseye-slim
 WORKDIR /app
-COPY --from=builder /app/target/release/project .
+COPY --from=builder /app/target/release/$rust_binary .
 EXPOSE 3000
-CMD ["./project"]
+CMD ["./$rust_binary"]
 EOF
 	log_success "Created Dockerfile"
 
@@ -1230,6 +1233,15 @@ EOF
 	echo
 }
 
+_init_confirm_overwrite() {
+	local confirm
+	read_confirm "Karnel may overwrite existing project files. Continue?" confirm
+	if [[ "$confirm" != "y" ]]; then
+		log_warn "Cancelled"
+		return 1
+	fi
+}
+
 # ===== MAIN =====
 init_main() {
 	local template="$1"
@@ -1239,19 +1251,20 @@ init_main() {
 		init_help
 		return
 		;;
-	next | nextjs) configure_next ;;
-	react | vite) configure_react ;;
-	nest | nestjs) configure_nest ;;
-	express | exp) configure_express ;;
-	python | fastapi) configure_python ;;
-	go | gin) configure_go ;;
-	rust | axum) configure_rust ;;
+	next | nextjs) _init_confirm_overwrite || return 0; configure_next ;;
+	react | vite) _init_confirm_overwrite || return 0; configure_react ;;
+	nest | nestjs) _init_confirm_overwrite || return 0; configure_nest ;;
+	express | exp) _init_confirm_overwrite || return 0; configure_express ;;
+	python | fastapi) _init_confirm_overwrite || return 0; configure_python ;;
+	go | gin) _init_confirm_overwrite || return 0; configure_go ;;
+	rust | axum) _init_confirm_overwrite || return 0; configure_rust ;;
 	"")
 		local detected
 		detected=$(detect_project_type)
 		if [[ "$detected" != "unknown" ]]; then
 			log_info "Detected project type: $detected"
 			echo
+			_init_confirm_overwrite || return 0
 			case "$detected" in
 			next) configure_next ;;
 			react) configure_react ;;

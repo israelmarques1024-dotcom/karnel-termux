@@ -219,7 +219,10 @@ supabase_remote_status() {
     log_error "Supabase CLI not installed"
     return 1
   fi
-  supabase_safe status 2>/dev/null || log_warn "Unable to check Supabase status"
+  supabase_safe status 2>/dev/null || {
+    log_warn "Unable to check Supabase status"
+    return 1
+  }
 }
 
 supabase_link() {

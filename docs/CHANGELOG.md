@@ -6,6 +6,23 @@ layout: base
 
 # Documentation Changelog
 
+## 4.17.20
+
+- **PostgreSQL and Supabase (3):**
+  - `pg stop` now returns failure when `pg_ctl stop` fails; `pg restart` now stops immediately on either stop or start failure instead of printing a false success.
+  - `pg schedule` now returns failure if `crontab` rejects the generated entry instead of returning success after temporary-file cleanup.
+  - `supabase remote-status` now preserves a failed Supabase CLI status instead of logging a warning and exiting 0.
+- **Search (1):** `karnel search` now treats user input as literal text in tool and brain searches. Regex metacharacters such as `[` no longer cause grep errors, and option-like input cannot change grep behavior.
+- **Project initializer (7):**
+  - `karnel init` now requires explicit confirmation before templates that may overwrite existing files.
+  - Next landing pages no longer import a Button component that the initializer never creates.
+  - React's generated Button now has its `clsx` and `tailwind-merge` runtime dependencies installed.
+  - Express templates no longer import ungenerated entities/routes, and production PostgreSQL TLS now verifies certificates.
+  - Go templates derive imports from the actual `go.mod` module name rather than hard-coding `project`.
+  - Rust Dockerfiles derive the release binary from `Cargo.toml` instead of assuming `project`.
+- **Regression coverage:** added PostgreSQL/Supabase contracts (5) and init/search contracts (10); the isolated full suite passes.
+- Version references bumped to `4.17.20`.
+
 ## 4.17.19
 
 - **Release gate:** `tests/bun-installer.sh` did not mock the integrity helpers required by the hardened Bun native installer (`github_release_asset_sha256`, `verify_sha256`, `safe_extract_zip`). The test exited 1 before printing its result, causing `tests/run-isolated.sh`, CI, npm publishing, and GitHub release creation to fail from 4.17.14 through 4.17.18 despite the preceding suites passing. The test now supplies contract-faithful stubs; the full isolated suite exits 0.

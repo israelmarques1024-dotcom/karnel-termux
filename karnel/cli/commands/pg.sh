@@ -209,6 +209,7 @@ pg_stop() {
 		log_success "PostgreSQL stopped successfully"
 	else
 		log_warn "PostgreSQL may not be running or failed to stop"
+		return 1
 	fi
 
 	echo
@@ -230,11 +231,11 @@ pg_restart() {
 		pg_init || return 1
 		sleep 1
 	else
-		pg_stop
+		pg_stop || return 1
 		sleep 1
 	fi
 
-	pg_start
+	pg_start || return 1
 
 	echo
 	separator
@@ -755,6 +756,8 @@ pg_schedule() {
 			list_item "Ensure cron daemon is running (run: 'crond')"
 		else
 			log_error "Failed to schedule backup for database '$db_name'"
+			rm -f "$tmpcron"
+			return 1
 		fi
 		rm -f "$tmpcron"
 	fi
