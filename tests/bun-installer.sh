@@ -24,10 +24,16 @@ assert_bun_download_stages_replacement() (
     done
     : >"$output"
   }
-  unzip() {
-    local destination="${!#}"
-    mkdir -p "$destination/bun-linux-aarch64"
-    printf 'new bun' >"$destination/bun-linux-aarch64/bun"
+  # The installer (since 4.17.14) refuses extraction without the integrity
+  # helpers from utils/install.sh, which this unit test does not source.
+  # Stub them with the same contract: a valid digest, a pass-through verify,
+  # and an extractor that materializes the bun binary.
+  github_release_asset_sha256() { printf '%064d\n' 0; }
+  verify_sha256() { return 0; }
+  safe_extract_zip() {
+    local archive="$1" outdir="$2"
+    mkdir -p "$outdir/bun-linux-aarch64"
+    printf 'new bun' >"$outdir/bun-linux-aarch64/bun"
   }
   # shellcheck source=../karnel/tools/lang/bun/install.sh
   source "$ROOT_DIR/karnel/tools/lang/bun/install.sh"

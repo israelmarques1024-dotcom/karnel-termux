@@ -6,6 +6,11 @@ layout: base
 
 # Documentation Changelog
 
+## 4.17.19
+
+- **Release gate:** `tests/bun-installer.sh` did not mock the integrity helpers required by the hardened Bun native installer (`github_release_asset_sha256`, `verify_sha256`, `safe_extract_zip`). The test exited 1 before printing its result, causing `tests/run-isolated.sh`, CI, npm publishing, and GitHub release creation to fail from 4.17.14 through 4.17.18 despite the preceding suites passing. The test now supplies contract-faithful stubs; the full isolated suite exits 0.
+- Version references bumped to `4.17.19`.
+
 ## 4.17.18
 
 - **Core fixes (2):**
