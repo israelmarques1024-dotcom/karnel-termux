@@ -3,7 +3,7 @@
 import "@/utils/log"
 import "@/utils/colors"
 
-OPEN_DOCS="https://israelmarques1024-dotcom.github.io/karnel-termux"
+OPEN_DOCS="https://karneltermux.vercel.app"
 
 open_main() {
 	if [[ $# -eq 0 ]]; then
@@ -25,10 +25,10 @@ open_main() {
 		url="$OPEN_DOCS/karnel/osint"
 		;;
 	supabase)
-		url="$OPEN_DOCS/karnel/deploy"
+		url="$OPEN_DOCS/karnel/supabase"
 		;;
 	cleanup)
-		url="$OPEN_DOCS/cli"
+		url="$OPEN_DOCS/karnel/cleanup"
 		;;
 	--help | -h)
 		open_help

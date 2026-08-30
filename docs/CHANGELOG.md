@@ -6,6 +6,13 @@ layout: base
 
 # Documentation Changelog
 
+## 4.17.21
+
+- **Official-site routing:** `karnel open`, npm package metadata, and the GitHub/npm README now point to the Vercel production site, `https://karneltermux.vercel.app`, rather than the secondary GitHub Pages mirror.
+- **Open targets:** `karnel open supabase` now opens `/karnel/supabase` and `karnel open cleanup` now opens `/karnel/cleanup`; the old destinations were generic deploy documentation and nonexistent `/cli`, respectively.
+- **Docs clarity:** labeled GitHub Pages as a secondary documentation mirror.
+- Version references bumped to `4.17.21`.
+
 ## 4.17.20
 
 - **PostgreSQL and Supabase (3):**

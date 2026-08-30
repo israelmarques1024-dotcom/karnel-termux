@@ -51,14 +51,14 @@ npm publish does not block the release. The workflow needs `contents: write`
 permission (already declared). If `gh release create` fails, confirm the tag
 exists and the token used by GitHub Actions has write access.
 
-## Documentation site (GitHub Pages)
+## Documentation mirror (GitHub Pages)
 
-The documentation site is a Jekyll (cayman theme) site built from the `docs/`
+The documentation mirror is a Jekyll (cayman theme) site built from the `docs/`
 directory and published to GitHub Pages by the `Publish Docs` workflow
 (`.github/workflows/docs.yml`) on every push to `main` that changes `docs/**`.
 The workflow runs `actions/jekyll-build-pages` (from `docs/`, output to
 `docs/_site`), uploads the result as a Pages artifact, and deploys it to the
-`github-pages` environment. The live site is
+`github-pages` environment. The mirror is
 `https://israelmarques1024-dotcom.github.io/karnel-termux/`.
 
 If a build fails, open the Actions run for the failing job and read the Jekyll

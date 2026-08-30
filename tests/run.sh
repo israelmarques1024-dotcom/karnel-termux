@@ -8,6 +8,7 @@ bash tests/check-syntax.sh
 bash tests/smoke.sh
 bash tests/karnel-cli.sh
 bash tests/pg-supabase.sh
+bash tests/open-docs.sh
 bash tests/init-search.sh
 bash tests/backup-restore.sh
 bash tests/brain.sh

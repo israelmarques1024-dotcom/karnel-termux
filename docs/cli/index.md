@@ -198,7 +198,7 @@ karnel open <target>
 ```
 
 Opens the official documentation page for a module using
-`termux-open-url`. Base URL: `https://israelmarques1024-dotcom.github.io/karnel-termux`
+`termux-open-url`. Base URL: `https://karneltermux.vercel.app`
 
 | Target           | Opens |
 |------------------|-------|

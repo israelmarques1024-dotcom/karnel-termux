@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux">
-    <img src="https://img.shields.io/badge/version-4.17.20-0078D4?style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/badge/version-4.17.21-0078D4?style=for-the-badge" alt="Version">
   </a>
   <a href="https://www.npmjs.com/package/karnel-termux">
     <img src="https://img.shields.io/npm/v/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
@@ -22,8 +22,8 @@
   <a href="https://termux.dev/">
     <img src="https://img.shields.io/badge/platform-Termux%20%7C%20Android-0078D4?style=for-the-badge" alt="Platform">
   </a>
-  <a href="https://israelmarques1024-dotcom.github.io/karnel-termux">
-    <img src="https://img.shields.io/badge/Site-israelmarques1024--dotcom.github.io%2Fkarnel--termux-0078D4?style=for-the-badge" alt="Website">
+  <a href="https://karneltermux.vercel.app">
+    <img src="https://img.shields.io/badge/Site-karneltermux.vercel.app-0078D4?style=for-the-badge" alt="Website">
   </a>
 </p>
 
@@ -78,7 +78,7 @@ Why it's great:
 ### Via checksummed GitHub release (recommended)
 
 ```bash
-version=4.17.20
+version=4.17.21
 tmpdir=$(mktemp -d) && trap 'rm -rf "$tmpdir"' EXIT
 base="https://github.com/israelmarques1024-dotcom/karnel-termux/releases/download/v$version"
 curl -fsSL "$base/karnel-termux-install.sh" -o "$tmpdir/karnel-termux-install.sh"
@@ -526,7 +526,7 @@ karnel open ai                        # Open AI module docs
 karnel open db                        # Open DB module docs
 ```
 
-Documentation loads from https://israelmarques1024-dotcom.github.io/karnel-termux.
+Documentation loads from https://karneltermux.vercel.app.
 
 ---
 
@@ -538,7 +538,7 @@ Documentation loads from https://israelmarques1024-dotcom.github.io/karnel-termu
 - [Troubleshooting](https://github.com/israelmarques1024-dotcom/karnel-termux/blob/main/docs/troubleshooting/index.md)
 - [Architecture](https://github.com/israelmarques1024-dotcom/karnel-termux/blob/main/docs/ARCHITECTURE/index.md)
 - [Documentation changelog](https://github.com/israelmarques1024-dotcom/karnel-termux/blob/main/docs/CHANGELOG.md)
-- [Official website](https://israelmarques1024-dotcom.github.io/karnel-termux)
+- [Official website](https://karneltermux.vercel.app)
 
 ---
 
@@ -673,7 +673,7 @@ MIT © Israel Marques
 ---
 
 <p align="center">
-  <a href="https://israelmarques1024-dotcom.github.io/karnel-termux">
+  <a href="https://karneltermux.vercel.app">
     <img src="https://img.shields.io/badge/Full%20Documentation-0078D4?style=for-the-badge" alt="Documentation">
   </a>
 </p>

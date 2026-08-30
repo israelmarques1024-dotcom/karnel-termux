@@ -1,6 +1,6 @@
 {
   "name": "karnel-termux",
-  "version": "4.17.20",
+  "version": "4.17.21",
   "description": "Modular Dev Environment for Termux — install languages, databases, AI agents, editors, and more with one command",
   "bin": {
     "karnel": "karnel/bin/karnel"
@@ -46,5 +46,5 @@
   "bugs": {
     "url": "https://github.com/israelmarques1024-dotcom/karnel-termux/issues"
   },
-  "homepage": "https://israelmarques1024-dotcom.github.io/karnel-termux"
+  "homepage": "https://karneltermux.vercel.app"
 }
