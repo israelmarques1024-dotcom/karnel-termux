@@ -349,7 +349,7 @@ brain_init() {
 	log_info "Creating private repo: ${D_CYAN}$gh_user/$repo_name${D_NC}..."
 	if gh repo create "$repo_name" --private &>/dev/null; then
 		(
-			git -C "$BRAIN_DIR" init &>/dev/null
+			git -C "$BRAIN_DIR" init -b main &>/dev/null || exit 1
 			echo "# Karnel Brain" >"$BRAIN_DIR/README.md"
 			git -C "$BRAIN_DIR" add -A
 			git -C "$BRAIN_DIR" commit -m "init brain" &>/dev/null
@@ -474,6 +474,10 @@ brain_save() {
 	# ── Write file ──
 	mkdir -p "$BRAIN_DIR/$category"
 	local filepath="$BRAIN_DIR/$category/${date_prefix}_${slug}.md"
+	if [[ -e "$filepath" ]]; then
+		log_error "A memory with this title already exists today: ${date_prefix}_${slug}.md"
+		return 1
+	fi
 
 	{
 		_brain_frontmatter "$title" "$tags_formatted" "$category" "$related_str"
@@ -576,6 +580,10 @@ brain_add() {
 
 	mkdir -p "$BRAIN_DIR/$category"
 	local filepath="$BRAIN_DIR/$category/${date_prefix}_${slug}.md"
+	if [[ -e "$filepath" ]]; then
+		log_error "A memory with this title already exists today: ${date_prefix}_${slug}.md"
+		return 1
+	fi
 
 	{
 		_brain_frontmatter "$title" "$tags_formatted" "$category" ""
@@ -928,7 +936,7 @@ brain_sync() {
 	local branch
 	branch=$(git -C "$BRAIN_DIR" rev-parse --abbrev-ref HEAD 2>/dev/null)
 
-	if ! git -C "$BRAIN_DIR" remote -v &>/dev/null; then
+	if ! git -C "$BRAIN_DIR" remote get-url origin &>/dev/null; then
 		log_info "No remote configured — local commit only"
 		list_item "Set up GitHub sync with: ${D_CYAN}karnel brain init${D_NC}"
 		separator
@@ -1231,22 +1239,18 @@ brain_edit() {
 		return 0
 	fi
 
-	local editor="${EDITOR:-}"
-	local editor_bin
-	editor_bin="${EDITOR:-nano}"
-	editor_bin="${editor_bin%% *}"
-	if command -v "$editor_bin" &>/dev/null; then
-		editor="${EDITOR:-nano}"
-	elif [[ -z "$editor" ]] || ! command -v "$editor" &>/dev/null; then
+	local -a editor_cmd=()
+	read -r -a editor_cmd <<< "${EDITOR:-nano}"
+	if ! command -v "${editor_cmd[0]}" &>/dev/null; then
 		for e in vim nano vi; do
 			if command -v "$e" &>/dev/null; then
-				editor="$e"
+				editor_cmd=("$e")
 				break
 			fi
 		done
 	fi
 
-	if [[ -z "$editor" ]]; then
+	if [[ ${#editor_cmd[@]} -eq 0 ]] || ! command -v "${editor_cmd[0]}" &>/dev/null; then
 		log_error "No editor found"
 		list_item "Install one: ${D_CYAN}karnel install editor${D_NC}"
 		return 1
@@ -1255,7 +1259,7 @@ brain_edit() {
 	echo
 	log_info "Opening: ${D_CYAN}$(_brain_title "$file")${D_NC}"
 
-	"$editor" "$file"
+	"${editor_cmd[@]}" "$file"
 
 	log_success "Memory updated"
 	echo
@@ -1543,7 +1547,7 @@ EOF
 		if [[ -n "$f" ]]; then
 			matching_files+=("$f")
 		fi
-	done < <(_brain_rg -i "$clean_query" | head -n 5 || true)
+	done < <(_brain_rg -l -i "$clean_query" | head -n 5 || true)
 
 	if [[ ${#matching_files[@]} -eq 0 ]]; then
 		local -a words=($clean_query)
@@ -1562,7 +1566,7 @@ EOF
 				if [[ -n "$f" ]]; then
 					matching_files+=("$f")
 				fi
-			done < <(_brain_rg -i -e "$word_regex" | head -n 5 || true)
+			done < <(_brain_rg -l -i -e "$word_regex" | head -n 5 || true)
 		fi
 	fi
 

@@ -50,10 +50,10 @@ agent_config_load() {
 	# Reject tampered config (defense-in-depth): numeric/boolean fields
 	# must match the expected shape or they are reset to safe defaults.
 	[[ "$AGENT_TEMPERATURE" =~ ^[0-9]+(\.[0-9]+)?$ ]] || AGENT_TEMPERATURE=0.3
-	[[ "$AGENT_MAX_TOKENS" =~ ^[0-9]+$ ]] || AGENT_MAX_TOKENS=2048
-	[[ "$AGENT_MAX_ITERATIONS" =~ ^[0-9]+$ ]] || AGENT_MAX_ITERATIONS=12
+	[[ "$AGENT_MAX_TOKENS" =~ ^[1-9][0-9]*$ ]] || AGENT_MAX_TOKENS=2048
+	[[ "$AGENT_MAX_ITERATIONS" =~ ^[1-9][0-9]*$ ]] || AGENT_MAX_ITERATIONS=12
 	[[ "$AGENT_CONFIRM_COMMANDS" =~ ^[01]$ ]] || AGENT_CONFIRM_COMMANDS=1
-	[[ "$AGENT_CONTEXT_WINDOW" =~ ^[0-9]+$ ]] || AGENT_CONTEXT_WINDOW=8192
+	[[ "$AGENT_CONTEXT_WINDOW" =~ ^[1-9][0-9]*$ ]] || AGENT_CONTEXT_WINDOW=8192
 }
 
 # ------------------------------------------------------------
@@ -89,16 +89,16 @@ agent_config_set() {
 		[[ "$value" =~ ^[0-9]+(\.[0-9]+)?$ ]] || { log_error "temperature must be a number (e.g. 0.3)"; return 1; }
 		AGENT_TEMPERATURE="$value" ;;
 	max_tokens | maxtokens)
-		[[ "$value" =~ ^[0-9]+$ ]] || { log_error "max_tokens must be a positive integer"; return 1; }
+		[[ "$value" =~ ^[1-9][0-9]*$ ]] || { log_error "max_tokens must be a positive integer"; return 1; }
 		AGENT_MAX_TOKENS="$value" ;;
 	iterations | max_iterations)
-		[[ "$value" =~ ^[0-9]+$ ]] || { log_error "iterations must be a positive integer"; return 1; }
+		[[ "$value" =~ ^[1-9][0-9]*$ ]] || { log_error "iterations must be a positive integer"; return 1; }
 		AGENT_MAX_ITERATIONS="$value" ;;
 	confirm_commands | confirm)
 		[[ "$value" =~ ^[01]$ ]] || { log_error "confirm_commands must be 0 or 1"; return 1; }
 		AGENT_CONFIRM_COMMANDS="$value" ;;
 	context_window | context)
-		[[ "$value" =~ ^[0-9]+$ ]] || { log_error "context_window must be a positive integer"; return 1; }
+		[[ "$value" =~ ^[1-9][0-9]*$ ]] || { log_error "context_window must be a positive integer"; return 1; }
 		AGENT_CONTEXT_WINDOW="$value" ;;
 	server_command | server) AGENT_SERVER_CMD="$value" ;;
 	workspace)

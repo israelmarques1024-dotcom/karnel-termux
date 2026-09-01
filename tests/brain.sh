@@ -61,7 +61,18 @@ second_short=$(basename "$devfile" .md | sed 's/^[0-9-]*_//')
 if brain_relate "$short_slug" "$second_short" >/dev/null 2>&1; then pass "brain relate aceita slug curto"; else fail "brain relate rejeitou slug curto"; fi
 
 related_both=$(grep -l "related:" "$file" "$devfile" 2>/dev/null | wc -l)
-if [[ "$related_both" -ge 1 ]]; then pass "relate grava relacionamentos"; else fail "relate nao gravou relacionamentos"; fi
+if [[ "$related_both" -eq 2 ]]; then pass "relate grava relacionamentos reciprocos"; else fail "relate nao gravou ambos relacionamentos"; fi
+
+# ── same-day title collisions must never overwrite an existing memory ─────────
+brain_add "primeiro conteudo" --title collision >/dev/null 2>&1
+collision_file=$(find "$BRAIN_DIR" -name "*_collision.md" | head -1)
+if brain_add "segundo conteudo" --title collision >/dev/null 2>&1; then
+  fail "brain add sobrescreveu memoria com titulo repetido"
+elif [[ -n "$collision_file" ]] && grep -q "primeiro conteudo" "$collision_file"; then
+  pass "brain add preserva memoria com titulo repetido"
+else
+  fail "brain add nao preservou memoria original"
+fi
 
 if brain_ls >/dev/null 2>&1; then pass "brain ls lista memorias"; else fail "brain ls falhou"; fi
 if brain_search "react" >/dev/null 2>&1; then pass "brain search encontra memorias"; else fail "brain search falhou"; fi

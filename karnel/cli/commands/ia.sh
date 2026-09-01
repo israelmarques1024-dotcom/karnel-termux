@@ -420,7 +420,11 @@ PY
 		ts_raw=$(echo "$session" | cut -d'|' -f2)
 		name=$(echo "$session" | cut -d'|' -f3-)
 		local escaped_name
-		escaped_name=$(printf '%s' "$name" | sed 's/"/\\"/g' | sed "s/'/\\\\'/g")
+		escaped_name=${name//\\/\\\\}
+		escaped_name=${escaped_name//\"/\\\"}
+		escaped_name=${escaped_name//$'\n'/\\n}
+		escaped_name=${escaped_name//$'\r'/\\r}
+		escaped_name=${escaped_name//$'\t'/\\t}
 		if [[ $first -eq 1 ]]; then
 			first=0
 		else

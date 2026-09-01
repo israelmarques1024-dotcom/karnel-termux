@@ -294,7 +294,7 @@ _install_bun_proot_impl() {
     cd /tmp &&
     curl -fsSL "$1" -o bun.zip &&
     [ "$(sha256sum bun.zip | awk "{print \$1}")" = "$2" ] &&
-    unzip -l bun.zip | awk "NR>3{print \$NF}" | grep -Eq "(\\.\\./|^\\.\\./|^/)" && { echo "Refusing Bun archive with unsafe paths" >&2; exit 1; } &&
+    if unzip -l bun.zip | awk "NR>3{print \$NF}" | grep -Eq "(\\.\\./|^\\.\\./|^/)"; then echo "Refusing Bun archive with unsafe paths" >&2; exit 1; fi &&
     unzip -o bun.zip >/dev/null 2>&1 &&
     mkdir -p /usr/local/bin &&
     mv bun-linux-aarch64/bun /usr/local/bin/bun &&
@@ -408,7 +408,7 @@ _update_bun_proot() {
     cd /tmp &&
     curl -fsSL "$1" -o bun.zip &&
     [ "$(sha256sum bun.zip | awk "{print \$1}")" = "$2" ] &&
-    unzip -l bun.zip | awk "NR>3{print \$NF}" | grep -Eq "(\\.\\./|^\\.\\./|^/)" && { echo "Refusing Bun archive with unsafe paths" >&2; exit 1; } &&
+    if unzip -l bun.zip | awk "NR>3{print \$NF}" | grep -Eq "(\\.\\./|^\\.\\./|^/)"; then echo "Refusing Bun archive with unsafe paths" >&2; exit 1; fi &&
     unzip -o bun.zip >/dev/null 2>&1 &&
     mkdir -p /usr/local/bin &&
     mv bun-linux-aarch64/bun /usr/local/bin/bun &&

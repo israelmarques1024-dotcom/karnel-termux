@@ -51,6 +51,9 @@ restore_main() {
             log_error "File not found: $arg"
             return 1
           fi
+        else
+          log_error "Restore accepts exactly one backup file"
+          return 1
         fi
         ;;
     esac

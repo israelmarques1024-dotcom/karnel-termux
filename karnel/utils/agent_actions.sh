@@ -551,11 +551,19 @@ _agent_cmd_is_readonly() {
 	# commands. Anything the write-gate flags, or any command not in this
 	# allowlist (ruby/php/lua/tclsh/expect/sbcl/...), is blocked — so PLAN
 	# mode can never modify the machine or run arbitrary code.
+	# Shell syntax makes a string-level allowlist unsafe: quoted command names,
+	# separators, substitutions and redirects can hide writes from the first token.
+	case "$1" in
+		*';'* | *'&'* | *'|'* | *"'"* | *'"'* | *'`'* | *'\'* | *'<'* | *'>'* | *'$'*) return 1 ;;
+	esac
 	_agent_cmd_is_write "$1" && return 1
 	local first
 	first=$(printf '%s\n' "$1" | sed 's/^[[:space:]]*//' | cut -d' ' -f1)
 	case "$first" in
 		ls | cat | head | tail | grep | rg | find | stat | wc | file | diff | sort | uniq | cut | tr | tree | du | df | which | type | echo | printf | jq | readlink | realpath | date | pwd | whoami | uname | sed)
+			if [[ " $1 " == *" -delete "* || " $1 " == *" -exec "* || " $1 " == *" -execdir "* || " $1 " == *" -ok "* || " $1 " == *" -okdir "* || " $1 " == *" -fprint "* || " $1 " == *" -fls "* || " $1 " == *" -i "* ]]; then
+				return 1
+			fi
 			return 0
 			;;
 		git)

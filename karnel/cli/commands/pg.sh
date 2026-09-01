@@ -514,7 +514,10 @@ pg_backup() {
 	log_info "Creating compressed backup for '$db_name'..."
 	local backup_dir="$KARNEL_DATA/pg_backups"
 	mkdir -p "$backup_dir"
-	local file_name="${db_name}_$(date +%Y%m%d_%H%M%S).backup.gz"
+	local safe_db_name
+	safe_db_name=$(printf '%s' "$db_name" | tr -c '[:alnum:]_.-' '_')
+	[[ -n "$safe_db_name" ]] || { log_error "Invalid database name"; return 1; }
+	local file_name="${safe_db_name}_$(date +%Y%m%d_%H%M%S).backup.gz"
 	local file_path="$backup_dir/$file_name"
 
 	if loading "Running backup dump" _run_backup_cmd "$db_name" "$file_path"; then
@@ -522,7 +525,7 @@ pg_backup() {
 		log_success "Backup created successfully:"
 		list_item "$file_path"
 		list_item "Checksum generated: $(cat "${file_path}.sha256")"
-		_pg_cleanup_old_backups "$db_name"
+		_pg_cleanup_old_backups "$safe_db_name"
 	else
 		log_error "Failed to create backup"
 		rm -f "$file_path"

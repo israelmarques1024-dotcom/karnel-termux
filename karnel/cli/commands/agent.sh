@@ -255,10 +255,11 @@ agent_parse_args() {
 	AGENT_PROMPT=""
 	AGENT_SHOW_HELP=0
 	AGENT_YES=0
-	local prev=""
+	local prev="" prompt_set=0
+	local -a positional=()
 	for arg in "$@"; do
 		case "$prev" in
-		-p | --prompt) AGENT_PROMPT="$arg"; prev=""; continue ;;
+		-p | --prompt) AGENT_PROMPT="$arg"; prompt_set=1; prev=""; continue ;;
 		-m | --model) AGENT_MODEL="$arg"; prev=""; continue ;;
 		-u | --endpoint) AGENT_ENDPOINT="$arg"; prev=""; continue ;;
 		-t | --temperature) AGENT_TEMPERATURE="$arg"; prev=""; continue ;;
@@ -267,7 +268,7 @@ agent_parse_args() {
 		--max-tokens) AGENT_MAX_TOKENS="$arg"; prev=""; continue ;;
 		esac
 		case "$arg" in
-		-p=* | --prompt=*) AGENT_PROMPT="${arg#*=}" ;;
+		-p=* | --prompt=*) AGENT_PROMPT="${arg#*=}"; prompt_set=1 ;;
 		-m=* | --model=*) AGENT_MODEL="${arg#*=}" ;;
 		-u=* | --endpoint=*) AGENT_ENDPOINT="${arg#*=}" ;;
 		-t=* | --temperature=*) AGENT_TEMPERATURE="${arg#*=}" ;;
@@ -280,9 +281,12 @@ agent_parse_args() {
 		-y | --yes) AGENT_YES=1 ;;
 		-h | --help) AGENT_SHOW_HELP=1 ;;
 		-*) log_warn "Unknown option: $arg" ;;
-		*) [[ -z "$AGENT_PROMPT" ]] && AGENT_PROMPT="$arg" ;;
+		*) positional+=("$arg") ;;
 		esac
 	done
+	if (( ! prompt_set && ${#positional[@]} )); then
+		AGENT_PROMPT="${positional[*]}"
+	fi
 }
 readonly AGENT_ASK_SYSTEM="You are a concise chat assistant. Reply in the SAME LANGUAGE the user writes in. Be direct and practical; use markdown, and put code in fenced blocks. <attached_file path=\"...\">...</attached_file> blocks hold real file contents (action=\"no-read\" = path only). <compacted_summary>...</compacted_summary> blocks are condensed summaries of earlier turns — treat them as ground truth."
 

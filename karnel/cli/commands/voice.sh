@@ -107,7 +107,9 @@ voice_main() {
     fi
   fi
 
-  if ! command -v "${EDITOR:-nano}" &>/dev/null && [[ "$skip_edit" == "false" ]]; then
+  local -a editor_cmd=()
+  read -r -a editor_cmd <<< "${EDITOR:-nano}"
+  if ! command -v "${editor_cmd[0]}" &>/dev/null && [[ "$skip_edit" == "false" ]]; then
     log_warn "${EDITOR:-nano} not installed — falling back to --raw mode"
     skip_edit=true
   fi
@@ -154,7 +156,7 @@ voice_main() {
     tmpfile="$(mktemp "${TMPDIR:-${KARNEL_CACHE:-$HOME/.cache/karnel}}/karnel-XXXXXX")"
     echo "$raw" >"$tmpfile"
     $is_text || log_info "Review the prompt in ${EDITOR:-nano}, fix mistakes, then save and quit"
-    ${EDITOR:-nano} "$tmpfile" </dev/tty >/dev/tty || true
+    "${editor_cmd[@]}" "$tmpfile" </dev/tty >/dev/tty || true
     prompt="$(< "$tmpfile")"
     rm -f "$tmpfile"
   elif [[ "$skip_edit" == "false" ]] && ! { [[ -t 0 ]] && [[ -t 1 ]]; }; then

@@ -6,6 +6,14 @@ layout: base
 
 # Documentation Changelog
 
+## 4.17.22
+
+- **Data safety and correctness (8):** restore rejects ambiguous multiple archives; Brain preserves same-day title collisions, uses file paths for AI context, initializes/pushes `main`, detects missing `origin`, and supports editors with arguments; PostgreSQL backup filenames are path-safe; AI-session persistence escapes JSON correctly.
+- **Agent safety (3):** positional prompts retain all words, zero-valued execution/context limits are rejected, and PLAN mode rejects shell syntax plus destructive `find`/in-place operations that bypassed its read-only contract.
+- **Installer reliability (1):** Bun proot installation/update no longer reject safe archives before extraction.
+- **Regression coverage:** added critical CLI contracts and strengthened Brain reciprocal-relation coverage; the isolated full suite passes.
+- Version references bumped to `4.17.22`.
+
 ## 4.17.21
 
 - **Official-site routing:** `karnel open`, npm package metadata, and the GitHub/npm README now point to the Vercel production site, `https://karneltermux.vercel.app`, rather than the secondary GitHub Pages mirror.
