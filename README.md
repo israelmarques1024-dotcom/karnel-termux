@@ -636,8 +636,9 @@ karnel update karnel     # Update the framework
 
 `karnel update` requires a target such as `karnel`, `ai`, or `security`.
 `karnel update karnel` first runs the official curl installer, then falls back to
-the local Git checkout and package-manager installs if needed. The curl installer
-is pinned to the latest GitHub release tag, and its SHA-256 checksum is verified
+the local Git checkout if needed. Package-manager fallback is used only when the
+active framework was installed by that package manager. The curl installer is
+pinned to the latest GitHub release tag, and its SHA-256 checksum is verified
 before it runs. The framework checks for a new version in the background at most
 once every 24 hours; the check can use npm or GitHub and writes state under
 `$KARNEL_CACHE`.

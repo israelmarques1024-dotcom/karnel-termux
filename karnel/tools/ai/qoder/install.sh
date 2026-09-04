@@ -11,6 +11,8 @@ QODER_MANIFEST_URL="https://qoder-ide.oss-accelerate.aliyuncs.com/qodercli/chann
 QODER_MARKER=".karnel-managed"
 QODER_WRAPPER_MARKER="$QODER_DATA_DIR/.karnel-wrapper"
 QODER_PROOT_MARKER="$PREFIX/share/karnel-installers/qoder"
+QODER_PREVIOUS_DATA=""
+QODER_STAGED_WRAPPER=""
 
 _qoder_detect_ubuntu_root() {
   local root
@@ -153,14 +155,44 @@ _download_qoder_binary_impl() {
   fi
 
   chmod +x "$staging_dir/qodercli"
-  replace_managed_directory "$staging_dir" "$QODER_DATA_DIR" "$QODER_MARKER"
+  if ! _activate_qoder_payload "$staging_dir"; then
+    rm -rf "$staging_dir"
+    return 1
+  fi
 }
 
-_compile_qoder_helper() {
-  loading "Compiling helper" _compile_qoder_helper_impl
+_activate_qoder_payload() {
+  local staging_dir="$1" backup=""
+  printf '%s\n' 'karnel-managed-v1' >"$staging_dir/$QODER_MARKER" || return 1
+  if [[ -e "$QODER_DATA_DIR" ]]; then
+    if [[ ! -f "$QODER_DATA_DIR/$QODER_MARKER" ]]; then
+      log_error "Refusing to replace unowned installation: $QODER_DATA_DIR"
+      return 1
+    fi
+    backup=$(mktemp -d "$(dirname "$QODER_DATA_DIR")/.qoder-previous.XXXXXX") || return 1
+    rmdir "$backup" || return 1
+    mv "$QODER_DATA_DIR" "$backup" || return 1
+  fi
+  if ! mv "$staging_dir" "$QODER_DATA_DIR"; then
+    [[ -z "$backup" ]] || mv "$backup" "$QODER_DATA_DIR"
+    return 1
+  fi
+  if [[ -n "$backup" && -f "$backup/.karnel-wrapper" ]] &&
+    ! cp "$backup/.karnel-wrapper" "$QODER_WRAPPER_MARKER"; then
+    rm -rf "$QODER_DATA_DIR"
+    mv "$backup" "$QODER_DATA_DIR"
+    return 1
+  fi
+  QODER_PREVIOUS_DATA="$backup"
 }
 
-_compile_qoder_helper_impl() {
+_restore_qoder_payload() {
+  rm -rf "$QODER_DATA_DIR"
+  [[ -z "$QODER_PREVIOUS_DATA" ]] || mv "$QODER_PREVIOUS_DATA" "$QODER_DATA_DIR"
+  QODER_PREVIOUS_DATA=""
+}
+
+_stage_qoder_helper() {
   local HELPER_SRC="$KARNEL_PATH/tools/ai/qoder/helper/qoder_helper.c"
   if [ ! -f "$HELPER_SRC" ]; then
     log_error "Helper source not found at $HELPER_SRC"
@@ -168,28 +200,77 @@ _compile_qoder_helper_impl() {
   fi
 
   local staged_wrapper
+  if [[ -e "$PREFIX/bin/qodercli" || -L "$PREFIX/bin/qodercli" ]] &&
+    ! installer_file_owned "$PREFIX/bin/qodercli" "$QODER_WRAPPER_MARKER"; then
+    log_error "Refusing to replace an existing Qoder wrapper not owned by Karnel"
+    return 1
+  fi
   staged_wrapper=$(mktemp "$PREFIX/bin/.qodercli.XXXXXX") || return 1
   if ! cc -O2 -o "$staged_wrapper" "$HELPER_SRC" &>>"$LOG_FILE"; then
     rm -f "$staged_wrapper"
     log_error "Failed to compile qoder helper"
     return 1
   fi
+  chmod +x "$staged_wrapper" || { rm -f "$staged_wrapper"; return 1; }
+  QODER_STAGED_WRAPPER="$staged_wrapper"
+}
 
-  chmod +x "$staged_wrapper"
-  mv "$staged_wrapper" "$PREFIX/bin/qodercli" || return 1
-  record_managed_file "$PREFIX/bin/qodercli" "$QODER_WRAPPER_MARKER"
+_activate_qoder_wrapper() {
+  activate_installer_file "$QODER_STAGED_WRAPPER" "$PREFIX/bin/qodercli" "$QODER_WRAPPER_MARKER"
+}
+
+_compile_qoder_helper() {
+  loading "Compiling helper" _stage_qoder_helper || return 1
+  if ! _activate_qoder_wrapper; then
+    rm -f "$QODER_STAGED_WRAPPER"
+    return 1
+  fi
+  QODER_STAGED_WRAPPER=""
 }
 
 _install_qoder_native() {
+  QODER_PREVIOUS_DATA="" QODER_STAGED_WRAPPER=""
   _qoder_install_deps_native || return 1
-  _download_qoder_binary || return 1
-  _compile_qoder_helper || return 1
+  loading "Compiling helper" _stage_qoder_helper || return 1
+  if ! _download_qoder_binary; then
+    rm -f "$QODER_STAGED_WRAPPER"
+    return 1
+  fi
+  if ! _activate_qoder_wrapper; then
+    rm -f "$QODER_STAGED_WRAPPER"
+    _restore_qoder_payload
+    return 1
+  fi
+  QODER_STAGED_WRAPPER=""
+  [[ -z "$QODER_PREVIOUS_DATA" ]] || rm -rf "$QODER_PREVIOUS_DATA"
+  QODER_PREVIOUS_DATA=""
   log_success "Qoder installed natively"
   return 0
 }
 
 _install_qoder_proot() {
   loading "Installing Qoder (proot-distro)" _install_qoder_proot_impl
+}
+
+_stage_qoder_proot_wrapper() {
+  local ubuntu_root="$1" qoder_dir="$2" wrapper_src="$KARNEL_PATH/tools/ai/qoder/bin/qodercli"
+  if [[ -e "$PREFIX/bin/qodercli" || -L "$PREFIX/bin/qodercli" ]] &&
+    ! installer_file_owned "$PREFIX/bin/qodercli" "$QODER_PROOT_MARKER"; then
+    log_error "Refusing to replace an existing Qoder wrapper not owned by Karnel"
+    return 1
+  fi
+  [ -f "$wrapper_src" ] || { log_error "Wrapper template not found at $wrapper_src"; return 1; }
+  QODER_STAGED_WRAPPER=$(mktemp "$PREFIX/bin/.qodercli.XXXXXX") || return 1
+  if ! sed -e "s|__UBUNTU_ROOTFS__|$ubuntu_root|g" -e "s|__QODER_DIR__|$qoder_dir|g" \
+    "$wrapper_src" >"$QODER_STAGED_WRAPPER" || ! chmod +x "$QODER_STAGED_WRAPPER"; then
+    rm -f "$QODER_STAGED_WRAPPER"
+    QODER_STAGED_WRAPPER=""
+    return 1
+  fi
+}
+
+_activate_qoder_proot_wrapper() {
+  activate_installer_file "$QODER_STAGED_WRAPPER" "$PREFIX/bin/qodercli" "$QODER_PROOT_MARKER"
 }
 
 _install_qoder_proot_impl() {
@@ -200,16 +281,25 @@ _install_qoder_proot_impl() {
   mkdir -p "$(dirname "$LOG_FILE")"
 
   if ! command -v proot-distro &>/dev/null; then
-    yes | pkg install proot-distro &>>"$LOG_FILE"
+    if ! yes | pkg install proot-distro &>>"$LOG_FILE"; then
+      log_error "Failed to install proot-distro"
+      return 1
+    fi
   fi
 
   if [ ! -d "$(_qoder_detect_ubuntu_root)" ]; then
-    proot-distro install ubuntu:24.04 &>>"$LOG_FILE"
+    if ! proot-distro install ubuntu:24.04 &>>"$LOG_FILE"; then
+      log_error "Failed to install Ubuntu Proot"
+      return 1
+    fi
   fi
 
-  _qoder_proot_ubuntu /bin/bash -c \
+  if ! _qoder_proot_ubuntu /bin/bash -c \
     'apt-get update && apt-get upgrade -y && apt-get install -y curl ca-certificates' \
-    &>>"$LOG_FILE"
+    &>>"$LOG_FILE"; then
+    log_error "Failed to prepare Ubuntu Proot"
+    return 1
+  fi
 
   local download_url
   download_url=$(_get_qoder_download_url "arm64")
@@ -230,45 +320,54 @@ _install_qoder_proot_impl() {
     log_error "Refusing to replace Qoder Proot data not owned by Karnel"
     return 1
   fi
-  mkdir -p "$qoder_dir"
+  if ! _stage_qoder_proot_wrapper "$ubuntu_root" "$qoder_dir"; then
+    return 1
+  fi
+  mkdir -p "$qoder_dir" || { rm -f "$QODER_STAGED_WRAPPER"; return 1; }
 
   local archive_filename
   archive_filename=$(basename "$download_url")
 
   if ! curl -fsSL "$download_url" -o "$qoder_dir/$archive_filename" &>>"$LOG_FILE"; then
+    rm -rf "$qoder_dir"
+    rm -f "$QODER_STAGED_WRAPPER"
     log_error "Failed to download Qoder binary"
     return 1
   fi
 
   local expected actual
   expected=$(_get_qoder_download_sha256 arm64)
-  actual=$(sha256sum "$qoder_dir/$archive_filename" 2>>"$LOG_FILE") || return 1
+  actual=$(sha256sum "$qoder_dir/$archive_filename" 2>>"$LOG_FILE") || { rm -rf "$qoder_dir" "$QODER_STAGED_WRAPPER"; return 1; }
   if [[ ! "$expected" =~ ^[0-9a-f]{64}$ || "${actual%% *}" != "$expected" ]]; then
-    rm -f "$qoder_dir/$archive_filename"
+    rm -rf "$qoder_dir"
+    rm -f "$QODER_STAGED_WRAPPER"
     log_error "Qoder archive has no valid matching SHA-256 in the official manifest"
     return 1
   fi
   if ! extract_tarball "$qoder_dir/$archive_filename" "$qoder_dir"; then
+    rm -rf "$qoder_dir"
+    rm -f "$QODER_STAGED_WRAPPER"
     return 1
   fi
 
   if [ ! -f "$qoder_dir/qodercli" ]; then
+    rm -rf "$qoder_dir"
+    rm -f "$QODER_STAGED_WRAPPER"
     log_error "Qoder binary not found after extraction"
     return 1
   fi
 
-  chmod +x "$qoder_dir/qodercli"
-  printf '%s\n' 'karnel-managed-v1' >"$qoder_dir/.karnel-managed"
-
-  local wrapper_src="$KARNEL_PATH/tools/ai/qoder/bin/qodercli"
-  if [ ! -f "$wrapper_src" ]; then
-    log_error "Wrapper template not found at $wrapper_src"
+  if ! chmod +x "$qoder_dir/qodercli" || ! printf '%s\n' 'karnel-managed-v1' >"$qoder_dir/.karnel-managed"; then
+    rm -rf "$qoder_dir"
+    rm -f "$QODER_STAGED_WRAPPER"
     return 1
   fi
-  sed -e "s|__UBUNTU_ROOTFS__|$ubuntu_root|g" -e "s|__QODER_DIR__|$qoder_dir|g" \
-    "$wrapper_src" >"$PREFIX/bin/qodercli"
-  chmod +x "$PREFIX/bin/qodercli"
-  record_managed_file "$PREFIX/bin/qodercli" "$QODER_PROOT_MARKER" || return 1
+  if ! _activate_qoder_proot_wrapper; then
+    rm -f "$QODER_STAGED_WRAPPER"
+    rm -rf "$qoder_dir"
+    return 1
+  fi
+  QODER_STAGED_WRAPPER=""
 
   return 0
 }
@@ -409,14 +508,26 @@ _update_qoder_proot_impl() {
     return 1
   fi
 
-  chmod +x "$staging_dir/qodercli"
-  printf '%s\n' 'karnel-managed-v1' >"$staging_dir/.karnel-managed"
-  old_dir="${qoder_dir}.previous.$$"
-  if ! mv "$qoder_dir" "$old_dir" || ! mv "$staging_dir" "$qoder_dir"; then
-    [[ ! -d "$old_dir" ]] || mv "$old_dir" "$qoder_dir"
+  if ! chmod +x "$staging_dir/qodercli" || ! printf '%s\n' 'karnel-managed-v1' >"$staging_dir/.karnel-managed" ||
+    ! _stage_qoder_proot_wrapper "$ubuntu_root" "$qoder_dir"; then
     rm -rf "$staging_dir"
     return 1
   fi
+  old_dir=$(mktemp -d "$(dirname "$qoder_dir")/.qoder-previous.XXXXXX") || { rm -f "$QODER_STAGED_WRAPPER"; return 1; }
+  rmdir "$old_dir" || { rm -f "$QODER_STAGED_WRAPPER"; return 1; }
+  if ! mv "$qoder_dir" "$old_dir" || ! mv "$staging_dir" "$qoder_dir"; then
+    [[ ! -d "$old_dir" ]] || mv "$old_dir" "$qoder_dir"
+    rm -rf "$staging_dir"
+    rm -f "$QODER_STAGED_WRAPPER"
+    return 1
+  fi
+  if ! _activate_qoder_proot_wrapper; then
+    rm -f "$QODER_STAGED_WRAPPER"
+    rm -rf "$qoder_dir"
+    mv "$old_dir" "$qoder_dir"
+    return 1
+  fi
+  QODER_STAGED_WRAPPER=""
   rm -rf "$old_dir"
 
   log_success "Qoder (proot-distro) updated"

@@ -126,6 +126,25 @@ fi
 test ! -f "$KARNEL_CACHE/curl-installed"
 ((pass += 1))
 
+update_npm_calls=0
+KARNEL_PATH="$TEST_ROOT/repo/karnel"
+npm() {
+  case "$1 ${2:-}" in
+    'root -g') printf '%s\n' "$TEST_ROOT/npm-global/lib/node_modules" ;;
+    'update -g'|'install -g') ((update_npm_calls += 1)); return 0 ;;
+    *) return 1 ;;
+  esac
+}
+if _update_try_npm >/dev/null 2>&1; then
+  printf 'FAIL: npm fallback claimed to update an inactive framework\n' >&2
+  exit 1
+fi
+if [[ "$update_npm_calls" -ne 0 ]]; then
+  printf 'FAIL: npm fallback updated a package unrelated to the active framework\n' >&2
+  exit 1
+fi
+((pass += 1))
+
 rm -f "$KARNEL_CACHE/curl-installed"
 mock_sum=$(printf '%s\n' "$mock_installer" | sha256sum | awk '{print $1}')
 mock_sumfile_line="$mock_sum  unexpected-file"
@@ -172,9 +191,30 @@ test ! -f "$KARNEL_CACHE/curl-installed"
 ((pass += 1))
 
 # shellcheck source=../karnel/cli/commands/upgrade.sh
+KARNEL_PATH="$ROOT_DIR/karnel"
 source "$KARNEL_PATH/cli/commands/upgrade.sh"
 update_karnel() { return 1; }
 assert_failure "upgrade stops when update fails" upgrade_main
+
+PREFIX="$TEST_ROOT/upgrade-prefix"
+mkdir -p "$PREFIX/bin"
+printf 'user command\n' >"$PREFIX/bin/karnel"
+if _upgrade_fix_symlink; then
+  printf 'FAIL: upgrade replaced a non-symlink command\n' >&2
+  exit 1
+fi
+[[ "$(<"$PREFIX/bin/karnel")" == 'user command' ]]
+((pass += 1))
+
+upgrade_logs=()
+log_success() { upgrade_logs+=("$*"); }
+update_karnel() { return 0; }
+assert_failure "upgrade does not claim success before command activation" upgrade_main
+if [[ "${upgrade_logs[*]}" == *"Karnel upgraded to"* ]]; then
+  printf 'FAIL: upgrade claimed success before command activation\n' >&2
+  exit 1
+fi
+((pass += 1))
 
 # shellcheck source=../karnel/cli/commands/install.sh
 source "$KARNEL_PATH/cli/commands/install.sh"

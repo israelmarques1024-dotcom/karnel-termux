@@ -4,6 +4,7 @@ import "@/utils/log"
 import "@/utils/colors"
 
 LOG_FILE="$KARNEL_CACHE/install_voice.log"
+VOICE_MARKER="${KARNEL_DATA:-${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data}/voice/.termux-api-managed"
 
 install_voice() {
   separator
@@ -41,8 +42,10 @@ install_voice() {
 }
 
 _install_voice_deps() {
-  pkg install termux-api -y &>>"$LOG_FILE"
-  return $?
+  if ! pkg install termux-api -y &>>"$LOG_FILE"; then
+    return 1
+  fi
+  mkdir -p "$(dirname "$VOICE_MARKER")" && : >"$VOICE_MARKER"
 }
 
 _install_voice_shell() {
@@ -122,7 +125,7 @@ reinstall_voice() {
 }
 
 _reinstall_voice_wrapper() {
-  import "@/tools/voice/all"
-  reinstall_all_voice_components
-  return $?
+  _uninstall_voice_wrapper || return $?
+  _install_voice_deps || return $?
+  _install_voice_shell
 }

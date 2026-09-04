@@ -19,6 +19,7 @@ _uninstall_voice_tool() {
     fi
   else
     log_info "Termux:API is not installed"
+    rm -f "$marker"
   fi
   return 0
 }

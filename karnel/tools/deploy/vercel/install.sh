@@ -8,7 +8,9 @@ LOG_FILE="${LOG_FILE:-${KARNEL_CACHE:-$HOME/.cache/karnel}/install_deploy.log}"
 VERCEL_MARKER="$PREFIX/share/karnel-installers/vercel"
 
 _vercel_is_owned() {
-  command -v vercel &>/dev/null && [[ -f "$VERCEL_MARKER" ]] || return 1
+  local binary
+  binary=$(command -v vercel) || return 1
+  managed_file_matches "$binary" "$VERCEL_MARKER"
 }
 
 install_vercel() {
@@ -29,8 +31,13 @@ install_vercel() {
     log_error "Failed to install Vercel CLI (see $LOG_FILE)"
     return 1
   fi
-  command -v termux-fix-shebang &>/dev/null && termux-fix-shebang "$(command -v vercel)" &>/dev/null
-  mkdir -p "$(dirname "$VERCEL_MARKER")" && : >"$VERCEL_MARKER"
+  local binary
+  binary=$(command -v vercel) || { log_error "Vercel CLI was not found after installation"; return 1; }
+  command -v termux-fix-shebang &>/dev/null && termux-fix-shebang "$binary" &>/dev/null
+  if ! record_managed_file "$binary" "$VERCEL_MARKER"; then
+    log_error "Failed to record Vercel CLI ownership"
+    return 1
+  fi
   log_success "Vercel CLI installed"
 }
 

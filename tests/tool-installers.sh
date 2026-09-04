@@ -322,6 +322,39 @@ assert_odysseus_ownership() (
 )
 run_test "Odysseus ownership" assert_odysseus_ownership
 
+assert_voice_termux_api_marker_lifecycle() (
+  export HOME="$TEST_ROOT/voice-home"
+  export PREFIX="$TEST_ROOT/voice-prefix"
+  export KARNEL_CACHE="$TEST_ROOT/voice-cache"
+  export KARNEL_DATA="$TEST_ROOT/voice-data"
+  mkdir -p "$HOME" "$PREFIX/bin" "$KARNEL_CACHE"
+  import() { :; }
+  log_info() { :; }
+  log_success() { :; }
+  log_warn() { :; }
+  log_error() { :; }
+  loading() { shift; "$@"; }
+  pkg() { return 0; }
+  source "$ROOT_DIR/karnel/modules/voice.sh"
+  _install_voice_deps
+  [[ -f "$VOICE_MARKER" ]] || return 1
+  source "$ROOT_DIR/karnel/tools/voice/uninstall.sh"
+  command() {
+    if [[ "$1" == -v && "$2" == termux-api ]]; then return 0; fi
+    builtin command "$@"
+  }
+  _uninstall_voice_tool
+  [[ ! -e "$VOICE_MARKER" ]] || return 1
+
+  reinstall_calls=()
+  _uninstall_voice_wrapper() { reinstall_calls+=(uninstall); }
+  _install_voice_deps() { reinstall_calls+=(dependencies); }
+  _install_voice_shell() { reinstall_calls+=(shell); }
+  _reinstall_voice_wrapper
+  [[ "${reinstall_calls[*]}" == "uninstall dependencies shell" ]]
+)
+run_test "voice Termux:API marker lifecycle" assert_voice_termux_api_marker_lifecycle
+
 assert_downloaded_games_and_network_installers() (
   export PREFIX="$TEST_ROOT/downloaded-python-prefix"
   export KARNEL_CACHE="$TEST_ROOT/downloaded-python-cache"

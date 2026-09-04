@@ -128,15 +128,26 @@ assert_failure_rolls_back_repo_and_symlink() {
   [[ "$(readlink "$prefix/bin/karnel")" == "$old_target" ]]
 }
 
+assert_bootstrap_stops_on_dependency_failure() (
+  source "$ROOT_DIR/install.sh"
+  command() {
+    if [[ "$1" == "-v" && "$2" == "git" ]]; then return 1; fi
+    builtin command "$@"
+  }
+  pkg() { return 1; }
+  if bootstrap_dependencies; then return 1; fi
+)
+
 assert_release_installs_from_staging
 assert_dirty_release_is_preserved
 assert_preexisting_directory_is_preserved
 assert_mismatched_release_is_not_activated
 assert_failure_rolls_back_repo_and_symlink
+assert_bootstrap_stops_on_dependency_failure
 
 if bash "$ROOT_DIR/install.sh" --ref main >/dev/null 2>&1; then
   printf 'FAIL: mutable release ref was accepted\n' >&2
   exit 1
 fi
 
-printf 'Installer contracts: 6 passed\n'
+printf 'Installer contracts: 7 passed\n'

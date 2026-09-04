@@ -9,7 +9,9 @@ NETLIFY_VERSION="27.1.1"
 NETLIFY_MARKER="$PREFIX/share/karnel-installers/netlify"
 
 _netlify_is_owned() {
-  command -v netlify &>/dev/null && [[ -f "$NETLIFY_MARKER" ]] || return 1
+  local binary
+  binary=$(command -v netlify) || return 1
+  managed_file_matches "$binary" "$NETLIFY_MARKER"
 }
 
 _netlify_node_supported() {
@@ -43,12 +45,17 @@ install_netlify() {
     log_error "Failed to install Netlify CLI (see $LOG_FILE)"
     return 1
   fi
-  command -v termux-fix-shebang &>/dev/null && termux-fix-shebang "$(command -v netlify)" &>/dev/null
+  local binary
+  binary=$(command -v netlify) || { log_error "Netlify CLI was not found after installation"; return 1; }
+  command -v termux-fix-shebang &>/dev/null && termux-fix-shebang "$binary" &>/dev/null
   if ! netlify --version &>/dev/null; then
     log_error "Netlify CLI did not start after installation"
     return 1
   fi
-  mkdir -p "$(dirname "$NETLIFY_MARKER")" && : >"$NETLIFY_MARKER"
+  if ! record_managed_file "$binary" "$NETLIFY_MARKER"; then
+    log_error "Failed to record Netlify CLI ownership"
+    return 1
+  fi
   log_success "Netlify CLI installed"
 }
 

@@ -357,8 +357,18 @@ _npm_installed_version() {
   printf '%s' "${v:-unknown}"
 }
 
+_update_global_package_is_active() {
+  local manager="${1:-npm}" root
+  root=$("$manager" root -g 2>/dev/null) || return 1
+  [[ "$KARNEL_PATH" == "$root/karnel-termux/karnel" ]]
+}
+
 _update_try_npm() {
   command -v npm &>/dev/null || return 1
+  if ! _update_global_package_is_active; then
+    log_info "Skipping npm update: the active Karnel framework is not npm-managed"
+    return 1
+  fi
   log_info "Trying npm update..."
   if npm update -g karnel-termux --ignore-scripts 2>/dev/null; then
     local new_ver
@@ -372,6 +382,10 @@ _update_try_npm() {
 
 _update_try_npm_install() {
   command -v npm &>/dev/null || return 1
+  if ! _update_global_package_is_active; then
+    log_info "Skipping npm install: the active Karnel framework is not npm-managed"
+    return 1
+  fi
   log_info "Trying npm install..."
   if npm install -g karnel-termux@latest --ignore-scripts 2>/dev/null; then
     local new_ver
@@ -384,6 +398,10 @@ _update_try_npm_install() {
 
 _update_try_pnpm() {
   command -v pnpm &>/dev/null || return 1
+  if ! _update_global_package_is_active pnpm; then
+    log_info "Skipping pnpm update: the active Karnel framework is not pnpm-managed"
+    return 1
+  fi
   log_info "Trying pnpm..."
   if pnpm add -g karnel-termux@latest 2>/dev/null; then
     log_success "Updated via pnpm"

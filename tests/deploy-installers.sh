@@ -46,4 +46,38 @@ grep -qF '# Karnel Railway PRoot wrapper' "$PREFIX/bin/railway" || {
   exit 1
 }
 
+source "$ROOT_DIR/karnel/utils/install.sh"
+source "$ROOT_DIR/karnel/tools/deploy/vercel/install.sh"
+source "$ROOT_DIR/karnel/tools/deploy/netlify/install.sh"
+
+printf '#!/usr/bin/env bash\n' >"$PREFIX/bin/vercel"
+printf '#!/usr/bin/env bash\n' >"$PREFIX/bin/netlify"
+chmod +x "$PREFIX/bin/vercel" "$PREFIX/bin/netlify"
+mkdir -p "$(dirname "$VERCEL_MARKER")"
+: >"$VERCEL_MARKER"
+: >"$NETLIFY_MARKER"
+
+if uninstall_vercel; then
+  printf 'FAIL: Vercel uninstall accepted an existence-only marker\n' >&2
+  exit 1
+fi
+if uninstall_netlify; then
+  printf 'FAIL: Netlify uninstall accepted an existence-only marker\n' >&2
+  exit 1
+fi
+[[ -x "$PREFIX/bin/vercel" && -x "$PREFIX/bin/netlify" ]] || {
+  printf 'FAIL: unowned deploy CLIs were removed\n' >&2
+  exit 1
+}
+
+record_managed_file "$PREFIX/bin/vercel" "$VERCEL_MARKER"
+record_managed_file "$PREFIX/bin/netlify" "$NETLIFY_MARKER"
+npm() { [[ "$1" == uninstall ]] || return 1; }
+uninstall_vercel
+uninstall_netlify
+[[ ! -e "$VERCEL_MARKER" && ! -e "$NETLIFY_MARKER" ]] || {
+  printf 'FAIL: deploy ownership markers were not removed after uninstall\n' >&2
+  exit 1
+}
+
 printf 'Deploy installer contracts: passed\n'

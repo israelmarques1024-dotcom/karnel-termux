@@ -9,6 +9,8 @@ LOG_FILE="$KARNEL_CACHE/install_ai.log"
 CODEBUFF_DATA_DIR="$HOME/.local/share/karnel-data/codebuff"
 CODEBUFF_MARKER=".karnel-managed"
 CODEBUFF_WRAPPER_MARKER="$CODEBUFF_DATA_DIR/.karnel-wrapper"
+CODEBUFF_PREVIOUS_DATA=""
+CODEBUFF_STAGED_WRAPPER=""
 
 _codebuff_detect_ubuntu_root() {
   local root
@@ -115,14 +117,44 @@ _download_codebuff_binary_impl() {
   fi
 
   chmod +x "$staging_dir/codebuff"
-  replace_managed_directory "$staging_dir" "$CODEBUFF_DATA_DIR" "$CODEBUFF_MARKER"
+  if ! _activate_codebuff_payload "$staging_dir"; then
+    rm -rf "$staging_dir"
+    return 1
+  fi
 }
 
-_compile_codebuff_helper() {
-  loading "Compiling helper" _compile_codebuff_helper_impl
+_activate_codebuff_payload() {
+  local staging_dir="$1" backup=""
+  printf '%s\n' 'karnel-managed-v1' >"$staging_dir/$CODEBUFF_MARKER" || return 1
+  if [[ -e "$CODEBUFF_DATA_DIR" ]]; then
+    if [[ ! -f "$CODEBUFF_DATA_DIR/$CODEBUFF_MARKER" ]]; then
+      log_error "Refusing to replace unowned installation: $CODEBUFF_DATA_DIR"
+      return 1
+    fi
+    backup=$(mktemp -d "$(dirname "$CODEBUFF_DATA_DIR")/.codebuff-previous.XXXXXX") || return 1
+    rmdir "$backup" || return 1
+    mv "$CODEBUFF_DATA_DIR" "$backup" || return 1
+  fi
+  if ! mv "$staging_dir" "$CODEBUFF_DATA_DIR"; then
+    [[ -z "$backup" ]] || mv "$backup" "$CODEBUFF_DATA_DIR"
+    return 1
+  fi
+  if [[ -n "$backup" && -f "$backup/.karnel-wrapper" ]] &&
+    ! cp "$backup/.karnel-wrapper" "$CODEBUFF_WRAPPER_MARKER"; then
+    rm -rf "$CODEBUFF_DATA_DIR"
+    mv "$backup" "$CODEBUFF_DATA_DIR"
+    return 1
+  fi
+  CODEBUFF_PREVIOUS_DATA="$backup"
 }
 
-_compile_codebuff_helper_impl() {
+_restore_codebuff_payload() {
+  rm -rf "$CODEBUFF_DATA_DIR"
+  [[ -z "$CODEBUFF_PREVIOUS_DATA" ]] || mv "$CODEBUFF_PREVIOUS_DATA" "$CODEBUFF_DATA_DIR"
+  CODEBUFF_PREVIOUS_DATA=""
+}
+
+_stage_codebuff_helper() {
   local HELPER_SRC="$KARNEL_PATH/tools/ai/codebuff/helper/codebuff_helper.c"
   if [ ! -f "$HELPER_SRC" ]; then
     log_error "Helper source not found at $HELPER_SRC"
@@ -130,22 +162,50 @@ _compile_codebuff_helper_impl() {
   fi
 
   local staged_wrapper
+  if [[ -e "$PREFIX/bin/codebuff" || -L "$PREFIX/bin/codebuff" ]] &&
+    ! installer_file_owned "$PREFIX/bin/codebuff" "$CODEBUFF_WRAPPER_MARKER"; then
+    log_error "Refusing to replace an existing Codebuff wrapper not owned by Karnel"
+    return 1
+  fi
   staged_wrapper=$(mktemp "$PREFIX/bin/.codebuff.XXXXXX") || return 1
   if ! cc -O2 -o "$staged_wrapper" "$HELPER_SRC" &>>"$LOG_FILE"; then
     rm -f "$staged_wrapper"
     log_error "Failed to compile codebuff helper"
     return 1
   fi
+  chmod +x "$staged_wrapper" || { rm -f "$staged_wrapper"; return 1; }
+  CODEBUFF_STAGED_WRAPPER="$staged_wrapper"
+}
 
-  chmod +x "$staged_wrapper"
-  mv "$staged_wrapper" "$PREFIX/bin/codebuff" || return 1
-  record_managed_file "$PREFIX/bin/codebuff" "$CODEBUFF_WRAPPER_MARKER"
+_activate_codebuff_wrapper() {
+  activate_installer_file "$CODEBUFF_STAGED_WRAPPER" "$PREFIX/bin/codebuff" "$CODEBUFF_WRAPPER_MARKER"
+}
+
+_compile_codebuff_helper() {
+  loading "Compiling helper" _stage_codebuff_helper || return 1
+  if ! _activate_codebuff_wrapper; then
+    rm -f "$CODEBUFF_STAGED_WRAPPER"
+    return 1
+  fi
+  CODEBUFF_STAGED_WRAPPER=""
 }
 
 _install_codebuff_native() {
+  CODEBUFF_PREVIOUS_DATA="" CODEBUFF_STAGED_WRAPPER=""
   _codebuff_install_deps_native || return 1
-  _download_codebuff_binary || return 1
-  _compile_codebuff_helper || return 1
+  loading "Compiling helper" _stage_codebuff_helper || return 1
+  if ! _download_codebuff_binary; then
+    rm -f "$CODEBUFF_STAGED_WRAPPER"
+    return 1
+  fi
+  if ! _activate_codebuff_wrapper; then
+    rm -f "$CODEBUFF_STAGED_WRAPPER"
+    _restore_codebuff_payload
+    return 1
+  fi
+  CODEBUFF_STAGED_WRAPPER=""
+  [[ -z "$CODEBUFF_PREVIOUS_DATA" ]] || rm -rf "$CODEBUFF_PREVIOUS_DATA"
+  CODEBUFF_PREVIOUS_DATA=""
   log_success "Codebuff installed natively"
   return 0
 }
