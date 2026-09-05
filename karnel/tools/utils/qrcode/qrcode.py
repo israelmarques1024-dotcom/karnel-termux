@@ -1,36 +1,14 @@
 #!/data/data/com.termux/files/usr/bin/python3
 import os
 import re
-import subprocess
 import sys
 
-# --- Installation Function (Same as before) ---
-def install_and_import(package):
-    """
-    Checks if a package is installed and installs it if missing.
-    The 'qrcode[pil]' installs both qrcode and Pillow (PIL) for image generation.
-    """
-    try:
-        __import__(package)
-        print(f"✅ Required package '{package}' is already installed.")
-    except ImportError:
-        print(f"📦 Package '{package}' not found. Installing now...")
-        try:
-            if package == 'qrcode':
-                # Install qrcode with pil dependency for image saving
-                subprocess.check_call([sys.executable, "-m", "pip", "install", "qrcode[pil]"])
-            else:
-                subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-            
-            __import__(package)
-            print(f"✅ Successfully installed '{package}'.")
-        except subprocess.CalledProcessError as e:
-            print(f"❌ Failed to install '{package}'. Error: {e}")
-            print("Please ensure 'pip' is installed and working in Termux.")
-            sys.exit(1)
+# The launcher is named qrcode.py, so remove its directory before importing
+# the third-party qrcode package to avoid importing this file recursively.
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path = [path for path in sys.path if path not in ("", SCRIPT_DIR)]
 
-install_and_import('qrcode')
-import qrcode 
+import qrcode
 
 # ----------------------------------------------------------------------
 # --- Main Generator Function (Updated Path) ---
