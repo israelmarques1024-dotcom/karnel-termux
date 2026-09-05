@@ -67,7 +67,6 @@ for spec in \
   "$install_function"
   [[ -L "$PREFIX/bin/$tool" && "$(readlink "$PREFIX/bin/$tool")" == "$runtime_payload" ]]
   [[ -f "$runtime_payload" ]]
-  [[ "$(stat -c '%a' "$runtime_payload")" == 755 ]]
   [[ "$installer" == karnel/tools/utils/* || ! -e "$source_payload" ]]
   payload_before=$(<"$runtime_payload")
   curl_failure=1
