@@ -25,6 +25,7 @@ _install_10router_impl() {
 
 install_10router() {
   if command -v 10router &>/dev/null; then
+    _fix_npm_shebang "10router" || return 1
     log_info "10Router is already installed"
     return 2
   fi
