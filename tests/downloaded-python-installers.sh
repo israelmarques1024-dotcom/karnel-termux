@@ -58,6 +58,7 @@ for spec in \
   source_payload="${source_payload%/install.sh}/$tool.py"
   # shellcheck source=/dev/null
   source "$ROOT_DIR/$installer"
+  [[ "$tool" != qrcode ]] || _qrcode_dependencies() { :; }
 
   printf 'external wrapper\n' >"$PREFIX/bin/$tool"
   if "$install_function"; then exit 1; fi
