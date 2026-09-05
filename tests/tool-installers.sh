@@ -32,6 +32,7 @@ assert_keelcode_lifecycle() (
   log_info() { :; }
   log_success() { :; }
   log_error() { :; }
+  log_error() { :; }
   tail() { :; }
   rm() { "$SYSTEM_RM" "$@"; }
   npm() {
@@ -160,6 +161,7 @@ assert_downloaded_utils_keep_source_payloads() (
     runtime_payload="$KARNEL_DATA/utils/$tool/$tool.py"
     # shellcheck source=/dev/null
     source "$ROOT_DIR/karnel/tools/utils/$tool/install.sh"
+    [[ "$tool" != qrcode ]] || _qrcode_dependencies() { :; }
     function_name="install_${tool//-/_}"
     "$function_name"
     [[ -L "$PREFIX/bin/$tool" ]]
