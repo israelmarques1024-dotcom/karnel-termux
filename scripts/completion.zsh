@@ -64,7 +64,7 @@ _karnel_modules() {
 
 _karnel_tool_flags() {
   local module="$1"
-  local ai_tools="qwen-code gemini-cli claude-code mistral-vibe openclaude openclaw ollama codex opencode mimocode engram codegraph pi antigravity-cli minimax-cli gentle-ai gga hermes-agent kimi-code command-code codebuff freebuff kilocode-cli kiro crush cline odysseus kimchi-code omni-route ctx7 openspec supercode-cli puter keelcode copilot-termux qoder ampcode cursor-cli oh-my-pi goose droid cactus cactus-needle hugging-face walkie"
+  local ai_tools="10router qwen-code gemini-cli claude-code mistral-vibe openclaude openclaw ollama codex opencode mimocode engram codegraph pi antigravity-cli minimax-cli gentle-ai gga hermes-agent kimi-code command-code codebuff freebuff kilocode-cli kiro crush cline odysseus kimchi-code omni-route ctx7 openspec supercode-cli puter keelcode copilot-termux qoder ampcode cursor-cli oh-my-pi goose droid cactus cactus-needle hugging-face walkie"
   local tools=""
 
   case "$module" in
@@ -167,7 +167,7 @@ _karnel() {
       elif [[ "${words[3]}" == sessions ]]; then
         _karnel_add "--all"
       elif [[ "${words[3]}" == install ]]; then
-        local ai_tools="qwen-code gemini-cli claude-code mistral-vibe openclaude openclaw ollama codex opencode mimocode engram codegraph pi antigravity-cli minimax-cli gentle-ai gga hermes-agent kimi-code command-code codebuff freebuff kilocode-cli kiro crush cline odysseus kimchi-code omni-route ctx7 openspec supercode-cli puter keelcode copilot-termux qoder ampcode cursor-cli oh-my-pi goose droid cactus cactus-needle hugging-face walkie"
+        local ai_tools="10router qwen-code gemini-cli claude-code mistral-vibe openclaude openclaw ollama codex opencode mimocode engram codegraph pi antigravity-cli minimax-cli gentle-ai gga hermes-agent kimi-code command-code codebuff freebuff kilocode-cli kiro crush cline odysseus kimchi-code omni-route ctx7 openspec supercode-cli puter keelcode copilot-termux qoder ampcode cursor-cli oh-my-pi goose droid cactus cactus-needle hugging-face walkie"
         _karnel_add "$ai_tools"
       fi
       ;;

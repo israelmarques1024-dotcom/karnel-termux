@@ -172,6 +172,7 @@ _list_ai() {
   echo
 
   table_start "Tool" "Install Flag" "Command" "Status"
+  table_row "10Router" "--10router" "10router" "$(_check_cmd "10router")"
   table_row "Qwen Code" "--qwen-code" "qwen" "$(_check_cmd "qwen")"
   table_row "Gemini CLI" "--gemini-cli" "gemini" "$(_check_cmd "gemini")"
   table_row "Claude Code" "--claude-code" "claude" "$(_check_cmd "claude")"

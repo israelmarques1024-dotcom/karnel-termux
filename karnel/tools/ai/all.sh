@@ -28,6 +28,7 @@ import "@/utils/colors"
 #   update_fn   = nome da função update (gerado automaticamente)
 
 AI_TOOLS_REGISTRY=(
+  "10router:10Router:10router"
   "qwen-code:Qwen Code:qwen"
   "gemini-cli:Gemini CLI:gemini"
   "claude-code:Claude Code:claude"

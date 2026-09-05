@@ -2,7 +2,7 @@
 
 _karnel_tool_flags() {
   local module="$1"
-  local ai_tools="qwen-code gemini-cli claude-code mistral-vibe openclaude openclaw ollama codex opencode mimocode engram codegraph pi antigravity-cli minimax-cli gentle-ai gga hermes-agent kimi-code command-code codebuff freebuff kilocode-cli kiro crush cline odysseus kimchi-code omni-route ctx7 openspec supercode-cli puter keelcode copilot-termux qoder ampcode cursor-cli oh-my-pi goose droid cactus cactus-needle hugging-face walkie"
+  local ai_tools="10router qwen-code gemini-cli claude-code mistral-vibe openclaude openclaw ollama codex opencode mimocode engram codegraph pi antigravity-cli minimax-cli gentle-ai gga hermes-agent kimi-code command-code codebuff freebuff kilocode-cli kiro crush cline odysseus kimchi-code omni-route ctx7 openspec supercode-cli puter keelcode copilot-termux qoder ampcode cursor-cli oh-my-pi goose droid cactus cactus-needle hugging-face walkie"
   local tools=""
 
   case "$module" in
@@ -41,7 +41,7 @@ _karnel_completions() {
   local update_targets="$modules supabase karnel"
   local show_targets="$modules backup restore"
   local open_targets="karnel help lang db ai editor dev npm shell ui auto deploy supabase games cleanup network utils voice plugin security osint robin"
-  local ai_tools="qwen-code gemini-cli claude-code mistral-vibe openclaude openclaw ollama codex opencode mimocode engram codegraph pi antigravity-cli minimax-cli gentle-ai gga hermes-agent kimi-code command-code codebuff freebuff kilocode-cli kiro crush cline odysseus kimchi-code omni-route ctx7 openspec supercode-cli puter keelcode copilot-termux qoder ampcode cursor-cli oh-my-pi goose droid cactus cactus-needle hugging-face walkie"
+  local ai_tools="10router qwen-code gemini-cli claude-code mistral-vibe openclaude openclaw ollama codex opencode mimocode engram codegraph pi antigravity-cli minimax-cli gentle-ai gga hermes-agent kimi-code command-code codebuff freebuff kilocode-cli kiro crush cline odysseus kimchi-code omni-route ctx7 openspec supercode-cli puter keelcode copilot-termux qoder ampcode cursor-cli oh-my-pi goose droid cactus cactus-needle hugging-face walkie"
 
   if [[ $cword -eq 1 ]]; then
     COMPREPLY=($(compgen -W "$commands --help --version" -- "$cur"))
