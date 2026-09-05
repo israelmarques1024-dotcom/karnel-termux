@@ -176,15 +176,10 @@ _download_kilocode_binary_impl() {
     return 1
   fi
 
-  if declare -F github_release_asset_sha256 >/dev/null; then
-    local expected actual
-    expected=$(github_release_asset_sha256 Kilo-Org/kilocode "$latest_version" "$tarball") || expected=""
-    actual=$(sha256sum "$staging_dir/$tarball" 2>/dev/null | awk '{print $1}')
-    if [[ ! "$expected" =~ ^[0-9a-f]{64}$ || "$actual" != "$expected" ]]; then
-      rm -rf "$staging_dir"
-      log_error "Kilo Code archive failed official SHA-256 validation"
-      return 1
-    fi
+  if ! verify_github_release_asset Kilo-Org/kilocode "$latest_version" "$tarball" "$staging_dir/$tarball"; then
+    rm -rf "$staging_dir"
+    log_error "Kilo Code archive failed official SHA-256 validation"
+    return 1
   fi
 
   if ! safe_extract_tar "$staging_dir/$tarball" "$staging_dir"; then

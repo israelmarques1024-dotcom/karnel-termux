@@ -42,6 +42,17 @@ assert_github_asset_digest_is_supported() (
   [[ "$(github_release_asset_sha256 owner/repo v1.2.3 tool.tar.gz)" == "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" ]]
 )
 
+assert_github_asset_digest_works_without_jq() (
+  command() {
+    [[ "$1" == -v && "$2" == jq ]] && return 1
+    builtin command "$@"
+  }
+  curl() {
+    printf '%s\n' '{"assets":[{"name":"tool.tar.gz","digest":"sha256:abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"}]}'
+  }
+  [[ "$(github_release_asset_sha256 owner/repo v1.2.3 tool.tar.gz)" == "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789" ]]
+)
+
 assert_activation_rolls_back() (
   local target="$TEST_ROOT/bin/tool" marker="$TEST_ROOT/markers/tool"
   mkdir -p "$(dirname "$target")" "$(dirname "$marker")"
@@ -132,6 +143,7 @@ assert_source_contracts() {
 
 assert_helper_rejects_bad_inputs
 assert_github_asset_digest_is_supported
+assert_github_asset_digest_works_without_jq
 assert_activation_rolls_back
 assert_bad_download_preserves_install ffuf karnel/tools/security/ffuf/install.sh update_ffuf
 assert_bad_download_preserves_install amass karnel/tools/security/amass/install.sh update_amass
@@ -141,4 +153,4 @@ assert_bad_download_preserves_install zap karnel/tools/security/zap/install.sh u
 assert_bad_download_preserves_install burpsuite karnel/tools/security/burpsuite/install.sh update_burpsuite
 assert_node_requires_shasums
 assert_source_contracts
-printf 'Security installer integrity: 11 passed\n'
+printf 'Security installer integrity: 12 passed\n'

@@ -209,10 +209,16 @@ github_release_asset_sha256() {
       "https://api.github.com/repos/$repo/releases/tags/$version" 2>/dev/null \
       | jq -r --arg asset "$asset" '.assets[] | select(.name == $asset) | .digest // empty' 2>/dev/null \
       | awk -F: 'NR == 1 { print $NF }' | tr -d '\r')
-    if [[ "$digest" =~ ^[0-9a-f]{64}$ ]]; then
-      echo "$digest"
-      return 0
-    fi
+  elif command -v python3 >/dev/null 2>&1; then
+    digest=$(curl -fsSL --connect-timeout 10 --max-time 30 \
+      -H 'Accept: application/vnd.github+json' \
+      "https://api.github.com/repos/$repo/releases/tags/$version" 2>/dev/null \
+      | python3 -c 'import json, sys; asset = sys.argv[1]; release = json.load(sys.stdin); print(next((item.get("digest", "") for item in release.get("assets", []) if item.get("name") == asset), ""))' "$asset" 2>/dev/null \
+      | awk -F: 'NR == 1 { print $NF }' | tr -d '\r')
+  fi
+  if [[ "$digest" =~ ^[0-9a-f]{64}$ ]]; then
+    echo "$digest"
+    return 0
   fi
   # Older GitHub releases may not have an API digest. Try the companion
   # checksum file published alongside the asset (a common convention).
@@ -297,15 +303,9 @@ managed_file_matches() {
 }
 
 github_download_and_extract() {
-  local repo="$1" version="$2" asset="$3" outdir="$4"
-  local tarball expected
+  local repo="$1" version="$2" asset="$3" outdir="$4" tarball
   tarball=$(github_download_release "$repo" "$version" "$asset" "$outdir") || return 1
-  expected=$(github_release_asset_sha256 "$repo" "$version" "$asset") || expected=""
-  if [[ "$expected" =~ ^[0-9a-f]{64}$ ]]; then
-    verify_sha256 "$tarball" "$expected" || return 1
-  else
-    log_warn "No published SHA-256 digest for $repo/$asset; skipping integrity verification"
-  fi
+  verify_github_release_asset "$repo" "$version" "$asset" "$tarball" || { rm -f "$tarball"; return 1; }
   extract_tarball "$tarball" "$outdir" || return 1
   return 0
 }
