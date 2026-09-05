@@ -264,6 +264,7 @@ assert_kilocode_ownership_and_staging() (
   log_error() { :; }
   loading() { shift; "$@"; }
   curl() { : >"${@: -1}"; }
+  verify_github_release_asset() { return 0; }
   tar() { printf '#!/usr/bin/env bash\nexit 0\n' >"$4/kilo"; }
   cc() { local output="${3}"; printf '#!/usr/bin/env bash\nexit 0\n' >"$output"; }
   # shellcheck source=../karnel/tools/ai/kilocode-cli/install.sh
