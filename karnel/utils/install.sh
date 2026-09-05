@@ -201,8 +201,21 @@ activate_installer_file() {
 
 github_release_asset_sha256() {
   local repo="$1" version="$2" asset="$3" digest=""
-  # GitHub's release API does not expose per-asset digests, so fetch the
-  # companion checksum file published alongside the asset (common convention).
+  # Modern GitHub releases expose an official SHA-256 in each asset's digest
+  # field. Prefer it so installers do not depend on companion checksum files.
+  if command -v jq >/dev/null 2>&1; then
+    digest=$(curl -fsSL --connect-timeout 10 --max-time 30 \
+      -H 'Accept: application/vnd.github+json' \
+      "https://api.github.com/repos/$repo/releases/tags/$version" 2>/dev/null \
+      | jq -r --arg asset "$asset" '.assets[] | select(.name == $asset) | .digest // empty' 2>/dev/null \
+      | awk -F: 'NR == 1 { print $NF }' | tr -d '\r')
+    if [[ "$digest" =~ ^[0-9a-f]{64}$ ]]; then
+      echo "$digest"
+      return 0
+    fi
+  fi
+  # Older GitHub releases may not have an API digest. Try the companion
+  # checksum file published alongside the asset (a common convention).
   digest=$(curl -fsSL --connect-timeout 10 --max-time 30 \
     "https://github.com/$repo/releases/download/$version/$asset.sha256" 2>/dev/null \
     | awk '{print $1; exit}' | tr -d '\r')
