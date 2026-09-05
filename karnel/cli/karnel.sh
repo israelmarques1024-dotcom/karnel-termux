@@ -88,7 +88,8 @@ karnel_help() {
   echo
   box "◈ KARNEL v${KARNEL_VERSION} ◈"
   echo
-  log_info "Usage: karnel <command> [options]"
+	log_info "Usage: karnel <command> [options]"
+	log_info "Global option: --auto  Run supported confirmations and selections without prompts"
   echo
   separator_section "Available Commands"
   echo

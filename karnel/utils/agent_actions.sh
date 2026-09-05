@@ -1306,6 +1306,10 @@ agent_server_stop() {
 # ------------------------------------------------------------
 agent_confirm() {
 	local prompt="$1" var="$2" _val
+	if [[ "${KARNEL_AUTO:-0}" == "1" ]]; then
+		read -r "$var" <<<"y"
+		return 0
+	fi
 	while true; do
 		printf '    %b%b [%b]%b\n' "$D_YELLOW" "$prompt" "${D_GREEN}y${GRAY}/${D_RED}n${NC}" "$NC" >&2
 		printf '    > ' >&2

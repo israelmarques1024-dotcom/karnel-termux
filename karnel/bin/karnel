@@ -20,6 +20,20 @@ KARNEL_PATH="$(cd "$BIN_DIR/.." 2>/dev/null && pwd)" || {
 # cargar bootstrap
 source "$KARNEL_PATH/utils/bootstrap.sh"
 
+# --auto is global and may be supplied before or after the command. Remove it
+# before dispatch because module lifecycle parsers treat every --flag as a tool.
+_karnel_args=()
+for _karnel_arg in "$@"; do
+  if [[ "$_karnel_arg" == "--auto" ]]; then
+    export KARNEL_AUTO=1
+    export KARNEL_NONINTERACTIVE=1
+    export KARNEL_REMOVE_DEFAULT=y
+  else
+    _karnel_args+=("$_karnel_arg")
+  fi
+done
+set -- "${_karnel_args[@]}"
+
 # Informational flags must not initialize user state or trigger update checks.
 case "${1:-}" in
   --help|-h|--version|help|version|list|show) KARNEL_READ_ONLY=1 ;;
@@ -128,5 +142,10 @@ fi
 
 # cargar CLI unificado (com TUI + help)
 import "@/cli/karnel"
+
+if [[ "${KARNEL_AUTO:-0}" == "1" && $# -eq 0 ]]; then
+  karnel_help
+  exit 0
+fi
 
 karnel_main "$@"

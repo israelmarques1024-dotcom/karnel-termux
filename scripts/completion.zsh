@@ -98,15 +98,16 @@ _karnel() {
 
   if (( CURRENT == 2 )); then
     _karnel_commands
+    compadd -- --auto
     return
   fi
 
   case "$command" in
     install|uninstall|reinstall)
-      if (( CURRENT == 3 )); then _karnel_modules; compadd -- supabase; else _karnel_tool_flags "${words[3]}"; fi
+      if (( CURRENT == 3 )); then _karnel_modules; compadd -- supabase; else _karnel_tool_flags "${words[3]}"; compadd -- --auto; fi
       ;;
     update)
-      if (( CURRENT == 3 )); then _karnel_modules; compadd -- supabase karnel; else _karnel_tool_flags "${words[3]}"; fi
+      if (( CURRENT == 3 )); then _karnel_modules; compadd -- supabase karnel; else _karnel_tool_flags "${words[3]}"; compadd -- --auto; fi
       ;;
     show)
       if (( CURRENT == 3 )); then _karnel_modules; compadd -- backup restore; else _karnel_tool_flags "${words[3]}"; fi

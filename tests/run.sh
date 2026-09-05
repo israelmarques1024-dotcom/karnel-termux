@@ -14,6 +14,7 @@ bash tests/init-search.sh
 bash tests/backup-restore.sh
 bash tests/brain.sh
 bash tests/ai-registry.sh
+bash tests/auto-mode.sh
 bash tests/completion-catalog.sh
 bash tests/lifecycle-orchestration.sh
 bash tests/security-supply-chain.sh

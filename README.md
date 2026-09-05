@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux">
-    <img src="https://img.shields.io/badge/version-4.17.33-0078D4?style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/badge/version-4.17.34-0078D4?style=for-the-badge" alt="Version">
   </a>
   <a href="https://www.npmjs.com/package/karnel-termux">
     <img src="https://img.shields.io/npm/v/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
@@ -78,7 +78,7 @@ Why it's great:
 ### Via checksummed GitHub release (recommended)
 
 ```bash
-version=4.17.33
+version=4.17.34
 tmpdir=$(mktemp -d) && trap 'rm -rf "$tmpdir"' EXIT
 base="https://github.com/israelmarques1024-dotcom/karnel-termux/releases/download/v$version"
 curl -fsSL "$base/karnel-termux-install.sh" -o "$tmpdir/karnel-termux-install.sh"
@@ -103,6 +103,22 @@ After installation, run:
 ```bash
 karnel
 ```
+
+### Noninteractive mode
+
+Use `--auto` before or after a command to approve supported confirmations and
+select the recommended installation method without prompting. With no tool
+flags, the whole module is installed:
+
+```bash
+karnel --auto install ai
+karnel install security --auto
+karnel --auto update ai
+```
+
+`--auto` does not invent required values such as API tokens, passwords, project
+names, or voice input. It also does not replace explicit trust and legal opt-in
+flags such as `--unsafe` or `--accept-responsible-use`.
 
 In a terminal, running `karnel` without a command opens a curated menu for
 common workflows. The menu is not a complete inventory of CLI commands,

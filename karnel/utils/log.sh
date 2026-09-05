@@ -277,6 +277,11 @@ read_confirm() {
 	local var="$2"
 	local _val
 
+	if [[ "${KARNEL_AUTO:-0}" == "1" ]]; then
+		read -r "$var" <<<"y"
+		return 0
+	fi
+
 	if [[ ! -t 0 ]]; then
 		read -r "$var" <<<"n"
 		return 1
@@ -309,6 +314,11 @@ read_confirm_default() {
 	local default="$2"
 	local var="$3"
 	local _val
+
+	if [[ "${KARNEL_AUTO:-0}" == "1" ]]; then
+		read -r "$var" <<<"y"
+		return 0
+	fi
 
 	if [[ ! -t 0 ]]; then
 		read -r "$var" <<<"$default"
