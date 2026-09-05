@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux">
-    <img src="https://img.shields.io/badge/version-4.17.22-0078D4?style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/badge/version-4.17.31-0078D4?style=for-the-badge" alt="Version">
   </a>
   <a href="https://www.npmjs.com/package/karnel-termux">
     <img src="https://img.shields.io/npm/v/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
@@ -35,7 +35,7 @@ Created by **Israel Marques**. Core agent contributions by **devcorex**.
 
 With a single CLI (`karnel`), install and manage:
 
-- **45 AI tools** — Claude, Gemini, OpenCode, Cactus, Hugging Face, Ollama, KeelCode, Goose, Factory Droid and more
+- **46 AI tools** — Claude, Gemini, OpenCode, Cactus, Hugging Face, Ollama, KeelCode, Goose, Factory Droid, 10Router and more
 - **8 languages** — Node.js, Python, Go, Rust, C/C++, PHP, Perl, Bun
 - **5 databases** — PostgreSQL, MariaDB, SQLite, MongoDB, Redis
 - **22 dev tools** — gh, curl, fzf, bat, lsd, jq, tmux, openssh, snyk and more
@@ -67,7 +67,7 @@ karnel install utils --herdr
 Why it's great:
 - **Checksum-verified** download from the official Herdr release manifest (`https://herdr.dev/latest.json`).
 - **Atomic, safe install** into `$PREFIX/bin/herdr` with a Karnel ownership marker — so `karnel uninstall utils --herdr` is clean and never touches files it didn't manage.
-- Pairs perfectly with the 45 AI agents Karnel manages.
+- Pairs perfectly with the 46 AI agents Karnel manages.
 
 > Open its docs anytime with `karnel open herdr`.
 
@@ -78,7 +78,7 @@ Why it's great:
 ### Via checksummed GitHub release (recommended)
 
 ```bash
-version=4.17.22
+version=4.17.31
 tmpdir=$(mktemp -d) && trap 'rm -rf "$tmpdir"' EXIT
 base="https://github.com/israelmarques1024-dotcom/karnel-termux/releases/download/v$version"
 curl -fsSL "$base/karnel-termux-install.sh" -o "$tmpdir/karnel-termux-install.sh"
@@ -145,7 +145,7 @@ aliases, or options; use `karnel help` and the CLI reference for the full set.
 |--------|-------------|--------------|
 | `lang` | Node.js, Python, Go, Rust, C/C++, PHP, Perl, Bun | `karnel install lang` |
 | `db` | PostgreSQL, MariaDB, SQLite, MongoDB, Redis | `karnel install db` |
-| `ai` | 45 AI tools, agents, and local inference clients | `karnel install ai` |
+| `ai` | 46 AI tools, agents, and local inference clients | `karnel install ai` |
 | `editor` | code-server (VS Code in browser), Neovim, NvChad | `karnel install editor` |
 | `dev` | gh, curl, fzf, bat, lsd, jq and more | `karnel install dev` |
 | `npm` | TypeScript, NestJS CLI, Prettier and more | `karnel install npm` |
@@ -289,7 +289,7 @@ See the bundled reference with `karnel show osint --robin`.
 
 ---
 
-## AI Tools (45)
+## AI Tools (46)
 
 ```bash
 karnel install ai                             # Install all
@@ -301,6 +301,7 @@ karnel install ai --opencode --ollama         # Install specific agents
 
 | Agent | Flag | Description |
 |-------|------|-------------|
+| **10Router** | `--10router` | Start and manage a 10Router server |
 | **Qwen Code** | `--qwen-code` | Alibaba coding assistant |
 | **Gemini CLI** | `--gemini-cli` | Google Gemini assistant |
 | **Claude Code** | `--claude-code` | Anthropic CLI with Claude AI |
@@ -583,7 +584,7 @@ karnel/
 │   │   └── karnel.sh    # Main CLI (with TUI)
 │   ├── modules/       # Module orchestrators
 │   ├── tools/         # Tool installers
-│   │   ├── ai/        # 45 AI tools
+│   │   ├── ai/        # 46 AI tools
 │   │   ├── lang/      # 8 languages
 │   │   ├── db/        # 5 databases
 │   │   ├── dev/       # 22 dev tools
