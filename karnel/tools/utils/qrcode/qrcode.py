@@ -5,7 +5,7 @@ import sys
 
 # The launcher is named qrcode.py, so remove its directory before importing
 # the third-party qrcode package to avoid importing this file recursively.
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 sys.path = [path for path in sys.path if path not in ("", SCRIPT_DIR)]
 
 import qrcode
