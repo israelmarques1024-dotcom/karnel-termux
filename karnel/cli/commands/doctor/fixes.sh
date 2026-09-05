@@ -342,10 +342,11 @@ _fix_script_symlinks() {
       local tool_name
       tool_name=$(basename "$tool_dir")
       local bin_names
-      bin_names=$(grep -E '^local BIN_NAME=' "$installer" 2>/dev/null | head -1 | sed "s/.*BIN_NAME=\"\?//;s/\"\?$//")
+      bin_names=$(grep -E '^[[:space:]]*local BIN_NAME=' "$installer" 2>/dev/null | head -1 | sed "s/.*BIN_NAME=\"\?//;s/\"\?$//")
       [[ -z "$bin_names" ]] && bin_names="$tool_name"
       for bin_name in $bin_names; do
         local expected="$tool_dir/$bin_name.py"
+        [[ -f "$expected" ]] || continue
         local link="$PREFIX/bin/$bin_name"
         if [[ -L "$link" ]]; then
           local target
@@ -403,15 +404,14 @@ _fix_script_missing() {
       local module_name
       module_name=$(basename "$module_dir")
       local bin_names
-      bin_names=$(grep -E '^local BIN_NAME=' "$installer" 2>/dev/null | head -1 | sed "s/.*BIN_NAME=\"\?//;s/\"\?$//")
+      bin_names=$(grep -E '^[[:space:]]*local BIN_NAME=' "$installer" 2>/dev/null | head -1 | sed "s/.*BIN_NAME=\"\?//;s/\"\?$//")
       [[ -z "$bin_names" ]] && bin_names="$tool_name"
       for bin_name in $bin_names; do
         ((total++))
         if ! command -v "$bin_name" &>/dev/null; then
           karnel install "$module_name" "--$tool_name" &>/dev/null && ((fixed++))
         fi
-      done
-    done < <(find "$module_dir" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null || true)
+      done    done < <(find "$module_dir" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null || true)
   done < <(find "$KARNEL_PATH/tools/" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null || true)
   [[ $fixed -gt 0 ]] && log_success "Reinstalled $fixed/$total missing tool(s)"
   return 0

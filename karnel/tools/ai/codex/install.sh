@@ -2,6 +2,7 @@
 
 import "@/utils/log"
 import "@/utils/version"
+import "@/utils/npm-shebang"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 
@@ -39,6 +40,7 @@ _install_codex_npm_impl() {
 		log_error "Failed to install Codex CLI"
 		return 1
 	fi
+	_fix_npm_shebang "codex"
 
 	return 0
 }
@@ -90,6 +92,7 @@ _update_codex_impl() {
 		log_error "Failed to update Codex CLI"
 		return 1
 	fi
+	_fix_npm_shebang "codex"
 	return 0
 }
 

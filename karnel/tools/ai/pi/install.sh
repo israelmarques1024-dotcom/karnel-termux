@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 import "@/utils/log"
 import "@/utils/version"
+import "@/utils/npm-shebang"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 
@@ -39,6 +40,7 @@ _install_pi_npm_impl() {
     log_error "Failed to install Pi"
     return 1
   fi
+  _fix_npm_shebang "pi"
 
   return 0
 }
@@ -90,6 +92,7 @@ _update_pi_impl() {
     log_error "Failed to update Pi"
     return 1
   fi
+  _fix_npm_shebang "pi"
   return 0
 }
 

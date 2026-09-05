@@ -2,6 +2,7 @@
 
 import "@/utils/log"
 import "@/utils/version"
+import "@/utils/npm-shebang"
 
 LOG_FILE="$KARNEL_CACHE/install_npm.log"
 
@@ -80,6 +81,7 @@ _update_nestjs_npm_impl() {
     log_error "Failed to update NestJS CLI"
     return 1
   fi
+  _fix_npm_shebang "nest"
   return 0
 }
 

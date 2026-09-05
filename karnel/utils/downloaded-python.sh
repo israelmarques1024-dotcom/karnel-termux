@@ -40,7 +40,7 @@ _downloaded_python_install() {
     curl -fsSL "$download_url" -o "$staged_payload" || commit_failed=1
   fi
   if (( commit_failed != 0 )) || ! sed -i "1s|.*|#!$python3_path|" "$staged_payload" ||
-    ! chmod +x "$staged_payload" || ! sha256sum "$staged_payload" >"$staged_marker" ||
+    ! chmod 755 "$staged_payload" || ! sha256sum "$staged_payload" >"$staged_marker" ||
     ! ln -s "$payload" "$staged_link"; then
     rm -rf "$tool_staging" "$link_staging"
     return 1

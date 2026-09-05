@@ -2,6 +2,7 @@
 
 import "@/utils/log"
 import "@/utils/version"
+import "@/utils/npm-shebang"
 
 LOG_FILE="$KARNEL_CACHE/install_npm.log"
 
@@ -80,6 +81,7 @@ _update_typescript_npm_impl() {
     log_error "Failed to update TypeScript"
     return 1
   fi
+  _fix_npm_shebang "tsc"
   return 0
 }
 

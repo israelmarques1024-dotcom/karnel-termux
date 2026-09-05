@@ -2,6 +2,7 @@
 
 import "@/utils/log"
 import "@/utils/version"
+import "@/utils/npm-shebang"
 
 LOG_FILE="$KARNEL_CACHE/install_npm.log"
 
@@ -80,6 +81,7 @@ _update_vercel_npm_impl() {
     log_error "Failed to update Vercel CLI"
     return 1
   fi
+  _fix_npm_shebang "vercel"
   return 0
 }
 

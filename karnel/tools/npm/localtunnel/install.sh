@@ -2,6 +2,7 @@
 
 import "@/utils/log"
 import "@/utils/version"
+import "@/utils/npm-shebang"
 
 LOG_FILE="$KARNEL_CACHE/install_npm.log"
 
@@ -42,9 +43,9 @@ _install_localtunnel_npm_impl() {
     log_error "Failed to install Localtunnel"
     return 1
   fi
+  _fix_npm_shebang "lt"
   log_info "Applying localtunnel fix for Android..."
   _localtunnel_fix_openurl &>>"$LOG_FILE"
-  _fix_npm_shebang "lt"
   return 0
 }
 
@@ -97,6 +98,7 @@ _update_localtunnel_npm_impl() {
     log_error "Failed to update Localtunnel"
     return 1
   fi
+  _fix_npm_shebang "lt"
   return 0
 }
 

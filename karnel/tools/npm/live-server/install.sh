@@ -2,6 +2,7 @@
 
 import "@/utils/log"
 import "@/utils/version"
+import "@/utils/npm-shebang"
 
 LOG_FILE="$KARNEL_CACHE/install_npm.log"
 
@@ -81,6 +82,7 @@ _update_live_server_npm_impl() {
     log_error "Failed to update Live Server"
     return 1
   fi
+  _fix_npm_shebang "live-server"
   return 0
 }
 

@@ -1,4 +1,5 @@
 #!/data/data/com.termux/files/usr/bin/python3
+import os
 import sys
 import subprocess
 import hashlib

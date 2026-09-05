@@ -2,6 +2,7 @@
 
 import "@/utils/log"
 import "@/utils/version"
+import "@/utils/npm-shebang"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 
@@ -39,6 +40,7 @@ _install_kimi_code_npm_impl() {
     log_error "Failed to install Kimi Code"
     return 1
   fi
+  _fix_npm_shebang "kimi"
 
   return 0
 }
@@ -92,6 +94,7 @@ _update_kimi_code_impl() {
     log_error "Failed to update Kimi Code"
     return 1
   fi
+  _fix_npm_shebang "kimi"
   return 0
 }
 

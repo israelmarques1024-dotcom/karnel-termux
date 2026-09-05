@@ -671,7 +671,7 @@ doctor_termux() {
       [[ -f "$installer" ]] || continue
 
       local bin_names
-      bin_names=$(grep -E '^local BIN_NAME=' "$installer" 2>/dev/null | head -1 | sed "s/.*BIN_NAME=\"\?//;s/\"\?$//")
+      bin_names=$(grep -E '^[[:space:]]*local BIN_NAME=' "$installer" 2>/dev/null | head -1 | sed "s/.*BIN_NAME=\"\?//;s/\"\?$//")
       [[ -z "$bin_names" ]] && bin_names="$tool_name"
 
       for bin_name in $bin_names; do
@@ -684,12 +684,14 @@ doctor_termux() {
           if [[ "$target" == "$tool_script" ]]; then
             log_success "$module_name/$tool_name → $bin_name (OK)"
             ((script_ok++))
+          elif [[ ! -f "$tool_script" ]]; then
+            log_info "$bin_name: managed outside Karnel python payloads (→ $target)"
           else
             log_warn "$bin_name: symlink target changed (→ $target, expected $tool_script)"
             ((script_warn++)); found_symlink_issues=true
           fi
 
-          if [[ -f "$bin_path" ]] && head -1 "$bin_path" 2>/dev/null | grep -q "^#!/usr/bin/env"; then
+          if [[ -f "$tool_script" ]] && [[ -f "$bin_path" ]] && head -1 "$bin_path" 2>/dev/null | grep -q "^#!/usr/bin/env"; then
             log_warn "$bin_name: uses #!/usr/bin/env — will fail on Termux"
             ((script_warn++)); found_shebang_issues=true
           fi

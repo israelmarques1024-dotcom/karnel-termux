@@ -2,6 +2,7 @@
 
 import "@/utils/log"
 import "@/utils/version"
+import "@/utils/npm-shebang"
 
 LOG_FILE="$KARNEL_CACHE/install_ai.log"
 
@@ -42,6 +43,7 @@ _install_openclaude_npm_impl() {
     log_error "Failed to install OpenClaude"
     return 1
   fi
+  _fix_npm_shebang "openclaude"
 
   return 0
 }
@@ -96,6 +98,7 @@ _update_openclaude_impl() {
     log_error "Failed to update OpenClaude"
     return 1
   fi
+  _fix_npm_shebang "openclaude"
   return 0
 }
 
