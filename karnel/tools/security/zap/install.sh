@@ -3,6 +3,8 @@
 _ZAP_DIR="$PREFIX/share/zap"
 _ZAP_VERSION="2.16.1"
 _ZAP_SHA256="5b2eb8319b085121a6e8ad50d69d67dbef8c867166f71a937bfc888d247a2ac1"
+_ZAP_PACKAGE_MARKER="$PREFIX/share/karnel-installers/zaproxy"
+_zap_package_owned() { [[ -f "$_ZAP_PACKAGE_MARKER" && "$(<"$_ZAP_PACKAGE_MARKER")" == 'pkg:zaproxy' ]]; }
 
 _zap_owned() {
   installer_file_owned "$PREFIX/bin/zap" "$_ZAP_DIR/.karnel-wrapper"
@@ -10,7 +12,7 @@ _zap_owned() {
 
 install_zap() (
   if command -v zap &>/dev/null; then
-    if ! _zap_owned; then
+    if ! _zap_owned && ! _zap_package_owned; then
       log_info "zap já está instalado"
       return 2
     fi
@@ -19,6 +21,7 @@ install_zap() (
 
   if [ ! -f "$_ZAP_DIR/.karnel-wrapper" ] &&
     { pkg install -y zaproxy 2>/dev/null || apt install -y zaproxy 2>/dev/null; }; then
+    mkdir -p "$(dirname "$_ZAP_PACKAGE_MARKER")" && printf '%s\n' 'pkg:zaproxy' >"$_ZAP_PACKAGE_MARKER" || return 1
     log_success "zap instalado"
     return 0
   fi
@@ -102,7 +105,10 @@ SCRIPT
 
 uninstall_zap() {
   log_info "Removendo ZAP..."
-  if [ -f "$_ZAP_DIR/.karnel-wrapper" ]; then
+  if _zap_package_owned; then
+    pkg uninstall -y zaproxy 2>/dev/null || apt remove -y zaproxy 2>/dev/null || return 1
+    rm -f "$_ZAP_PACKAGE_MARKER"
+  elif [ -f "$_ZAP_DIR/.karnel-wrapper" ]; then
     [ "$(sha256sum "$PREFIX/bin/zap" 2>/dev/null)" = "$(<"$_ZAP_DIR/.karnel-wrapper")" ] && rm -f "$PREFIX/bin/zap"
     rm -rf "$_ZAP_DIR"
   fi

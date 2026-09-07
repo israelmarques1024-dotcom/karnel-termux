@@ -33,7 +33,7 @@ karnel-termux/
 │   │       ├── dev.sh          # Dev tools installer
 │   │       └── ...
 │   ├── tools/                  # Individual tool installers
-│   │   ├── ai/                 # 45 AI tools
+│   │   ├── ai/                 # 46 AI tools
 │   │   ├── lang/               # 8 languages
 │   │   ├── db/                 # 5 databases
 │   │   ├── dev/                # 22 dev tools

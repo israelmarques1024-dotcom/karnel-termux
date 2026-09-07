@@ -276,11 +276,7 @@ _update_try_curl() {
       return 0
     fi
   else
-    if bash "$installer" --ref "$tag"; then
-      rm -f "$installer"
-      log_success "Karnel-Termux updated via curl ($tag)"
-      return 0
-    fi
+    log_error "Could not verify the immutable commit for $tag"
   fi
 
   rm -f "$installer"
@@ -421,7 +417,17 @@ _update_show_manual() {
 
 _update_karnel_repo() {
   local repo_dir="$KARNEL_PATH/.."
-  local old_head
+  local old_head origin
+
+  origin=$(git -C "$repo_dir" remote get-url origin 2>/dev/null) || return 1
+  case "${origin%.git}" in
+    https://github.com/israelmarques1024-dotcom/karnel-termux|git@github.com:israelmarques1024-dotcom/karnel-termux) ;;
+    *) log_error "Refusing git update from an untrusted origin: $origin"; return 1 ;;
+  esac
+  if [[ -n "$(git -C "$repo_dir" status --porcelain --untracked-files=all 2>/dev/null)" ]]; then
+    log_error "Refusing git update with uncommitted framework changes"
+    return 1
+  fi
 
   old_head=$(git -C "$repo_dir" rev-parse HEAD 2>/dev/null)
 

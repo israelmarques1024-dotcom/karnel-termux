@@ -88,7 +88,15 @@ _install_railway_manual() {
 }
 
 _install_railway_manual_impl() {
-  mkdir -p "$RAILWAY_DATA_DIR"
+  if [[ -e "$RAILWAY_DATA_DIR" ]] && ! _railway_data_is_karnel_owned; then
+    log_error "Refusing to replace unowned Railway data: $RAILWAY_DATA_DIR"
+    return 1
+  fi
+  if [[ -e "$PREFIX/bin/railway" || -L "$PREFIX/bin/railway" ]] && ! _railway_command_is_karnel_owned; then
+    log_error "Refusing to replace unowned railway command: $PREFIX/bin/railway"
+    return 1
+  fi
+  mkdir -p "$RAILWAY_DATA_DIR" "$PREFIX/bin"
 
   local latest_version
   latest_version=$(curl -fsSL --connect-timeout 10 "https://api.github.com/repos/railwayapp/cli/releases/latest" 2>/dev/null | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')

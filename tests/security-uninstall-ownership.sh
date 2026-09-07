@@ -54,6 +54,29 @@ assert_checksum_marker_ownership() (
 )
 assert_checksum_marker_ownership
 
+assert_package_backend_uninstalls() (
+  local tool="$1" installer="$2" uninstall_function="$3" marker="$4" package="$5"
+  export PREFIX="$TEST_ROOT/${tool}-package-prefix"
+  mkdir -p "$PREFIX/bin" "$(dirname "$marker")"
+  printf 'pkg:%s\n' "$package" >"$marker"
+  package_removed=0
+  pkg() {
+    [[ "$1" == uninstall && "$2" == -y && "$3" == "$package" ]] && package_removed=1
+  }
+  apt() { return 1; }
+  # shellcheck source=/dev/null
+  source "$ROOT_DIR/$installer"
+  "$uninstall_function"
+  [[ $package_removed -eq 1 && ! -e "$marker" ]]
+)
+
+assert_package_backend_uninstalls amass karnel/tools/security/amass/install.sh uninstall_amass "$TEST_ROOT/amass-package-prefix/share/karnel-installers/amass" amass
+assert_package_backend_uninstalls subfinder karnel/tools/security/subfinder/install.sh uninstall_subfinder "$TEST_ROOT/subfinder-package-prefix/share/karnel-installers/subfinder" subfinder
+assert_package_backend_uninstalls ffuf karnel/tools/security/ffuf/install.sh uninstall_ffuf "$TEST_ROOT/ffuf-package-prefix/share/karnel-installers/ffuf" ffuf
+assert_package_backend_uninstalls gobuster karnel/tools/security/gobuster/install.sh uninstall_gobuster "$TEST_ROOT/gobuster-package-prefix/share/karnel-installers/gobuster" gobuster
+assert_package_backend_uninstalls zap karnel/tools/security/zap/install.sh uninstall_zap "$TEST_ROOT/zap-package-prefix/share/karnel-installers/zaproxy" zaproxy
+assert_package_backend_uninstalls burpsuite karnel/tools/security/burpsuite/install.sh uninstall_burpsuite "$TEST_ROOT/burpsuite-package-prefix/share/karnel-installers/burpsuite" burpsuite
+
 assert_cursor_and_railway_ownership() (
   export HOME="$TEST_ROOT/owned-home"
   export PREFIX="$TEST_ROOT/owned-prefix"
@@ -101,4 +124,4 @@ assert_cursor_and_railway_ownership() (
 )
 assert_cursor_and_railway_ownership
 
-printf 'Security uninstaller ownership: 16 passed\n'
+printf 'Security uninstaller ownership: 22 passed\n'

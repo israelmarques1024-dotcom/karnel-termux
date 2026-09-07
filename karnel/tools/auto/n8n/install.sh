@@ -33,7 +33,7 @@ _n8n_dependencies() {
 }
 
 _install_n8n_impl() {
-  _n8n_dependencies
+  _n8n_dependencies || return 1
 
   mkdir -p "$(dirname "$LOG_FILE")"
   export GYP_DEFINES="android_ndk_path=''"

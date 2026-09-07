@@ -29,7 +29,7 @@ karnel install <module> --tool1 --tool2  # Install specific tools only
 |-----------|-------------|
 | `lang`    | Node.js, Python, Go, Rust, C/C++, PHP, Perl, Bun |
 | `db`      | PostgreSQL, MariaDB, SQLite, MongoDB, Redis |
-| `ai`      | 45 AI tools (OpenCode, Cactus, Hugging Face, Claude Code, KeelCode, Goose, Factory Droid, Ollama, etc.) |
+| `ai`      | 46 AI tools (OpenCode, Cactus, Hugging Face, Claude Code, KeelCode, Goose, Factory Droid, 10Router, Ollama, etc.) |
 | `editor`  | code-server (VS Code in browser), Neovim, NvChad |
 | `dev`     | gh, curl, fzf, bat, lsd, jq, tmux, openssh, snyk (22 tools) |
 | `npm`     | TypeScript, NestJS CLI, Prettier, Vercel CLI, etc. |
@@ -143,7 +143,7 @@ binary/command name, and current install status.
 |-----------|-------|
 | `lang`    | 8 languages |
 | `db`      | 5 databases |
-| `ai`      | 45 AI tools |
+| `ai`      | 46 AI tools |
 | `editor`  | 3 editor components |
 | `dev`     | 22 development tools |
 | `npm`     | 11 npm global modules |

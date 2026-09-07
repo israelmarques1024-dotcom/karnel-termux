@@ -2,6 +2,7 @@
 
 _SUBFINDER_MARKER="$PREFIX/share/karnel-installers/subfinder"
 _SUBFINDER_VERSION="2.6.6"
+_subfinder_package_owned() { [[ -f "$_SUBFINDER_MARKER" && "$(<"$_SUBFINDER_MARKER")" == 'pkg:subfinder' ]]; }
 
 _subfinder_arch() {
   local arch
@@ -16,7 +17,7 @@ _subfinder_arch() {
 
 install_subfinder() (
   if command -v subfinder &>/dev/null; then
-    if ! installer_file_owned "$PREFIX/bin/subfinder" "$_SUBFINDER_MARKER"; then
+    if ! installer_file_owned "$PREFIX/bin/subfinder" "$_SUBFINDER_MARKER" && ! _subfinder_package_owned; then
       log_info "subfinder já está instalado"
       return 2
     fi
@@ -25,7 +26,7 @@ install_subfinder() (
   if [ ! -f "$_SUBFINDER_MARKER" ] &&
     { pkg install -y subfinder 2>/dev/null || apt install -y subfinder 2>/dev/null; }; then
     local bin; bin="$(command -v subfinder)"
-    [ -n "$bin" ] && sha256sum "$bin" > "$_SUBFINDER_MARKER" 2>/dev/null
+    [ -n "$bin" ] && { mkdir -p "$(dirname "$_SUBFINDER_MARKER")" && printf '%s\n' 'pkg:subfinder' >"$_SUBFINDER_MARKER"; }
     log_success "subfinder instalado"
     return 0
   fi
@@ -65,7 +66,10 @@ install_subfinder() (
 
 uninstall_subfinder() {
   log_info "Removendo subfinder..."
-  if [ -f "$_SUBFINDER_MARKER" ]; then
+  if _subfinder_package_owned; then
+    pkg uninstall -y subfinder 2>/dev/null || apt remove -y subfinder 2>/dev/null || return 1
+    rm -f "$_SUBFINDER_MARKER"
+  elif [ -f "$_SUBFINDER_MARKER" ]; then
     [ "$(sha256sum "$PREFIX/bin/subfinder" 2>/dev/null)" = "$(<"$_SUBFINDER_MARKER")" ] && rm -f "$PREFIX/bin/subfinder"
     rm -f "$_SUBFINDER_MARKER"
   fi

@@ -3,6 +3,7 @@
 _GOBUSTER_VERSION="3.6.0"
 _GOBUSTER_DIR="$PREFIX/share/gobuster"
 _GOBUSTER_MARKER="$PREFIX/share/karnel-installers/gobuster"
+_gobuster_package_owned() { [[ -f "$_GOBUSTER_MARKER" && "$(<"$_GOBUSTER_MARKER")" == 'pkg:gobuster' ]]; }
 
 _install_gobuster_bin() (
   local arch asset checksum tmpdir archive staged_bin
@@ -36,7 +37,7 @@ _install_gobuster_bin() (
 
 install_gobuster() {
   if command -v gobuster &>/dev/null; then
-    if ! installer_file_owned "$PREFIX/bin/gobuster" "$_GOBUSTER_MARKER"; then
+    if ! installer_file_owned "$PREFIX/bin/gobuster" "$_GOBUSTER_MARKER" && ! _gobuster_package_owned; then
       log_info "gobuster já está instalado"
       return 2
     fi
@@ -44,6 +45,7 @@ install_gobuster() {
   log_info "Instalando gobuster..."
   if [ ! -f "$_GOBUSTER_MARKER" ] &&
     { pkg install -y gobuster 2>/dev/null || apt install -y gobuster 2>/dev/null; }; then
+    mkdir -p "$(dirname "$_GOBUSTER_MARKER")" && printf '%s\n' 'pkg:gobuster' >"$_GOBUSTER_MARKER" || return 1
     log_success "gobuster instalado"
     return 0
   fi
@@ -57,7 +59,10 @@ install_gobuster() {
 
 uninstall_gobuster() {
   log_info "Removendo gobuster..."
-  if [ -f "$_GOBUSTER_MARKER" ]; then
+  if _gobuster_package_owned; then
+    pkg uninstall -y gobuster 2>/dev/null || apt remove -y gobuster 2>/dev/null || return 1
+    rm -f "$_GOBUSTER_MARKER"
+  elif [ -f "$_GOBUSTER_MARKER" ]; then
     [ "$(sha256sum "$PREFIX/bin/gobuster" 2>/dev/null)" = "$(<"$_GOBUSTER_MARKER")" ] && rm -f "$PREFIX/bin/gobuster"
     rm -f "$_GOBUSTER_MARKER"
   fi

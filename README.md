@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux">
-    <img src="https://img.shields.io/badge/version-4.17.34-0078D4?style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/badge/version-4.17.35-0078D4?style=for-the-badge" alt="Version">
   </a>
   <a href="https://www.npmjs.com/package/karnel-termux">
     <img src="https://img.shields.io/npm/v/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
@@ -78,7 +78,7 @@ Why it's great:
 ### Via checksummed GitHub release (recommended)
 
 ```bash
-version=4.17.34
+version=4.17.35
 tmpdir=$(mktemp -d) && trap 'rm -rf "$tmpdir"' EXIT
 base="https://github.com/israelmarques1024-dotcom/karnel-termux/releases/download/v$version"
 curl -fsSL "$base/karnel-termux-install.sh" -o "$tmpdir/karnel-termux-install.sh"
@@ -666,8 +666,9 @@ once every 24 hours; the check can use npm or GitHub and writes state under
 
 The repository CI validates Bash/Zsh syntax, ShellCheck errors, CLI smoke tests,
 version behavior, Robin contracts, plugin lifecycle contracts, and npm package
-contents. The documentation site is built by the `Publish Docs` workflow with
-`actions/jekyll-build-pages`, so a broken Jekyll page fails that build.
+contents. The `Publish Docs` workflow builds the GitHub Pages documentation
+mirror with `actions/jekyll-build-pages`; the official Vite documentation site
+is built and deployed separately through Vercel.
 
 These checks do not install every external tool or prove behavior on every Android
 device. Before relying on a new installer, test it in native Termux aarch64 with

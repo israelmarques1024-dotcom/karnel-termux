@@ -4,6 +4,8 @@ _BURP_DIR="$PREFIX/share/burpsuite"
 _BURP_JAR="burpsuite_community.jar"
 _BURP_VERSION="2026.7.3"
 _BURP_SHA256="c8262dc5426f38bedc490d66c5d21b6ff77d6dc6d85cefe6a66c882690134069"
+_BURP_PACKAGE_MARKER="$PREFIX/share/karnel-installers/burpsuite"
+_burpsuite_package_owned() { [[ -f "$_BURP_PACKAGE_MARKER" && "$(<"$_BURP_PACKAGE_MARKER")" == 'pkg:burpsuite' ]]; }
 
 _burpsuite_owned() {
   installer_file_owned "$PREFIX/bin/burpsuite" "$_BURP_DIR/.karnel-wrapper"
@@ -11,7 +13,7 @@ _burpsuite_owned() {
 
 install_burpsuite() (
   if command -v burpsuite &>/dev/null; then
-    if ! _burpsuite_owned; then
+    if ! _burpsuite_owned && ! _burpsuite_package_owned; then
       log_info "burpsuite já está instalado"
       return 2
     fi
@@ -20,6 +22,7 @@ install_burpsuite() (
 
   if [ ! -f "$_BURP_DIR/.karnel-wrapper" ] &&
     { pkg install -y burpsuite 2>/dev/null || apt install -y burpsuite 2>/dev/null; }; then
+    mkdir -p "$(dirname "$_BURP_PACKAGE_MARKER")" && printf '%s\n' 'pkg:burpsuite' >"$_BURP_PACKAGE_MARKER" || return 1
     log_success "burpsuite instalado"
     return 0
   fi
@@ -74,7 +77,10 @@ SCRIPT
 
 uninstall_burpsuite() {
   log_info "Removendo Burp Suite..."
-  if [ -f "$_BURP_DIR/.karnel-wrapper" ]; then
+  if _burpsuite_package_owned; then
+    pkg uninstall -y burpsuite 2>/dev/null || apt remove -y burpsuite 2>/dev/null || return 1
+    rm -f "$_BURP_PACKAGE_MARKER"
+  elif [ -f "$_BURP_DIR/.karnel-wrapper" ]; then
     [ "$(sha256sum "$PREFIX/bin/burpsuite" 2>/dev/null)" = "$(<"$_BURP_DIR/.karnel-wrapper")" ] && rm -f "$PREFIX/bin/burpsuite"
     rm -rf "$_BURP_DIR"
   fi

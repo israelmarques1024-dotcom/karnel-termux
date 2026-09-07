@@ -2,6 +2,7 @@
 
 _FFUF_MARKER="$PREFIX/share/karnel-installers/ffuf"
 _FFUF_VERSION="2.1.0"
+_ffuf_package_owned() { [[ -f "$_FFUF_MARKER" && "$(<"$_FFUF_MARKER")" == 'pkg:ffuf' ]]; }
 
 inc_ffuf_arch() {
   local arch
@@ -48,6 +49,7 @@ install_ffuf() {
   fi
   log_info "Instalando ffuf..."
   if pkg install -y ffuf 2>/dev/null || apt install -y ffuf 2>/dev/null; then
+    mkdir -p "$(dirname "$_FFUF_MARKER")" && printf '%s\n' 'pkg:ffuf' >"$_FFUF_MARKER" || return 1
     log_success "ffuf instalado"
     return 0
   fi
@@ -61,7 +63,10 @@ install_ffuf() {
 
 uninstall_ffuf() {
   log_info "Removendo ffuf..."
-  if [ -f "$_FFUF_MARKER" ]; then
+  if _ffuf_package_owned; then
+    pkg uninstall -y ffuf 2>/dev/null || apt remove -y ffuf 2>/dev/null || return 1
+    rm -f "$_FFUF_MARKER"
+  elif [ -f "$_FFUF_MARKER" ]; then
     [ "$(sha256sum "$PREFIX/bin/ffuf" 2>/dev/null)" = "$(<"$_FFUF_MARKER")" ] && rm -f "$PREFIX/bin/ffuf"
     rm -f "$_FFUF_MARKER"
   fi

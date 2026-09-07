@@ -2,6 +2,7 @@
 
 _AMASS_MARKER="$PREFIX/share/karnel-installers/amass"
 _AMASS_VERSION="4.2.0"
+_amass_package_owned() { [[ -f "$_AMASS_MARKER" && "$(<"$_AMASS_MARKER")" == 'pkg:amass' ]]; }
 
 _amass_arch() {
   local arch
@@ -16,7 +17,7 @@ _amass_arch() {
 
 install_amass() (
   if command -v amass &>/dev/null; then
-    if ! installer_file_owned "$PREFIX/bin/amass" "$_AMASS_MARKER"; then
+    if ! installer_file_owned "$PREFIX/bin/amass" "$_AMASS_MARKER" && ! _amass_package_owned; then
       log_info "amass já está instalado"
       return 2
     fi
@@ -25,7 +26,7 @@ install_amass() (
   if [ ! -f "$_AMASS_MARKER" ] &&
     { pkg install -y amass 2>/dev/null || apt install -y amass 2>/dev/null; }; then
     local bin; bin="$(command -v amass)"
-    [ -n "$bin" ] && sha256sum "$bin" > "$_AMASS_MARKER" 2>/dev/null
+    [ -n "$bin" ] && { mkdir -p "$(dirname "$_AMASS_MARKER")" && printf '%s\n' 'pkg:amass' >"$_AMASS_MARKER"; }
     log_success "amass instalado"
     return 0
   fi
@@ -66,7 +67,10 @@ install_amass() (
 
 uninstall_amass() {
   log_info "Removendo amass..."
-  if [ -f "$_AMASS_MARKER" ]; then
+  if _amass_package_owned; then
+    pkg uninstall -y amass 2>/dev/null || apt remove -y amass 2>/dev/null || return 1
+    rm -f "$_AMASS_MARKER"
+  elif [ -f "$_AMASS_MARKER" ]; then
     [ "$(sha256sum "$PREFIX/bin/amass" 2>/dev/null)" = "$(<"$_AMASS_MARKER")" ] && rm -f "$PREFIX/bin/amass"
     rm -f "$_AMASS_MARKER"
   fi
