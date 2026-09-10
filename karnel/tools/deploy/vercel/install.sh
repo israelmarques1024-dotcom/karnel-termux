@@ -69,6 +69,7 @@ _do_update_vercel() {
     return 1
   fi
   command -v termux-fix-shebang &>/dev/null && termux-fix-shebang "$(command -v vercel)" &>/dev/null
+  record_managed_file "$(command -v vercel)" "$VERCEL_MARKER" || return 1
   return 0
 }
 

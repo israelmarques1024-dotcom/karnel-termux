@@ -3,6 +3,8 @@
 _MASSCAN_DIR="${KARNEL_DATA:-${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data}/tools/masscan"
 _MASSCAN_REPO="https://github.com/robertdavidgraham/masscan.git"
 _MASSCAN_COMMIT="94e118ccd26c2fb263fb2fe731043f7b3240723c"
+_MASSCAN_PACKAGE_MARKER="$PREFIX/share/karnel-installers/masscan"
+_masscan_package_owned() { [[ -f "$_MASSCAN_PACKAGE_MARKER" && "$(<"$_MASSCAN_PACKAGE_MARKER")" == 'pkg:masscan' ]]; }
 
 install_masscan() {
   if command -v masscan &>/dev/null; then
@@ -11,6 +13,7 @@ install_masscan() {
   fi
   log_info "Instalando masscan..."
   if pkg install -y masscan 2>/dev/null || apt install -y masscan 2>/dev/null; then
+    mkdir -p "$(dirname "$_MASSCAN_PACKAGE_MARKER")" && printf '%s\n' 'pkg:masscan' >"$_MASSCAN_PACKAGE_MARKER" || return 1
     log_success "masscan instalado"
     return 0
   fi
@@ -34,7 +37,10 @@ install_masscan() {
 
 uninstall_masscan() {
   log_info "Removendo masscan..."
-  if [ -f "$_MASSCAN_DIR/.karnel-wrapper" ]; then
+  if _masscan_package_owned; then
+    pkg uninstall -y masscan 2>/dev/null || apt remove -y masscan 2>/dev/null || return 1
+    rm -f "$_MASSCAN_PACKAGE_MARKER"
+  elif [ -f "$_MASSCAN_DIR/.karnel-wrapper" ]; then
     [ "$(sha256sum "$PREFIX/bin/masscan" 2>/dev/null)" = "$(<"$_MASSCAN_DIR/.karnel-wrapper")" ] && rm -f "$PREFIX/bin/masscan"
     rm -rf "$_MASSCAN_DIR"
   fi

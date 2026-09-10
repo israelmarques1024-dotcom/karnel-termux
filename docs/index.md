@@ -48,4 +48,4 @@ Open its docs with `karnel open herdr`.
 
 ## Credits
 
-Created by **Israel Marques**. Core agent contributions by **devcorex**.
+Created by **Israel Marques**.

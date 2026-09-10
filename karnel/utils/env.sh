@@ -12,6 +12,40 @@ fi
 
 : "${HOME:?HOME is unset — cannot determine config paths}"
 
+# Karnel-managed commands are installed in $PREFIX/bin. Keep that directory
+# ahead of user-local binaries so an obsolete external install cannot shadow
+# an update that Karnel just completed, while preserving explicit PATH
+# overrides that appear before both directories.
+_karnel_prefer_prefix_bin() {
+  [[ -n "${PREFIX:-}" ]] || return 0
+
+  local prefix_bin="$PREFIX/bin" local_bin="$HOME/.local/bin"
+  local -a entries=() reordered=()
+  local prefix_index=-1 local_index=-1 index=0 entry joined="" inserted=0
+  IFS=: read -r -a entries <<< "${PATH:-}"
+  for entry in "${entries[@]}"; do
+    [[ "$entry" == "$prefix_bin" && $prefix_index -lt 0 ]] && prefix_index=$index
+    [[ "$entry" == "$local_bin" && $local_index -lt 0 ]] && local_index=$index
+    ((index += 1))
+  done
+  (( prefix_index > local_index && local_index >= 0 )) || return 0
+
+  for entry in "${entries[@]}"; do
+    [[ "$entry" == "$prefix_bin" ]] && continue
+    if [[ "$entry" == "$local_bin" && $inserted -eq 0 ]]; then
+      reordered+=("$prefix_bin")
+      inserted=1
+    fi
+    reordered+=("$entry")
+  done
+  for entry in "${reordered[@]}"; do
+    joined+="${joined:+:}$entry"
+  done
+  export PATH="$joined"
+}
+_karnel_prefer_prefix_bin
+unset -f _karnel_prefer_prefix_bin
+
 # configuración
 KARNEL_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/karnel"
 

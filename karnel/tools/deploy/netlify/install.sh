@@ -87,6 +87,7 @@ _do_update_netlify() {
     return 1
   fi
   command -v termux-fix-shebang &>/dev/null && termux-fix-shebang "$(command -v netlify)" &>/dev/null
+  record_managed_file "$(command -v netlify)" "$NETLIFY_MARKER" || return 1
   return 0
 }
 

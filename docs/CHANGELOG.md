@@ -249,14 +249,13 @@ layout: base
 - Cactus glibc installer: pip output is now streamed live (and mirrored to the
   install log) instead of being hidden behind an indeterminate spinner, which
   made multi-minute downloads look frozen.
-- Credits: devcorex credited as a core agent contributor in `karnel agent`
-  help/REPL screens and project READMEs.
+- Agent help/REPL screens and project READMEs were updated with contributor
+  credits.
 
 ## 4.16.0 - 2026-08-20
 
-- Rebranded fully to Karnel: removed every remaining reference to DevCoreX and
-  core-termux across contributors, CLI `open` targets, completions, docs and
-  agent utilities.
+- Rebranded fully to Karnel: removed legacy upstream branding across
+  contributors, CLI `open` targets, completions, docs and agent utilities.
 - `nvchad` editor tool now installs the official upstream `NvChad/starter`
   (pinned to a reviewed commit) instead of a third-party fork.
 - Added the `karnel agent` subsystem (agent.sh, agent_actions.sh, agent_llm.sh,

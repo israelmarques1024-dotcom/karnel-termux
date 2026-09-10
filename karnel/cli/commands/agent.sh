@@ -14,8 +14,6 @@
 # TTY) typing `@query` opens an fzf picker to attach a file's
 # contents to your message.
 #
-# Credits:
-#   devcorex — core agent contributor
 # ============================================================
 
 import "@/utils/log"
@@ -30,8 +28,6 @@ import "@/utils/agent_markdown"
 agent_help() {
 	echo
 	box "Karnel Agent — Local AI Assistant & Task Agent"
-	echo
-	printf "    ${D_GRAY}credits: devcorex — core agent${D_NC}\n"
 	echo
 	log_info "Usage: karnel agent <ask|run|config> [options]"
 	echo
@@ -560,8 +556,6 @@ agent_ask_repl() {
 	agent_banner
 	separator_section "Karnel Agent — Ask"
 	echo
-	printf "    ${D_GRAY}credits: devcorex — core agent${D_NC}\n"
-	echo
 	agent_status_line
 	echo
 	list_item "Type ${D_CYAN}/help${D_NC} to see all commands"
@@ -676,8 +670,6 @@ agent_run_repl() {
 
 	agent_banner
 	separator_section "Karnel Agent — Run ($([[ $AGENT_PLAN_MODE == 1 ]] && echo 'PLAN · read-only' || echo 'BUILD mode'))"
-	echo
-	printf "    ${D_GRAY}credits: devcorex — core agent${D_NC}\n"
 	echo
 	agent_status_line
 	echo

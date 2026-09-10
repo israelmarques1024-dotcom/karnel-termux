@@ -6,6 +6,7 @@ TEST_ROOT=$(mktemp -d)
 trap 'rm -rf "$TEST_ROOT"' EXIT
 SYSTEM_RM=$(command -v rm)
 SYSTEM_CHMOD=$(command -v chmod)
+SYSTEM_GREP=$(command -v grep)
 
 pass=0
 failed=0
@@ -27,13 +28,14 @@ assert_keelcode_lifecycle() (
   export KARNEL_CACHE="$TEST_ROOT/cache"
   export KARNEL_DATA="$TEST_ROOT/data"
   mkdir -p "$KARNEL_CACHE" "$TEST_ROOT/prefix/bin"
-  export PATH="$TEST_ROOT/prefix/bin:$PATH"
+  export PATH="$TEST_ROOT/prefix/bin"
   import() { :; }
   log_info() { :; }
   log_success() { :; }
   log_error() { :; }
   log_error() { :; }
   tail() { :; }
+  grep() { "$SYSTEM_GREP" "$@"; }
   rm() { "$SYSTEM_RM" "$@"; }
   npm() {
     case "$1" in

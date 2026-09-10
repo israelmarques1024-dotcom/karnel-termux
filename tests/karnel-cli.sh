@@ -90,6 +90,16 @@ env_output=$(env_set)
 [[ "$env_output" != *existing-super-secret* ]] || fail "env set disclosed the existing value"
 ((pass += 1))
 
+# Karnel-managed $PREFIX/bin commands must take precedence over stale
+# user-local binaries during lifecycle operations.
+(
+  export PREFIX="$TEST_ROOT/prefix"
+  export PATH="$HOME/.local/bin:$PREFIX/bin:$PATH"
+  source "$ROOT_DIR/karnel/utils/env.sh"
+  [[ "$PATH" == "$PREFIX/bin:$HOME/.local/bin:"* ]]
+) || fail "env.sh did not prioritize PREFIX/bin"
+((pass += 1))
+
 # Unknown start/list targets fail, including mixed list batches.
 # shellcheck source=../karnel/cli/commands/start.sh
 source "$ROOT_DIR/karnel/cli/commands/start.sh"

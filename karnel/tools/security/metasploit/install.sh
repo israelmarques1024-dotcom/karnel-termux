@@ -3,6 +3,8 @@
 METASPLOIT_DIR="${KARNEL_DATA:-${XDG_DATA_HOME:-$HOME/.local/share}/karnel-data}/tools/metasploit-framework"
 METASPLOIT_REPO="https://github.com/rapid7/metasploit-framework.git"
 METASPLOIT_COMMIT="9f74eb0a48ca7f8039c2618e359c2e80f998ac89"
+METASPLOIT_PACKAGE_MARKER="$PREFIX/share/karnel-installers/metasploit"
+_metasploit_package_owned() { [[ -f "$METASPLOIT_PACKAGE_MARKER" && "$(<"$METASPLOIT_PACKAGE_MARKER")" == 'pkg:metasploit' ]]; }
 
 install_metasploit() {
   if command -v msfconsole &>/dev/null; then
@@ -12,6 +14,7 @@ install_metasploit() {
   log_info "Instalando Metasploit Framework..."
 
   if pkg install -y metasploit 2>/dev/null || apt install -y metasploit 2>/dev/null; then
+    mkdir -p "$(dirname "$METASPLOIT_PACKAGE_MARKER")" && printf '%s\n' 'pkg:metasploit' >"$METASPLOIT_PACKAGE_MARKER" || return 1
     log_success "metasploit instalado"
     return 0
   fi
@@ -44,6 +47,12 @@ BINEOF
 
 uninstall_metasploit() {
   log_info "Removendo Metasploit..."
+  if _metasploit_package_owned; then
+    pkg uninstall -y metasploit 2>/dev/null || apt remove -y metasploit 2>/dev/null || return 1
+    rm -f "$METASPLOIT_PACKAGE_MARKER"
+    log_success "metasploit removido"
+    return 0
+  fi
   for bin in msfconsole msfvenom msfrpc msfrpcd msfdb; do
     if [ -f "$METASPLOIT_DIR/.karnel-wrapper-$bin" ]; then
       [ "$(sha256sum "$PREFIX/bin/$bin" 2>/dev/null)" = "$(<"$METASPLOIT_DIR/.karnel-wrapper-$bin")" ] && rm -f "$PREFIX/bin/$bin"
