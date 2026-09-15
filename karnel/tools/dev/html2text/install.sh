@@ -73,7 +73,6 @@ update_html2text() {
 }
 
 reinstall_html2text() {
-	uninstall_html2text || [[ $? -eq 2 ]] || return 1
-
+	uninstall_html2text
 	install_html2text
 }

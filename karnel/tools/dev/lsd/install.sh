@@ -73,7 +73,6 @@ update_lsd() {
 }
 
 reinstall_lsd() {
-	uninstall_lsd || [[ $? -eq 2 ]] || return 1
-
+	uninstall_lsd
 	install_lsd
 }

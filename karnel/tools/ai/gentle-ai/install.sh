@@ -266,7 +266,6 @@ _do_update_gentle_ai() {
 }
 
 reinstall_gentle_ai() {
-  uninstall_gentle_ai || [[ $? -eq 2 ]] || return 1
-
+  uninstall_gentle_ai
   install_gentle_ai
 }

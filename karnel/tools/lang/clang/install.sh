@@ -71,7 +71,6 @@ update_clang() {
 }
 
 reinstall_clang() {
-	uninstall_clang || [[ $? -eq 2 ]] || return 1
-
+	uninstall_clang
 	install_clang
 }

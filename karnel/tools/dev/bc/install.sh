@@ -73,7 +73,6 @@ update_bc() {
 }
 
 reinstall_bc() {
-	uninstall_bc || [[ $? -eq 2 ]] || return 1
-
+	uninstall_bc
 	install_bc
 }

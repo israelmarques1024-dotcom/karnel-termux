@@ -71,7 +71,6 @@ update_php() {
 }
 
 reinstall_php() {
-	uninstall_php || [[ $? -eq 2 ]] || return 1
-
+	uninstall_php
 	install_php
 }

@@ -90,7 +90,6 @@ update_zsh_autopair() {
 }
 
 reinstall_zsh_autopair() {
-  uninstall_zsh_autopair || [[ $? -eq 2 ]] || return 1
-
+  uninstall_zsh_autopair
   install_zsh_autopair
 }

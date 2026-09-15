@@ -38,7 +38,6 @@ update_dedsec_network() {
 }
 
 reinstall_dedsec_network() {
-  uninstall_dedsec_network || [[ $? -eq 2 ]] || return 1
-
+  uninstall_dedsec_network
   install_dedsec_network
 }

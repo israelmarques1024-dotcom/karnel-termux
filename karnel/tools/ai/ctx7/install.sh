@@ -4,7 +4,6 @@
 # Provides version-specific library docs and code examples on-demand
 # Solves stale knowledge issues in AI tools like Claude Code, Cursor
 # Official: npm install -g ctx7
-_fix_npm_shebang "ctx7" || return 1
 import "@/utils/log"
 import "@/utils/version"
 

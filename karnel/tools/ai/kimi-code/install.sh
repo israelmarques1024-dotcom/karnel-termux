@@ -99,7 +99,6 @@ _update_kimi_code_impl() {
 }
 
 reinstall_kimi_code() {
-  uninstall_kimi_code || [[ $? -eq 2 ]] || return 1
-
+  uninstall_kimi_code
   install_kimi_code
 }

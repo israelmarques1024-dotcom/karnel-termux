@@ -70,7 +70,6 @@ update_wafw00f() {
 }
 
 reinstall_wafw00f() {
-  uninstall_wafw00f || [[ $? -eq 2 ]] || return 1
-
+  uninstall_wafw00f
   install_wafw00f
 }

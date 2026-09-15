@@ -38,7 +38,6 @@ update_exiftool() {
 }
 
 reinstall_exiftool() {
-  uninstall_exiftool || [[ $? -eq 2 ]] || return 1
-
+  uninstall_exiftool
   install_exiftool
 }

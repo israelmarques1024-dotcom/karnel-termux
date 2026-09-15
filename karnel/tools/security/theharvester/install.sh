@@ -54,7 +54,6 @@ update_theharvester() {
 }
 
 reinstall_theharvester() {
-  uninstall_theharvester || [[ $? -eq 2 ]] || return 1
-
+  uninstall_theharvester
   install_theharvester
 }

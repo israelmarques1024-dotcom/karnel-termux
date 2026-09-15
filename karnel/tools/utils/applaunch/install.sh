@@ -39,7 +39,6 @@ update_applaunch() {
 }
 
 reinstall_applaunch() {
-  uninstall_applaunch || [[ $? -eq 2 ]] || return 1
-
+  uninstall_applaunch
   install_applaunch
 }

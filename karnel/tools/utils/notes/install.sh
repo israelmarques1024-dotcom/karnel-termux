@@ -38,7 +38,6 @@ update_notes() {
 }
 
 reinstall_notes() {
-  uninstall_notes || [[ $? -eq 2 ]] || return 1
-
+  uninstall_notes
   install_notes
 }

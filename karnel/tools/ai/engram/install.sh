@@ -161,7 +161,6 @@ _update_engram_impl() {
 }
 
 reinstall_engram() {
-  uninstall_engram || [[ $? -eq 2 ]] || return 1
-
+  uninstall_engram
   install_engram
 }

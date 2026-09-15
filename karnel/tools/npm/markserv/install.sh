@@ -90,7 +90,6 @@ update_markserv() {
 }
 
 reinstall_markserv() {
-  uninstall_markserv || [[ $? -eq 2 ]] || return 1
-
+  uninstall_markserv
   install_markserv
 }

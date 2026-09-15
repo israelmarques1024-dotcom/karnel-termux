@@ -38,7 +38,6 @@ update_buzz() {
 }
 
 reinstall_buzz() {
-  uninstall_buzz || [[ $? -eq 2 ]] || return 1
-
+  uninstall_buzz
   install_buzz
 }

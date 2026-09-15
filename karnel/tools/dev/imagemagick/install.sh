@@ -73,7 +73,6 @@ update_imagemagick() {
 }
 
 reinstall_imagemagick() {
-	uninstall_imagemagick || [[ $? -eq 2 ]] || return 1
-
+	uninstall_imagemagick
 	install_imagemagick
 }

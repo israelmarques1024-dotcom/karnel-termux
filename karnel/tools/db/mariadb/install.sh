@@ -60,7 +60,6 @@ update_mariadb() {
 }
 
 reinstall_mariadb() {
-	uninstall_mariadb || [[ $? -eq 2 ]] || return 1
-
+	uninstall_mariadb
 	install_mariadb
 }

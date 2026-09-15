@@ -60,7 +60,6 @@ update_postgresql() {
 }
 
 reinstall_postgresql() {
-	uninstall_postgresql || [[ $? -eq 2 ]] || return 1
-
+	uninstall_postgresql
 	install_postgresql
 }

@@ -104,7 +104,6 @@ _update_qwen_code_impl() {
 }
 
 reinstall_qwen_code() {
-  uninstall_qwen_code || [[ $? -eq 2 ]] || return 1
-
+  uninstall_qwen_code
   install_qwen_code
 }

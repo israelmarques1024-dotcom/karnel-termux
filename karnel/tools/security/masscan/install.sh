@@ -62,7 +62,6 @@ update_masscan() {
 }
 
 reinstall_masscan() {
-  uninstall_masscan || [[ $? -eq 2 ]] || return 1
-
+  uninstall_masscan
   install_masscan
 }

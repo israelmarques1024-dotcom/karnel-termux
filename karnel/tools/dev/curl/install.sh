@@ -73,7 +73,6 @@ update_curl() {
 }
 
 reinstall_curl() {
-	uninstall_curl || [[ $? -eq 2 ]] || return 1
-
+	uninstall_curl
 	install_curl
 }

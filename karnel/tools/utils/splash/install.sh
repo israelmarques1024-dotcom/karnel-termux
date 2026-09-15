@@ -38,7 +38,6 @@ update_splash() {
 }
 
 reinstall_splash() {
-  uninstall_splash || [[ $? -eq 2 ]] || return 1
-
+  uninstall_splash
   install_splash
 }

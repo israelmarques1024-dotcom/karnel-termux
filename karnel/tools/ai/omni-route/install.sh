@@ -136,7 +136,6 @@ install_omni_route() {
 
   log_info "Installing omniRoute (this may take a while)..."
   if command -v npm >/dev/null 2>&1 && npm i karnelroute --prefix "$OMNI_ROUTE_PKG" 2>>"$LOG_FILE"; then
-  _fix_npm_shebang "omni-route" || return 1
     sed -i '1s|^#!/usr/bin/env node|#!'"$PREFIX"'/bin/node|' "$OMNI_ROUTE_LOCAL_BIN" 2>/dev/null
     _omni_route_wrap_and_fix
     if _omni_route_ok; then

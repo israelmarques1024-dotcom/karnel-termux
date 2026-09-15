@@ -472,7 +472,6 @@ update_odysseus() {
 # ===== REINSTALL =====
 
 reinstall_odysseus() {
-  uninstall_odysseus || [[ $? -eq 2 ]] || return 1
-
+  uninstall_odysseus
   install_odysseus
 }

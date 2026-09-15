@@ -39,7 +39,6 @@ update_tamagotchi() {
 }
 
 reinstall_tamagotchi() {
-  uninstall_tamagotchi || [[ $? -eq 2 ]] || return 1
-
+  uninstall_tamagotchi
   install_tamagotchi
 }

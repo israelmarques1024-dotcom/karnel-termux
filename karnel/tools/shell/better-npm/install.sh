@@ -90,7 +90,6 @@ update_better_npm() {
 }
 
 reinstall_better_npm() {
-  uninstall_better_npm || [[ $? -eq 2 ]] || return 1
-
+  uninstall_better_npm
   install_better_npm
 }

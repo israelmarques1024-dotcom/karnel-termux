@@ -38,7 +38,6 @@ update_nmap() {
 }
 
 reinstall_nmap() {
-  uninstall_nmap || [[ $? -eq 2 ]] || return 1
-
+  uninstall_nmap
   install_nmap
 }

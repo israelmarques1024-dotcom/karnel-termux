@@ -90,7 +90,6 @@ update_fzf_tab() {
 }
 
 reinstall_fzf_tab() {
-  uninstall_fzf_tab || [[ $? -eq 2 ]] || return 1
-
+  uninstall_fzf_tab
   install_fzf_tab
 }

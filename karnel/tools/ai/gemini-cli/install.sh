@@ -104,7 +104,6 @@ _update_gemini_cli_impl() {
 }
 
 reinstall_gemini_cli() {
-  uninstall_gemini_cli || [[ $? -eq 2 ]] || return 1
-
+  uninstall_gemini_cli
   install_gemini_cli
 }

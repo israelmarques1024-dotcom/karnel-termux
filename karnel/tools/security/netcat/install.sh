@@ -38,7 +38,6 @@ update_netcat() {
 }
 
 reinstall_netcat() {
-  uninstall_netcat || [[ $? -eq 2 ]] || return 1
-
+  uninstall_netcat
   install_netcat
 }

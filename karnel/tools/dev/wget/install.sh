@@ -73,7 +73,6 @@ update_wget() {
 }
 
 reinstall_wget() {
-	uninstall_wget || [[ $? -eq 2 ]] || return 1
-
+	uninstall_wget
 	install_wget
 }

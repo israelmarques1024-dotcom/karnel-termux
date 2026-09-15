@@ -52,7 +52,6 @@ update_whatweb() {
 }
 
 reinstall_whatweb() {
-  uninstall_whatweb || [[ $? -eq 2 ]] || return 1
-
+  uninstall_whatweb
   install_whatweb
 }

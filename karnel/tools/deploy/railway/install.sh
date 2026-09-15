@@ -228,7 +228,6 @@ _do_update_railway() {
 }
 
 reinstall_railway() {
-  uninstall_railway || [[ $? -eq 2 ]] || return 1
-
+  uninstall_railway
   install_railway
 }

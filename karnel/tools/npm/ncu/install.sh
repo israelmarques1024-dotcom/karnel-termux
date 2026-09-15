@@ -90,7 +90,6 @@ update_ncu() {
 }
 
 reinstall_ncu() {
-  uninstall_ncu || [[ $? -eq 2 ]] || return 1
-
+  uninstall_ncu
   install_ncu
 }

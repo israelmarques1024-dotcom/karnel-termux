@@ -77,7 +77,6 @@ update_zsh_syntax_highlighting() {
 }
 
 reinstall_zsh_syntax_highlighting() {
-  uninstall_zsh_syntax_highlighting || [[ $? -eq 2 ]] || return 1
-
+  uninstall_zsh_syntax_highlighting
   install_zsh_syntax_highlighting
 }

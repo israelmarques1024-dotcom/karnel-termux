@@ -38,7 +38,6 @@ update_foremost() {
 }
 
 reinstall_foremost() {
-  uninstall_foremost || [[ $? -eq 2 ]] || return 1
-
+  uninstall_foremost
   install_foremost
 }

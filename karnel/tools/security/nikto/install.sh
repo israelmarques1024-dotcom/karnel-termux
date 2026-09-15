@@ -52,7 +52,6 @@ update_nikto() {
 }
 
 reinstall_nikto() {
-  uninstall_nikto || [[ $? -eq 2 ]] || return 1
-
+  uninstall_nikto
   install_nikto
 }

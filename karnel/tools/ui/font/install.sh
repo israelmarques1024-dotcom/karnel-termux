@@ -67,7 +67,6 @@ update_font() {
 }
 
 reinstall_font() {
-	uninstall_font || [[ $? -eq 2 ]] || return 1
-
+	uninstall_font
 	install_font
 }

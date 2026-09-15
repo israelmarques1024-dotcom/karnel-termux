@@ -73,7 +73,6 @@ update_ncurses() {
 }
 
 reinstall_ncurses() {
-	uninstall_ncurses || [[ $? -eq 2 ]] || return 1
-
+	uninstall_ncurses
 	install_ncurses
 }

@@ -73,7 +73,6 @@ update_proot() {
 }
 
 reinstall_proot() {
-	uninstall_proot || [[ $? -eq 2 ]] || return 1
-
+	uninstall_proot
 	install_proot
 }

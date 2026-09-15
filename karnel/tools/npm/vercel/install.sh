@@ -90,7 +90,6 @@ update_vercel() {
 }
 
 reinstall_vercel() {
-  uninstall_vercel || [[ $? -eq 2 ]] || return 1
-
+  uninstall_vercel
   install_vercel
 }

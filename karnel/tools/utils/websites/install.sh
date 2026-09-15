@@ -38,7 +38,6 @@ update_websites() {
 }
 
 reinstall_websites() {
-  uninstall_websites || [[ $? -eq 2 ]] || return 1
-
+  uninstall_websites
   install_websites
 }

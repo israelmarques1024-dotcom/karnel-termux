@@ -103,7 +103,6 @@ _update_openclaude_impl() {
 }
 
 reinstall_openclaude() {
-  uninstall_openclaude || [[ $? -eq 2 ]] || return 1
-
+  uninstall_openclaude
   install_openclaude
 }

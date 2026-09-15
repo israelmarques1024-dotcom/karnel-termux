@@ -90,7 +90,6 @@ update_typescript() {
 }
 
 reinstall_typescript() {
-  uninstall_typescript || [[ $? -eq 2 ]] || return 1
-
+  uninstall_typescript
   install_typescript
 }

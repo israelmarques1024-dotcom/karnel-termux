@@ -39,7 +39,6 @@ update_arcade() {
 }
 
 reinstall_arcade() {
-  uninstall_arcade || [[ $? -eq 2 ]] || return 1
-
+  uninstall_arcade
   install_arcade
 }

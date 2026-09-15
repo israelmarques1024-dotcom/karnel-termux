@@ -71,7 +71,6 @@ update_perl() {
 }
 
 reinstall_perl() {
-	uninstall_perl || [[ $? -eq 2 ]] || return 1
-
+	uninstall_perl
 	install_perl
 }

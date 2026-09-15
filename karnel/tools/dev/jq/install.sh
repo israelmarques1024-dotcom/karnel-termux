@@ -73,7 +73,6 @@ update_jq() {
 }
 
 reinstall_jq() {
-	uninstall_jq || [[ $? -eq 2 ]] || return 1
-
+	uninstall_jq
 	install_jq
 }

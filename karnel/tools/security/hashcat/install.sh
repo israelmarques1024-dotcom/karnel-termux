@@ -38,7 +38,6 @@ update_hashcat() {
 }
 
 reinstall_hashcat() {
-  uninstall_hashcat || [[ $? -eq 2 ]] || return 1
-
+  uninstall_hashcat
   install_hashcat
 }

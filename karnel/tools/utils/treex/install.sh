@@ -38,7 +38,6 @@ update_treex() {
 }
 
 reinstall_treex() {
-  uninstall_treex || [[ $? -eq 2 ]] || return 1
-
+  uninstall_treex
   install_treex
 }

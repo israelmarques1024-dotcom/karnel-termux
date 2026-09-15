@@ -38,7 +38,6 @@ update_binwalk() {
 }
 
 reinstall_binwalk() {
-  uninstall_binwalk || [[ $? -eq 2 ]] || return 1
-
+  uninstall_binwalk
   install_binwalk
 }

@@ -52,7 +52,6 @@ update_enum4linux() {
 }
 
 reinstall_enum4linux() {
-  uninstall_enum4linux || [[ $? -eq 2 ]] || return 1
-
+  uninstall_enum4linux
   install_enum4linux
 }

@@ -38,7 +38,6 @@ update_aircrack_ng() {
 }
 
 reinstall_aircrack_ng() {
-  uninstall_aircrack_ng || [[ $? -eq 2 ]] || return 1
-
+  uninstall_aircrack_ng
   install_aircrack_ng
 }

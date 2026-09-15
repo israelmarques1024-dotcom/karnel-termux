@@ -90,7 +90,6 @@ update_history_substring() {
 }
 
 reinstall_history_substring() {
-  uninstall_history_substring || [[ $? -eq 2 ]] || return 1
-
+  uninstall_history_substring
   install_history_substring
 }

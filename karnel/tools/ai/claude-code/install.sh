@@ -175,7 +175,6 @@ _install_claude_proot_impl() {
 		export TMPDIR=/tmp
 		export HOME=/root
 		npm install -g @anthropic-ai/claude-code@2.1.226
-		_fix_npm_shebang "claude-code" || return 1
 	' &>>"$LOG_FILE"
 
   local ubuntu_root

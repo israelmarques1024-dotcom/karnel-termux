@@ -169,7 +169,6 @@ update_zork() {
 }
 
 reinstall_zork() {
-  uninstall_zork || [[ $? -eq 2 ]] || return 1
-
+  uninstall_zork
   install_zork
 }

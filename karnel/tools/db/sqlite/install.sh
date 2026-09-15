@@ -60,7 +60,6 @@ update_sqlite() {
 }
 
 reinstall_sqlite() {
-	uninstall_sqlite || [[ $? -eq 2 ]] || return 1
-
+	uninstall_sqlite
 	install_sqlite
 }

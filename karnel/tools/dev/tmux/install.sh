@@ -73,7 +73,6 @@ update_tmux() {
 }
 
 reinstall_tmux() {
-  uninstall_tmux || [[ $? -eq 2 ]] || return 1
-
+  uninstall_tmux
   install_tmux
 }

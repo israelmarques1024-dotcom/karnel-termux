@@ -62,7 +62,6 @@ update_cursor() {
 }
 
 reinstall_cursor() {
-	uninstall_cursor || [[ $? -eq 2 ]] || return 1
-
+	uninstall_cursor
 	install_cursor
 }

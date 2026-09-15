@@ -73,7 +73,6 @@ update_openssh() {
 }
 
 reinstall_openssh() {
-  uninstall_openssh || [[ $? -eq 2 ]] || return 1
-
+  uninstall_openssh
   install_openssh
 }

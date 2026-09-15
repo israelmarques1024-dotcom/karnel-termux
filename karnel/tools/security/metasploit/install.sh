@@ -80,7 +80,6 @@ update_metasploit() {
 }
 
 reinstall_metasploit() {
-  uninstall_metasploit || [[ $? -eq 2 ]] || return 1
-
+  uninstall_metasploit
   install_metasploit
 }

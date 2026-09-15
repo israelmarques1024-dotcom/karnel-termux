@@ -73,7 +73,6 @@ update_tmate() {
 }
 
 reinstall_tmate() {
-	uninstall_tmate || [[ $? -eq 2 ]] || return 1
-
+	uninstall_tmate
 	install_tmate
 }

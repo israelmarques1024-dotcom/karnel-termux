@@ -73,7 +73,6 @@ update_bat() {
 }
 
 reinstall_bat() {
-	uninstall_bat || [[ $? -eq 2 ]] || return 1
-
+	uninstall_bat
 	install_bat
 }

@@ -112,7 +112,6 @@ _update_mistral_vibe_impl() {
 }
 
 reinstall_mistral_vibe() {
-  uninstall_mistral_vibe || [[ $? -eq 2 ]] || return 1
-
+  uninstall_mistral_vibe
   install_mistral_vibe
 }

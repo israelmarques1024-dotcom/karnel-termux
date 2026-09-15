@@ -90,7 +90,6 @@ update_zsh_completions() {
 }
 
 reinstall_zsh_completions() {
-  uninstall_zsh_completions || [[ $? -eq 2 ]] || return 1
-
+  uninstall_zsh_completions
   install_zsh_completions
 }

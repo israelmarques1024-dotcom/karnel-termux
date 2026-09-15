@@ -97,7 +97,6 @@ _update_pi_impl() {
 }
 
 reinstall_pi() {
-  uninstall_pi || [[ $? -eq 2 ]] || return 1
-
+  uninstall_pi
   install_pi
 }

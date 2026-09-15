@@ -71,7 +71,6 @@ update_nodejs() {
 }
 
 reinstall_nodejs() {
-	uninstall_nodejs || [[ $? -eq 2 ]] || return 1
-
+	uninstall_nodejs
 	install_nodejs
 }

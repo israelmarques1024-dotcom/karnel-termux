@@ -90,7 +90,6 @@ update_nestjs() {
 }
 
 reinstall_nestjs() {
-  uninstall_nestjs || [[ $? -eq 2 ]] || return 1
-
+  uninstall_nestjs
   install_nestjs
 }
