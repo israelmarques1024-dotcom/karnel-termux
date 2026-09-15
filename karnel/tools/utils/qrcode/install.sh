@@ -51,6 +51,7 @@ update_qrcode() {
 }
 
 reinstall_qrcode() {
-  uninstall_qrcode
+  uninstall_qrcode || [[ $? -eq 2 ]] || return 1
+
   install_qrcode
 }

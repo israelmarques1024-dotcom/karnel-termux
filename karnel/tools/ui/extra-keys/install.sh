@@ -66,6 +66,7 @@ update_extra_keys() {
 }
 
 reinstall_extra_keys() {
-	uninstall_extra_keys
+	uninstall_extra_keys || [[ $? -eq 2 ]] || return 1
+
 	install_extra_keys
 }

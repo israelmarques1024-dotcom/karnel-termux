@@ -127,6 +127,7 @@ _cline_install_global_impl() {
     log_error "Failed to install cline via npm"
     return 1
   fi
+  _fix_npm_shebang "cline" || return 1
 
   local version tarball
   version=$(npm view cline version 2>/dev/null || echo "3.0.38")

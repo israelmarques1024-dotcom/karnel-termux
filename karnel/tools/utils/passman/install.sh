@@ -38,6 +38,7 @@ update_passman() {
 }
 
 reinstall_passman() {
-  uninstall_passman
+  uninstall_passman || [[ $? -eq 2 ]] || return 1
+
   install_passman
 }

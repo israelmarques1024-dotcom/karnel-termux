@@ -323,6 +323,7 @@ update_oh_my_pi() {
 }
 
 reinstall_oh_my_pi() {
-  uninstall_oh_my_pi
+  uninstall_oh_my_pi || [[ $? -eq 2 ]] || return 1
+
   install_oh_my_pi
 }

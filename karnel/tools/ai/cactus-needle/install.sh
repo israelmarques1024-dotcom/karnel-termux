@@ -366,6 +366,7 @@ _update_cactus_needle_impl() {
 }
 
 reinstall_cactus_needle() {
-  uninstall_cactus_needle
+  uninstall_cactus_needle || [[ $? -eq 2 ]] || return 1
+
   install_cactus_needle
 }

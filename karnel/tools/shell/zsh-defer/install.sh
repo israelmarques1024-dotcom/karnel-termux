@@ -90,6 +90,7 @@ update_zsh_defer() {
 }
 
 reinstall_zsh_defer() {
-  uninstall_zsh_defer
+  uninstall_zsh_defer || [[ $? -eq 2 ]] || return 1
+
   install_zsh_defer
 }

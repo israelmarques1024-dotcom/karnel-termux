@@ -38,6 +38,7 @@ update_smbclient() {
 }
 
 reinstall_smbclient() {
-  uninstall_smbclient
+  uninstall_smbclient || [[ $? -eq 2 ]] || return 1
+
   install_smbclient
 }

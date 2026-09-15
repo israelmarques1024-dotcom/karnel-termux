@@ -39,6 +39,7 @@ update_ctfgod() {
 }
 
 reinstall_ctfgod() {
-  uninstall_ctfgod
+  uninstall_ctfgod || [[ $? -eq 2 ]] || return 1
+
   install_ctfgod
 }

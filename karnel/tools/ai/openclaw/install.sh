@@ -108,6 +108,7 @@ _update_openclaw_impl() {
 }
 
 reinstall_openclaw() {
-  uninstall_openclaw
+  uninstall_openclaw || [[ $? -eq 2 ]] || return 1
+
   install_openclaw
 }

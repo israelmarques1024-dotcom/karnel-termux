@@ -38,6 +38,7 @@ update_tcpdump() {
 }
 
 reinstall_tcpdump() {
-  uninstall_tcpdump
+  uninstall_tcpdump || [[ $? -eq 2 ]] || return 1
+
   install_tcpdump
 }

@@ -99,6 +99,7 @@ _update_minimax_cli_impl() {
 }
 
 reinstall_minimax_cli() {
-  uninstall_minimax_cli
+  uninstall_minimax_cli || [[ $? -eq 2 ]] || return 1
+
   install_minimax_cli
 }

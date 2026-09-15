@@ -73,6 +73,7 @@ update_udocker() {
 }
 
 reinstall_udocker() {
-	uninstall_udocker
+	uninstall_udocker || [[ $? -eq 2 ]] || return 1
+
 	install_udocker
 }

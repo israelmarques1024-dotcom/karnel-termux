@@ -97,6 +97,7 @@ update_n8n() {
 }
 
 reinstall_n8n() {
-  uninstall_n8n
+  uninstall_n8n || [[ $? -eq 2 ]] || return 1
+
   install_n8n
 }

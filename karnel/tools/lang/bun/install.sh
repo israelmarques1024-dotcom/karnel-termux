@@ -440,6 +440,7 @@ update_bun() {
 }
 
 reinstall_bun() {
-  uninstall_bun
+  uninstall_bun || [[ $? -eq 2 ]] || return 1
+
   install_bun
 }

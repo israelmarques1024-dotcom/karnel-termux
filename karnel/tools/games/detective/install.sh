@@ -39,6 +39,7 @@ update_detective() {
 }
 
 reinstall_detective() {
-  uninstall_detective
+  uninstall_detective || [[ $? -eq 2 ]] || return 1
+
   install_detective
 }

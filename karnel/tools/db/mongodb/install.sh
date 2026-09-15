@@ -71,6 +71,7 @@ update_mongodb() {
 }
 
 reinstall_mongodb() {
-	uninstall_mongodb
+	uninstall_mongodb || [[ $? -eq 2 ]] || return 1
+
 	install_mongodb
 }

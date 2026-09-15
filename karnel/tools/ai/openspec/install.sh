@@ -4,6 +4,7 @@
 # Bridges human intent and AI output with structured technical specs
 # Stores specs in /openspec/ directory to guide AI agents
 # Official: npm install -g @fission-ai/openspec@latest
+_fix_npm_shebang "openspec" || return 1
 import "@/utils/log"
 import "@/utils/version"
 

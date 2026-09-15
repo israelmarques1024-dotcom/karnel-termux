@@ -70,6 +70,7 @@ _do_update_httptmux() {
 }
 
 reinstall_httptmux() {
-  uninstall_httptmux
+  uninstall_httptmux || [[ $? -eq 2 ]] || return 1
+
   install_httptmux
 }

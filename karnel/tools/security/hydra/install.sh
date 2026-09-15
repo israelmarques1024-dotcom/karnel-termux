@@ -38,6 +38,7 @@ update_hydra() {
 }
 
 reinstall_hydra() {
-  uninstall_hydra
+  uninstall_hydra || [[ $? -eq 2 ]] || return 1
+
   install_hydra
 }

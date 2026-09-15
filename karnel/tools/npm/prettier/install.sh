@@ -90,6 +90,7 @@ update_prettier() {
 }
 
 reinstall_prettier() {
-  uninstall_prettier
+  uninstall_prettier || [[ $? -eq 2 ]] || return 1
+
   install_prettier
 }

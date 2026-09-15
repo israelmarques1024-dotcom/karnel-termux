@@ -70,6 +70,7 @@ _do_update_snyk() {
 }
 
 reinstall_snyk() {
-  uninstall_snyk
+  uninstall_snyk || [[ $? -eq 2 ]] || return 1
+
   install_snyk
 }

@@ -73,6 +73,7 @@ update_cloudflared() {
 }
 
 reinstall_cloudflared() {
-	uninstall_cloudflared
+	uninstall_cloudflared || [[ $? -eq 2 ]] || return 1
+
 	install_cloudflared
 }

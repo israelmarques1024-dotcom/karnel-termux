@@ -124,6 +124,7 @@ _walkie_install_global() {
   local spec="$1"
 
   if ! npm install -g "$spec" --no-audit --no-fund --no-bin-links --allow-scripts=walkie-sh,udx-native,sodium-native &>>"$LOG_FILE"; then
+  _fix_npm_shebang "walkie" || return 1
     log_warn "npm install failed, trying with --ignore-scripts..."
     npm install -g "$spec" --no-audit --no-fund --no-bin-links --allow-scripts=walkie-sh,udx-native,sodium-native --ignore-scripts &>>"$LOG_FILE"
   fi
@@ -657,6 +658,7 @@ update_walkie() {
 }
 
 reinstall_walkie() {
-  uninstall_walkie
+  uninstall_walkie || [[ $? -eq 2 ]] || return 1
+
   install_walkie
 }

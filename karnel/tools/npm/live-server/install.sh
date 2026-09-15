@@ -91,6 +91,7 @@ update_live_server() {
 }
 
 reinstall_live_server() {
-  uninstall_live_server
+  uninstall_live_server || [[ $? -eq 2 ]] || return 1
+
   install_live_server
 }

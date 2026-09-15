@@ -73,6 +73,7 @@ update_translate() {
 }
 
 reinstall_translate() {
-	uninstall_translate
+	uninstall_translate || [[ $? -eq 2 ]] || return 1
+
 	install_translate
 }

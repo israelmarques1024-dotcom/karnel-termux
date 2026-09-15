@@ -97,6 +97,7 @@ _update_codex_impl() {
 }
 
 reinstall_codex() {
-	uninstall_codex
+	uninstall_codex || [[ $? -eq 2 ]] || return 1
+
 	install_codex
 }

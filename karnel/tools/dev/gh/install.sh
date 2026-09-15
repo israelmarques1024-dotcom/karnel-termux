@@ -73,6 +73,7 @@ update_gh() {
 }
 
 reinstall_gh() {
-	uninstall_gh
+	uninstall_gh || [[ $? -eq 2 ]] || return 1
+
 	install_gh
 }

@@ -52,6 +52,7 @@ update_sqlmap() {
 }
 
 reinstall_sqlmap() {
-  uninstall_sqlmap
+  uninstall_sqlmap || [[ $? -eq 2 ]] || return 1
+
   install_sqlmap
 }

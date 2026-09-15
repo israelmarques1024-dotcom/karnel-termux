@@ -38,6 +38,7 @@ update_steghide() {
 }
 
 reinstall_steghide() {
-  uninstall_steghide
+  uninstall_steghide || [[ $? -eq 2 ]] || return 1
+
   install_steghide
 }

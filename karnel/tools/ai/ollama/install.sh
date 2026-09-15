@@ -68,6 +68,7 @@ _update_ollama_impl() {
 }
 
 reinstall_ollama() {
-  uninstall_ollama
+  uninstall_ollama || [[ $? -eq 2 ]] || return 1
+
   install_ollama
 }

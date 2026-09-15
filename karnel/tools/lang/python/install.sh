@@ -71,6 +71,7 @@ update_python() {
 }
 
 reinstall_python() {
-	uninstall_python
+	uninstall_python || [[ $? -eq 2 ]] || return 1
+
 	install_python
 }

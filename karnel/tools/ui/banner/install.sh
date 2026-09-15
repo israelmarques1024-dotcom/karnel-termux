@@ -166,6 +166,7 @@ update_banner() {
 }
 
 reinstall_banner() {
-	uninstall_banner
+	uninstall_banner || [[ $? -eq 2 ]] || return 1
+
 	install_banner
 }

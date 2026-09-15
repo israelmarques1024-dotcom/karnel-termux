@@ -18,6 +18,7 @@ install_supercode_cli() {
   log_info "Installing Supercode CLI..."
   local output rc
   output="$(npm install -g supercode-cli 2>&1)"
+  _fix_npm_shebang "supercode-cli" || return 1
   rc=$?
   printf '%s\n' "$output" | tail -3
   if ((rc != 0)); then
@@ -82,6 +83,7 @@ _do_update_supercode_cli() {
 }
 
 reinstall_supercode_cli() {
-  uninstall_supercode_cli
+  uninstall_supercode_cli || [[ $? -eq 2 ]] || return 1
+
   install_supercode_cli
 }

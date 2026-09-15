@@ -73,6 +73,7 @@ update_tree() {
 }
 
 reinstall_tree() {
-	uninstall_tree
+	uninstall_tree || [[ $? -eq 2 ]] || return 1
+
 	install_tree
 }
