@@ -38,6 +38,7 @@ update_fconv() {
 }
 
 reinstall_fconv() {
-  uninstall_fconv
+  uninstall_fconv || [[ $? -eq 2 ]] || return 1
+
   install_fconv
 }

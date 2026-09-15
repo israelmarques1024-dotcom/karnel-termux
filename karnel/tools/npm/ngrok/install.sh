@@ -90,6 +90,7 @@ update_ngrok() {
 }
 
 reinstall_ngrok() {
-  uninstall_ngrok
+  uninstall_ngrok || [[ $? -eq 2 ]] || return 1
+
   install_ngrok
 }

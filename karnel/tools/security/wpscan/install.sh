@@ -70,6 +70,7 @@ update_wpscan() {
 }
 
 reinstall_wpscan() {
-  uninstall_wpscan
+  uninstall_wpscan || [[ $? -eq 2 ]] || return 1
+
   install_wpscan
 }

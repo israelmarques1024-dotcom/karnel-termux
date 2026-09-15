@@ -90,6 +90,7 @@ update_zsh_autosuggestions() {
 }
 
 reinstall_zsh_autosuggestions() {
-  uninstall_zsh_autosuggestions
+  uninstall_zsh_autosuggestions || [[ $? -eq 2 ]] || return 1
+
   install_zsh_autosuggestions
 }

@@ -38,6 +38,7 @@ update_john() {
 }
 
 reinstall_john() {
-  uninstall_john
+  uninstall_john || [[ $? -eq 2 ]] || return 1
+
   install_john
 }

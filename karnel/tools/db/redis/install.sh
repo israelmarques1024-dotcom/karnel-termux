@@ -61,6 +61,7 @@ update_redis() {
 }
 
 reinstall_redis() {
-	uninstall_redis
+	uninstall_redis || [[ $? -eq 2 ]] || return 1
+
 	install_redis
 }

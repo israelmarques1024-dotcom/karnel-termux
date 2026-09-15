@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+import "@/utils/npm-shebang"
 
 import "@/utils/log"
 import "@/utils/version"
@@ -25,6 +26,7 @@ install_crush() {
   if command -v npm &>/dev/null; then
     log_info "Attempting npm install..."
     if npm install -g @charmland/crush &>>"$LOG_FILE"; then
+    _fix_npm_shebang "crush" || return 1
       if command -v crush &>/dev/null; then
         record_managed_file "$(command -v crush)" "$CRUSH_MARKER" || return 1
         log_success "Crush installed via npm"

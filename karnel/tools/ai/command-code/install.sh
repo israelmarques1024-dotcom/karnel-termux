@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+import "@/utils/npm-shebang"
 
 import "@/utils/log"
 import "@/utils/version"
@@ -69,6 +70,7 @@ _install_command_code_npm_impl() {
   fi
 
   if ! (cd "$COMMAND_CODE_DATA_DIR" && npm install command-code@latest &>>"$LOG_FILE"); then
+  _fix_npm_shebang "command-code" || return 1
     log_error "Failed to install command-code package"
     return 1
   fi
@@ -168,6 +170,7 @@ _update_command_code_impl() {
 }
 
 reinstall_command_code() {
-  uninstall_command_code
+  uninstall_command_code || [[ $? -eq 2 ]] || return 1
+
   install_command_code
 }

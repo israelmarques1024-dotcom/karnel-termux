@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+import "@/utils/npm-shebang"
 
 import "@/utils/log"
 import "@/utils/version"
@@ -18,6 +19,7 @@ install_freebuff() {
 
   log_info "Installing Freebuff..."
   npm install -g freebuff || {
+  _fix_npm_shebang "freebuff" || return 1
     log_error "Failed to install Freebuff"
     return 1
   }
@@ -69,6 +71,7 @@ _do_update_freebuff() {
 }
 
 reinstall_freebuff() {
-  uninstall_freebuff
+  uninstall_freebuff || [[ $? -eq 2 ]] || return 1
+
   install_freebuff
 }

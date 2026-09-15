@@ -71,6 +71,7 @@ update_rust() {
 }
 
 reinstall_rust() {
-	uninstall_rust
+	uninstall_rust || [[ $? -eq 2 ]] || return 1
+
 	install_rust
 }

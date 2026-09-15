@@ -38,6 +38,7 @@ update_filecheck() {
 }
 
 reinstall_filecheck() {
-  uninstall_filecheck
+  uninstall_filecheck || [[ $? -eq 2 ]] || return 1
+
   install_filecheck
 }

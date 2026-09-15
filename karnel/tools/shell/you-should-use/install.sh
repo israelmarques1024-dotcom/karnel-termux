@@ -90,6 +90,7 @@ update_you_should_use() {
 }
 
 reinstall_you_should_use() {
-  uninstall_you_should_use
+  uninstall_you_should_use || [[ $? -eq 2 ]] || return 1
+
   install_you_should_use
 }

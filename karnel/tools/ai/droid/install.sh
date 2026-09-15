@@ -484,6 +484,7 @@ update_droid() {
 # ===== REINSTALL =====
 
 reinstall_droid() {
-  uninstall_droid
+  uninstall_droid || [[ $? -eq 2 ]] || return 1
+
   install_droid
 }

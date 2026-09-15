@@ -62,6 +62,7 @@ update_neovim() {
 }
 
 reinstall_neovim() {
-  uninstall_neovim
+  uninstall_neovim || [[ $? -eq 2 ]] || return 1
+
   install_neovim
 }

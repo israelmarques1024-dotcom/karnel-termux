@@ -90,6 +90,7 @@ update_powerlevel10k() {
 }
 
 reinstall_powerlevel10k() {
-  uninstall_powerlevel10k
+  uninstall_powerlevel10k || [[ $? -eq 2 ]] || return 1
+
   install_powerlevel10k
 }

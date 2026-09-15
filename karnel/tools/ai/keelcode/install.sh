@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+import "@/utils/npm-shebang"
 
 import "@/utils/log"
 import "@/utils/version"
@@ -187,6 +188,7 @@ install_keelcode() {
   log_info "Installing KeelCode..."
   local output rc
   output="$(npm install -g "$KEELCODE_PACKAGE" --force 2>&1)"
+  _fix_npm_shebang "keelcode" || return 1
   rc=$?
   printf '%s\n' "$output" | tail -3
   if ((rc != 0)); then

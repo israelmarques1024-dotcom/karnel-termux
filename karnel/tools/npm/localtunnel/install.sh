@@ -107,6 +107,7 @@ update_localtunnel() {
 }
 
 reinstall_localtunnel() {
-  uninstall_localtunnel
+  uninstall_localtunnel || [[ $? -eq 2 ]] || return 1
+
   install_localtunnel
 }

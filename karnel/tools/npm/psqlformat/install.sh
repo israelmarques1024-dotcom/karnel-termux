@@ -90,6 +90,7 @@ update_psqlformat() {
 }
 
 reinstall_psqlformat() {
-  uninstall_psqlformat
+  uninstall_psqlformat || [[ $? -eq 2 ]] || return 1
+
   install_psqlformat
 }

@@ -6,6 +6,7 @@
 # Official: npm install -g ctx7
 import "@/utils/log"
 import "@/utils/version"
+import "@/utils/npm-shebang"
 
 install_ctx7() {
   if command -v ctx7 &>/dev/null; then
@@ -23,10 +24,7 @@ install_ctx7() {
   log_info "Installing ctx7 (Context7 documentation provider)..."
   npm install -g ctx7 2>/dev/null
   local rc=$?
-
-  local _t
-  _t=$(readlink -f "$PREFIX/bin/ctx7" 2>/dev/null)
-  [ -f "$_t" ] && sed -i '1s|^#!/usr/bin/env node|#!/data/data/com.termux/files/usr/bin/env node|' "$_t"
+  _fix_npm_shebang "ctx7" || true
 
   if [[ $rc -eq 0 ]] && command -v ctx7 &>/dev/null; then
     log_success "ctx7 installed successfully"

@@ -102,6 +102,7 @@ update_fzf() {
 }
 
 reinstall_fzf() {
-	uninstall_fzf
+	uninstall_fzf || [[ $? -eq 2 ]] || return 1
+
 	install_fzf
 }

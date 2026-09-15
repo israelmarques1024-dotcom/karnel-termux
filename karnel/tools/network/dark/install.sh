@@ -39,6 +39,7 @@ update_dark() {
 }
 
 reinstall_dark() {
-  uninstall_dark
+  uninstall_dark || [[ $? -eq 2 ]] || return 1
+
   install_dark
 }

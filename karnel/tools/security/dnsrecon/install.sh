@@ -54,6 +54,7 @@ update_dnsrecon() {
 }
 
 reinstall_dnsrecon() {
-  uninstall_dnsrecon
+  uninstall_dnsrecon || [[ $? -eq 2 ]] || return 1
+
   install_dnsrecon
 }

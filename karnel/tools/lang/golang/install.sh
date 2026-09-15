@@ -71,6 +71,7 @@ update_golang() {
 }
 
 reinstall_golang() {
-	uninstall_golang
+	uninstall_golang || [[ $? -eq 2 ]] || return 1
+
 	install_golang
 }

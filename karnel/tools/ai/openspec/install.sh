@@ -6,6 +6,7 @@
 # Official: npm install -g @fission-ai/openspec@latest
 import "@/utils/log"
 import "@/utils/version"
+import "@/utils/npm-shebang"
 
 install_openspec() {
   if command -v openspec &>/dev/null; then
@@ -23,10 +24,7 @@ install_openspec() {
   log_info "Installing openspec (Spec-Driven Development framework)..."
   npm install -g @fission-ai/openspec@latest 2>/dev/null
   local rc=$?
-
-  local _t
-  _t=$(readlink -f "$PREFIX/bin/openspec" 2>/dev/null)
-  [ -f "$_t" ] && sed -i '1s|^#!/usr/bin/env node|#!/data/data/com.termux/files/usr/bin/env node|' "$_t"
+  _fix_npm_shebang "openspec" || true
 
   if [[ $rc -eq 0 ]] && command -v openspec &>/dev/null; then
     log_success "openspec installed successfully"

@@ -483,6 +483,7 @@ PY
 }
 
 reinstall_antigravity_cli() {
-  uninstall_antigravity_cli
+  uninstall_antigravity_cli || [[ $? -eq 2 ]] || return 1
+
   install_antigravity_cli
 }

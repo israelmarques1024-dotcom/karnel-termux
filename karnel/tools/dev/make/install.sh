@@ -73,6 +73,7 @@ update_make() {
 }
 
 reinstall_make() {
-	uninstall_make
+	uninstall_make || [[ $? -eq 2 ]] || return 1
+
 	install_make
 }

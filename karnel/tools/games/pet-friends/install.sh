@@ -39,6 +39,7 @@ update_pet_friends() {
 }
 
 reinstall_pet_friends() {
-  uninstall_pet_friends
+  uninstall_pet_friends || [[ $? -eq 2 ]] || return 1
+
   install_pet_friends
 }

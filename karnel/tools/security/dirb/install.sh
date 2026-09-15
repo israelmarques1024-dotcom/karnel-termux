@@ -38,6 +38,7 @@ update_dirb() {
 }
 
 reinstall_dirb() {
-  uninstall_dirb
+  uninstall_dirb || [[ $? -eq 2 ]] || return 1
+
   install_dirb
 }

@@ -73,6 +73,7 @@ update_shfmt() {
 }
 
 reinstall_shfmt() {
-	uninstall_shfmt
+	uninstall_shfmt || [[ $? -eq 2 ]] || return 1
+
 	install_shfmt
 }

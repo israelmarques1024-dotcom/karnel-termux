@@ -38,6 +38,7 @@ update_whois() {
 }
 
 reinstall_whois() {
-  uninstall_whois
+  uninstall_whois || [[ $? -eq 2 ]] || return 1
+
   install_whois
 }

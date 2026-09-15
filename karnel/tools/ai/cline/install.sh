@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+import "@/utils/npm-shebang"
 
 import "@/utils/log"
 import "@/utils/version"
@@ -124,6 +125,7 @@ _cline_install_global() {
 
 _cline_install_global_impl() {
   if ! npm i -g cline &>>"$LOG_FILE"; then
+  _fix_npm_shebang "cline" || return 1
     log_error "Failed to install cline via npm"
     return 1
   fi

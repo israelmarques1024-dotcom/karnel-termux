@@ -520,6 +520,7 @@ _update_kimchi_proot_impl() {
 # ===== REINSTALL =====
 
 reinstall_kimchi_code() {
-  uninstall_kimchi_code
+  uninstall_kimchi_code || [[ $? -eq 2 ]] || return 1
+
   install_kimchi_code
 }

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+import "@/utils/npm-shebang"
 
 import "@/utils/log"
 import "@/utils/version"
@@ -20,6 +21,7 @@ install_copilot_termux() {
   fi
 
   if ! npm install -g @bash0816/copilot-termux &>>"$LOG_FILE"; then
+  _fix_npm_shebang "copilot-termux" || return 1
     log_error "Failed to install Copilot-Termux via npm"
     return 1
   fi
@@ -75,6 +77,7 @@ _do_update_copilot_termux() {
 }
 
 reinstall_copilot_termux() {
-  uninstall_copilot_termux
+  uninstall_copilot_termux || [[ $? -eq 2 ]] || return 1
+
   install_copilot_termux
 }
