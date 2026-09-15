@@ -3,7 +3,7 @@
 import "@/utils/log"
 import "@/utils/version"
 
-LOG_FILE="$KARNEL_CACHE/install_dev.log"
+LOG_FILE="$KARNEL_CACHE/install_utils.log"
 
 _install_httptmux_npm() {
   loading "Installing httptmux via npm" _install_httptmux_npm_impl

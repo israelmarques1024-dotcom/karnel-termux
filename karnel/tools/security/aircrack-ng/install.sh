@@ -19,8 +19,12 @@ install_aircrack_ng() {
 
 uninstall_aircrack_ng() {
   log_info "Removendo $_TOOL..."
-  pkg uninstall -y "$_PKG" 2>/dev/null || true
-  log_success "$_TOOL removido"
+  if pkg uninstall -y "$_PKG" 2>/dev/null || apt remove -y "$_PKG" 2>/dev/null; then
+    log_success "$_TOOL removido"
+    return 0
+  fi
+  log_error "Falha ao remover $_TOOL"
+  return 1
 }
 
 update_aircrack_ng() {

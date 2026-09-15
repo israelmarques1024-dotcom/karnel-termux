@@ -4,7 +4,7 @@ import "@/utils/log"
 import "@/utils/version"
 import "@/utils/downloaded-python"
 
-LOG_FILE="$KARNEL_CACHE/install_dev.log"
+LOG_FILE="$KARNEL_CACHE/install_utils.log"
 DOWNLOAD_URL="https://raw.githubusercontent.com/dedsec1121fk/DedSec/87d69293f4b89b8ab114fa644074629e86313182/Scripts/Network%20Tools/QR%20Code%20Generator.py"
 
 _qrcode_dependencies() {

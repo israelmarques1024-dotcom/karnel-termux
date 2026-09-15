@@ -116,7 +116,7 @@ _install_opencode_proot_impl() {
     "$ubuntu_root" "$PREFIX/bin/opencode" || return 1
 
   if ! grep -q '.opencode/bin' "$ubuntu_root/root/.bashrc" 2>/dev/null; then
-    printf '\n# opencode\nexport PATH=/root/.opencode/bin:$PATH\n' >>"$ubuntu_root/root/.bashrc"
+    printf '\n# opencode\nexport PATH=/root/.opencode/bin:$PATH\n# end opencode\n' >>"$ubuntu_root/root/.bashrc"
   fi
 
   return 0
@@ -163,7 +163,7 @@ uninstall_opencode() {
   local ubuntu_root
   ubuntu_root="$(detect_ubuntu_root)/root/.bashrc"
   if [ -f "$ubuntu_root" ]; then
-    sed -i '/# opencode/d; /export PATH=\/root\/.opencode\/bin/d' "$ubuntu_root"
+    sed -i '/# opencode$/,/# end opencode$/d' "$ubuntu_root"
   fi
 
   if rm -f "$PREFIX/bin/opencode" &>>"$LOG_FILE"; then

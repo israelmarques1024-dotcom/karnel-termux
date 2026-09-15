@@ -4,7 +4,7 @@ import "@/utils/log"
 import "@/utils/version"
 import "@/utils/downloaded-python"
 
-LOG_FILE="$KARNEL_CACHE/install_dev.log"
+LOG_FILE="$KARNEL_CACHE/install_utils.log"
 
 install_passman() {
   local TOOL_DIR="$KARNEL_DATA/utils/passman"

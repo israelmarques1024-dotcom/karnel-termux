@@ -18,9 +18,13 @@ install_netcat() {
 }
 
 uninstall_netcat() {
-  log_info "Removendo netcat..."
-  pkg uninstall -y "$_PKG" 2>/dev/null || true
-  log_success "netcat removido"
+  log_info "Removendo $_TOOL..."
+  if pkg uninstall -y "$_PKG" 2>/dev/null || apt remove -y "$_PKG" 2>/dev/null; then
+    log_success "$_TOOL removido"
+    return 0
+  fi
+  log_error "Falha ao remover $_TOOL"
+  return 1
 }
 
 update_netcat() {
