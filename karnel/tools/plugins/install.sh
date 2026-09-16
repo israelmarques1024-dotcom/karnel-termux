@@ -582,7 +582,7 @@ _plugin_install_metadata_errors() {
     else
       . as $metadata |
       [
-        if (($metadata | keys | sort) != ["checksum", "commit", "name", "ref", "registryName", "repo", "schemaVersion", "source", "version"]) then "metadata has unknown or missing fields" else empty end,
+        if (($metadata | keys | sort) != ["checksum", "commit", "config", "enabled", "name", "ref", "registryName", "repo", "schemaVersion", "source", "version"]) then "metadata has unknown or missing fields" else empty end,
         if $metadata.schemaVersion != 1 then "metadata schemaVersion must be 1" else empty end,
         if (["registry", "unsafe", "local"] | index($metadata.source)) == null then "metadata source is invalid" else empty end,
         if ($metadata.name | safe_name | not) then "metadata name is invalid" else empty end,
@@ -933,7 +933,7 @@ _plugin_write_install_metadata() {
     --argjson ref "$ref_json" \
     --argjson commit "$commit_json" \
     --argjson registry_name "$registry_json" \
-    '{schemaVersion: 1, source: $source, name: $name, repo: $repo, ref: $ref, commit: $commit, version: $version, checksum: (if $checksum == "" then null else $checksum end), registryName: $registry_name}' >"$metadata"; then
+    '{schemaVersion: 1, source: $source, name: $name, repo: $repo, ref: $ref, commit: $commit, version: $version, checksum: (if $checksum == "" then null else $checksum end), registryName: $registry_name, enabled: true, config: {}}' >"$metadata"; then
     log_error "Failed to write installation metadata for '$name'."
     return 1
   fi
@@ -1327,6 +1327,72 @@ _plugin_read_metadata_field() {
   jq -r ".$field // empty" "$plugin_root/.karnel-install.json"
 }
 
+_plugin_is_enabled() {
+  local plugin_root="$1"
+  local enabled
+
+  enabled="$(_plugin_read_metadata_field "$plugin_root" enabled)"
+  [[ "$enabled" != "false" ]]
+}
+
+_plugin_set_enabled() {
+  local plugin_root="$1"
+  local enabled="$2"
+  local metadata="$plugin_root/.karnel-install.json"
+
+  if ! jq --arg val "$enabled" '.enabled = $val' "$metadata" >"$metadata.tmp"; then
+    log_error "Failed to update enabled state."
+    return 1
+  fi
+  if ! mv -- "$metadata.tmp" "$metadata"; then
+    log_error "Failed to persist enabled state."
+    return 1
+  fi
+}
+
+_plugin_get_config() {
+  local plugin_root="$1"
+  local key="${2:-}"
+  local metadata="$plugin_root/.karnel-install.json"
+
+  if [[ -z "$key" ]]; then
+    jq -r '.config // {}' "$metadata"
+  else
+    jq -r --arg k "$key" '.config[$k] // empty' "$metadata"
+  fi
+}
+
+_plugin_set_config() {
+  local plugin_root="$1"
+  local key="$2"
+  local value="$3"
+  local metadata="$plugin_root/.karnel-install.json"
+
+  if ! jq --arg k "$key" --arg v "$value" '.config[$k] = $v' "$metadata" >"$metadata.tmp"; then
+    log_error "Failed to set config '$key'."
+    return 1
+  fi
+  if ! mv -- "$metadata.tmp" "$metadata"; then
+    log_error "Failed to persist config."
+    return 1
+  fi
+}
+
+_plugin_delete_config() {
+  local plugin_root="$1"
+  local key="$2"
+  local metadata="$plugin_root/.karnel-install.json"
+
+  if ! jq --arg k "$key" 'del(.config[$k])' "$metadata" >"$metadata.tmp"; then
+    log_error "Failed to delete config '$key'."
+    return 1
+  fi
+  if ! mv -- "$metadata.tmp" "$metadata"; then
+    log_error "Failed to persist config."
+    return 1
+  fi
+}
+
 update_plugin() {
   local name="$1"
   local unsafe_flag="${2:-}"
@@ -1536,7 +1602,11 @@ _list_plugins() {
     description="$(jq -r '.description' "$manifest")" || return 1
     version="$(jq -r '.version' "$manifest")" || return 1
     source="$(_plugin_read_metadata_field "$plugin_root" source)" || return 1
-    printf "  ${D_GREEN}%-20s${NC} v%-10s [%s] %s\n" "$name" "$version" "$source" "$description"
+    if _plugin_is_enabled "$plugin_root"; then
+      printf "  ${D_GREEN}%-20s${NC} v%-10s [%s] %s\n" "$name" "$version" "$source" "$description"
+    else
+      printf "  ${D_YELLOW}%-20s${NC} v%-10s [%s] [disabled] %s\n" "$name" "$version" "$source" "$description"
+    fi
     found=1
   done
 
@@ -1559,6 +1629,9 @@ _plugin_collect_commands() {
       return 1
     fi
     plugin_root="$(_plugin_validate_installed_plugin "$plugin_dir" "$name")" || return 1
+    if ! _plugin_is_enabled "$plugin_root"; then
+      continue
+    fi
     while IFS= read -r command_name; do
       printf '%s\t%s\t%s\n' "$name" "$plugin_root/commands/$command_name.sh" "$command_name"
     done < <(jq -r '.commands[]' "$plugin_root/karnel-plugin.json")

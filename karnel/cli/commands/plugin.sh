@@ -25,6 +25,23 @@ plugin_main() {
   update)
     _plugin_update_main "$@"
     ;;
+  enable)
+    if [[ $# -ne 1 ]]; then
+      log_error "Usage: karnel plugin enable <name>"
+      return 1
+    fi
+    _plugin_enable "$1"
+    ;;
+  disable)
+    if [[ $# -ne 1 ]]; then
+      log_error "Usage: karnel plugin disable <name>"
+      return 1
+    fi
+    _plugin_disable "$1"
+    ;;
+  config)
+    _plugin_config_main "$@"
+    ;;
   list|ls)
     if [[ $# -ne 0 ]]; then
       log_error "Usage: karnel plugin list"
@@ -85,6 +102,114 @@ _plugin_install_main() {
   install_plugin "$target" "$unsafe_flag"
 }
 
+_plugin_enable() {
+  local name="$1"
+  local plugin_dir plugin_root
+
+  _plugin_validate_name "$name" || return 1
+  _plugin_require_jq || return 1
+  _plugin_prepare_plugins_dir || return 1
+  plugin_dir="$PLUGINS_DIR/$name"
+  if [[ ! -d "$plugin_dir" ]]; then
+    log_error "Plugin '$name' is not installed."
+    return 1
+  fi
+  plugin_root="$(_plugin_validate_installed_plugin "$plugin_dir" "$name")" || return 1
+  if _plugin_is_enabled "$plugin_root"; then
+    log_info "Plugin '$name' is already enabled."
+    return 0
+  fi
+  _plugin_set_enabled "$plugin_root" "true" || return 1
+  log_success "Plugin '$name' enabled."
+}
+
+_plugin_disable() {
+  local name="$1"
+  local plugin_dir plugin_root
+
+  _plugin_validate_name "$name" || return 1
+  _plugin_require_jq || return 1
+  _plugin_prepare_plugins_dir || return 1
+  plugin_dir="$PLUGINS_DIR/$name"
+  if [[ ! -d "$plugin_dir" ]]; then
+    log_error "Plugin '$name' is not installed."
+    return 1
+  fi
+  plugin_root="$(_plugin_validate_installed_plugin "$plugin_dir" "$name")" || return 1
+  if ! _plugin_is_enabled "$plugin_root"; then
+    log_info "Plugin '$name' is already disabled."
+    return 0
+  fi
+  _plugin_set_enabled "$plugin_root" "false" || return 1
+  log_success "Plugin '$name' disabled."
+}
+
+_plugin_config_main() {
+  if [[ $# -eq 0 ]]; then
+    log_error "Usage: karnel plugin config <name> [key] [value]"
+    log_info "  karnel plugin config <name>           Show all config"
+    log_info "  karnel plugin config <name> <key>     Get a config value"
+    log_info "  karnel plugin config <name> <key> <value>  Set a config value"
+    log_info "  karnel plugin config <name> --delete <key>  Delete a config key"
+    return 1
+  fi
+
+  local name="$1"
+  shift
+  local plugin_dir plugin_root
+
+  _plugin_validate_name "$name" || return 1
+  _plugin_require_jq || return 1
+  _plugin_prepare_plugins_dir || return 1
+  plugin_dir="$PLUGINS_DIR/$name"
+  if [[ ! -d "$plugin_dir" ]]; then
+    log_error "Plugin '$name' is not installed."
+    return 1
+  fi
+  plugin_root="$(_plugin_validate_installed_plugin "$plugin_dir" "$name")" || return 1
+
+  if [[ $# -eq 0 ]]; then
+    local config
+    config="$(_plugin_get_config "$plugin_root")"
+    if [[ "$config" == "{}" ]]; then
+      log_info "Plugin '$name' has no configuration."
+    else
+      echo "$config" | jq -r 'to_entries[] | "  \(.key) = \(.value)"'
+    fi
+    return 0
+  fi
+
+  if [[ "$1" == "--delete" ]]; then
+    if [[ $# -ne 2 ]]; then
+      log_error "Usage: karnel plugin config <name> --delete <key>"
+      return 1
+    fi
+    _plugin_delete_config "$plugin_root" "$2" || return 1
+    log_success "Config '$2' deleted from plugin '$name'."
+    return 0
+  fi
+
+  if [[ $# -eq 1 ]]; then
+    local val
+    val="$(_plugin_get_config "$plugin_root" "$1")"
+    if [[ -z "$val" ]]; then
+      log_info "Config '$1' is not set for plugin '$name'."
+    else
+      echo "$val"
+    fi
+    return 0
+  fi
+
+  if [[ $# -eq 2 ]]; then
+    _plugin_set_config "$plugin_root" "$1" "$2" || return 1
+    log_success "Config '$1' set for plugin '$name'."
+    return 0
+  fi
+
+  log_error "Usage: karnel plugin config <name> [key] [value]"
+  return 1
+}
+
 _plugin_update_main() {
   local name=""
   local unsafe_flag=""
@@ -132,6 +257,9 @@ plugin_help() {
   printf "    ${D_CYAN}%-30s${NC} %s\n" "install <owner/repo> --unsafe" "Install an unreviewed plugin after confirmation"
   printf "    ${D_CYAN}%-30s${NC} %s\n" "remove <name>" "Remove a plugin safely"
   printf "    ${D_CYAN}%-30s${NC} %s\n" "update <name>" "Atomically update an approved plugin"
+  printf "    ${D_CYAN}%-30s${NC} %s\n" "enable <name>" "Enable a disabled plugin"
+  printf "    ${D_CYAN}%-30s${NC} %s\n" "disable <name>" "Disable a plugin without removing it"
+  printf "    ${D_CYAN}%-30s${NC} %s\n" "config <name> [key] [value]" "View or set per-plugin configuration"
   printf "    ${D_CYAN}%-30s${NC} %s\n" "list" "List installed plugins and trust source"
   printf "    ${D_CYAN}%-30s${NC} %s\n" "search [query] [filters]" "Search the approved registry"
   printf "    ${D_CYAN}%-30s${NC} %s\n" "create <name>" "Create a validated local plugin"
@@ -151,6 +279,9 @@ plugin_help() {
   echo "  karnel plugin install karnel-hello"
   echo "  karnel plugin install username/repo --unsafe"
   echo "  karnel plugin update karnel-hello"
+  echo "  karnel plugin enable karnel-hello"
+  echo "  karnel plugin disable karnel-hello"
+  echo "  karnel plugin config karnel-hello greeting 'Hello World'"
   echo "  karnel plugin remove karnel-hello"
 }
 
