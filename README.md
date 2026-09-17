@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/israelmarques1024-dotcom/karnel-termux">
-    <img src="https://img.shields.io/badge/version-4.17.36-0078D4?style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/badge/version-4.17.40-0078D4?style=for-the-badge" alt="Version">
   </a>
   <a href="https://www.npmjs.com/package/karnel-termux">
     <img src="https://img.shields.io/npm/v/karnel-termux?style=for-the-badge&logo=npm&color=cb3837" alt="npm">
@@ -78,7 +78,7 @@ Why it's great:
 ### Via checksummed GitHub release (recommended)
 
 ```bash
-version=4.17.36
+version=4.17.40
 tmpdir=$(mktemp -d) && trap 'rm -rf "$tmpdir"' EXIT
 base="https://github.com/israelmarques1024-dotcom/karnel-termux/releases/download/v$version"
 curl -fsSL "$base/karnel-termux-install.sh" -o "$tmpdir/karnel-termux-install.sh"
@@ -140,6 +140,11 @@ aliases, or options; use `karnel help` and the CLI reference for the full set.
 | `karnel uninstall <module>` | Remove installed modules |
 | `karnel reinstall <module>` | Reinstall modules |
 | `karnel upgrade` | Upgrade the framework (self-update) |
+| `karnel ia` | Manage AI agent sessions, install tools, show launchers |
+| `karnel search <query>` | Search tools and Brain memories |
+| `karnel status` | System health dashboard (disk, RAM, services, connectivity) |
+| `karnel start editor [port]` | Start code-server (VS Code in browser) |
+| `karnel start robin` | Start Robin OSINT (Tor + web UI) |
 | `karnel doctor termux` | Diagnose the Termux environment (30+ sections) |
 | `karnel doctor code` | Detect project ecosystems and run code checks |
 | `karnel doctor robin` | Diagnose Robin, Tor, dependencies, and local UI |
@@ -147,7 +152,6 @@ aliases, or options; use `karnel help` and the CLI reference for the full set.
 | `karnel env` | Manage environment variables |
 | `karnel voice` | Voice commands for AI agents |
 | `karnel agent` | Local AI assistant — chat (`ask`) and task agent (`run`) |
-| `karnel start editor` | Start code-server (VS Code in browser) |
 | `karnel pg` | PostgreSQL manager |
 | `karnel init <template>` | Initialize projects with templates |
 | `karnel deploy` | Run Vercel, Railway, Netlify, or Supabase CLI commands |
@@ -202,15 +206,22 @@ karnel plugin search
 karnel plugin search backup --compatible
 karnel plugin install karnel-hello
 karnel plugin update karnel-hello
+karnel plugin enable karnel-hello
+karnel plugin disable karnel-hello
+karnel plugin config karnel-hello greeting "Hello"
 karnel plugin list
 karnel plugin remove karnel-hello
-karnel plugin create meu-plugin
+karnel plugin create my-plugin
 ```
 
 Plugins are Bash code loaded by the Karnel process and run with the current
 user's permissions. They are not sandboxed. Registry plugins have reviewed
 metadata and are staged, validated, and atomically activated, but you should
 still review code you do not trust.
+
+Use `karnel plugin disable` to temporarily stop a plugin without removing it,
+and `karnel plugin enable` to reactivate it. Per-plugin configuration is
+supported with `karnel plugin config <name> [key] [value]`.
 
 Each Karnel release pins and verifies one reviewed registry snapshot. New
 registry entries become available after updating Karnel to a release that
