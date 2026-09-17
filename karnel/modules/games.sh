@@ -8,6 +8,7 @@ LOG_FILE="$KARNEL_CACHE/install_games.log"
 install_games() {
   separator; box "Installing Games"; separator; echo
   log_info "Installing games..."
+  mkdir -p "$(dirname "$LOG_FILE")"
   local rc=0
   import "@/tools/games/all"
   install_all_games || rc=$?
@@ -41,6 +42,7 @@ update_games() {
 reinstall_games() {
   separator; box "Reinstalling Games"; separator; echo
   log_info "Reinstalling games..."
+  mkdir -p "$(dirname "$LOG_FILE")"
   local rc=0
   import "@/tools/games/all"
   reinstall_all_games || rc=$?

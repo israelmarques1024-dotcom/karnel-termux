@@ -8,6 +8,7 @@ LOG_FILE="$KARNEL_CACHE/install_deploy.log"
 install_deploy() {
   separator; box "Installing Deploy CLIs"; separator; echo
   log_info "Installing deploy tools..."
+  mkdir -p "$(dirname "$LOG_FILE")"
   local rc=0
   import "@/tools/deploy/all"
   install_all_deploy_tools || rc=$?
@@ -41,6 +42,7 @@ update_deploy() {
 reinstall_deploy() {
   separator; box "Reinstalling Deploy CLIs"; separator; echo
   log_info "Reinstalling deploy tools..."
+  mkdir -p "$(dirname "$LOG_FILE")"
   local rc=0
   import "@/tools/deploy/all"
   reinstall_all_deploy_tools || rc=$?

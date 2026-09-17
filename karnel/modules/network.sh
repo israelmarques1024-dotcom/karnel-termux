@@ -8,6 +8,7 @@ LOG_FILE="$KARNEL_CACHE/install_network.log"
 install_network() {
   separator; box "Installing Network Tools"; separator; echo
   log_info "Installing network tools..."
+  mkdir -p "$(dirname "$LOG_FILE")"
   local rc=0
   import "@/tools/network/all"
   install_all_network || rc=$?
@@ -41,6 +42,7 @@ update_network() {
 reinstall_network() {
   separator; box "Reinstalling Network Tools"; separator; echo
   log_info "Reinstalling network tools..."
+  mkdir -p "$(dirname "$LOG_FILE")"
   local rc=0
   import "@/tools/network/all"
   reinstall_all_network || rc=$?

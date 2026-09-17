@@ -8,6 +8,7 @@ LOG_FILE="$KARNEL_CACHE/install_utils.log"
 install_utils() {
   separator; box "Installing Utility Tools"; separator; echo
   log_info "Installing utility tools..."
+  mkdir -p "$(dirname "$LOG_FILE")"
   local rc=0
   import "@/tools/utils/all"
   install_all_utils || rc=$?
@@ -41,6 +42,7 @@ update_utils() {
 reinstall_utils() {
   separator; box "Reinstalling Utility Tools"; separator; echo
   log_info "Reinstalling utility tools..."
+  mkdir -p "$(dirname "$LOG_FILE")"
   local rc=0
   import "@/tools/utils/all"
   reinstall_all_utils || rc=$?
