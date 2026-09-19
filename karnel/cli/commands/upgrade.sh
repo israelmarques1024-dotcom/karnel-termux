@@ -26,7 +26,11 @@ upgrade_main() {
   echo
   log_info "Running cleanup..."
   import "@/cli/commands/cleanup"
-  cleanup_main
+  local cleanup_rc=0
+  cleanup_main || cleanup_rc=$?
+  if [[ "$cleanup_rc" -ne 0 ]]; then
+    log_warn "Cleanup completed with warnings"
+  fi
   echo
   log_success "Karnel is up to date (v$KARNEL_VERSION)"
   echo

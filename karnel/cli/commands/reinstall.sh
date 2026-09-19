@@ -131,8 +131,8 @@ _reinstall_full_module() {
     reinstall_auto
     ;;
   games)
-    import "@/tools/games/all"
-    reinstall_all_games
+    import "@/modules/games"
+    reinstall_games
     ;;
   deploy)
     import "@/modules/deploy"
@@ -683,10 +683,10 @@ _reinstall_specific_tools() {
     _batch_tool_action "utils" "reinstall" "${tools[@]}" || return 1
     ;;
   security|deploy)
-    _batch_tool_action "$module" "reinstall" "${tools[@]}" || return 1
+    _batch_tool_action "$target" "reinstall" "${tools[@]}" || return 1
     ;;
   *)
-    log_warn "Unknown reinstall target: $module"
+    log_warn "Unknown reinstall target: $target"
     echo "Run 'karnel reinstall' to see available targets"
     return 1
     ;;

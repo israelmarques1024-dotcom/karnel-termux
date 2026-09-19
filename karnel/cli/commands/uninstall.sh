@@ -149,8 +149,8 @@ _uninstall_full_module() {
     uninstall_security
     ;;
   games)
-    import "@/tools/games/all"
-    uninstall_all_games
+    import "@/modules/games"
+    uninstall_games
     ;;
   supabase)
     import "@/tools/deploy/supabase/install"

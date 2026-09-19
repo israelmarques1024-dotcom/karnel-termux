@@ -4,8 +4,8 @@ import "@/utils/log"
 import "@/utils/colors"
 
 # AI Manager (karnel ia) — router for all AI agents and sessions
-IA_SESSIONS_DIR="$HOME/.local/share/karnel-data/ia/sessions"
-IA_DATA_DIR="$HOME/.local/share/karnel-data/ia"
+IA_SESSIONS_DIR="${KARNEL_DATA:-$HOME/.local/share/karnel-data}/ia/sessions"
+IA_DATA_DIR="${KARNEL_DATA:-$HOME/.local/share/karnel-data}/ia"
 
 ia_help() {
 	echo

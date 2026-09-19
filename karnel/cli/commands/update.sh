@@ -131,8 +131,8 @@ _update_full_module() {
     update_auto
     ;;
   games)
-    import "@/tools/games/all"
-    update_all_games
+    import "@/modules/games"
+    update_games
     ;;
   osint)
     import "@/modules/osint"

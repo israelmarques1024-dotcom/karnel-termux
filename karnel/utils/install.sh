@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-LOG_FILE="${LOG_FILE:-$KARNEL_CACHE/install_ai.log}"
+LOG_FILE="${LOG_FILE:-$KARNEL_CACHE/install.log}"
 
 # ── Dependency installation ────────────────────────────────────
 
